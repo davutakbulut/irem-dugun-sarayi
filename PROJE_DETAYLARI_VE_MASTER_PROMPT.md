@@ -1,7 +1,15 @@
 # 🏰 İREM DÜĞÜN SARAYI & ORGANİZASYON PLATFORMU
 ## KAPSAMLI PROJE DETAYLARI VE MASTER PROMPT DOSYASI
 
-> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), 3-Adımlı Rezervasyon Sihirbazı, Resmi Sözleşme Çıktısı, MySQL veritabanı şeması ve eklenen eklentilerin (plugins) detaylarını içeren tam kapsamlı master referans kılavuzudur.
+> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), 3-Adımlı Rezervasyon Sihirbazı, Resmi Sözleşme Çıktısı, Kalıcı Geliştirme Kuralları ve eklenen eklentilerin (plugins) detaylarını içeren tam kapsamlı master referans kılavuzudur.
+
+---
+
+## 🛑 KRİTİK GELİŞTİRME & TEST KURALI (USER DIRECTIVE)
+
+> **[ÖNEMLİ TALİMAT]:** Her işlem/kod değişikliğinden önce ve sonra:
+> 1. **Çok Yönlü Yetenek Değerlendirmesi:** Alınan karar ve çözümün mantıklı olup olmadığı tüm beceriler (`frontend-design`, `security-guidance`, `superpowers`, `claude-mem`) açısından sorgulanacaktır.
+> 2. **Zorunlu Canlı Test:** Yapılan her işlemden sonra uygulama **mutlaka** canlı tarayıcı test ajanları (`Chrome_DevTools_Test_Agent`) veya otomatik test komutları ile doğrulanacak, test edilmeden işlem tamamlandı denmeyecektir!
 
 ---
 
@@ -54,19 +62,12 @@
 ---
 
 ## 5. YAZDIRILABİLİR RESMİ DÜĞÜN SÖZLEŞMESİ VE FATURA ÇIKTISI
-- Rezervasyon detayından tek tıkla açılan antetli resmi yazdırma şablonu:
-  - Şirket Vergi Kimlik No (VKN: 4820192837), Sapanca adresi.
-  - Müşteri TC/VKN bilgileri.
-  - Salon kiralama ve seçilen tüm ek hizmet kalemlerinin dökümü.
-  - %20 KDV, Kapora ve Kalan Bakiye hesaplaması.
-  - Karşılıklı Yetkili ve Müşteri İmza & Kaşe kutuları.
+- Rezervasyon detayından tek tıkla açılan antetli resmi yazdırma şablonu.
 
 ---
 
 ## 6. TEMA, KURUMSAL DİL & DİNAMİK RENK PALETİ
-- **Varsayılan Tema:** **Şık Krem / Beyaz Kurumsal Mod (Fresh White & Cream Corporate Mode)**.
-- **Alternatif Tema:** **Gece Lüks Şampanya Modu (Dark Mode)**.
-- **Canlı Renk Özelleştirici (Customizer):** Header alanındaki `🎨` renk butonu ile ana renk paleti anlık olarak değiştirilebilir.
+- **Varsayılan Tema:** **Şık Krem / Beyaz Kurumsal Mod**.
 
 ---
 
@@ -76,32 +77,7 @@
 ---
 
 ## 8. YETKİSİZ ERİŞİM (403 ACCESS DENIED) GÜVENLİK MODÜLÜ
-- Yetkisiz modül erişimlerinde otomatik devreye giren şık güvenlik uyarı ekranı.
-
----
-
-## 9. TEMİZ ASCII URL YÖNLENDİRME (ROUTING) KURALLARI
-- `#/anasayfa`, `#/dugun-salonlari`, `#/ek-hizmetler`, `#/rezervasyonlar`, `#/takvim`, `#/kampanyalar`, `#/finans`, `#/musteri-rehberi`, `#/kullanici-yonetimi`, `#/raporlar-ai`, `#/medya-yukle`.
-
----
-
-## 10. MYSQL VERİTABANI MİMARİSİ (schema.sql)
-- `venues`, `services`, `campaigns`, `customers`, `users`, `reservations`, `reservation_services`, `reservation_flow`, `reservation_media`.
-
----
-
-## 11. ÇAKIŞMA ÖNLEME (COLLISION CHECK) & ZAMAN DİLİMLERİ
-- **Zaman Dilimleri:** `13:00 - 17:00` (Gündüz) ve `19:00 - 23:00` (Gece).
-
----
-
-## 12. FİNANSAL HESAPLAMALAR, KDV %20 & FATURA OTOMASYONU
-- Ara toplam, %20 KDV, kapora ve net bakiye otomasyonu.
-
----
-
-## 13. OTOMATİK İLETİŞİM & WHATSAPP ENTEGRASYONU
-- Müşteri adı, sözleşme tarihi ve kalan bakiye içeren resmi doğrudan WhatsApp mesaj bağlantısı (`https://wa.me/...`).
+- Yetkisiz modül erişimlerinde otomatik devreye giren şık 403 güvenlik uyarı ekranı.
 
 ---
 *İrem Düğün Sarayı & Organizasyon Şirketi Mimarisi - Tüm Hakları Saklıdır (2026).*
