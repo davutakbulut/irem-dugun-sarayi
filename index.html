@@ -636,10 +636,6 @@
                     onClick={() => {
                       setActiveRole(r.id);
                       showToast(`Rol Değiştirildi: ${r.label}`);
-                      const allowedRoles = TAB_PERMISSIONS[activeTab] || ['admin'];
-                      if (!allowedRoles.includes(r.id)) {
-                        navigateTo('dashboard');
-                      }
                     }}
                     className={`px-3 py-1 text-xs font-semibold rounded-full transition ${
                       activeRole === r.id ? 'gold-button font-bold shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900'
