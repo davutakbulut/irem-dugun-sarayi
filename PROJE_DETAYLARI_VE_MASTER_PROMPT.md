@@ -1,7 +1,7 @@
 # 🏰 İREM DÜĞÜN SARAYI & ORGANİZASYON PLATFORMU
 ## KAPSAMLI PROJE DETAYLARI VE MASTER PROMPT DOSYASI
 
-> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), finansal kuralları ve UI/UX detaylarını içeren tam kapsamlı master referans kılavuzudur.
+> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), MySQL veritabanı şeması ve UI/UX detaylarını içeren tam kapsamlı master referans kılavuzudur.
 
 ---
 
@@ -12,10 +12,11 @@
 4. [Rol Tabanlı Erişim Kontrolü (RBAC) Yetki Matrisi](#4-rol-tabanlı-erişim-kontrolü-rbac-yetki-matrisi)
 5. [Yetkisiz Erişim (403 Access Denied) Güvenlik Modülü](#5-yetkisiz-erişim-403-access-denied-güvenlik-modülü)
 6. [Temiz ASCII URL Yönlendirme (Routing) Kuralları](#6-temiz-ascii-url-yönlendirme-routing-kuralları)
-7. [Çakışma Önleme (Collision Check) & Zaman Dilimleri](#7-çakışma-önleme-collision-check--zaman-dilimleri)
-8. [Finansal Hesaplamalar, KDV %20 & Fatura Otomasyonu](#8-finansal-hesaplamalar-kdv-20--fatura-otomasyonu)
-9. [Otomatik İletişim & WhatsApp Entegrasyonu](#9-otomatik-iletişim--whatsapp-entegrasyonu)
-10. [Yapay Zeka (AI) Destekli Raporlar ve Öneriler](#10-yapay-zeka-ai-destekli-raporlar-ve-öneriler)
+7. [MySQL Veritabanı Mimarisi (schema.sql)](#7-mysql-veritabanı-mimarisi-schemasql)
+8. [Çakışma Önleme (Collision Check) & Zaman Dilimleri](#8-çakışma-önleme-collision-check--zaman-dilimleri)
+9. [Finansal Hesaplamalar, KDV %20 & Fatura Otomasyonu](#9-finansal-hesaplamalar-kdv-20--fatura-otomasyonu)
+10. [Otomatik İletişim & WhatsApp Entegrasyonu](#10-otomatik-iletişim--whatsapp-entegrasyonu)
+11. [Yapay Zeka (AI) Destekli Raporlar ve Öneriler](#11-yapay-zeka-ai-destekli-raporlar-ve-öneriler)
 
 ---
 
@@ -29,9 +30,9 @@
 
 ## 2. TEKNİK YIĞIN VE MİMARİ İLKELER
 1. **Frontend Core:** React 18 (JS/JSX) + Semantik HTML5.
-2. **Single Page Application (SPA):** Tüm sekme geçişleri, modallar ve bildirimler **sayfa yenilenmeden** gerçekleşir.
-3. **Stil Sistem:** Tailwind CSS + Custom CSS Variables + Lucide Icons + Google Fonts (Inter & Outfit).
-4. **Veri Yönetimi:** React State & In-Memory / LocalStorage mock veritabanı.
+2. **Backend API & Database:** Node.js (Express.js) + MySQL 8.0 (`schema.sql`).
+3. **Single Page Application (SPA):** Tüm sekme geçişleri, modallar ve bildirimler **sayfa yenilenmeden** gerçekleşir.
+4. **Stil Sistem:** Tailwind CSS + Custom CSS Variables + Lucide Icons + Google Fonts (Inter & Outfit).
 
 ---
 
@@ -74,29 +75,32 @@ Sistemde 4 farklı kullanıcı rolü tanımlanmıştır:
 
 ## 6. TEMİZ ASCII URL YÖNLENDİRME (ROUTING) KURALLARI
 URL adreslerinde rol parametreleri (`?rol=...`) kaldırılmış ve Türkçe karakter içermeyen temiz ASCII bağlantılar kullanılmıştır:
-
-- `#/anasayfa`
-- `#/dugun-salonlari`
-- `#/ek-hizmetler`
-- `#/rezervasyonlar`
-- `#/takvim`
-- `#/kampanyalar`
-- `#/finans`
-- `#/musteri-rehberi`
-- `#/kullanici-yonetimi`
-- `#/raporlar-ai`
-- `#/medya-yukle`
+- `#/anasayfa`, `#/dugun-salonlari`, `#/ek-hizmetler`, `#/rezervasyonlar`, `#/takvim`, `#/kampanyalar`, `#/finans`, `#/musteri-rehberi`, `#/kullanici-yonetimi`, `#/raporlar-ai`, `#/medya-yukle`.
 
 ---
 
-## 7. ÇAKIŞMA ÖNLEME (COLLISION CHECK) & ZAMAN DİLİMLERİ
-Aynı salonda, aynı tarihte çift rezervasyon (çakışma) yapılmasını engeller.
+## 7. MYSQL VERİTABANI MİMARİSİ (schema.sql)
+Projenin kalıcı MySQL ilişkisel veritabanı mimarisi ve tabloları:
+1. `venues`: Düğün salonları, kapasiteler, fiyatlar ve özellikler.
+2. `services`: Yemek, fotoğraf, orkestra vb. ek hizmetler.
+3. `campaigns`: İndirim kuponları ve hediye paketleri.
+4. `customers`: Bireysel/Kurumsal müşteri rehberi, TC/VKN bilgileri.
+5. `users`: Sistem kullanıcıları, şifre karmaları ve rolleri (RBAC).
+6. `reservations`: Rezervasyon sözleşmeleri, çakışma anahtarları (`unique_venue_slot`), ödeme ve KDV tutarları.
+7. `reservation_services`: Rezervasyona eklenen hizmetler ve miktarları.
+8. `reservation_flow`: Etkinlik gün içi saatlik akış planı.
+9. `reservation_media`: Fotoğraf ve video galeri yüklemeleri.
+
+---
+
+## 8. ÇAKIŞMA ÖNLEME (COLLISION CHECK) & ZAMAN DİLİMLERİ
+Aynı salonda, aynı tarihte çift rezervasyon yapılmasını engeller.
 - **Zaman Dilimleri:** `13:00 - 17:00` (Gündüz) ve `19:00 - 23:00` (Gece).
-- Çakışma tespit edildiğinde sistem rezervasyonu engeller ve kullanıcıyı uyarır.
+- **MySQL Unique Constraint:** `UNIQUE KEY unique_venue_slot (venue_id, event_date, time_slot)`.
 
 ---
 
-## 8. FİNANSAL HESAPLAMALAR, KDV %20 & FATURA OTOMASYONU
+## 9. FİNANSAL HESAPLAMALAR, KDV %20 & FATURA OTOMASYONU
 - **Ara Toplam:** Salon Fiyatı + Seçilen Ek Hizmetler (Kişi Sayısı x Birim Fiyat).
 - **Kampanya İndirimi:** İndirim tutarı ara toplamdan düşülür.
 - **KDV Oranı:** Kalan tutar üzerinden **%20 KDV** eklenir.
@@ -104,12 +108,12 @@ Aynı salonda, aynı tarihte çift rezervasyon (çakışma) yapılmasını engel
 
 ---
 
-## 9. OTOMATİK İLETİŞİM & WHATSAPP ENTEGRASYONU
+## 10. OTOMATİK İLETİŞİM & WHATSAPP ENTEGRASYONU
 - Müşteri kartında yer alan WhatsApp butonları ile müşterinin telefon numarasına otomatik kişiselleştirilmiş doğrudan mesaj bağlantısı (`https://wa.me/...`) üretilir.
 
 ---
 
-## 10. YAPAY ZEKA (AI) DESTEKLİ RAPORLAR VE ÖNERİLER
+## 11. YAPAY ZEKA (AI) DESTEKLİ RAPORLAR VE ÖNERİLER
 - Hafta içi düşük doluluk oranlarına sahip günleri tespit ederek otomatik indirim ve kampanya paketleri önerir.
 - Sık birlikte satın alınan ek hizmetleri analiz ederek avantajlı düğün paketleri oluşturma teklifleri sunar.
 
