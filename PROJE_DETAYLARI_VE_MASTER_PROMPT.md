@@ -1,7 +1,7 @@
 # 🏰 İREM DÜĞÜN SARAYI & ORGANİZASYON PLATFORMU
 ## KAPSAMLI PROJE DETAYLARI VE MASTER PROMPT DOSYASI
 
-> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), MySQL veritabanı şeması ve eklenen eklentilerin (plugins) detaylarını içeren tam kapsamlı master referans kılavuzudur.
+> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), 3-Adımlı Rezervasyon Sihirbazı, Resmi Sözleşme Çıktısı, MySQL veritabanı şeması ve eklenen eklentilerin (plugins) detaylarını içeren tam kapsamlı master referans kılavuzudur.
 
 ---
 
@@ -9,15 +9,16 @@
 1. [Proje Hakkında & Genel Bilgiler](#1-proje-hakkında--genel-bilgiler)
 2. [Teknik Yığın ve Mimari İlkeler](#2-teknik-yığın-ve-mimari-ilkeler)
 3. [Eklenen Eklentiler & Beceriler (Plugins & Skills)](#3-eklenen-eklentiler--beceriler-plugins--skills)
-4. [Tema, Kurumsal Dil & Dinamik Renk Paleti](#4-tema-kurumsal-dil--dinamik-renk-paleti)
-5. [Rol Tabanlı Erişim Kontrolü (RBAC) Yetki Matrisi](#5-rol-tabanlı-erişim-kontrolü-rbac-yetki-matrisi)
-6. [Yetkisiz Erişim (403 Access Denied) Güvenlik Modülü](#6-yetkisiz-erişim-403-access-denied-güvenlik-modülü)
-7. [Temiz ASCII URL Yönlendirme (Routing) Kuralları](#7-temiz-ascii-url-yönlendirme-routing-kuralları)
-8. [MySQL Veritabanı Mimarisi (schema.sql)](#8-mysql-veritabanı-mimarisi-schemasql)
-9. [Çakışma Önleme (Collision Check) & Zaman Dilimleri](#9-çakışma-önleme-collision-check--zaman-dilimleri)
-10. [Finansal Hesaplamalar, KDV %20 & Fatura Otomasyonu](#10-finansal-hesaplamalar-kdv-20--fatura-otomasyonu)
-11. [Otomatik İletişim & WhatsApp Entegrasyonu](#11-otomatik-iletişim--whatsapp-entegrasyonu)
-12. [Yapay Zeka (AI) Destekli Raporlar ve Öneriler](#12-yapay-zeka-ai-destekli-raporlar-ve-öneriler)
+4. [3-Adımlı Yeni Rezervasyon & Sözleşme Sihirbazı](#4-3-adımlı-yeni-rezervasyon--sözleşme-sihirbazı)
+5. [Yazdırılabilir Resmi Düğün Sözleşmesi ve Fatura Çıktısı](#5-yazdırılabilir-resmi-düğün-sözleşmesi-ve-fatura-çıktısı)
+6. [Tema, Kurumsal Dil & Dinamik Renk Paleti](#6-tema-kurumsal-dil--dinamik-renk-paleti)
+7. [Rol Tabanlı Erişim Kontrolü (RBAC) Yetki Matrisi](#7-rol-tabanlı-erişim-kontrolü-rbac-yetki-matrisi)
+8. [Yetkisiz Erişim (403 Access Denied) Güvenlik Modülü](#8-yetkisiz-erişim-403-access-denied-güvenlik-modülü)
+9. [Temiz ASCII URL Yönlendirme (Routing) Kuralları](#9-temiz-ascii-url-yönlendirme-routing-kuralları)
+10. [MySQL Veritabanı Mimarisi (schema.sql)](#10-mysql-veritabanı-mimarisi-schemasql)
+11. [Çakışma Önleme (Collision Check) & Zaman Dilimleri](#11-çakışma-önleme-collision-check--zaman-dilimleri)
+12. [Finansal Hesaplamalar, KDV %20 & Fatura Otomasyonu](#12-finansal-hesaplamalar-kdv-20--fatura-otomasyonu)
+13. [Otomatik İletişim & WhatsApp Entegrasyonu](#13-otomatik-iletişim--whatsapp-entegrasyonu)
 
 ---
 
@@ -38,78 +39,69 @@
 ---
 
 ## 3. EKLENEN EKLENTİLER & BECERİLER (PLUGINS & SKILLS)
-Sisteme kurulan ve aktif olarak kullanılan 4 güçlü eklenti:
-1. **`superpowers`** (`https://github.com/obra/superpowers`): LLM araçları, otonom ajan yetenekleri ve iş akışı optimizasyonları.
-2. **`frontend-design`** (`https://github.com/anthropics/claude-code/tree/main/plugins/frontend-design`): Üst düzey UI/UX tasarım standartları, renk paleti ve duyarlı (responsive) web geliştirme ilkeleri.
-3. **`security-guidance`** (`https://github.com/anthropics/claude-code/tree/main/plugins/security-guidance`): Güvenlik denetimleri, RBAC yetki doğrulamaları ve girdi veri güvenliği ilkeleri.
-4. **`claude-mem`** (`https://github.com/thedotmack/claude-mem`): Kalıcı hafıza, kullanıcı tercihlerini takip ve uzun süreli sohbet senkronizasyonu.
+1. **`superpowers`**: Karmaşık otonom görevler ve orkestrasyon.
+2. **`frontend-design`**: Lüks UI/UX tasarım standartları ve renk teorisi.
+3. **`security-guidance`**: Siber güvenlik audit ve RBAC koruması.
+4. **`claude-mem`**: Kalıcı hafıza ve sürekli bağlam takibi.
 
 ---
 
-## 4. TEMA, KURUMSAL DİL & DİNAMİK RENK PALETİ
+## 4. 3-ADIMLI YENİ REZERVASYON & SÖZLEŞME SİHİRBAZI
+- **Adım 1:** Salon Seçimi, Etkinlik Tarihi, Saat Dilimi (`13:00-17:00` / `19:00-23:00`) ve Davetli Sayısı (Canlı Çakışma Önleme Uyarısı ile).
+- **Adım 2:** Müşteri Seçimi ve Düğün Paketi Ek Hizmetleri (Yemek Servisi, Fotoğraf & 4K Video, Orkestra, Masa Süsleme, Volkan Gösterisi) seçimi.
+- **Adım 3:** Kampanya İndirim Kodu (`IREM2026`, `VIP5000`), Otomatik %20 KDV Hesaplaması, Kapora Girişi, Net Bakiye ve Sözleşme Onayı.
+
+---
+
+## 5. YAZDIRILABİLİR RESMİ DÜĞÜN SÖZLEŞMESİ VE FATURA ÇIKTISI
+- Rezervasyon detayından tek tıkla açılan antetli resmi yazdırma şablonu:
+  - Şirket Vergi Kimlik No (VKN: 4820192837), Sapanca adresi.
+  - Müşteri TC/VKN bilgileri.
+  - Salon kiralama ve seçilen tüm ek hizmet kalemlerinin dökümü.
+  - %20 KDV, Kapora ve Kalan Bakiye hesaplaması.
+  - Karşılıklı Yetkili ve Müşteri İmza & Kaşe kutuları.
+
+---
+
+## 6. TEMA, KURUMSAL DİL & DİNAMİK RENK PALETİ
 - **Varsayılan Tema:** **Şık Krem / Beyaz Kurumsal Mod (Fresh White & Cream Corporate Mode)**.
 - **Alternatif Tema:** **Gece Lüks Şampanya Modu (Dark Mode)**.
-- **Dinamik CSS Değişkenleri (CSS Variables):**
-  - `--color-gold`: `#d97706` (Ana Altın/Şampanya Vurgusu)
-  - `--color-bg`: `#faf9f6` (Ferah Krem Arka Plan)
-  - `--color-card`: `#ffffff` (Saf Beyaz Kartlar)
+- **Canlı Renk Özelleştirici (Customizer):** Header alanındaki `🎨` renk butonu ile ana renk paleti anlık olarak değiştirilebilir.
 
 ---
 
-## 5. ROL TABANLI ERİŞİM KONTROLÜ (RBAC) YETKİ MATRİSİ
-
-Sistemde 4 farklı kullanıcı rolü tanımlanmıştır:
-
-| Sekme / Modül | Admin 👑 | Satışçı 💼 | Sosyal Medya 📸 | Müşteri 💑 |
-| :--- | :---: | :---: | :---: | :---: |
-| **Anasayfa / İstatistikler** | ✅ Tam Yetki | ✅ Yetkili | ✅ Yetkili | ✅ (Özel Portal) |
-| **Düğün Salonlarım** | ✅ Tam Yetki | ✅ Görür/Satış | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Ek Hizmetler** | ✅ Tam Yetki | ✅ Görür/Satış | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Rezervasyonlar** | ✅ Tam Yetki | ✅ Yönetir | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Takvim Görünümü** | ✅ Tam Yetki | ✅ Görür | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Kampanyalar** | ✅ Tam Yetki | 🚫 Yetkisiz | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Finans & Fatura** | ✅ Tam Yetki | 🚫 Gizli | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Müşteri Rehberi** | ✅ Tam Yetki | ✅ Görür/Ekle | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Kullanıcı Yönetimi** | ✅ Tam Yetki | 🚫 Yetkisiz | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Raporlar & AI Öneri** | ✅ Tam Yetki | 🚫 Yetkisiz | 🚫 Yetkisiz | 🚫 Yetkisiz |
-| **Medya & Foto Yükle** | ✅ Tam Yetki | 🚫 Yetkisiz | ✅ Yükler | ✅ Görür |
+## 7. ROL TABANLI ERİŞİM KONTROLÜ (RBAC) YETKİ MATRİSİ
+- **Admin 👑**, **Satışçı 💼**, **Sosyal Medya 📸**, **Müşteri 💑**.
 
 ---
 
-## 6. YETKİSİZ ERİŞİM (403 ACCESS DENIED) GÜVENLİK MODÜLÜ
-- Kullanıcı yetkisi olmayan bir modüle doğrudan URL adresi (`#/finans`) veya başka yollarla erişmeye çalıştığında sistem otomatik olarak **"Hata 403 / Yetkisiz Erişim"** uyarı ekranını görüntüler.
+## 8. YETKİSİZ ERİŞİM (403 ACCESS DENIED) GÜVENLİK MODÜLÜ
+- Yetkisiz modül erişimlerinde otomatik devreye giren şık güvenlik uyarı ekranı.
 
 ---
 
-## 7. TEMİZ ASCII URL YÖNLENDİRME (ROUTING) KURALLARI
-URL adreslerinde Türkçe karakter içermeyen temiz ASCII bağlantılar kullanılmıştır:
+## 9. TEMİZ ASCII URL YÖNLENDİRME (ROUTING) KURALLARI
 - `#/anasayfa`, `#/dugun-salonlari`, `#/ek-hizmetler`, `#/rezervasyonlar`, `#/takvim`, `#/kampanyalar`, `#/finans`, `#/musteri-rehberi`, `#/kullanici-yonetimi`, `#/raporlar-ai`, `#/medya-yukle`.
 
 ---
 
-## 8. MYSQL VERİTABANI MİMARİSİ (schema.sql)
-1. `venues`, `services`, `campaigns`, `customers`, `users`, `reservations`, `reservation_services`, `reservation_flow`, `reservation_media`.
+## 10. MYSQL VERİTABANI MİMARİSİ (schema.sql)
+- `venues`, `services`, `campaigns`, `customers`, `users`, `reservations`, `reservation_services`, `reservation_flow`, `reservation_media`.
 
 ---
 
-## 9. ÇAKIŞMA ÖNLEME (COLLISION CHECK) & ZAMAN DİLİMLERİ
+## 11. ÇAKIŞMA ÖNLEME (COLLISION CHECK) & ZAMAN DİLİMLERİ
 - **Zaman Dilimleri:** `13:00 - 17:00` (Gündüz) ve `19:00 - 23:00` (Gece).
-- **MySQL Unique Constraint:** `UNIQUE KEY unique_venue_slot (venue_id, event_date, time_slot)`.
 
 ---
 
-## 10. FİNANSAL HESAPLAMALAR, KDV %20 & FATURA OTOMASYONU
+## 12. FİNANSAL HESAPLAMALAR, KDV %20 & FATURA OTOMASYONU
 - Ara toplam, %20 KDV, kapora ve net bakiye otomasyonu.
 
 ---
 
-## 11. OTOMATİK İLETİŞİM & WHATSAPP ENTEGRASYONU
-- Doğrudan mesaj bağlantısı (`https://wa.me/...`).
-
----
-
-## 12. YAPAY ZEKA (AI) DESTEKLİ RAPORLAR VE ÖNERİLER
-- Hafta içi doluluk paketleri ve popüler hizmet önerileri.
+## 13. OTOMATİK İLETİŞİM & WHATSAPP ENTEGRASYONU
+- Müşteri adı, sözleşme tarihi ve kalan bakiye içeren resmi doğrudan WhatsApp mesaj bağlantısı (`https://wa.me/...`).
 
 ---
 *İrem Düğün Sarayı & Organizasyon Şirketi Mimarisi - Tüm Hakları Saklıdır (2026).*

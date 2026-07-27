@@ -105,7 +105,6 @@
       box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
     }
 
-    /* Accessibility Focus Ring Standards (WCAG 2.1 AAA) */
     :focus-visible {
       outline: 3px solid #d97706 !important;
       outline-offset: 2px !important;
@@ -270,7 +269,6 @@
       { id: 'r2', title: 'Popüler Hizmet Paketi Önerisi', badge: 'Paket Önerisi', description: 'Müşterilerinizin %78\'i "Gurme Yemek" ile "Volkan Gösterisi" satın alıyor. Paket halinde %10 indirimle sunabilirsiniz.', actionText: 'Paket Oluştur' }
     ];
 
-    // ASCII URL SLUGS
     const TAB_TO_SLUG = {
       'dashboard': 'anasayfa',
       'venues': 'dugun-salonlari',
@@ -342,9 +340,10 @@
       if (!dateString) return '';
       return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(dateString));
     }
-    function generateWhatsAppLink(phone) {
+    function generateWhatsAppLink(phone, customerName = '', date = '', remaining = '') {
       const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
-      return `https://wa.me/${cleanPhone}?text=${encodeURIComponent("Merhabalar Ben İrem Düğün Sarayı'ndan sizlere ulaşıyorum. Rezervasyonunuz hakkında.")}`;
+      const text = `Merhabalar Sayın ${customerName}, İrem Düğün Sarayı & Organizasyon Şirketi ${date ? date + ' tarihli ' : ''}rezervasyonunuz hakkında bilgilendirmedir. Kalan Bakiyeniz: ${remaining ? formatCurrency(remaining) : 'Detaylar için iletişime geçiniz.'}`;
+      return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
     }
 
     function getHashTab() {
@@ -370,8 +369,10 @@
 
       const [toast, setToast] = useState(null);
 
-      const [newResModalOpen, setNewResModalOpen] = useState(false);
+      // Modals State
+      const [wizardModalOpen, setWizardModalOpen] = useState(false);
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
+      const [customerModalData, setCustomerModalData] = useState(null);
 
       const [resSearchQuery, setResSearchQuery] = useState('');
       const [resStatusFilter, setResStatusFilter] = useState('all');
@@ -434,6 +435,120 @@
         const allowedRoles = TAB_PERMISSIONS[activeTab] || ['admin'];
         return allowedRoles.includes(activeRole);
       }, [activeTab, activeRole]);
+
+      // Print Invoice Helper
+      const handlePrintInvoice = (res) => {
+        const venue = venues.find(v => v.id === res.venueId);
+        const printWin = window.open('', '_blank', 'width=900,height=700');
+        printWin.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>İrem Düğün Sarayı - Resmi Sözleşme & Fatura (${res.id})</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+              .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 20px; }
+              .logo { font-size: 24px; font-weight: bold; color: #b45309; }
+              .title { font-size: 18px; font-weight: bold; text-align: center; margin: 30px 0 10px 0; color: #0f172a; text-transform: uppercase; }
+              .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+              .card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; font-size: 13px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+              th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+              th { background: #f1f5f9; font-weight: bold; }
+              .totals { margin-top: 20px; text-align: right; font-size: 14px; }
+              .totals div { margin-bottom: 5px; }
+              .grand-total { font-size: 18px; font-weight: bold; color: #b45309; }
+              .signatures { display: flex; justify-content: space-between; margin-top: 50px; font-size: 13px; }
+              .sig-box { border-top: 1px solid #94a3b8; width: 200px; text-align: center; padding-top: 8px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <div class="logo">👑 İREM DÜĞÜN SARAYI</div>
+                <div style="font-size: 12px; color: #64748b;">Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 16px; font-weight: bold;">SÖZLEŞME & FATURA</div>
+                <div style="font-size: 12px; color: #64748b;">Belge No: <strong>${res.id}</strong></div>
+                <div style="font-size: 12px; color: #64748b;">Tarih: ${new Date().toLocaleDateString('tr-TR')}</div>
+              </div>
+            </div>
+
+            <div class="title">DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ</div>
+
+            <div class="grid">
+              <div class="card">
+                <strong>ŞİRKET BİLGİLERİ (Hizmet Veren):</strong><br>
+                İrem Düğün Sarayı Ltd. Şti.<br>
+                Sapanca Göl Kenarı No: 45, Sakarya<br>
+                Sapanca Vergi Dairesi | VKN: 4820192837<br>
+                Tel: +90 532 111 2233
+              </div>
+              <div class="card">
+                <strong>MÜŞTERİ BİLGİLERİ (Hizmet Alan):</strong><br>
+                ${res.customerName}<br>
+                Tel: ${res.customerPhone}<br>
+                E-posta: ${res.customerEmail}<br>
+                Fatura Tipi: ${res.invoiceType === 'corporate' ? 'Kurumsal (VKN)' : 'Bireysel (TC No)'}
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 20px;">
+              <strong>ETKİNLİK DETAYLARI:</strong><br>
+              Salon: <strong>${venue?.name || 'Kraliyet Balo Salonu'}</strong> | Etkinlik Tarihi: <strong>${formatDate(res.date)}</strong> | Saat Dilimi: <strong>${res.timeSlot}</strong> | Davetli Sayısı: <strong>${res.guestCount} Kişi</strong>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Hizmet / Kalem Açıklaması</th>
+                  <th>Miktar / Kişi</th>
+                  <th>Birim Fiyat</th>
+                  <th>Toplam Tutarı</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${venue?.name || 'Salon Kiralama Bedeli'}</td>
+                  <td>1 Paket</td>
+                  <td>${formatCurrency(res.venuePrice)}</td>
+                  <td>${formatCurrency(res.venuePrice)}</td>
+                </tr>
+                ${res.selectedServices.map(s => {
+                  const serv = services.find(x => x.id === s.serviceId);
+                  return `
+                    <tr>
+                      <td>${serv?.name || 'Ek Hizmet'}</td>
+                      <td>${s.quantity} ${serv?.pricingType === 'per_person' ? 'Kişi' : 'Adet'}</td>
+                      <td>${formatCurrency(s.unitPrice)}</td>
+                      <td>${formatCurrency(s.quantity * s.unitPrice)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+
+            <div class="totals">
+              <div>Ara Toplam: <strong>${formatCurrency(res.subtotal)}</strong></div>
+              ${res.discountAmount > 0 ? `<div>Kampanya İndirimi (${res.campaignCode || 'İndirim'}): <strong style="color:#dc2626;">-${formatCurrency(res.discountAmount)}</strong></div>` : ''}
+              <div>Hesaplanan KDV (%20): <strong>${formatCurrency(res.vatAmount)}</strong></div>
+              <div class="grand-total">Genel Toplam Tutar: ${formatCurrency(res.totalAmount)}</div>
+              <div style="margin-top:8px;">Tahsil Edilen Kapora: <strong style="color:#16a34a;">${formatCurrency(res.depositPaid)}</strong></div>
+              <div>Kalan Ödenecek Bakiye: <strong style="color:#dc2626;">${formatCurrency(res.remainingBalance)}</strong></div>
+            </div>
+
+            <div class="signatures">
+              <div class="sig-box">İrem Düğün Sarayı Yetkilisi<br>(İmza & Kaşe)</div>
+              <div class="sig-box">Müşteri / Kiracı<br>(İmza)</div>
+            </div>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+        printWin.focus();
+        setTimeout(() => printWin.print(), 500);
+      };
 
       return (
         <div className="min-h-screen flex flex-col font-sans transition-colors duration-300">
@@ -592,7 +707,7 @@
                 </div>
               )}
 
-              {/* RBAC PERMISSION GUARD & UNAUTHORIZED ACCESS WARNING SCREEN */}
+              {/* RBAC PERMISSION GUARD */}
               {!isAuthorized ? (
                 <UnauthorizedAccessScreen
                   pageTitle={TAB_LABELS[activeTab] || activeTab}
@@ -602,7 +717,7 @@
               ) : (
                 <>
                   {activeTab === 'dashboard' && (
-                    <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => setNewResModalOpen(true)} onTabChange={navigateTo} />
+                    <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => setWizardModalOpen(true)} onTabChange={navigateTo} />
                   )}
 
                   {activeTab === 'venues' && (
@@ -614,7 +729,7 @@
                   )}
 
                   {activeTab === 'reservations' && (
-                    <ReservationsComponent reservations={filteredReservations} venues={venues} searchQuery={resSearchQuery} setSearchQuery={setResSearchQuery} statusFilter={resStatusFilter} setStatusFilter={setResStatusFilter} onNewResClick={() => setNewResModalOpen(true)} onDetailClick={setSelectedResForDetail} />
+                    <ReservationsComponent reservations={filteredReservations} venues={venues} searchQuery={resSearchQuery} setSearchQuery={setResSearchQuery} statusFilter={resStatusFilter} setStatusFilter={setResStatusFilter} onNewResClick={() => setWizardModalOpen(true)} onDetailClick={setSelectedResForDetail} />
                   )}
 
                   {activeTab === 'calendar' && (
@@ -630,7 +745,7 @@
                   )}
 
                   {activeTab === 'customers' && (
-                    <CustomersComponent customers={customers} />
+                    <CustomersComponent customers={customers} onAddClick={() => setCustomerModalData('new')} onEditClick={c => setCustomerModalData(c)} />
                   )}
 
                   {activeTab === 'users' && (
@@ -666,47 +781,314 @@
           </nav>
 
           {/* MODALS */}
+          {wizardModalOpen && (
+            <NewReservationWizardModal
+              venues={venues}
+              services={services}
+              customers={customers}
+              campaigns={campaigns}
+              reservations={reservations}
+              onClose={() => setWizardModalOpen(false)}
+              onSave={(newRes) => {
+                setReservations(prev => [newRes, ...prev]);
+                showToast('🎉 Yeni Rezervasyon & Sözleşme Başarıyla Oluşturuldu!');
+                setWizardModalOpen(false);
+              }}
+            />
+          )}
+
+          {customerModalData && (
+            <CustomerFormModal
+              customer={customerModalData === 'new' ? null : customerModalData}
+              onClose={() => setCustomerModalData(null)}
+              onSave={(c) => {
+                setCustomers(prev => c.id ? prev.map(x => x.id === c.id ? c : x) : [...prev, { ...c, id: 'cust-' + Date.now(), avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' }]);
+                showToast('👤 Müşteri Kartı Başarıyla Kaydedildi!');
+                setCustomerModalData(null);
+              }}
+            />
+          )}
+
           {selectedResForDetail && (
-            <ReservationDetailModal res={selectedResForDetail} venues={venues} onClose={() => setSelectedResForDetail(null)} onUpdatePayment={(id, dep, stat) => { setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r)); showToast('💳 Ödeme Güncellendi!'); setSelectedResForDetail(null); }} />
+            <ReservationDetailModal
+              res={selectedResForDetail}
+              venues={venues}
+              services={services}
+              onClose={() => setSelectedResForDetail(null)}
+              onPrintInvoice={() => handlePrintInvoice(selectedResForDetail)}
+              onUpdatePayment={(id, dep, stat) => {
+                setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
+                showToast('💳 Ödeme & Sözleşme Güncellendi!');
+                setSelectedResForDetail(null);
+              }}
+            />
           )}
 
         </div>
       );
     }
 
-    // --- UNAUTHORIZED ACCESS WARNING COMPONENT ---
-    function UnauthorizedAccessScreen({ pageTitle, activeRoleName, onGoHome }) {
+    // --- 3-STEP RESERVATION WIZARD MODAL ---
+    function NewReservationWizardModal({ venues, services, customers, campaigns, reservations, onClose, onSave }) {
+      const [step, setStep] = useState(1);
+      const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
+      const [eventDate, setEventDate] = useState('2026-08-20');
+      const [timeSlot, setTimeSlot] = useState('19:00-23:00');
+      const [guestCount, setGuestCount] = useState(500);
+
+      const [customerId, setCustomerId] = useState(customers[0]?.id || 'cust1');
+      const [selectedServiceIds, setSelectedServiceIds] = useState(['s1', 's2']);
+
+      const [campaignCode, setCampaignCode] = useState('');
+      const [depositPaid, setDepositPaid] = useState(30000);
+
+      // Collision Check Logic
+      const collisionDetected = useMemo(() => {
+        return reservations.some(r => r.venueId === venueId && r.date === eventDate && r.timeSlot === timeSlot);
+      }, [reservations, venueId, eventDate, timeSlot]);
+
+      const selectedVenue = venues.find(v => v.id === venueId);
+      const selectedCustomer = customers.find(c => c.id === customerId);
+
+      // Financial Calculation
+      const calculations = useMemo(() => {
+        const vPrice = selectedVenue ? selectedVenue.price : 0;
+        let servTotal = 0;
+        const mappedServices = selectedServiceIds.map(sid => {
+          const s = services.find(x => x.id === sid);
+          if (!s) return null;
+          const qty = s.pricingType === 'per_person' ? guestCount : 1;
+          servTotal += s.price * qty;
+          return { serviceId: s.id, quantity: qty, unitPrice: s.price };
+        }).filter(Boolean);
+
+        const sub = vPrice + servTotal;
+        let disc = 0;
+        if (campaignCode === 'IREM2026') disc = sub * 0.10;
+        else if (campaignCode === 'VIP5000') disc = 5000;
+
+        const afterDisc = Math.max(0, sub - disc);
+        const vat = afterDisc * 0.20;
+        const grandTotal = afterDisc + vat;
+        const remaining = Math.max(0, grandTotal - depositPaid);
+
+        return { vPrice, servTotal, sub, disc, vat, grandTotal, remaining, mappedServices };
+      }, [selectedVenue, selectedServiceIds, guestCount, campaignCode, depositPaid, services]);
+
+      const handleSubmit = () => {
+        if (collisionDetected) return;
+        const newRes = {
+          id: `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          venueId,
+          customerId,
+          customerName: selectedCustomer?.name || 'Değerli Müşteri',
+          customerEmail: selectedCustomer?.email || '',
+          customerPhone: selectedCustomer?.phone || '',
+          date: eventDate,
+          timeSlot,
+          guestCount,
+          selectedServices: calculations.mappedServices,
+          venuePrice: calculations.vPrice,
+          subtotal: calculations.sub,
+          campaignCode,
+          discountAmount: calculations.disc,
+          vatAmount: calculations.vat,
+          totalAmount: calculations.grandTotal,
+          depositPaid,
+          remainingBalance: calculations.remaining,
+          paymentStatus: depositPaid >= calculations.grandTotal ? 'Ödendi' : 'Kapora Alındı',
+          isInvoiced: true,
+          invoiceType: selectedCustomer?.taxType || 'individual',
+          flowPlan: [
+            { time: '19:00', title: 'Misafir Karşılama' },
+            { time: '20:00', title: 'Gala Yemeği & Müzik' }
+          ],
+          mediaGallery: []
+        };
+        onSave(newRes);
+      };
+
       return (
-        <div className="min-h-[70vh] flex items-center justify-center p-4">
-          <div className="glass-panel p-8 md:p-12 rounded-3xl max-w-lg w-full text-center space-y-5 border-2 border-red-500/40 shadow-2xl animate-fade-in" role="alert">
-            <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 border-2 border-red-500/50 flex items-center justify-center text-4xl shadow-inner" aria-hidden="true">
-              🚫
-            </div>
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-2xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
             
-            <div className="space-y-2">
-              <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/30 uppercase tracking-wider">
-                Hata 403 / Yetkisiz Erişim
-              </span>
-              <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
-                Bu Sayfaya Erişim Yetkiniz Yok!
-              </h2>
-              <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
-                <strong>"{pageTitle}"</strong> modülünü görüntülemek için gerekli yetkiye sahip değilsiniz.
-              </p>
+            {/* Header */}
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+              <div>
+                <span className="text-amber-700 dark:text-gold-400 font-bold text-xs">Adım {step} / 3</span>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">
+                  {step === 1 && '1. Salon & Tarih Seçimi'}
+                  {step === 2 && '2. Müşteri & Hizmet Paketi'}
+                  {step === 3 && '3. Kampanya, KDV & Kapora Onayı'}
+                </h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
             </div>
 
-            <div className="bg-slate-100 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border text-xs text-left space-y-1">
-              <div className="text-slate-500 dark:text-gray-400">Mevcut Rolünüz: <strong className="text-amber-700 dark:text-gold-400 font-bold">{activeRoleName}</strong></div>
-              <div className="text-slate-500 dark:text-gray-400">Çözüm: Bu modül yalnızca yetkili kullanıcılar (Admin) için açıktır. Lütfen sağ üstteki rol butonlarından yetkili bir role geçin veya yöneticinizle görüşün.</div>
+            {/* Step Indicators */}
+            <div className="flex justify-between space-x-2 text-xs font-bold">
+              <div className={`flex-1 py-1.5 text-center rounded-lg ${step >= 1 ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/40' : 'bg-slate-100 dark:bg-brand-dark text-slate-400'}`}>1. Tarih & Salon</div>
+              <div className={`flex-1 py-1.5 text-center rounded-lg ${step >= 2 ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/40' : 'bg-slate-100 dark:bg-brand-dark text-slate-400'}`}>2. Müşteri & Hizmet</div>
+              <div className={`flex-1 py-1.5 text-center rounded-lg ${step >= 3 ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/40' : 'bg-slate-100 dark:bg-brand-dark text-slate-400'}`}>3. KDV & Kapora</div>
             </div>
 
-            <button
-              onClick={onGoHome}
-              className="gold-button font-bold px-6 py-3 rounded-2xl text-xs shadow-lg inline-flex items-center space-x-2 transition transform hover:scale-105"
-            >
-              <span>🏠</span>
-              <span>Güvenli Anasayfaya Dön</span>
-            </button>
+            {/* STEP 1 */}
+            {step === 1 && (
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Düğün Salonu Seçin:</label>
+                  <select value={venueId} onChange={e => setVenueId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                    {venues.map(v => <option key={v.id} value={v.id}>{v.name} ({v.category} - {formatCurrency(v.price)})</option>)}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Etkinlik Tarihi:</label>
+                    <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Saat Dilimi:</label>
+                    <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200">
+                      <option value="13:00-17:00">13:00 - 17:00 (Gündüz)</option>
+                      <option value="19:00-23:00">19:00 - 23:00 (Gece)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {collisionDetected && (
+                  <div className="bg-red-500/10 border border-red-500/40 p-3 rounded-xl text-red-600 dark:text-red-400 font-bold text-xs flex items-center space-x-2">
+                    <span>⚠️ ÇAKIŞMA UYARISI:</span>
+                    <span>Bu salon seçtiğiniz tarih ve saat diliminde DOLUDUR! Lütfen farklı bir saat veya tarih seçiniz.</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Tahmini Davetli Sayısı:</label>
+                  <input type="number" value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2 */}
+            {step === 2 && (
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Müşteri Seçin:</label>
+                  <select value={customerId} onChange={e => setCustomerId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                    {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone})</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-2">Düğün Paketi Ek Hizmetleri:</label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto p-1">
+                    {services.map(s => {
+                      const isChecked = selectedServiceIds.includes(s.id);
+                      return (
+                        <label key={s.id} className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer ${isChecked ? 'bg-amber-500/10 border-amber-500/50' : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'}`}>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={e => {
+                                if (e.target.checked) setSelectedServiceIds(prev => [...prev, s.id]);
+                                else setSelectedServiceIds(prev => prev.filter(x => x !== s.id));
+                              }}
+                              className="w-4 h-4 accent-amber-600"
+                            />
+                            <span className="font-bold text-slate-800 dark:text-gray-200">{s.name}</span>
+                          </div>
+                          <span className="font-bold text-amber-700 dark:text-gold-400">{formatCurrency(s.price)} {s.pricingType === 'per_person' ? '/Kişi' : ''}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3 */}
+            {step === 3 && (
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Kampanya / İndirim Kodu:</label>
+                  <select value={campaignCode} onChange={e => setCampaignCode(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200">
+                    <option value="">İndirim Kodu Yok</option>
+                    {campaigns.map(c => <option key={c.id} value={c.code}>{c.code} - {c.title}</option>)}
+                  </select>
+                </div>
+
+                {/* Financial Summary */}
+                <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-amber-500/30 space-y-2">
+                  <div className="flex justify-between"><span>Salon Fiyatı:</span><span className="font-bold">{formatCurrency(calculations.vPrice)}</span></div>
+                  <div className="flex justify-between"><span>Ek Hizmetler Toplamı:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
+                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>İndirim Tutarı:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
+                  <div className="flex justify-between text-slate-600 dark:text-gray-400"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>
+                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-1"><span>Genel Toplam Tutar:</span><span>{formatCurrency(calculations.grandTotal)}</span></div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Tahsil Edilen Kapora Tutarı (TL):</label>
+                  <input type="number" value={depositPaid} onChange={e => setDepositPaid(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                  <span className="text-[10px] text-slate-500 mt-1 block">Kalan Bakiye: <strong className="text-red-500">{formatCurrency(calculations.remaining)}</strong></span>
+                </div>
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-brand-border">
+              {step > 1 ? (
+                <button onClick={() => setStep(s => s - 1)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold">← Geri</button>
+              ) : <div />}
+
+              {step < 3 ? (
+                <button disabled={collisionDetected} onClick={() => setStep(s => s + 1)} className={`gold-button font-bold px-6 py-2 rounded-xl text-xs ${collisionDetected ? 'opacity-50 cursor-not-allowed' : ''}`}>İleri ➔</button>
+              ) : (
+                <button onClick={handleSubmit} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg">🎉 Rezervasyonu ve Sözleşmeyi Onayla</button>
+              )}
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // --- CUSTOMER FORM MODAL ---
+    function CustomerFormModal({ customer, onClose, onSave }) {
+      const [name, setName] = useState(customer?.name || '');
+      const [email, setEmail] = useState(customer?.email || '');
+      const [phone, setPhone] = useState(customer?.phone || '');
+      const [address, setAddress] = useState(customer?.address || '');
+      const [taxType, setTaxType] = useState(customer?.taxType || 'individual');
+      const [tcNo, setTcNo] = useState(customer?.tcNo || '');
+      const [taxOffice, setTaxOffice] = useState(customer?.taxOffice || '');
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{customer ? 'Müşteri Kartı Düzenle' : 'Yeni Müşteri Ekle'}</h3>
+            <div className="space-y-3 text-xs">
+              <input type="text" placeholder="Müşteri / Firma Adı" value={name} onChange={e => setName(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder="Telefon (+90 5...)" value={phone} onChange={e => setPhone(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                <input type="email" placeholder="E-posta" value={email} onChange={e => setEmail(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+              </div>
+              <select value={taxType} onChange={e => setTaxType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                <option value="individual">Bireysel Müşteri (TC No)</option>
+                <option value="corporate">Kurumsal Müşteri (VKN)</option>
+              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder={taxType === 'individual' ? 'TC Kimlik No' : 'Vergi Kimlik No (VKN)'} value={tcNo} onChange={e => setTcNo(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                <input type="text" placeholder="Vergi Dairesi" value={taxOffice} onChange={e => setTaxOffice(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+              </div>
+              <textarea placeholder="Adres Bilgisi" value={address} onChange={e => setAddress(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 h-16" />
+            </div>
+            <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">İptal</button>
+              <button onClick={() => onSave({ ...customer, name, email, phone, address, taxType, tcNo, taxOffice })} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Müşteriyi Kaydet</button>
+            </div>
           </div>
         </div>
       );
@@ -732,7 +1114,7 @@
 
             {(activeRole === 'admin' || activeRole === 'satisci') && (
               <button onClick={onNewResClick} className="gold-button font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center space-x-2 text-xs">
-                <span>➕</span><span>Yeni Rezervasyon Oluştur</span>
+                <span>➕</span><span>3-Adımlı Yeni Rezervasyon Sihirbazı</span>
               </button>
             )}
           </div>
@@ -807,7 +1189,7 @@
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Tüm Rezervasyonlar</h2>
-            <button onClick={onNewResClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">➕ Yeni Rezervasyon</button>
+            <button onClick={onNewResClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">➕ Sihirbaz İle Yeni Rezervasyon</button>
           </div>
 
           <div className="glass-panel p-4 rounded-2xl flex gap-3 shadow-sm">
@@ -817,7 +1199,6 @@
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500 flex-1"
-              aria-label="Rezervasyon arama kütüğü"
             />
           </div>
 
@@ -841,7 +1222,7 @@
                     <td className="p-3 text-slate-600 dark:text-gray-300">{formatDate(r.date)}</td>
                     <td className="p-3 font-bold text-slate-800 dark:text-gray-100">{formatCurrency(r.totalAmount)}</td>
                     <td className="p-3"><span className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-500/20">{r.paymentStatus}</span></td>
-                    <td className="p-3 text-right"><button onClick={() => onDetailClick(r)} className="px-3 py-1 rounded bg-amber-500/10 text-amber-700 dark:text-gold-400 font-bold text-[10px] border border-amber-500/30" aria-label={`${r.id} detayını görüntüle`}>Detay 🔍</button></td>
+                    <td className="p-3 text-right"><button onClick={() => onDetailClick(r)} className="px-3 py-1 rounded bg-amber-500/10 text-amber-700 dark:text-gold-400 font-bold text-[10px] border border-amber-500/30">Detay 🔍</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -867,7 +1248,7 @@
                   <div key={day} className={`min-h-[70px] p-2 rounded-xl border text-left flex flex-col justify-between ${dayRes.length > 0 ? 'bg-amber-50 dark:bg-brand-card border-amber-500/40' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30'}`}>
                     <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
                     {dayRes.map(r => (
-                      <button key={r.id} onClick={() => onResClick(r)} className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/30" aria-label={`${r.customerName} rezervasyonu detayları`}>
+                      <button key={r.id} onClick={() => onResClick(r)} className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/30">
                         {r.customerName.split(' ')[0]}
                       </button>
                     ))}
@@ -913,18 +1294,25 @@
     }
 
     // --- CUSTOMERS COMPONENT ---
-    function CustomersComponent({ customers }) {
+    function CustomersComponent({ customers, onAddClick, onEditClick }) {
       return (
         <div className="space-y-6">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Müşteri Rehberi</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Müşteri Rehberi</h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">👤 Yeni Müşteri Ekle</button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {customers.map(c => (
               <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4 shadow-sm">
                 <img src={c.avatar} alt={`${c.name} Avatarı`} className="w-14 h-14 rounded-2xl object-cover border border-amber-500/40" />
                 <div className="flex-1 space-y-2">
-                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
+                    <button onClick={() => onEditClick(c)} className="text-[10px] text-amber-700 font-bold bg-amber-500/10 px-2 py-0.5 rounded">Düzenle ✏️</button>
+                  </div>
                   <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
-                  <a href={generateWhatsAppLink(c.phone)} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs inline-flex items-center space-x-1 shadow" aria-label={`${c.name} için WhatsApp mesajı aç`}>
+                  <div className="text-[11px] text-slate-600 dark:text-gray-400">{c.taxType === 'corporate' ? `Kurumsal VKN: ${c.vkn_no || c.tcNo || '-'}` : `Bireysel TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</div>
+                  <a href={generateWhatsAppLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs inline-flex items-center space-x-1 shadow">
                     <span>💬 WhatsApp İle Mesaj At</span>
                   </a>
                 </div>
@@ -992,7 +1380,7 @@
     }
 
     // --- RESERVATION DETAIL MODAL ---
-    function ReservationDetailModal({ res, venues, onClose, onUpdatePayment }) {
+    function ReservationDetailModal({ res, venues, services, onClose, onPrintInvoice, onUpdatePayment }) {
       const venue = venues.find(v => v.id === res.venueId);
       const [deposit, setDeposit] = useState(res.depositPaid);
       const [status, setStatus] = useState(res.paymentStatus);
@@ -1020,11 +1408,11 @@
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <label htmlFor="deposit-input" className="text-slate-500 dark:text-gray-400 block mb-1">Tahsil Edilen Kapora (TL):</label>
-                  <input id="deposit-input" type="number" value={deposit} onChange={e => setDeposit(Number(e.target.value))} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200" />
+                  <input id="deposit-input" type="number" value={deposit} onChange={e => setDeposit(Number(e.target.value))} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200 font-bold" />
                 </div>
                 <div>
                   <label htmlFor="status-select" className="text-slate-500 dark:text-gray-400 block mb-1">Ödeme Statüsü:</label>
-                  <select id="status-select" value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200">
+                  <select id="status-select" value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200 font-bold">
                     <option value="Bekliyor">Bekliyor</option>
                     <option value="Kapora Alındı">Kapora Alındı</option>
                     <option value="Ödendi">Ödendi</option>
@@ -1034,9 +1422,15 @@
               </div>
             </div>
 
-            <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
-              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
-              <button onClick={() => onUpdatePayment(res.id, deposit, status)} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Ödemeyi Güncelle</button>
+            <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border">
+              <button onClick={onPrintInvoice} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
+                <span>📄</span><span>Resmi Sözleşme & Fatura Yazdır</span>
+              </button>
+
+              <div className="flex space-x-2">
+                <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
+                <button onClick={() => onUpdatePayment(res.id, deposit, status)} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Ödemeyi Güncelle</button>
+              </div>
             </div>
           </div>
         </div>
