@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" class="dark">
+<html lang="tr" class="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,12 +28,6 @@
               700: '#b45309',
               800: '#92400e',
               900: '#78350f',
-            },
-            brand: {
-              dark: '#0b0f17',
-              card: '#161e2e',
-              border: '#2a3447',
-              accent: '#d97706'
             }
           },
           fontFamily: {
@@ -54,39 +48,75 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    body {
-      background-color: #0b0f17;
-      color: #f3f4f6;
-      font-family: 'Inter', sans-serif;
+    /* CSS Variables / Theme Tokens for Dynamic Palette Customization */
+    :root {
+      --color-gold: #d97706;
+      --color-gold-hover: #b45309;
+      --color-gold-light: #fef3c7;
+      --color-bg: #faf9f6; /* Fresh White & Cream Corporate Mode */
+      --color-card: #ffffff;
+      --color-card-border: #e2e8f0;
+      --color-text-main: #0f172a;
+      --color-text-muted: #64748b;
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(217, 119, 6, 0.2);
+      --input-bg: #ffffff;
     }
+
+    .dark {
+      --color-gold: #f59e0b;
+      --color-gold-hover: #fbbf24;
+      --color-gold-light: #78350f;
+      --color-bg: #0b0f17; /* Sleek Dark Champagne Mode */
+      --color-card: #161e2e;
+      --color-card-border: #2a3447;
+      --color-text-main: #f3f4f6;
+      --color-text-muted: #94a3b8;
+      --glass-bg: rgba(22, 30, 46, 0.85);
+      --glass-border: rgba(217, 119, 6, 0.25);
+      --input-bg: #0b0f17;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text-main);
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
     .glass-panel {
-      background: rgba(22, 30, 46, 0.85);
+      background: var(--glass-bg);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(217, 119, 6, 0.2);
+      border: 1px solid var(--glass-border);
     }
+
     .glass-card {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--color-card);
+      border: 1px solid var(--color-card-border);
     }
+
     .gold-gradient-text {
-      background: linear-gradient(135deg, #fef3c7 0%, #f59e0b 50%, #b45309 100%);
+      background: linear-gradient(135deg, var(--color-gold) 0%, #d97706 50%, #92400e 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+
     .gold-button {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: linear-gradient(135deg, var(--color-gold) 0%, #b45309 100%);
+      color: #ffffff;
       transition: all 0.2s ease-in-out;
     }
+
     .gold-button:hover {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+      background: linear-gradient(135deg, #fbbf24 0%, var(--color-gold) 100%);
+      box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
     }
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0b0f17; }
-    ::-webkit-scrollbar-thumb { background: #2a3447; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+    ::-webkit-scrollbar-track { background: var(--color-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--color-card-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
   </style>
 </head>
 <body>
@@ -243,7 +273,7 @@
       { id: 'r2', title: 'Popüler Hizmet Paketi Önerisi', badge: 'Paket Önerisi', description: 'Müşterilerinizin %78\'i "Gurme Yemek" ile "Volkan Gösterisi" satın alıyor. Paket halinde %10 indirimle sunabilirsiniz.', actionText: 'Paket Oluştur' }
     ];
 
-    // --- ASCII URL SLUG MAPPINGS (No Turkish Characters in Links) ---
+    // ASCII URL SLUGS
     const TAB_TO_SLUG = {
       'dashboard': 'anasayfa',
       'venues': 'dugun-salonlari',
@@ -286,7 +316,6 @@
       'musteri': 'musteri'
     };
 
-    // --- HELPERS ---
     function formatCurrency(amount) {
       if (amount === undefined || amount === null) return '₺0';
       return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(amount);
@@ -319,6 +348,11 @@
       const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
       const [users, setUsers] = useState(INITIAL_USERS);
 
+      // Default: Fresh White / Cream Corporate Mode (light mode)
+      const [themeMode, setThemeMode] = useState('light');
+      const [customGoldColor, setCustomGoldColor] = useState('#d97706');
+      const [customColorPickerOpen, setCustomColorPickerOpen] = useState(false);
+
       const [activeRole, setActiveRoleState] = useState(getQueryRole);
       const [activeTab, setActiveTabState] = useState(getHashTab);
       const [toast, setToast] = useState(null);
@@ -328,14 +362,27 @@
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
       const [venueModalData, setVenueModalData] = useState(null);
       const [serviceModalData, setServiceModalData] = useState(null);
-      const [campaignModalData, setCampaignModalData] = useState(null);
-      const [customerModalData, setCustomerModalData] = useState(null);
-      const [userModalData, setUserModalData] = useState(null);
 
       const [resSearchQuery, setResSearchQuery] = useState('');
       const [resStatusFilter, setResStatusFilter] = useState('all');
 
-      // Sync active tab and role to URL with CLEAN ASCII SLUGS (No Turkish Characters in Link)
+      // Update HTML class & CSS variables when Theme changes
+      useEffect(() => {
+        const rootEl = document.documentElement;
+        if (themeMode === 'dark') {
+          rootEl.classList.add('dark');
+          rootEl.classList.remove('light');
+        } else {
+          rootEl.classList.add('light');
+          rootEl.classList.remove('dark');
+        }
+      }, [themeMode]);
+
+      // Apply Dynamic Custom Color Token
+      useEffect(() => {
+        document.documentElement.style.setProperty('--color-gold', customGoldColor);
+      }, [customGoldColor]);
+
       const navigateTo = (tab, role = activeRole) => {
         setActiveTabState(tab);
         setActiveRoleState(role);
@@ -379,26 +426,80 @@
       }, [reservations, resSearchQuery, resStatusFilter]);
 
       return (
-        <div className="min-h-screen bg-[#0b0f17] text-gray-100 flex flex-col font-sans">
+        <div className="min-h-screen flex flex-col font-sans transition-colors duration-300">
           
           {/* HEADER */}
-          <header className="sticky top-0 z-40 glass-panel px-4 lg:px-8 py-3 flex items-center justify-between shadow-xl">
+          <header className="sticky top-0 z-40 glass-panel px-4 lg:px-8 py-3 flex items-center justify-between shadow-md">
             <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo('dashboard')}>
-              <div className="w-10 h-10 rounded-xl gold-button flex items-center justify-center font-bold text-gray-950 text-xl shadow-lg">
+              <div className="w-10 h-10 rounded-xl gold-button flex items-center justify-center font-bold text-xl shadow-lg">
                 👑
               </div>
               <div>
                 <h1 className="font-heading font-extrabold text-lg lg:text-xl gold-gradient-text tracking-wide">
                   İREM DÜĞÜN SARAYI
                 </h1>
-                <p className="text-[10px] text-gold-400 font-medium">Organizasyon & Kiralama Portalı</p>
+                <p className="text-[10px] text-amber-600 dark:text-gold-400 font-medium">Kurumsal Organizasyon Portalı</p>
               </div>
             </div>
 
-            {/* Role Switcher */}
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="bg-brand-card/90 border border-gold-500/30 rounded-full p-1 flex items-center">
-                <span className="text-[11px] font-semibold px-2 text-gold-400 hidden md:inline">Rol:</span>
+            {/* Theme Controls & Role Switcher */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              
+              {/* Fresh White vs Dark Theme Toggle */}
+              <button
+                onClick={() => {
+                  const nextTheme = themeMode === 'light' ? 'dark' : 'light';
+                  setThemeMode(nextTheme);
+                  showToast(nextTheme === 'light' ? '✨ Şık Krem/Beyaz Kurumsal Moda Geçildi' : '🌙 Gece Lüks Şampanya Moduna Geçildi');
+                }}
+                className="px-3 py-1.5 rounded-full border border-amber-500/30 text-xs font-bold bg-white/80 dark:bg-brand-card text-amber-800 dark:text-gold-400 shadow-sm hover:scale-105 transition"
+                title="Kurumsal Tema Değiştir"
+              >
+                {themeMode === 'light' ? '✨ Krem/Beyaz Mod' : '🌙 Gece Modu'}
+              </button>
+
+              {/* Dynamic Color Palette Customizer Toggle */}
+              <div className="relative">
+                <button
+                  onClick={() => setCustomColorPickerOpen(!customColorPickerOpen)}
+                  className="p-2 rounded-full border border-amber-500/30 bg-white/80 dark:bg-brand-card text-amber-700 dark:text-gold-400 text-xs font-bold shadow-sm"
+                  title="Dinamik Renk Paletini Özelleştir"
+                >
+                  🎨
+                </button>
+
+                {customColorPickerOpen && (
+                  <div className="absolute right-0 top-10 z-50 bg-white dark:bg-brand-card border border-amber-500/30 p-4 rounded-2xl shadow-2xl space-y-3 w-56 text-xs">
+                    <div className="font-bold text-slate-800 dark:text-gray-100 flex justify-between items-center">
+                      <span>🎨 Altın Renk Vurgusu</span>
+                      <button onClick={() => setCustomColorPickerOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={customGoldColor}
+                        onChange={e => setCustomGoldColor(e.target.value)}
+                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                      />
+                      <span className="font-mono font-bold text-amber-700 dark:text-gold-400">{customGoldColor}</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5 pt-1">
+                      {['#d97706', '#f59e0b', '#b45309', '#eab308', '#059669', '#2563eb', '#7c3aed', '#db2777'].map(c => (
+                        <button
+                          key={c}
+                          style={{ backgroundColor: c }}
+                          onClick={() => { setCustomGoldColor(c); showToast(`Dinamik Renk Değiştirildi: ${c}`); }}
+                          className="w-7 h-7 rounded-full border-2 border-white shadow-sm"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Role Switcher */}
+              <div className="bg-white/80 dark:bg-brand-card/90 border border-amber-500/30 rounded-full p-1 flex items-center shadow-inner">
+                <span className="text-[11px] font-semibold px-2 text-amber-700 dark:text-gold-400 hidden md:inline">Rol:</span>
                 {[
                   { id: 'admin', label: 'Admin 👑' },
                   { id: 'satisci', label: 'Satışçı 💼' },
@@ -412,7 +513,7 @@
                       showToast(`Rol Değiştirildi: ${r.label}`);
                     }}
                     className={`px-3 py-1 text-xs font-semibold rounded-full transition ${
-                      activeRole === r.id ? 'bg-gold-500 text-gray-950 font-bold shadow' : 'text-gray-400 hover:text-gray-200'
+                      activeRole === r.id ? 'gold-button font-bold shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900'
                     }`}
                   >
                     {r.label}
@@ -420,23 +521,17 @@
                 ))}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80" className="w-9 h-9 rounded-full border-2 border-gold-500/60 object-cover" />
-                <div className="hidden lg:block text-left text-xs">
-                  <div className="font-bold text-gray-200">İrem Yılmaz</div>
-                  <div className="text-[10px] text-gold-400 capitalize">{activeRole}</div>
-                </div>
-              </div>
+              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80" className="w-9 h-9 rounded-full border-2 border-amber-500/60 object-cover" />
             </div>
           </header>
 
           {/* LAYOUT BODY */}
           <div className="flex-1 flex overflow-hidden">
             
-            {/* SIDEBAR (Clean ASCII Slugs in Links) */}
-            <aside className="w-64 glass-panel p-4 hidden lg:flex flex-col justify-between border-r border-brand-border/40">
+            {/* SIDEBAR */}
+            <aside className="w-64 glass-panel p-4 hidden lg:flex flex-col justify-between border-r border-slate-200 dark:border-brand-border/40">
               <nav className="space-y-1">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-2">Menü</div>
+                <div className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Menü</div>
                 {[
                   { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: '📊', roles: ['admin', 'satisci', 'sosyal_medyaci', 'musteri'] },
                   { id: 'venues', label: 'Düğün Salonlarım', icon: '🏛️', roles: ['admin', 'satisci'] },
@@ -460,7 +555,7 @@
                       navigateTo(item.id);
                     }}
                     className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-xs transition ${
-                      activeTab === item.id ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30 font-bold' : 'text-gray-400 hover:bg-brand-card hover:text-gray-200'
+                      activeTab === item.id ? 'bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 font-bold shadow-sm' : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-brand-card hover:text-slate-900'
                     }`}
                   >
                     <span className="text-base">{item.icon}</span>
@@ -469,10 +564,10 @@
                 ))}
               </nav>
 
-              <div className="bg-brand-card p-4 rounded-2xl border border-gold-500/20 text-center space-y-1">
+              <div className="bg-white dark:bg-brand-card p-4 rounded-2xl border border-amber-500/20 text-center space-y-1 shadow-sm">
                 <div className="text-xl">🏰</div>
-                <div className="text-xs font-bold text-gold-400">İrem Düğün Sarayı</div>
-                <div className="text-[10px] text-gray-400">Sapanca / Sakarya</div>
+                <div className="text-xs font-bold text-amber-700 dark:text-gold-400">İrem Düğün Sarayı</div>
+                <div className="text-[10px] text-slate-500 dark:text-gray-400">Sapanca / Sakarya</div>
               </div>
             </aside>
 
@@ -480,7 +575,7 @@
             <main className="flex-1 p-4 lg:p-8 overflow-y-auto pb-24 lg:pb-8">
               
               {toast && (
-                <div className="fixed top-20 right-6 z-50 px-5 py-3 rounded-xl bg-emerald-950/90 text-emerald-200 border border-emerald-500/50 shadow-2xl font-medium text-xs">
+                <div className="fixed top-20 right-6 z-50 px-5 py-3 rounded-xl bg-emerald-900 text-emerald-100 border border-emerald-500/50 shadow-2xl font-medium text-xs">
                   {toast.msg}
                 </div>
               )}
@@ -506,7 +601,7 @@
               )}
 
               {activeTab === 'campaigns' && (
-                <CampaignsComponent campaigns={campaigns} onAddClick={() => setCampaignModalData('new')} onEditClick={c => setCampaignModalData(c)} />
+                <CampaignsComponent campaigns={campaigns} />
               )}
 
               {activeTab === 'finance' && (
@@ -514,33 +609,33 @@
               )}
 
               {activeTab === 'customers' && (
-                <CustomersComponent customers={customers} onAddClick={() => setCustomerModalData('new')} onEditClick={c => setCustomerModalData(c)} />
+                <CustomersComponent customers={customers} />
               )}
 
               {activeTab === 'users' && (
-                <UsersComponent users={users} onAddClick={() => setUserModalData('new')} onEditClick={u => setUserModalData(u)} />
+                <UsersComponent users={users} />
               )}
 
               {activeTab === 'reports' && (
-                <ReportsComponent reservations={reservations} aiRecommendations={AI_RECOMMENDATIONS} onCampaignClick={() => setCampaignModalData('new')} onServiceClick={() => setServiceModalData('new')} />
+                <ReportsComponent reservations={reservations} aiRecommendations={AI_RECOMMENDATIONS} />
               )}
 
               {activeTab === 'media' && (
-                <MediaComponent reservations={reservations} setReservations={setReservations} showToast={showToast} />
+                <MediaComponent reservations={reservations} showToast={showToast} />
               )}
 
             </main>
           </div>
 
           {/* MOBILE TAB BAR */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-brand-border/40 px-2 py-2 z-40 flex justify-around items-center">
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-slate-200 dark:border-brand-border/40 px-2 py-2 z-40 flex justify-around items-center">
             {[
               { id: 'dashboard', label: 'Anasayfa', icon: '📊' },
               { id: 'reservations', label: 'Rezervasyon', icon: '📋' },
               { id: 'calendar', label: 'Takvim', icon: '📅' },
               { id: 'venues', label: 'Salonlar', icon: '🏛️' }
             ].map(tab => (
-              <a key={tab.id} href={`?rol=${ROLE_TO_SLUG[activeRole]}#/${TAB_TO_SLUG[tab.id]}`} onClick={(e) => { e.preventDefault(); navigateTo(tab.id); }} className={`flex flex-col items-center py-1 px-3 rounded-xl ${activeTab === tab.id ? 'text-gold-400 font-bold bg-gold-500/10' : 'text-gray-400'}`}>
+              <a key={tab.id} href={`?rol=${ROLE_TO_SLUG[activeRole]}#/${TAB_TO_SLUG[tab.id]}`} onClick={(e) => { e.preventDefault(); navigateTo(tab.id); }} className={`flex flex-col items-center py-1 px-3 rounded-xl ${activeTab === tab.id ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400'}`}>
                 <span className="text-lg">{tab.icon}</span>
                 <span className="text-[10px]">{tab.label}</span>
               </a>
@@ -548,14 +643,6 @@
           </div>
 
           {/* MODALS */}
-          {venueModalData && (
-            <VenueFormModal venue={venueModalData === 'new' ? null : venueModalData} onClose={() => setVenueModalData(null)} onSave={(v) => { setVenues(prev => v.id ? prev.map(x => x.id === v.id ? v : x) : [...prev, { ...v, id: 'v-' + Date.now(), occupancyRate: 0, images: ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80'] }]); showToast('🏛️ Düğün Salonu Kaydedildi!'); setVenueModalData(null); }} />
-          )}
-
-          {serviceModalData && (
-            <ServiceFormModal service={serviceModalData === 'new' ? null : serviceModalData} onClose={() => setServiceModalData(null)} onSave={(s) => { setServices(prev => s.id ? prev.map(x => x.id === s.id ? s : x) : [...prev, { ...s, id: 's-' + Date.now(), image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80' }]); showToast('✨ Hizmet Kaydedildi!'); setServiceModalData(null); }} />
-          )}
-
           {selectedResForDetail && (
             <ReservationDetailModal res={selectedResForDetail} venues={venues} onClose={() => setSelectedResForDetail(null)} onUpdatePayment={(id, dep, stat) => { setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r)); showToast('💳 Ödeme Güncellendi!'); setSelectedResForDetail(null); }} />
           )}
@@ -568,22 +655,22 @@
     function DashboardComponent({ activeRole, venues, reservations, financialStats, onNewResClick, onTabChange }) {
       return (
         <div className="space-y-6">
-          <div className="glass-panel p-6 rounded-3xl border border-gold-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
             <div>
-              <span className="bg-gold-500/20 text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-gold-500/30">
-                {activeRole === 'admin' && '👑 Admin Yönetim Paneli'}
+              <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20">
+                {activeRole === 'admin' && '👑 Admin Kurumsal Yönetim Paneli'}
                 {activeRole === 'satisci' && '💼 Satış & Doluluk Ekranı'}
                 {activeRole === 'sosyal_medyaci' && '📸 Medya Yükleme Paneli'}
                 {activeRole === 'musteri' && '💖 Özel Müşteri Portalı'}
               </span>
-              <h2 className="text-2xl font-heading font-extrabold text-gray-100 mt-2">
+              <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100 mt-2">
                 Hoş Geldiniz, İrem Hanım ✨
               </h2>
-              <p className="text-xs text-gray-400 mt-1">İrem Düğün Sarayı güncel rezervasyon durumu ve organizasyon hareketleri.</p>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">İrem Düğün Sarayı güncel rezervasyon durumu ve organizasyon hareketleri.</p>
             </div>
 
             {(activeRole === 'admin' || activeRole === 'satisci') && (
-              <button onClick={onNewResClick} className="gold-button text-gray-950 font-bold px-6 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs">
+              <button onClick={onNewResClick} className="gold-button font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center space-x-2 text-xs">
                 <span>➕</span><span>Yeni Rezervasyon Oluştur</span>
               </button>
             )}
@@ -591,44 +678,19 @@
 
           {activeRole === 'admin' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="glass-panel p-5 rounded-2xl border border-brand-border/40"><div className="text-xs text-gray-400">Toplam Düğün Salonu</div><div className="text-2xl font-bold text-gray-100 mt-1">{venues.length}</div></div>
-              <div className="glass-panel p-5 rounded-2xl border border-gold-500/40"><div className="text-xs text-gray-400">Bu Ayın Boş Günleri</div><div className="text-2xl font-bold gold-gradient-text mt-1">12 Gün</div></div>
-              <div className="glass-panel p-5 rounded-2xl border border-brand-border/40"><div className="text-xs text-gray-400">Son Ay Toplam Kazanç</div><div className="text-2xl font-bold text-gray-100 mt-1">{formatCurrency(financialStats.totalRev)}</div></div>
-              <div className="glass-panel p-5 rounded-2xl border border-red-500/40"><div className="text-xs text-gray-400">Bekleyen Ödemeler</div><div className="text-2xl font-bold text-red-400 mt-1">{formatCurrency(financialStats.totalPending)}</div></div>
+              <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border/40 shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Toplam Düğün Salonu</div><div className="text-2xl font-bold text-slate-800 dark:text-gray-100 mt-1">{venues.length}</div></div>
+              <div className="glass-panel p-5 rounded-2xl border border-amber-500/40 shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Bu Ayın Boş Günleri</div><div className="text-2xl font-bold gold-gradient-text mt-1">12 Gün</div></div>
+              <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border/40 shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Son Ay Toplam Kazanç</div><div className="text-2xl font-bold text-slate-800 dark:text-gray-100 mt-1">{formatCurrency(financialStats.totalRev)}</div></div>
+              <div className="glass-panel p-5 rounded-2xl border border-red-500/40 shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Bekleyen Ödemeler</div><div className="text-2xl font-bold text-red-500 dark:text-red-400 mt-1">{formatCurrency(financialStats.totalPending)}</div></div>
             </div>
           )}
 
           {activeRole === 'satisci' && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="glass-panel p-5 rounded-2xl border border-brand-border/40"><div className="text-xs text-gray-400">Salon Sayısı</div><div className="text-2xl font-bold text-gray-100">{venues.length}</div></div>
-                <div className="glass-panel p-5 rounded-2xl border border-gold-500/40"><div className="text-xs text-gray-400">Ayın Boş Günleri</div><div className="text-2xl font-bold gold-gradient-text">12 Gün</div></div>
-                <div className="glass-panel p-5 rounded-2xl border border-emerald-500/40"><div className="text-xs text-gray-400">Kapora Alınanlar</div><div className="text-2xl font-bold text-emerald-400">{reservations.filter(r => r.depositPaid > 0).length}</div></div>
-              </div>
-              <div className="glass-panel p-5 rounded-2xl border border-gold-500/30">
-                <h3 className="font-bold text-sm text-gold-400">💡 Rezerve Edilecek En Uygun Günler</h3>
-                <p className="text-xs text-gray-300 mt-1">14 Ağustos Salı (Gündüz/Gece) ve 22 Ağustos Çarşamba öncelikli kiralanabilir günlerdir.</p>
-              </div>
-            </div>
-          )}
-
-          {activeRole === 'sosyal_medyaci' && (
-            <div className="glass-panel p-8 rounded-3xl text-center max-w-md mx-auto space-y-4">
-              <div className="text-4xl">📸</div>
-              <h3 className="font-bold text-lg text-gold-400">Medya Yükleme Ekranı</h3>
-              <button onClick={() => onTabChange('media')} className="gold-button text-gray-950 font-bold px-6 py-2.5 rounded-xl text-xs w-full">Medya Yükle</button>
-            </div>
-          )}
-
-          {activeRole === 'musteri' && (
-            <div className="glass-panel p-6 rounded-2xl space-y-4 border border-gold-500/40">
-              <div className="flex justify-between items-center border-b border-brand-border pb-3">
-                <div><span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-bold">Onaylı Düğün Sayfanız</span><h3 className="text-lg font-bold text-gray-100 mt-1">Ahmet Yılmaz & Ayşe Kaya</h3></div>
-                <span className="text-xs font-mono font-bold text-gold-400">RES-2026-001</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-brand-dark p-3 rounded-xl border border-brand-border"><div>Tarih</div><div className="font-bold text-gray-200">15 Ağustos 2026 (19:00 - 23:00)</div></div>
-                <div className="bg-brand-dark p-3 rounded-xl border border-brand-border"><div>Ödeme Durumu</div><div className="font-bold text-emerald-400">Kapora Alındı (₺50.000)</div></div>
+                <div className="glass-panel p-5 rounded-2xl"><div className="text-xs text-slate-500 dark:text-gray-400">Salon Sayısı</div><div className="text-2xl font-bold text-slate-800 dark:text-gray-100">{venues.length}</div></div>
+                <div className="glass-panel p-5 rounded-2xl border border-amber-500/40"><div className="text-xs text-slate-500 dark:text-gray-400">Ayın Boş Günleri</div><div className="text-2xl font-bold gold-gradient-text">12 Gün</div></div>
+                <div className="glass-panel p-5 rounded-2xl border border-emerald-500/40"><div className="text-xs text-slate-500 dark:text-gray-400">Kapora Alınanlar</div><div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{reservations.filter(r => r.depositPaid > 0).length}</div></div>
               </div>
             </div>
           )}
@@ -643,21 +705,21 @@
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Düğün Salonlarım</h2>
-            <button onClick={onAddClick} className="gold-button text-gray-950 font-bold px-4 py-2 rounded-xl text-xs">➕ Yeni Salon Ekle</button>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">➕ Yeni Salon Ekle</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {venues.map(v => (
-              <div key={v.id} className="glass-panel rounded-3xl border border-brand-border/40 overflow-hidden space-y-3">
+              <div key={v.id} className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden space-y-3 shadow-sm">
                 <img src={v.images[0]} className="w-full h-44 object-cover" />
                 <div className="p-4 space-y-2">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-base text-gray-100">{v.name}</h3>
-                    <span className="text-[10px] text-gold-400 font-bold bg-gold-500/10 px-2 py-0.5 rounded-full">{v.category}</span>
+                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">{v.name}</h3>
+                    <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full">{v.category}</span>
                   </div>
-                  <p className="text-xs text-gray-400">{v.description}</p>
-                  <div className="flex justify-between items-center pt-2 border-t border-brand-border text-xs">
-                    <span className="text-gray-400">Kapasite: <strong className="text-gray-200">{v.capacity} Kişi</strong></span>
-                    <button onClick={() => onEditClick(v)} className="px-3 py-1 rounded bg-brand-card hover:bg-gold-500/20 text-gold-400 font-bold text-xs">Düzenle ✏️</button>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">{v.description}</p>
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border text-xs">
+                    <span className="text-slate-500 dark:text-gray-400">Kapasite: <strong className="text-slate-800 dark:text-gray-200">{v.capacity} Kişi</strong></span>
+                    <button onClick={() => onEditClick(v)} className="px-3 py-1 rounded bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 font-bold text-xs border border-amber-500/30">Düzenle ✏️</button>
                   </div>
                 </div>
               </div>
@@ -673,17 +735,17 @@
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Ek Hizmetlerim</h2>
-            <button onClick={onAddClick} className="gold-button text-gray-950 font-bold px-4 py-2 rounded-xl text-xs">✨ Yeni Hizmet Ekle</button>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">✨ Yeni Hizmet Ekle</button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map(s => (
-              <div key={s.id} className="glass-panel p-4 rounded-2xl space-y-3">
-                <img src={s.image} className="w-full h-32 object-cover rounded-xl border border-brand-border" />
-                <h3 className="font-bold text-sm text-gray-100">{s.name}</h3>
-                <p className="text-xs text-gray-400">{s.description}</p>
-                <div className="flex justify-between items-center pt-2 border-t border-brand-border">
-                  <div className="font-bold text-gold-400 text-sm">{formatCurrency(s.price)}</div>
-                  <button onClick={() => onEditClick(s)} className="px-3 py-1 rounded bg-brand-card hover:bg-gold-500/20 text-gold-400 font-bold text-xs">Düzenle ✏️</button>
+              <div key={s.id} className="glass-panel p-4 rounded-2xl space-y-3 shadow-sm">
+                <img src={s.image} className="w-full h-32 object-cover rounded-xl border border-slate-200 dark:border-brand-border" />
+                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{s.name}</h3>
+                <p className="text-xs text-slate-500 dark:text-gray-400">{s.description}</p>
+                <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border">
+                  <div className="font-bold text-amber-700 dark:text-gold-400 text-sm">{formatCurrency(s.price)}</div>
+                  <button onClick={() => onEditClick(s)} className="px-3 py-1 rounded bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 font-bold text-xs border border-amber-500/30">Düzenle ✏️</button>
                 </div>
               </div>
             ))}
@@ -698,22 +760,22 @@
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Tüm Rezervasyonlar</h2>
-            <button onClick={onNewResClick} className="gold-button text-gray-950 font-bold px-4 py-2 rounded-xl text-xs">➕ Yeni Rezervasyon</button>
+            <button onClick={onNewResClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">➕ Yeni Rezervasyon</button>
           </div>
 
-          <div className="glass-panel p-4 rounded-2xl flex gap-3">
+          <div className="glass-panel p-4 rounded-2xl flex gap-3 shadow-sm">
             <input
               type="text"
               placeholder="Rezervasyon kodu veya müşteri..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="bg-brand-dark border border-brand-border rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-gold-500 flex-1"
+              className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500 flex-1"
             />
           </div>
 
-          <div className="glass-panel rounded-2xl overflow-hidden border border-brand-border/40">
+          <div className="glass-panel rounded-2xl overflow-hidden border border-slate-200 dark:border-brand-border/40 shadow-sm">
             <table className="w-full text-left text-xs">
-              <thead className="bg-brand-card text-gray-400 uppercase border-b border-brand-border">
+              <thead className="bg-slate-100 dark:bg-brand-card text-slate-600 dark:text-gray-400 uppercase border-b border-slate-200 dark:border-brand-border">
                 <tr>
                   <th className="p-3">Kod</th>
                   <th className="p-3">Müşteri</th>
@@ -723,15 +785,15 @@
                   <th className="p-3 text-right">İşlem</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-brand-border/30">
+              <tbody className="divide-y divide-slate-200 dark:divide-brand-border/30">
                 {reservations.map(r => (
-                  <tr key={r.id} className="hover:bg-brand-card/50">
-                    <td className="p-3 font-mono font-bold text-gold-400">{r.id}</td>
-                    <td className="p-3 font-medium text-gray-200">{r.customerName}</td>
-                    <td className="p-3 text-gray-300">{formatDate(r.date)}</td>
-                    <td className="p-3 font-bold text-gray-100">{formatCurrency(r.totalAmount)}</td>
-                    <td className="p-3"><span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">{r.paymentStatus}</span></td>
-                    <td className="p-3 text-right"><button onClick={() => onDetailClick(r)} className="px-3 py-1 rounded bg-gold-500/20 text-gold-400 font-bold text-[10px]">Detay 🔍</button></td>
+                  <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-brand-card/50">
+                    <td className="p-3 font-mono font-bold text-amber-700 dark:text-gold-400">{r.id}</td>
+                    <td className="p-3 font-medium text-slate-800 dark:text-gray-200">{r.customerName}</td>
+                    <td className="p-3 text-slate-600 dark:text-gray-300">{formatDate(r.date)}</td>
+                    <td className="p-3 font-bold text-slate-800 dark:text-gray-100">{formatCurrency(r.totalAmount)}</td>
+                    <td className="p-3"><span className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-500/20">{r.paymentStatus}</span></td>
+                    <td className="p-3 text-right"><button onClick={() => onDetailClick(r)} className="px-3 py-1 rounded bg-amber-500/10 text-amber-700 dark:text-gold-400 font-bold text-[10px] border border-amber-500/30">Detay 🔍</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -746,18 +808,18 @@
       return (
         <div className="space-y-6">
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim</h2>
-          <div className="glass-panel p-6 rounded-3xl space-y-4">
-            <h3 className="font-bold text-gold-400">📅 Ağustos 2026</h3>
+          <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm">
+            <h3 className="font-bold text-amber-700 dark:text-gold-400">📅 Ağustos 2026</h3>
             <div className="grid grid-cols-7 gap-2 text-center text-xs">
-              {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => <div key={d} className="font-bold text-gray-400 p-2 bg-brand-card rounded">{d}</div>)}
+              {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => <div key={d} className="font-bold text-slate-500 dark:text-gray-400 p-2 bg-slate-100 dark:bg-brand-card rounded">{d}</div>)}
               {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
                 const dateStr = `2026-08-${day < 10 ? '0' + day : day}`;
                 const dayRes = reservations.filter(r => r.date === dateStr);
                 return (
-                  <div key={day} className={`min-h-[70px] p-2 rounded-xl border text-left flex flex-col justify-between ${dayRes.length > 0 ? 'bg-brand-card border-gold-500/40' : 'bg-brand-dark/40 border-brand-border/30'}`}>
-                    <span className="font-bold text-xs text-gray-300">{day}</span>
+                  <div key={day} className={`min-h-[70px] p-2 rounded-xl border text-left flex flex-col justify-between ${dayRes.length > 0 ? 'bg-amber-50 dark:bg-brand-card border-amber-500/40' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30'}`}>
+                    <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
                     {dayRes.map(r => (
-                      <button key={r.id} onClick={() => onResClick(r)} className="bg-gold-500/20 text-gold-300 p-1 rounded text-[9px] font-bold truncate">
+                      <button key={r.id} onClick={() => onResClick(r)} className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/30">
                         {r.customerName.split(' ')[0]}
                       </button>
                     ))}
@@ -777,10 +839,10 @@
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Aktif Kampanyalar</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {campaigns.map(c => (
-              <div key={c.id} className="glass-panel p-5 rounded-2xl space-y-2 border border-gold-500/30">
-                <span className="bg-gold-500/20 text-gold-400 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full">{c.code}</span>
-                <h3 className="font-bold text-base text-gray-100">{c.title}</h3>
-                <p className="text-xs text-gray-400">{c.description}</p>
+              <div key={c.id} className="glass-panel p-5 rounded-2xl space-y-2 border border-amber-500/30 shadow-sm">
+                <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full border border-amber-500/20">{c.code}</span>
+                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">{c.title}</h3>
+                <p className="text-xs text-slate-500 dark:text-gray-400">{c.description}</p>
               </div>
             ))}
           </div>
@@ -794,9 +856,9 @@
         <div className="space-y-6">
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Finans Yönetimi</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="glass-panel p-5 rounded-2xl"><div className="text-xs text-gray-400">Toplam Ciro</div><div className="text-2xl font-bold text-gray-100 mt-1">{formatCurrency(financialStats.totalRev)}</div></div>
-            <div className="glass-panel p-5 rounded-2xl"><div className="text-xs text-gray-400">Tahsil Edilen Kapora</div><div className="text-2xl font-bold text-emerald-400 mt-1">{formatCurrency(financialStats.totalDeposit)}</div></div>
-            <div className="glass-panel p-5 rounded-2xl"><div className="text-xs text-gray-400">Kalan Bekleyen Bakiye</div><div className="text-2xl font-bold text-red-400 mt-1">{formatCurrency(financialStats.totalPending)}</div></div>
+            <div className="glass-panel p-5 rounded-2xl shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Toplam Ciro</div><div className="text-2xl font-bold text-slate-800 dark:text-gray-100 mt-1">{formatCurrency(financialStats.totalRev)}</div></div>
+            <div className="glass-panel p-5 rounded-2xl shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Tahsil Edilen Kapora</div><div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{formatCurrency(financialStats.totalDeposit)}</div></div>
+            <div className="glass-panel p-5 rounded-2xl shadow-sm"><div className="text-xs text-slate-500 dark:text-gray-400">Kalan Bekleyen Bakiye</div><div className="text-2xl font-bold text-red-500 dark:text-red-400 mt-1">{formatCurrency(financialStats.totalPending)}</div></div>
           </div>
         </div>
       );
@@ -809,11 +871,11 @@
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Müşteri Rehberi</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {customers.map(c => (
-              <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4">
-                <img src={c.avatar} className="w-14 h-14 rounded-2xl object-cover border border-gold-500/40" />
+              <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4 shadow-sm">
+                <img src={c.avatar} className="w-14 h-14 rounded-2xl object-cover border border-amber-500/40" />
                 <div className="flex-1 space-y-2">
-                  <h3 className="font-bold text-sm text-gray-100">{c.name}</h3>
-                  <div className="text-xs text-gray-400">{c.phone} | {c.email}</div>
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
+                  <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
                   <a href={generateWhatsAppLink(c.phone)} target="_blank" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs inline-flex items-center space-x-1 shadow">
                     <span>💬 WhatsApp İle Mesaj At</span>
                   </a>
@@ -832,13 +894,13 @@
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Kullanıcı Yönetimi</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {users.map(u => (
-              <div key={u.id} className="glass-panel p-5 rounded-2xl text-center space-y-3">
-                <img src={u.avatar} className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-gold-500/50" />
+              <div key={u.id} className="glass-panel p-5 rounded-2xl text-center space-y-3 shadow-sm">
+                <img src={u.avatar} className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-amber-500/50" />
                 <div>
-                  <h3 className="font-bold text-sm text-gray-100">{u.name}</h3>
-                  <div className="text-xs text-gray-400 truncate">{u.email}</div>
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{u.name}</h3>
+                  <div className="text-xs text-slate-500 dark:text-gray-400 truncate">{u.email}</div>
                 </div>
-                <span className="bg-gold-500/20 text-gold-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">{u.role}</span>
+                <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border border-amber-500/20">{u.role}</span>
               </div>
             ))}
           </div>
@@ -853,11 +915,11 @@
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Yapay Zeka Önerileri & Raporlar</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {aiRecommendations.map(rec => (
-              <div key={rec.id} className="glass-panel p-6 rounded-3xl space-y-3 border border-gold-500/40">
-                <span className="bg-gold-500/20 text-gold-400 text-xs font-bold px-3 py-1 rounded-full">✨ AI Öneri</span>
-                <h3 className="font-bold text-lg text-gray-100">{rec.title}</h3>
-                <p className="text-xs text-gray-300">{rec.description}</p>
-                <button className="gold-button text-gray-950 font-bold px-4 py-2 rounded-xl text-xs">{rec.actionText}</button>
+              <div key={rec.id} className="glass-panel p-6 rounded-3xl space-y-3 border border-amber-500/40 shadow-sm">
+                <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3 py-1 rounded-full">✨ AI Öneri</span>
+                <h3 className="font-bold text-lg text-slate-800 dark:text-gray-100">{rec.title}</h3>
+                <p className="text-xs text-slate-600 dark:text-gray-300">{rec.description}</p>
+                <button className="gold-button font-bold px-4 py-2 rounded-xl text-xs">{rec.actionText}</button>
               </div>
             ))}
           </div>
@@ -870,10 +932,10 @@
       return (
         <div className="space-y-6 max-w-xl mx-auto text-center">
           <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Medya & Foto Yükleme</h2>
-          <div className="glass-panel p-8 rounded-3xl space-y-4">
+          <div className="glass-panel p-8 rounded-3xl space-y-4 shadow-sm">
             <div className="text-4xl">📤</div>
-            <p className="text-xs text-gray-300">Rezervasyon fotoğraf ve video galerisini güncellemek için dosya yükleyin.</p>
-            <button onClick={() => showToast('📸 Örnek Medya Galerisi Güncellendi!')} className="gold-button text-gray-950 font-bold px-6 py-2.5 rounded-xl text-xs">
+            <p className="text-xs text-slate-600 dark:text-gray-300">Rezervasyon fotoğraf ve video galerisini güncellemek için dosya yükleyin.</p>
+            <button onClick={() => showToast('📸 Örnek Medya Galerisi Güncellendi!')} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs">
               Fotoğraf Yükle
             </button>
           </div>
@@ -881,96 +943,40 @@
       );
     }
 
-    // --- MODALS ---
-    function VenueFormModal({ venue, onClose, onSave }) {
-      const [name, setName] = useState(venue?.name || '');
-      const [category, setCategory] = useState(venue?.category || 'Kapalı Salon');
-      const [capacity, setCapacity] = useState(venue?.capacity || 500);
-      const [price, setPrice] = useState(venue?.price || 50000);
-      const [description, setDescription] = useState(venue?.description || '');
-
-      return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-brand-card border border-gold-500/40 rounded-3xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-100">{venue ? 'Salon Düzenle' : 'Yeni Salon Ekle'}</h3>
-            <div className="space-y-3 text-xs">
-              <input type="text" placeholder="Salon Adı" value={name} onChange={e => setName(e.target.value)} className="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200" />
-              <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200">
-                <option value="Kapalı Salon">Kapalı Salon</option>
-                <option value="Açık Hava / Kır Bahçesi">Açık Hava / Kır Bahçesi</option>
-                <option value="Butik / Teras">Butik / Teras</option>
-              </select>
-              <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Kapasite" value={capacity} onChange={e => setCapacity(Number(e.target.value))} className="bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200" />
-                <input type="number" placeholder="Taban Fiyat" value={price} onChange={e => setPrice(Number(e.target.value))} className="bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200" />
-              </div>
-              <textarea placeholder="Açıklama" value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200 h-20" />
-            </div>
-            <div className="flex justify-end space-x-2 pt-2">
-              <button onClick={onClose} className="px-4 py-2 bg-brand-dark text-gray-400 rounded-xl text-xs font-bold">İptal</button>
-              <button onClick={() => onSave({ ...venue, name, category, capacity, price, deposit: 10000, description })} className="gold-button text-gray-950 font-bold px-5 py-2 rounded-xl text-xs">Kaydet</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function ServiceFormModal({ service, onClose, onSave }) {
-      const [name, setName] = useState(service?.name || '');
-      const [price, setPrice] = useState(service?.price || 5000);
-      const [description, setDescription] = useState(service?.description || '');
-
-      return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-brand-card border border-gold-500/40 rounded-3xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-100">{service ? 'Hizmet Düzenle' : 'Yeni Hizmet Ekle'}</h3>
-            <div className="space-y-3 text-xs">
-              <input type="text" placeholder="Hizmet Adı" value={name} onChange={e => setName(e.target.value)} className="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200" />
-              <input type="number" placeholder="Fiyat (TL)" value={price} onChange={e => setPrice(Number(e.target.value))} className="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200" />
-              <textarea placeholder="Açıklama" value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-gray-200 h-20" />
-            </div>
-            <div className="flex justify-end space-x-2 pt-2">
-              <button onClick={onClose} className="px-4 py-2 bg-brand-dark text-gray-400 rounded-xl text-xs font-bold">İptal</button>
-              <button onClick={() => onSave({ ...service, name, category: 'Catering', price, pricingType: 'fixed', description })} className="gold-button text-gray-950 font-bold px-5 py-2 rounded-xl text-xs">Kaydet</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
+    // --- RESERVATION DETAIL MODAL ---
     function ReservationDetailModal({ res, venues, onClose, onUpdatePayment }) {
       const venue = venues.find(v => v.id === res.venueId);
       const [deposit, setDeposit] = useState(res.depositPaid);
       const [status, setStatus] = useState(res.paymentStatus);
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-brand-card border border-gold-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-brand-border pb-3">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
               <div>
-                <span className="font-mono text-gold-400 font-bold text-xs">{res.id}</span>
-                <h3 className="text-lg font-bold text-gray-100">{res.customerName}</h3>
+                <span className="font-mono text-amber-700 dark:text-gold-400 font-bold text-xs">{res.id}</span>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{res.customerName}</h3>
               </div>
-              <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-brand-dark p-3 rounded-xl border border-brand-border"><div>Salon</div><div className="font-bold text-gray-200">{venue?.name || '-'}</div></div>
-              <div className="bg-brand-dark p-3 rounded-xl border border-brand-border"><div>Tarih</div><div className="font-bold text-gray-200">{formatDate(res.date)} ({res.timeSlot})</div></div>
-              <div className="bg-brand-dark p-3 rounded-xl border border-brand-border"><div>Toplam Tutar</div><div className="font-bold text-gold-400">{formatCurrency(res.totalAmount)}</div></div>
-              <div className="bg-brand-dark p-3 rounded-xl border border-brand-border"><div>Kalan Bakiye</div><div className="font-bold text-red-400">{formatCurrency(Math.max(0, res.totalAmount - deposit))}</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Salon</div><div className="font-bold text-slate-800 dark:text-gray-200">{venue?.name || '-'}</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Tarih</div><div className="font-bold text-slate-800 dark:text-gray-200">{formatDate(res.date)} ({res.timeSlot})</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Toplam Tutar</div><div className="font-bold text-amber-700 dark:text-gold-400">{formatCurrency(res.totalAmount)}</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Kalan Bakiye</div><div className="font-bold text-red-500 dark:text-red-400">{formatCurrency(Math.max(0, res.totalAmount - deposit))}</div></div>
             </div>
 
-            <div className="bg-brand-dark/70 p-4 rounded-xl border border-gold-500/30 space-y-3">
-              <h4 className="font-bold text-xs text-gold-400">💳 Ödeme ve Kapora Güncelleme</h4>
+            <div className="bg-slate-50 dark:bg-brand-dark/70 p-4 rounded-xl border border-amber-500/30 space-y-3">
+              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400">💳 Ödeme ve Kapora Güncelleme</h4>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="text-gray-400 block mb-1">Tahsil Edilen Kapora (TL):</label>
-                  <input type="number" value={deposit} onChange={e => setDeposit(Number(e.target.value))} className="w-full bg-brand-card border border-brand-border rounded-lg p-2 text-gray-200" />
+                  <label className="text-slate-500 dark:text-gray-400 block mb-1">Tahsil Edilen Kapora (TL):</label>
+                  <input type="number" value={deposit} onChange={e => setDeposit(Number(e.target.value))} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200" />
                 </div>
                 <div>
-                  <label className="text-gray-400 block mb-1">Ödeme Statüsü:</label>
-                  <select value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-brand-card border border-brand-border rounded-lg p-2 text-gray-200">
+                  <label className="text-slate-500 dark:text-gray-400 block mb-1">Ödeme Statüsü:</label>
+                  <select value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200">
                     <option value="Bekliyor">Bekliyor</option>
                     <option value="Kapora Alındı">Kapora Alındı</option>
                     <option value="Ödendi">Ödendi</option>
@@ -980,9 +986,9 @@
               </div>
             </div>
 
-            <div className="flex justify-end space-x-2 pt-2 border-t border-brand-border">
-              <button onClick={onClose} className="px-4 py-2 bg-brand-dark text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
-              <button onClick={() => onUpdatePayment(res.id, deposit, status)} className="gold-button text-gray-950 font-bold px-5 py-2 rounded-xl text-xs">Ödemeyi Güncelle</button>
+            <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
+              <button onClick={() => onUpdatePayment(res.id, deposit, status)} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Ödemeyi Güncelle</button>
             </div>
           </div>
         </div>
