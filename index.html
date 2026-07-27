@@ -52,7 +52,7 @@
       --color-gold: #d97706;
       --color-gold-hover: #b45309;
       --color-gold-light: #fef3c7;
-      --color-bg: #faf9f6; /* Fresh White & Cream Corporate Mode */
+      --color-bg: #faf9f6;
       --color-card: #ffffff;
       --color-card-border: #e2e8f0;
       --color-text-main: #0f172a;
@@ -264,7 +264,7 @@
       { id: 'r2', title: 'Popüler Hizmet Paketi Önerisi', badge: 'Paket Önerisi', description: 'Müşterilerinizin %78\'i "Gurme Yemek" ile "Volkan Gösterisi" satın alıyor. Paket halinde %10 indirimle sunabilirsiniz.', actionText: 'Paket Oluştur' }
     ];
 
-    // Clean ASCII URL slugs without role in URL
+    // ASCII URL SLUGS
     const TAB_TO_SLUG = {
       'dashboard': 'anasayfa',
       'venues': 'dugun-salonlari',
@@ -293,6 +293,42 @@
       'medya-yukle': 'media'
     };
 
+    const TAB_LABELS = {
+      'dashboard': 'Anasayfa / İstatistikler',
+      'venues': 'Düğün Salonlarım',
+      'services': 'Ek Hizmetlerim',
+      'reservations': 'Rezervasyonlar',
+      'calendar': 'Takvim Görünümü',
+      'campaigns': 'Kampanyalar',
+      'finance': 'Finans & Fatura Yönetimi',
+      'customers': 'Müşteri Rehberi',
+      'users': 'Kullanıcı Yönetimi',
+      'reports': 'Raporlar & AI Önerileri',
+      'media': 'Medya & Foto Yükleme'
+    };
+
+    // RBAC TAB PERMISSION MATRIX
+    const TAB_PERMISSIONS = {
+      'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'venues': ['admin', 'satisci'],
+      'services': ['admin', 'satisci'],
+      'reservations': ['admin', 'satisci'],
+      'calendar': ['admin', 'satisci'],
+      'campaigns': ['admin'],
+      'finance': ['admin'],
+      'customers': ['admin', 'satisci'],
+      'users': ['admin'],
+      'reports': ['admin'],
+      'media': ['admin', 'sosyal_medyaci', 'musteri']
+    };
+
+    const ROLE_NAMES = {
+      'admin': 'Admin 👑',
+      'satisci': 'Satışçı 💼',
+      'sosyal_medyaci': 'Sosyal Medya 📸',
+      'musteri': 'Müşteri 💑'
+    };
+
     function formatCurrency(amount) {
       if (amount === undefined || amount === null) return '₺0';
       return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(amount);
@@ -300,10 +336,6 @@
     function formatDate(dateString) {
       if (!dateString) return '';
       return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(dateString));
-    }
-    function generateWhatsAppLink(phone) {
-      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
-      return `https://wa.me/${cleanPhone}?text=${encodeURIComponent("Merhabalar Ben İrem Düğün Sarayı'ndan sizlere ulaşıyorum. Rezervasyonunuz hakkında.")}`;
     }
 
     function getHashTab() {
@@ -320,25 +352,21 @@
       const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
       const [users, setUsers] = useState(INITIAL_USERS);
 
-      // Default: Fresh White / Cream Corporate Mode (light mode)
       const [themeMode, setThemeMode] = useState('light');
       const [customGoldColor, setCustomGoldColor] = useState('#d97706');
       const [customColorPickerOpen, setCustomColorPickerOpen] = useState(false);
 
-      // Role is kept cleanly in React state (No ?rol= in URL link!)
       const [activeRole, setActiveRole] = useState('admin');
       const [activeTab, setActiveTabState] = useState(getHashTab);
 
       const [toast, setToast] = useState(null);
 
-      // Modals
       const [newResModalOpen, setNewResModalOpen] = useState(false);
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
 
       const [resSearchQuery, setResSearchQuery] = useState('');
       const [resStatusFilter, setResStatusFilter] = useState('all');
 
-      // Update HTML class & CSS variables when Theme changes
       useEffect(() => {
         const rootEl = document.documentElement;
         if (themeMode === 'dark') {
@@ -354,7 +382,6 @@
         document.documentElement.style.setProperty('--color-gold', customGoldColor);
       }, [customGoldColor]);
 
-      // Sync only clean tab hash (#/dugun-salonlari) to URL address bar!
       const navigateTo = (tab) => {
         setActiveTabState(tab);
         const tabSlug = TAB_TO_SLUG[tab] || 'anasayfa';
@@ -394,6 +421,12 @@
         });
       }, [reservations, resSearchQuery, resStatusFilter]);
 
+      // Check if current active role is authorized for active tab
+      const isAuthorized = useMemo(() => {
+        const allowedRoles = TAB_PERMISSIONS[activeTab] || ['admin'];
+        return allowedRoles.includes(activeRole);
+      }, [activeTab, activeRole]);
+
       return (
         <div className="min-h-screen flex flex-col font-sans transition-colors duration-300">
           
@@ -414,7 +447,6 @@
             {/* Theme Controls & Role Switcher */}
             <div className="flex items-center space-x-2 sm:space-x-3">
               
-              {/* Fresh White vs Dark Theme Toggle */}
               <button
                 onClick={() => {
                   const nextTheme = themeMode === 'light' ? 'dark' : 'light';
@@ -427,7 +459,6 @@
                 {themeMode === 'light' ? '✨ Krem/Beyaz Mod' : '🌙 Gece Modu'}
               </button>
 
-              {/* Dynamic Color Palette Customizer Toggle */}
               <div className="relative">
                 <button
                   onClick={() => setCustomColorPickerOpen(!customColorPickerOpen)}
@@ -466,7 +497,7 @@
                 )}
               </div>
 
-              {/* Role Switcher (State Only - No ?rol= in URL link) */}
+              {/* Role Switcher */}
               <div className="bg-white/80 dark:bg-brand-card/90 border border-amber-500/30 rounded-full p-1 flex items-center shadow-inner">
                 <span className="text-[11px] font-semibold px-2 text-amber-700 dark:text-gold-400 hidden md:inline">Rol:</span>
                 {[
@@ -497,7 +528,7 @@
           {/* LAYOUT BODY */}
           <div className="flex-1 flex overflow-hidden">
             
-            {/* SIDEBAR (Clean ASCII Slugs in Links - No Role in URL) */}
+            {/* SIDEBAR */}
             <aside className="w-64 glass-panel p-4 hidden lg:flex flex-col justify-between border-r border-slate-200 dark:border-brand-border/40">
               <nav className="space-y-1">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Menü</div>
@@ -549,48 +580,59 @@
                 </div>
               )}
 
-              {activeTab === 'dashboard' && (
-                <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => setNewResModalOpen(true)} onTabChange={navigateTo} />
-              )}
+              {/* RBAC PERMISSION GUARD & UNAUTHORIZED ACCESS WARNING SCREEN */}
+              {!isAuthorized ? (
+                <UnauthorizedAccessScreen
+                  pageTitle={TAB_LABELS[activeTab] || activeTab}
+                  activeRoleName={ROLE_NAMES[activeRole]}
+                  onGoHome={() => navigateTo('dashboard')}
+                />
+              ) : (
+                <>
+                  {activeTab === 'dashboard' && (
+                    <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => setNewResModalOpen(true)} onTabChange={navigateTo} />
+                  )}
 
-              {activeTab === 'venues' && (
-                <VenuesComponent venues={venues} />
-              )}
+                  {activeTab === 'venues' && (
+                    <VenuesComponent venues={venues} />
+                  )}
 
-              {activeTab === 'services' && (
-                <ServicesComponent services={services} />
-              )}
+                  {activeTab === 'services' && (
+                    <ServicesComponent services={services} />
+                  )}
 
-              {activeTab === 'reservations' && (
-                <ReservationsComponent reservations={filteredReservations} venues={venues} searchQuery={resSearchQuery} setSearchQuery={setResSearchQuery} statusFilter={resStatusFilter} setStatusFilter={setResStatusFilter} onNewResClick={() => setNewResModalOpen(true)} onDetailClick={setSelectedResForDetail} />
-              )}
+                  {activeTab === 'reservations' && (
+                    <ReservationsComponent reservations={filteredReservations} venues={venues} searchQuery={resSearchQuery} setSearchQuery={setResSearchQuery} statusFilter={resStatusFilter} setStatusFilter={setResStatusFilter} onNewResClick={() => setNewResModalOpen(true)} onDetailClick={setSelectedResForDetail} />
+                  )}
 
-              {activeTab === 'calendar' && (
-                <CalendarComponent reservations={reservations} venues={venues} onResClick={setSelectedResForDetail} />
-              )}
+                  {activeTab === 'calendar' && (
+                    <CalendarComponent reservations={reservations} venues={venues} onResClick={setSelectedResForDetail} />
+                  )}
 
-              {activeTab === 'campaigns' && (
-                <CampaignsComponent campaigns={campaigns} />
-              )}
+                  {activeTab === 'campaigns' && (
+                    <CampaignsComponent campaigns={campaigns} />
+                  )}
 
-              {activeTab === 'finance' && (
-                <FinanceComponent financialStats={financialStats} reservations={reservations} />
-              )}
+                  {activeTab === 'finance' && (
+                    <FinanceComponent financialStats={financialStats} reservations={reservations} />
+                  )}
 
-              {activeTab === 'customers' && (
-                <CustomersComponent customers={customers} />
-              )}
+                  {activeTab === 'customers' && (
+                    <CustomersComponent customers={customers} />
+                  )}
 
-              {activeTab === 'users' && (
-                <UsersComponent users={users} />
-              )}
+                  {activeTab === 'users' && (
+                    <UsersComponent users={users} />
+                  )}
 
-              {activeTab === 'reports' && (
-                <ReportsComponent reservations={reservations} aiRecommendations={AI_RECOMMENDATIONS} />
-              )}
+                  {activeTab === 'reports' && (
+                    <ReportsComponent reservations={reservations} aiRecommendations={AI_RECOMMENDATIONS} />
+                  )}
 
-              {activeTab === 'media' && (
-                <MediaComponent reservations={reservations} showToast={showToast} />
+                  {activeTab === 'media' && (
+                    <MediaComponent reservations={reservations} showToast={showToast} />
+                  )}
+                </>
               )}
 
             </main>
@@ -616,6 +658,44 @@
             <ReservationDetailModal res={selectedResForDetail} venues={venues} onClose={() => setSelectedResForDetail(null)} onUpdatePayment={(id, dep, stat) => { setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r)); showToast('💳 Ödeme Güncellendi!'); setSelectedResForDetail(null); }} />
           )}
 
+        </div>
+      );
+    }
+
+    // --- UNAUTHORIZED ACCESS WARNING COMPONENT ---
+    function UnauthorizedAccessScreen({ pageTitle, activeRoleName, onGoHome }) {
+      return (
+        <div className="min-h-[70vh] flex items-center justify-center p-4">
+          <div className="glass-panel p-8 md:p-12 rounded-3xl max-w-lg w-full text-center space-y-5 border-2 border-red-500/40 shadow-2xl animate-fade-in">
+            <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 border-2 border-red-500/50 flex items-center justify-center text-4xl shadow-inner">
+              🚫
+            </div>
+            
+            <div className="space-y-2">
+              <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/30 uppercase tracking-wider">
+                Hata 403 / Yetkisiz Erişim
+              </span>
+              <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+                Bu Sayfaya Erişim Yetkiniz Yok!
+              </h2>
+              <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                <strong>"{pageTitle}"</strong> modülünü görüntülemek için gerekli yetkiye sahip değilsiniz.
+              </p>
+            </div>
+
+            <div className="bg-slate-100 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border text-xs text-left space-y-1">
+              <div className="text-slate-500 dark:text-gray-400">Mevcut Rolünüz: <strong className="text-amber-700 dark:text-gold-400 font-bold">{activeRoleName}</strong></div>
+              <div className="text-slate-500 dark:text-gray-400">Çözüm: Bu modül yalnızca yetkili kullanıcılar (Admin) için açıktır. Lütfen sağ üstteki rol butonlarından yetkili bir role geçin veya yöneticinizle görüşün.</div>
+            </div>
+
+            <button
+              onClick={onGoHome}
+              className="gold-button font-bold px-6 py-3 rounded-2xl text-xs shadow-lg inline-flex items-center space-x-2 transition transform hover:scale-105"
+            >
+              <span>🏠</span>
+              <span>Güvenli Anasayfaya Dön</span>
+            </button>
+          </div>
         </div>
       );
     }
