@@ -759,10 +759,17 @@
     function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations, onSaveReservation, onCancel }) {
       // 1. Venue, Date & Slot
       const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
+      const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 65000);
       const [eventDate, setEventDate] = useState('2026-08-25');
       const [timeSlot, setTimeSlot] = useState('19:00-23:00');
       const [customTimeRange, setCustomTimeRange] = useState('');
       const [guestCount, setGuestCount] = useState(500);
+
+      // Update customVenuePrice when venueId changes
+      useEffect(() => {
+        const v = venues.find(x => x.id === venueId);
+        if (v) setCustomVenuePrice(v.price);
+      }, [venueId]);
 
       // 2. Customer & Auto-Membership
       const [customerMode, setCustomerMode] = useState('existing'); // 'existing' or 'new'
@@ -772,11 +779,11 @@
       const [newCustPhone, setNewCustPhone] = useState('');
       const [newCustSecondaryPhone, setNewCustSecondaryPhone] = useState('');
 
-      // 3. Services & Per-service Guest Quantities & Paid status
+      // 3. Services & Per-service Guest Quantities & Paid status & Custom Unit Prices
       const [selectedServices, setSelectedServices] = useState([
-        { serviceId: 's1', quantity: 500, isPaid: true },
-        { serviceId: 's2', quantity: 1, isPaid: true },
-        { serviceId: 's3', quantity: 1, isPaid: false }
+        { serviceId: 's1', quantity: 500, customUnitPrice: 350, isPaid: true },
+        { serviceId: 's2', quantity: 1, customUnitPrice: 18000, isPaid: true },
+        { serviceId: 's3', quantity: 1, customUnitPrice: 25000, isPaid: false }
       ]);
 
       // 4. Financials, Deposit & Promo
@@ -814,15 +821,16 @@
 
       // Financial Calculation
       const calculations = useMemo(() => {
-        const vPrice = selectedVenue ? selectedVenue.price : 0;
+        const vPrice = Number(customVenuePrice) || 0;
         let servTotal = 0;
         const mappedServices = selectedServices.map(item => {
           const s = services.find(x => x.id === item.serviceId);
           if (!s) return null;
+          const unitPrice = item.customUnitPrice !== undefined ? Number(item.customUnitPrice) : s.price;
           const qty = s.pricingType === 'per_person' ? item.quantity : 1;
-          const cost = s.price * qty;
+          const cost = unitPrice * qty;
           servTotal += cost;
-          return { serviceId: s.id, quantity: qty, unitPrice: s.price, isPaid: item.isPaid };
+          return { serviceId: s.id, quantity: qty, unitPrice, isPaid: item.isPaid };
         }).filter(Boolean);
 
         const sub = vPrice + servTotal;
@@ -837,7 +845,7 @@
         const remaining = Math.max(0, grandTotal - dep);
 
         return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, remaining, mappedServices };
-      }, [selectedVenue, selectedServices, campaignCode, hasDeposit, depositPaid, isInvoiced, services]);
+      }, [customVenuePrice, selectedServices, campaignCode, hasDeposit, depositPaid, isInvoiced, services]);
 
       const handleAddFlowItem = () => {
         setFlowPlan(prev => [...prev, { time: '22:30', title: 'Yeni Akış Adımı' }]);
@@ -945,12 +953,22 @@
                   <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">1. Salon & Kiralama Tarih/Saat Seçimi</h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                   <div>
                     <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Düğün Salonu Seçin:</label>
                     <select value={venueId} onChange={e => setVenueId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
                       {venues.map(v => <option key={v.id} value={v.id}>{v.name} ({v.capacity} Kişi - {formatCurrency(v.price)})</option>)}
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Salon Kiralama Fiyatı (TL):</label>
+                    <input
+                      type="number"
+                      value={customVenuePrice}
+                      onChange={e => setCustomVenuePrice(Number(e.target.value))}
+                      className="w-full bg-amber-500/10 border border-amber-500/40 rounded-xl p-2.5 text-amber-800 dark:text-gold-400 font-extrabold"
+                    />
                   </div>
 
                   <div>
@@ -1067,7 +1085,20 @@
                           </label>
 
                           {isSelected && (
-                            <div className="flex items-center space-x-3 text-xs">
+                            <div className="flex flex-wrap items-center gap-3 text-xs">
+                              <div className="flex items-center space-x-1">
+                                <span className="font-bold">Özel Birim Fiyat (TL):</span>
+                                <input
+                                  type="number"
+                                  value={found.customUnitPrice !== undefined ? found.customUnitPrice : s.price}
+                                  onChange={e => {
+                                    const val = Number(e.target.value);
+                                    setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, customUnitPrice: val } : x));
+                                  }}
+                                  className="w-24 bg-amber-500/10 border border-amber-500/40 rounded-lg p-1 font-bold text-center text-amber-800 dark:text-gold-400"
+                                />
+                              </div>
+
                               {s.pricingType === 'per_person' && (
                                 <div className="flex items-center space-x-1">
                                   <span className="font-bold">Kişi Sayısı:</span>
