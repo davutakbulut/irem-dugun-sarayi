@@ -57,27 +57,48 @@
       --color-card-border: #e2e8f0;
       --color-text-main: #0f172a;
       --color-text-muted: #64748b;
-      --glass-bg: rgba(255, 255, 255, 0.9);
-      --glass-border: rgba(217, 119, 6, 0.2);
+      --glass-bg: rgba(255, 255, 255, 0.96);
+      --glass-border: rgba(217, 119, 6, 0.25);
+    }
+
+    .dark {
+      --color-bg: #0f172a;
+      --color-card: #1e293b;
+      --glass-bg: rgba(30, 41, 59, 0.96);
+      --glass-border: rgba(217, 119, 6, 0.35);
     }
 
     body {
       background-color: var(--color-bg);
       color: var(--color-text-main);
       font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
 
+    /* FIX FOR BLANK WHITE BOXES & SCROLL REPAINT GLITCHES */
     .glass-panel {
       background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--glass-border);
+      isolation: isolate;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+
+    @supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
+      .glass-panel {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
     }
 
     .gold-gradient-text {
+      color: var(--color-gold); /* Solid fallback for webkit text clip rendering bug */
       background: linear-gradient(135deg, var(--color-gold) 0%, #d97706 50%, #92400e 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      display: inline-block;
     }
 
     .gold-button {
@@ -100,6 +121,12 @@
     ::-webkit-scrollbar-track { background: var(--color-bg); }
     ::-webkit-scrollbar-thumb { background: var(--color-card-border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+
+    /* PREVENT BLANK CANVAS DURING HARD SCROLLING */
+    main {
+      -webkit-overflow-scrolling: touch;
+      transform: translateZ(0);
+    }
 
     /* SYSTEM-WIDE PERFORMANCE LAYER 1: SKELETON SHIMMER ANIMATION */
     @keyframes shimmer {
