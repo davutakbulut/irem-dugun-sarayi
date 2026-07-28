@@ -2470,9 +2470,17 @@
       );
     }
 
-    // --- VENUE DETAIL POPUP MODAL COMPONENT (DESKTOP CENTERED / MOBILE FULL SCREEN) ---
+    // --- VENUE DETAIL POPUP MODAL COMPONENT (VIEWPORT CENTERED / MOBILE FIT FULL SCREEN / MAP LINK) ---
     function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
       if (!venue) return null;
+
+      useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.body.style.overflow = originalOverflow;
+        };
+      }, []);
 
       const interiorImages = [
         venue.image || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
@@ -2501,19 +2509,28 @@
         'Gelin Odası İkramları & VIP Karşılama'
       ];
 
+      const mapQueryUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((venue.name || '') + ' ' + (venue.location || 'Sapanca Sakarya İrem Düğün Sarayı'))}`;
+
       return (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-y-auto animate-fade-in">
-          <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full sm:h-auto sm:max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-0 sm:my-auto sm:max-h-[90vh]">
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full max-h-screen sm:h-auto sm:max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-0 sm:my-auto sm:max-h-[88vh]">
             
             {/* MODAL HEADER */}
-            <div className="relative h-48 sm:h-72 overflow-hidden shrink-0">
+            <div className="relative h-44 sm:h-72 overflow-hidden shrink-0">
               <img src={venue.image} alt={venue.name} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent flex flex-col justify-end p-4 sm:p-6 text-white">
                 <div className="flex justify-between items-end">
                   <div>
-                    <span className="gold-button text-[10px] sm:text-xs font-bold px-3 py-0.5 sm:py-1 rounded-full shadow">
-                      📍 {venue.location || 'Sapanca Göl Kenarı, Sakarya'}
-                    </span>
+                    <a
+                      href={mapQueryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gold-button text-[10px] sm:text-xs font-bold px-3 py-0.5 sm:py-1 rounded-full shadow inline-flex items-center space-x-1 hover:scale-105 transition"
+                      title="Haritada Yol Tarifi Al ve Konumu Aç"
+                    >
+                      <svg className="w-3.5 h-3.5 inline text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                      <span>📍 {venue.location || 'Sapanca Göl Kenarı, Sakarya'} (Haritalarda Göster ↗)</span>
+                    </a>
                     <h2 className="text-xl sm:text-3xl font-heading font-extrabold text-white mt-1.5 drop-shadow">
                       {venue.name}
                     </h2>
@@ -2521,7 +2538,7 @@
                   </div>
                   <button
                     onClick={onClose}
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-red-600 text-white font-bold text-base sm:text-lg flex items-center justify-center backdrop-blur-md transition border border-white/30 shrink-0"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-red-600 text-white font-bold text-base sm:text-lg flex items-center justify-center backdrop-blur-md transition border border-white/30 shrink-0"
                     title="Kapat"
                   >
                     ✕
@@ -2531,8 +2548,27 @@
             </div>
 
             {/* MODAL CONTENT BODY */}
-            <div className="p-4 sm:p-6 space-y-5 flex-1 overflow-y-auto custom-scrollbar text-xs">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 overflow-y-auto custom-scrollbar text-xs">
               
+              {/* LOCATION MAP BAR */}
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border flex justify-between items-center text-xs">
+                <div className="space-y-0.5">
+                  <div className="font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-1">
+                    <svg className="w-4 h-4 text-amber-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>Salon Konumu:</span>
+                  </div>
+                  <div className="text-slate-500 dark:text-gray-400 text-[11px]">{venue.location || 'Sapanca Göl Kenarı, Sakarya / Türkiye'}</div>
+                </div>
+                <a
+                  href={mapQueryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card hover:bg-slate-300 text-slate-800 dark:text-gray-200 font-bold rounded-xl text-xs border border-slate-300 dark:border-brand-border flex items-center space-x-1 shrink-0 shadow-sm"
+                >
+                  <span>Haritalarda Aç 🗺️</span>
+                </a>
+              </div>
+
               {/* KEY SPECS GRID */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-3 sm:p-3.5 rounded-2xl">
