@@ -567,62 +567,7 @@
               </div>
             </div>
 
-            {/* Theme Controls & Role Switcher */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              
-              <button
-                onClick={() => {
-                  const nextTheme = themeMode === 'light' ? 'dark' : 'light';
-                  setThemeMode(nextTheme);
-                  showToast(nextTheme === 'light' ? '✨ Şık Krem/Beyaz Kurumsal Moda Geçildi' : '🌙 Gece Lüks Şampanya Moduna Geçildi');
-                }}
-                className="px-3 py-1.5 rounded-full border border-amber-500/30 text-xs font-bold bg-white/80 dark:bg-brand-card text-amber-800 dark:text-gold-400 shadow-sm hover:scale-105 transition"
-                aria-label="Kurumsal Tema Değiştir"
-              >
-                {themeMode === 'light' ? '✨ Krem/Beyaz Mod' : '🌙 Gece Modu'}
-              </button>
-
-              <div className="relative">
-                <button
-                  onClick={() => setCustomColorPickerOpen(!customColorPickerOpen)}
-                  className="p-2 rounded-full border border-amber-500/30 bg-white/80 dark:bg-brand-card text-amber-700 dark:text-gold-400 text-xs font-bold shadow-sm"
-                  aria-label="Dinamik Renk Paletini Özelleştir"
-                >
-                  🎨
-                </button>
-
-                {customColorPickerOpen && (
-                  <div className="absolute right-0 top-10 z-50 bg-white dark:bg-brand-card border border-amber-500/30 p-4 rounded-2xl shadow-2xl space-y-3 w-56 text-xs">
-                    <div className="font-bold text-slate-800 dark:text-gray-100 flex justify-between items-center">
-                      <span>🎨 Altın Renk Vurgusu</span>
-                      <button onClick={() => setCustomColorPickerOpen(false)} className="text-gray-400 hover:text-gray-600" aria-label="Kapat">✕</button>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="color"
-                        value={customGoldColor}
-                        onChange={e => setCustomGoldColor(e.target.value)}
-                        className="w-8 h-8 rounded border-0 cursor-pointer"
-                        aria-label="Özel renk seçici"
-                      />
-                      <span className="font-mono font-bold text-amber-700 dark:text-gold-400">{customGoldColor}</span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-1.5 pt-1">
-                      {['#d97706', '#f59e0b', '#b45309', '#eab308', '#059669', '#2563eb', '#7c3aed', '#db2777'].map(c => (
-                        <button
-                          key={c}
-                          style={{ backgroundColor: c }}
-                          onClick={() => { setCustomGoldColor(c); showToast(`Dinamik Renk Değiştirildi: ${c}`); }}
-                          className="w-7 h-7 rounded-full border-2 border-white shadow-sm"
-                          aria-label={`Renk seç: ${c}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Role Switcher */}
+            {/* Role Switcher */}
               <div className="bg-white/80 dark:bg-brand-card/90 border border-amber-500/30 rounded-full p-1 flex items-center shadow-inner" role="group" aria-label="Kullanıcı Rolü Değiştirici">
                 <span className="text-[11px] font-semibold px-2 text-amber-700 dark:text-gold-400 hidden md:inline">Rol:</span>
                 {[
