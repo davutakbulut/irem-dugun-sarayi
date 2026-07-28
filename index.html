@@ -1189,6 +1189,26 @@
                     <MediaComponent reservations={reservations} showToast={showToast} />
                   )}
 
+                  {activeTab === 'profile' && (
+                    <ProfileComponent
+                      currentUser={{
+                        name: 'İrem Yılmaz',
+                        email: 'admin@iremdugunsarayi.com',
+                        phone: '+90 532 000 0000',
+                        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80'
+                      }}
+                      activeRole={activeRole}
+                      onSaveProfile={(updated) => {
+                        showToast('👤 Profil Bilgileri Başarıyla Güncellendi!');
+                      }}
+                      showToast={showToast}
+                      onRoleChange={(newRole) => {
+                        setActiveRole(newRole);
+                        showToast(`Rol Değiştirildi: ${rolesState[newRole] || newRole}`);
+                      }}
+                    />
+                  )}
+
                   {activeTab.startsWith('settings') && (
                     <SettingsComponent
                       activeRole={activeRole}
