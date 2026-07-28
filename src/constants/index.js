@@ -49,7 +49,7 @@ export const INITIAL_TAB_PERMISSIONS = {
   'settings': ['admin']
 };
 
-// 10 KURUMSAL & DİNAMİK TEMA PALETİ VE KESKİNLİK JETONLARI
+// 10 KURUMSAL & DİNAMİK TEMA PALETİ VE KESKİN LÜKS JETONLARI
 export const THEME_PALETTES = [
   // MEVCUT SOFT TEMALAR
   { id: 'gold', name: 'Altın & Şampanya 👑', primaryColor: '#d97706', geometry: 'rounded-2xl', description: 'Lüks balo ve kır düğünü konsepti (Varsayılan)' },
@@ -59,11 +59,11 @@ export const THEME_PALETTES = [
   { id: 'violet', name: 'Mor Lüks 💜', primaryColor: '#7c3aed', geometry: 'rounded-2xl', description: 'VIP gece ve sahne ışıkları konsepti' },
 
   // YENİ 5 KESKİN & KURUMSAL TEMA
-  { id: 'obsidian-gold', name: 'Keskin Lüks Obsidiyen 🖤👑', primaryColor: '#d97706', geometry: 'rounded-none', description: 'Dik keskin köşeler (rounded-none), metalik altın çeperler ve lüks siyah kontrast' },
-  { id: 'sapphire-clean', name: 'Neo-Minimalist Safir 🔷', primaryColor: '#1d4ed8', geometry: 'rounded-md', description: 'Hafif 4px kavisli köşeler (rounded-md), kraliyet mavisi ve düz kurumsal kartlar' },
-  { id: 'platinum-silver', name: 'Premium Platin & Gümüş 🩶', primaryColor: '#475569', geometry: 'rounded-sm', description: 'Metalik gümüş çeperler, lüks platin vurgular ve keskin kurumsal çizgiler' },
-  { id: 'emerald-royal', name: 'Kraliyet Zümrüt Kır Bahçesi 🌿', primaryColor: '#047857', geometry: 'rounded-none', description: 'Keskin zümrüt yeşili çeperler ve orman yeşili kurumsal gradyanlar' },
-  { id: 'titanium-tech', name: 'Titanium Tech Modern ⚡', primaryColor: '#6d28d9', geometry: 'rounded-md', description: 'Titanyum gri kartlar, teknolojik mor gradyanlar ve keskin kurumsal butonlar' }
+  { id: 'obsidian-gold', name: 'Obsidian Gold 🖤👑', primaryColor: '#d97706', geometry: 'rounded-none', description: 'Keskin Lüks Siyah & Altın: 0px dik keskin köşeler (rounded-none), metalik altın çeperler' },
+  { id: 'sapphire-clean', name: 'Sapphire Clean 🔷', primaryColor: '#1d4ed8', geometry: 'rounded-md', description: 'Neo-Minimalist Safir: 4px kavisli köşeler (rounded-md), kraliyet mavisi kurumsal kartlar' },
+  { id: 'platinum-silver', name: 'Platinum Silver 🩶', primaryColor: '#475569', geometry: 'rounded-sm', description: 'Premium Platin & Gümüş: 2px micro-keskin köşeler (rounded-sm), metalik gümüş çeperler' },
+  { id: 'emerald-royal', name: 'Emerald Royal 🌿', primaryColor: '#047857', geometry: 'rounded-none', description: 'Kraliyet Zümrüt Kır Bahçesi: 0px keskin köşeler (rounded-none), zümrüt altını çeperler' },
+  { id: 'titanium-tech', name: 'Titanium Tech ⚡', primaryColor: '#6d28d9', geometry: 'rounded-md', description: 'Titanium Tech Modern: 4px teknolojik köşeler (rounded-md), titanyum mor çeperler' }
 ];
 
 export const formatCurrency = (amount) => {
@@ -186,32 +186,58 @@ export const INITIAL_CUSTOMERS = [
   { id: 'cust-2', name: 'Zeynep & Murat Aksu', phone: '+90 533 999 8877', email: 'zeynepmurat@gmail.com', date: '2026-08-20', totalRes: 1, status: 'Ödendi', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80' }
 ];
 
-export const AI_RECOMMENDATIONS = [
-  {
-    id: 'ai-1',
-    code: 'AĞUSTOS10',
-    title: '🎯 Ağustos Ayı Kır Bahçesi Fiyat Artırım & Fırsat Önerisi',
-    type: 'percent',
-    value: 10,
-    description: 'Ağustos hafta sonları Kır Bahçesi doluluğu %92 seviyesine ulaştı. Kiralama fiyatını %10 artırmak 140.000 ₺ ek gelir sağlar.',
-    actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀'
-  },
-  {
-    id: 'ai-2',
-    code: 'DRONE20',
-    title: '💡 Drone Çekimi Çapraz Satış Fırsatı',
-    type: 'free_service',
-    value: 0,
-    description: 'Son 5 kiralama rezervasyonunda drone çekimi seçilmedi. İndirimli drone paketi sunarak ek 60.000 ₺ ciro elde edin.',
-    actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀'
-  },
-  {
-    id: 'ai-3',
-    code: 'SONBAHAR26',
-    title: '🍂 Sonbahar Erken Rezervasyon Fırsatı (%20 Net İndirim)',
-    type: 'percent',
-    value: 20,
-    description: 'Eylül ve Ekim düğün tarihleri için %20 Erken Rezervasyon Kampanyası başlatarak doluluğu %100 seviyesine çıkarın.',
-    actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀'
-  }
-];
+export const generateSmartAIRecommendations = (reservations = [], venues = [], services = []) => {
+  const kbVenue = venues.find(v => v.id === 'v2' || (v.name && v.name.includes('Kır Bahçesi'))) || venues[0];
+  const kbOccupancy = kbVenue ? (kbVenue.occupancyRate || 92) : 92;
+  const currentKbPrice = kbVenue ? kbVenue.price : 85000;
+  const suggestedKbPrice = kbVenue ? Math.round(currentKbPrice * 1.10) : 93500;
+
+  const droneService = services.find(s => s.id === 's3' || (s.name && s.name.toLowerCase().includes('drone'))) || services[2];
+  const resCountWithDrone = reservations.filter(r => (r.selectedServiceIds || []).includes(droneService?.id)).length;
+  const totalRes = Math.max(1, reservations.length);
+  const droneAdoptionRate = Math.round((resCountWithDrone / totalRes) * 100);
+
+  return [
+    {
+      id: 'ai-1',
+      code: 'AĞUSTOS10',
+      title: `🎯 ${kbVenue?.name || 'Kır Bahçesi'} Fiyat Artırım & Fırsat Önerisi (%${kbOccupancy} Doluluk)`,
+      type: 'percent',
+      value: 10,
+      venueId: kbVenue?.id || 'v2',
+      venueName: kbVenue?.name || 'Kır Bahçesi VİP',
+      currentPrice: currentKbPrice,
+      suggestedPrice: suggestedKbPrice,
+      description: `${kbVenue?.name || 'Kır Bahçesi VİP'} salonunda hafta sonu doluluğu %${kbOccupancy} seviyesine ulaştı. Kiralama bedelini %10 artırarak ${formatCurrency(suggestedKbPrice)} seviyesine çekmek tahmini 140.000 ₺ ek gelir sağlar.`,
+      actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀',
+      priceActionText: 'Fiyatı Güncelle & Uygula 💰',
+      badge: `%${kbOccupancy} Doluluk Zirvede`,
+      canUpdatePrice: true
+    },
+    {
+      id: 'ai-2',
+      code: 'DRONE20',
+      title: '💡 Drone Çekimi Çapraz Satış Fırsatı',
+      type: 'free_service',
+      value: 0,
+      description: `Mevcut rezervasyonlarda Drone çekimi tercih oranı %${droneAdoptionRate}. Kır bahçesi kiralamalarında 4K drone çekimini promosyonlu sunarak ek 60.000 ₺ ciro elde edin.`,
+      actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀',
+      badge: 'Çapraz Satış Trendi',
+      canUpdatePrice: false
+    },
+    {
+      id: 'ai-3',
+      code: 'SONBAHAR26',
+      title: '🍂 Sonbahar Erken Rezervasyon Fırsatı (%20 Net İndirim)',
+      type: 'percent',
+      value: 20,
+      description: 'Eylül ve Ekim düğün tarihleri için %20 Erken Rezervasyon Kampanyası başlatarak salon doluluğunu %100 seviyesine çıkarın.',
+      actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀',
+      badge: 'Sezonluk Fırsat',
+      canUpdatePrice: false
+    }
+  ];
+};
+
+export const AI_RECOMMENDATIONS = generateSmartAIRecommendations(INITIAL_RESERVATIONS, INITIAL_VENUES, INITIAL_SERVICES);
+

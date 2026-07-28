@@ -24,6 +24,174 @@
   --glass-border: rgba(217, 119, 6, 0.35);
 }
 
+/* ==========================================================================
+   5 YENİ KURUMSAL TEMA PALETİ & GEOMETRİ/ÇEPER EFEKTİ SİSTEMİ
+   ========================================================================== */
+
+/* 1. OBSIDIAN GOLD (Keskin Lüks Siyah & Altın) - rounded-none */
+html[data-theme="obsidian-gold"], [data-theme="obsidian-gold"] {
+  --color-gold: #d97706;
+  --color-gold-hover: #b45309;
+  --glass-border: rgba(217, 119, 6, 0.75);
+}
+[data-theme="obsidian-gold"] .gold-button,
+[data-theme="obsidian-gold"] button,
+[data-theme="obsidian-gold"] input,
+[data-theme="obsidian-gold"] select,
+[data-theme="obsidian-gold"] .glass-panel,
+[data-theme="obsidian-gold"] .rounded-2xl,
+[data-theme="obsidian-gold"] .rounded-3xl,
+[data-theme="obsidian-gold"] .rounded-xl,
+[data-theme="obsidian-gold"] .rounded-lg {
+  border-radius: 0px !important;
+}
+[data-theme="obsidian-gold"] .glass-panel {
+  border: 1px solid rgba(217, 119, 6, 0.8) !important;
+  box-shadow: 0 0 16px rgba(217, 119, 6, 0.25), inset 0 0 2px rgba(251, 191, 36, 0.5) !important;
+}
+[data-theme="obsidian-gold"] .gold-button {
+  background: linear-gradient(135deg, #d97706 0%, #78350f 100%) !important;
+  border: 1px solid #fbbf24 !important;
+}
+[data-theme="obsidian-gold"] .gold-gradient-text {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #92400e 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* 2. SAPPHIRE CLEAN (Neo-Minimalist Safir) - rounded-md */
+html[data-theme="sapphire-clean"], [data-theme="sapphire-clean"] {
+  --color-gold: #1d4ed8;
+  --color-gold-hover: #1e40af;
+  --glass-border: rgba(29, 78, 216, 0.45);
+}
+[data-theme="sapphire-clean"] .gold-button,
+[data-theme="sapphire-clean"] button,
+[data-theme="sapphire-clean"] input,
+[data-theme="sapphire-clean"] select {
+  border-radius: 0.375rem !important; /* rounded-md */
+}
+[data-theme="sapphire-clean"] .glass-panel,
+[data-theme="sapphire-clean"] .rounded-2xl,
+[data-theme="sapphire-clean"] .rounded-3xl,
+[data-theme="sapphire-clean"] .rounded-xl {
+  border-radius: 0.5rem !important; /* rounded-lg */
+}
+[data-theme="sapphire-clean"] .glass-panel {
+  border: 1px solid rgba(37, 99, 235, 0.45) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15) !important;
+}
+[data-theme="sapphire-clean"] .gold-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+  border: 1px solid #60a5fa !important;
+}
+[data-theme="sapphire-clean"] .gold-gradient-text {
+  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 50%, #1e3a8a 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* 3. PLATINUM SILVER (Premium Platin & Gümüş) - rounded-sm */
+html[data-theme="platinum-silver"], [data-theme="platinum-silver"] {
+  --color-gold: #475569;
+  --color-gold-hover: #334155;
+  --glass-border: rgba(148, 163, 184, 0.55);
+}
+[data-theme="platinum-silver"] .gold-button,
+[data-theme="platinum-silver"] button,
+[data-theme="platinum-silver"] input,
+[data-theme="platinum-silver"] select {
+  border-radius: 0.125rem !important; /* rounded-sm */
+}
+[data-theme="platinum-silver"] .glass-panel,
+[data-theme="platinum-silver"] .rounded-2xl,
+[data-theme="platinum-silver"] .rounded-3xl,
+[data-theme="platinum-silver"] .rounded-xl {
+  border-radius: 0.25rem !important;
+}
+[data-theme="platinum-silver"] .glass-panel {
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 0 0 16px rgba(226, 232, 240, 0.35), inset 0 0 6px rgba(255, 255, 255, 0.2) !important;
+}
+[data-theme="platinum-silver"] .gold-button {
+  background: linear-gradient(135deg, #64748b 0%, #334155 100%) !important;
+  border: 1px solid #cbd5e1 !important;
+}
+[data-theme="platinum-silver"] .gold-gradient-text {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #475569 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* 4. EMERALD ROYAL (Kraliyet Zümrüt Kır Bahçesi) - rounded-none */
+html[data-theme="emerald-royal"], [data-theme="emerald-royal"] {
+  --color-gold: #047857;
+  --color-gold-hover: #064e3b;
+  --glass-border: rgba(4, 120, 87, 0.65);
+}
+[data-theme="emerald-royal"] .gold-button,
+[data-theme="emerald-royal"] button,
+[data-theme="emerald-royal"] input,
+[data-theme="emerald-royal"] select,
+[data-theme="emerald-royal"] .glass-panel,
+[data-theme="emerald-royal"] .rounded-2xl,
+[data-theme="emerald-royal"] .rounded-3xl,
+[data-theme="emerald-royal"] .rounded-xl,
+[data-theme="emerald-royal"] .rounded-lg {
+  border-radius: 0px !important;
+}
+[data-theme="emerald-royal"] .glass-panel {
+  border: 1px solid rgba(16, 185, 129, 0.75) !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25), inset 0 0 2px rgba(52, 211, 153, 0.5) !important;
+}
+[data-theme="emerald-royal"] .gold-button {
+  background: linear-gradient(135deg, #059669 0%, #064e3b 100%) !important;
+  border: 1px solid #34d399 !important;
+}
+[data-theme="emerald-royal"] .gold-gradient-text {
+  background: linear-gradient(135deg, #34d399 0%, #059669 50%, #064e3b 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* 5. TITANIUM TECH (Titanium Tech Modern) - rounded-md */
+html[data-theme="titanium-tech"], [data-theme="titanium-tech"] {
+  --color-gold: #6d28d9;
+  --color-gold-hover: #4c1d95;
+  --glass-border: rgba(109, 40, 217, 0.55);
+}
+[data-theme="titanium-tech"] .gold-button,
+[data-theme="titanium-tech"] button,
+[data-theme="titanium-tech"] input,
+[data-theme="titanium-tech"] select {
+  border-radius: 0.375rem !important; /* rounded-md */
+}
+[data-theme="titanium-tech"] .glass-panel,
+[data-theme="titanium-tech"] .rounded-2xl,
+[data-theme="titanium-tech"] .rounded-3xl,
+[data-theme="titanium-tech"] .rounded-xl {
+  border-radius: 0.5rem !important;
+}
+[data-theme="titanium-tech"] .glass-panel {
+  border: 1px solid rgba(124, 58, 237, 0.65) !important;
+  box-shadow: 0 0 18px rgba(124, 58, 237, 0.28), inset 0 0 3px rgba(167, 139, 250, 0.4) !important;
+}
+[data-theme="titanium-tech"] .gold-button {
+  background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important;
+  border: 1px solid #a78bfa !important;
+}
+[data-theme="titanium-tech"] .gold-gradient-text {
+  background: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #4c1d95 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* MEVCUT SOFT PALETLER */
+html[data-theme="emerald"], [data-theme="emerald"] { --color-gold: #059669; --color-gold-hover: #047857; }
+html[data-theme="sapphire"], [data-theme="sapphire"] { --color-gold: #2563eb; --color-gold-hover: #1d4ed8; }
+html[data-theme="rose"], [data-theme="rose"] { --color-gold: #e11d48; --color-gold-hover: #be123c; }
+html[data-theme="violet"], [data-theme="violet"] { --color-gold: #7c3aed; --color-gold-hover: #6d28d9; }
+
 body {
   background-color: var(--color-bg);
   color: var(--color-text-main);
@@ -69,7 +237,7 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid #d97706 !important;
+  outline: 3px solid var(--color-gold, #d97706) !important;
   outline-offset: 2px !important;
 }
 

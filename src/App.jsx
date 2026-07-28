@@ -44,7 +44,7 @@ import {
 
 export default function App() {
   const [theme, setTheme] = useState('light');
-  const [activePalette, setActivePalette] = useState('gold');
+  const [activePalette, setActivePalette] = useState(() => localStorage.getItem('irem_active_palette') || 'gold');
   const [activeRole, setActiveRole] = useState('admin');
   const [rolesState, setRolesState] = useState(ROLE_NAMES);
   const [tabPermissionsState, setTabPermissionsState] = useState(INITIAL_TAB_PERMISSIONS);
@@ -52,6 +52,11 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState('');
   const [isToastVisible, setIsToastVisible] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('irem_active_palette', activePalette);
+    document.documentElement.setAttribute('data-theme', activePalette);
+  }, [activePalette]);
 
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -143,6 +148,11 @@ export default function App() {
   const handleAddCampaignFromAI = (aiCampaign) => {
     setCampaigns(prev => [aiCampaign, ...prev]);
   };
+
+  const handleUpdateVenuePriceFromAI = (venueId, newPrice) => {
+    setVenues(prev => prev.map(v => v.id === venueId ? { ...v, price: newPrice } : v));
+  };
+
 
   const handleSaveUser = (user) => {
     setUsers(prev => user.id ? prev.map(u => u.id === user.id ? user : u) : [...prev, user]);
@@ -295,9 +305,15 @@ export default function App() {
               {activeTab === 'campaigns' && (
                 <CampaignsPageComponent
                   campaigns={campaigns}
+                  venues={venues}
+                  services={services}
+                  reservations={reservations}
                   onAddClick={() => setCampaignModalData('new')}
                   onEditClick={c => setCampaignModalData(c)}
                   onDeleteClick={handleDeleteCampaign}
+                  onAddCampaignFromAI={handleAddCampaignFromAI}
+                  onUpdateVenuePriceFromAI={handleUpdateVenuePriceFromAI}
+                  showToast={showToast}
                 />
               )}
 
@@ -329,12 +345,15 @@ export default function App() {
               {activeTab === 'reports' && (
                 <ReportsPageComponent
                   reservations={reservations}
-                  aiRecommendations={AI_RECOMMENDATIONS}
+                  venues={venues}
+                  services={services}
                   onAddCampaignFromAI={handleAddCampaignFromAI}
+                  onUpdateVenuePriceFromAI={handleUpdateVenuePriceFromAI}
                   showToast={showToast}
                   navigateTo={navigateTo}
                 />
               )}
+
 
               {activeTab === 'media' && (
                 <MediaPageComponent

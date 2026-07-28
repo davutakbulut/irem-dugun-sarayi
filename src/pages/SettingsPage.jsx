@@ -61,23 +61,34 @@ export default function SettingsPageComponent({ activeRole, rolesState, tabPermi
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-md" style={{ backgroundColor: p.primaryColor }}>
-                      {p.id.includes('gold') || p.id.includes('obsidian') ? '👑' : p.id.includes('emerald') ? '🌿' : p.id.includes('sapphire') ? '🔷' : p.id.includes('rose') ? '🌹' : p.id.includes('platinum') ? '🩶' : '⚡'}
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-md flex-shrink-0" style={{ backgroundColor: p.primaryColor }}>
+                      {p.id.includes('obsidian') ? '🖤' : p.id.includes('gold') ? '👑' : p.id.includes('emerald') ? '🌿' : p.id.includes('sapphire') ? '🔷' : p.id.includes('rose') ? '🌹' : p.id.includes('platinum') ? '🩶' : '⚡'}
                     </div>
                     <div>
                       <div className="font-bold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-2">
                         <span>{p.name}</span>
-                        {isSelected && <span className="text-[10px] bg-amber-500 text-white font-bold px-1.5 py-0.2 rounded">AKTİF</span>}
+                        {isSelected && <span className="text-[10px] bg-amber-500 text-white font-bold px-1.5 py-0.2 rounded">AKTİF TEMA</span>}
                       </div>
                       <div className="text-[10px] text-slate-500 dark:text-gray-400 mt-0.5">{p.description}</div>
-                      <div className="text-[9px] font-mono text-amber-700 dark:text-gold-400 font-bold mt-1">
-                        Geometri: <code className="bg-slate-100 dark:bg-brand-dark px-1 py-0.5 rounded">{p.geometry || 'rounded-2xl'}</code>
+                      <div className="text-[9px] font-mono text-amber-700 dark:text-gold-400 font-bold mt-1 flex items-center space-x-2">
+                        <span>Keskinlik:</span>
+                        <code className="bg-slate-100 dark:bg-brand-dark px-1.5 py-0.5 rounded text-[10px] border border-amber-500/30">{p.geometry || 'rounded-2xl'}</code>
                       </div>
                     </div>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'bg-amber-500 border-amber-500 text-white font-bold text-xs' : 'border-slate-300 dark:border-brand-border'}`}>
-                    {isSelected && '✓'}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectPalette(p.id);
+                      showToast(`🎨 Tema Değiştirildi: ${p.name}`);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1 flex-shrink-0 ${
+                      isSelected ? 'gold-button shadow-md' : 'bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20'
+                    }`}
+                  >
+                    <span>{isSelected ? '✓ Aktif' : 'Temayı Uygula'}</span>
+                  </button>
                 </div>
               );
             })}
