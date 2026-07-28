@@ -3928,19 +3928,20 @@
               </div>
 
               {/* MOBILE STICKY FLOATING BOTTOM ACTION BAR */}
-              <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t-2 border-amber-500/40 p-3 shadow-[0_-8px_25px_rgba(0,0,0,0.15)] flex items-center justify-between gap-2.5">
+              <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t-2 border-amber-500/40 p-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.15)] flex items-center justify-between gap-2">
                 <div
                   onClick={() => setIsMobileSummaryDrawerOpen(true)}
-                  className="flex-1 flex flex-col justify-center bg-slate-50 dark:bg-brand-dark px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-brand-border cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 transition"
+                  className="shrink-0 flex flex-col justify-center bg-slate-50 dark:bg-brand-dark px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-brand-border cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 transition"
                   title="Detaylı Canlı Hesaplamayı Aç"
                 >
-                  <div className="flex items-center space-x-1 text-[10px] font-bold text-slate-500 dark:text-gray-400">
-                    <span>Kalan Ödenecek Net Bakiye:</span>
-                    <span className="text-amber-600 dark:text-gold-400 text-[9px] font-extrabold flex items-center">
+                  <div className="flex items-center space-x-1 text-[10px] font-bold text-slate-600 dark:text-gray-300">
+                    <span className="inline-flex items-center space-x-1 bg-amber-500/15 text-amber-800 dark:text-gold-400 px-1.5 py-0.5 rounded-md text-[9px] font-extrabold border border-amber-500/30 shrink-0">
+                      <svg className="w-3 h-3 text-amber-700 dark:text-gold-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7"></path></svg>
                       <span>▲ Detaylar</span>
                     </span>
+                    <span className="whitespace-nowrap">Net Bakiye:</span>
                   </div>
-                  <div className={`text-sm font-extrabold font-mono ${
+                  <div className={`text-xs font-extrabold font-mono mt-0.5 ${
                     calculations.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                   }`}>
                     {calculations.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(calculations.remaining)}
@@ -3950,12 +3951,12 @@
                 <button
                   disabled={conflictInfo.hasConflict}
                   onClick={handleSubmit}
-                  className={`gold-button font-extrabold px-4 py-3 rounded-2xl text-xs shadow-lg flex items-center space-x-1.5 shrink-0 ${
-                    conflictInfo.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
+                  className={`flex-1 gold-button font-extrabold px-3 py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1.5 whitespace-nowrap ${
+                    conflictInfo.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'
                   }`}
                 >
-                  <span>🎉</span>
-                  <span>Rezervasyonu ve Sözleşmeyi Kaydet</span>
+                  <svg className="w-4 h-4 text-slate-900 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Rezervasyonu Oluştur</span>
                 </button>
               </div>
 
@@ -4048,7 +4049,8 @@
                           conflictInfo.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
                         }`}
                       >
-                        <span>🎉</span><span>Rezervasyonu ve Sözleşmeyi Kaydet</span>
+                        <svg className="w-4 h-4 text-slate-900 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Rezervasyonu Oluştur</span>
                       </button>
                     </div>
 
