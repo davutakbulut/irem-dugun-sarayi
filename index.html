@@ -343,8 +343,76 @@
       filter: grayscale(100%) opacity(0.85) !important;
     }
 
+    /* ---------------------------------------------------- */
+    /* STRICT ZERO-ORANGE OVERRIDES FOR ARCHITECTURE THEMES */
+    /* ---------------------------------------------------- */
+    html[data-ui-theme="elite-luxury"] :focus-visible {
+      outline: 2px solid #D4AF37 !important;
+      outline-offset: 2px !important;
+    }
+    html[data-ui-theme="nordic-light"] :focus-visible {
+      outline: 2px solid #0F172A !important;
+      outline-offset: 2px !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] ::-webkit-scrollbar-thumb:hover { background: #D4AF37 !important; }
+    html[data-ui-theme="nordic-light"] ::-webkit-scrollbar-thumb:hover { background: #0F172A !important; }
+
+    /* OVERRIDE ALL AMBER / ORANGE UTILITY CLASSES TO ZERO-ORANGE TOKENS */
+    html[data-ui-theme="elite-luxury"] .border-amber-500,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/30,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/40,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/50,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/60 {
+      border-color: rgba(212, 175, 55, 0.3) !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .text-amber-500,
+    html[data-ui-theme="elite-luxury"] .text-amber-600,
+    html[data-ui-theme="elite-luxury"] .text-amber-700,
+    html[data-ui-theme="elite-luxury"] .text-amber-400 {
+      color: #E5C158 !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .bg-amber-500,
+    html[data-ui-theme="elite-luxury"] .bg-amber-600 {
+      background-color: #D4AF37 !important;
+      color: #0B0C0E !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .bg-amber-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-amber-500\/20 {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .border-amber-500,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/30,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/40,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/50,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/60 {
+      border-color: #E2E8F0 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-amber-500,
+    html[data-ui-theme="nordic-light"] .text-amber-600,
+    html[data-ui-theme="nordic-light"] .text-amber-700,
+    html[data-ui-theme="nordic-light"] .text-amber-400 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-amber-500,
+    html[data-ui-theme="nordic-light"] .bg-amber-600 {
+      background-color: #0F172A !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/20 {
+      background-color: #F1F3F5 !important;
+    }
+
     :focus-visible {
-      outline: 3px solid #d97706 !important;
+      outline: 3px solid #0F172A !important;
       outline-offset: 2px !important;
     }
 
