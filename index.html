@@ -966,9 +966,55 @@
       );
     }
 
+    // ARCHITECTURAL ULTRA-THIN SVG ICON COMPONENT
+    function SvgIcon({ name, className = "w-4 h-4" }) {
+      switch (name) {
+        case 'dashboard':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>;
+        case 'create-reservation':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 5v14M5 12h14"/></svg>;
+        case 'venues':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1M14 10h1M9 14h1M14 14h1"/></svg>;
+        case 'services':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>;
+        case 'reservations':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>;
+        case 'calendar':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="4" width="18" height="18"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+        case 'campaigns':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>;
+        case 'finance':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="1" y="4" width="22" height="16"/><line x1="1" y1="10" x2="23" y2="10"/></svg>;
+        case 'customers':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>;
+        case 'users':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+        case 'reports':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
+        case 'media':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="3" width="18" height="18"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
+        case 'profile':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        case 'settings':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>;
+        case 'appearance':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>;
+        case 'performance':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        case 'rbac':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="11" width="18" height="11"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
+        case 'save':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><polyline points="20 6 9 17 4 12"/></svg>;
+        case 'trash':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>;
+        default:
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><circle cx="12" cy="12" r="10"/></svg>;
+      }
+    }
+
     const TAB_LABELS = {
       'dashboard': 'Anasayfa / İstatistikler',
-      'create-reservation': '➕ Yeni Rezervasyon Oluştur',
+      'create-reservation': 'Yeni Rezervasyon Oluştur',
       'venues': 'Düğün Salonlarım',
       'services': 'Ek Hizmetlerim',
       'reservations': 'Rezervasyonlar',
@@ -979,11 +1025,11 @@
       'users': 'Kullanıcı Yönetimi',
       'reports': 'Raporlar & AI Önerileri',
       'media': 'Medya & Foto Yükleme',
-      'profile': '👤 Profilim & Hesap Ayarları',
-      'settings': '⚙️ Genel Ayarlar & Rol Yönetimi',
-      'settings-appearance': '🎨 Görünüm & Tema Ayarları',
-      'settings-performance': '⚡ Önbellek & Performans',
-      'settings-rbac': '🛡️ Rol & İzin Yönetimi'
+      'profile': 'Profilim & Hesap Ayarları',
+      'settings': 'Genel Ayarlar & Rol Yönetimi',
+      'settings-appearance': 'Görünüm & Tema Ayarları',
+      'settings-performance': 'Önbellek & Performans',
+      'settings-rbac': 'Rol & İzin Yönetimi'
     };
 
     const TAB_PERMISSIONS = {
@@ -1007,10 +1053,10 @@
     };
 
     const ROLE_NAMES = {
-      'admin': 'Admin 👑',
-      'satisci': 'Satışçı 💼',
-      'sosyal_medyaci': 'Sosyal Medya 📸',
-      'musteri': 'Müşteri 💑'
+      'admin': 'Admin',
+      'satisci': 'Satış Temsilcisi',
+      'sosyal_medyaci': 'Sosyal Medya',
+      'musteri': 'Müşteri'
     };
 
     function formatCurrency(amount) {
@@ -1498,18 +1544,18 @@
               <nav className="space-y-1">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Menü</div>
                 {[
-                  { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: '📊' },
-                  { id: 'create-reservation', label: '➕ Yeni Rezervasyon', icon: '📝' },
-                  { id: 'venues', label: 'Düğün Salonlarım', icon: '🏛️' },
-                  { id: 'services', label: 'Ek Hizmetler', icon: '✨' },
-                  { id: 'reservations', label: 'Rezervasyonlarım', icon: '📋' },
-                  { id: 'calendar', label: 'Takvim Görünümü', icon: '📅' },
-                  { id: 'campaigns', label: 'Kampanyalar', icon: '🎁' },
-                  { id: 'finance', label: 'Finans & Fatura', icon: '💰' },
-                  { id: 'customers', label: 'Müşteri Rehberi', icon: '👥' },
-                  { id: 'users', label: 'Kullanıcı Yönetimi', icon: '⚙️' },
-                  { id: 'reports', label: 'Raporlar & AI Öneri', icon: '📈' },
-                  { id: 'media', label: 'Medya & Foto Yükle', icon: '📷' }
+                  { id: 'dashboard', label: 'Anasayfa / İstatistikler' },
+                  { id: 'create-reservation', label: 'Yeni Rezervasyon' },
+                  { id: 'venues', label: 'Düğün Salonlarım' },
+                  { id: 'services', label: 'Ek Hizmetler' },
+                  { id: 'reservations', label: 'Rezervasyonlarım' },
+                  { id: 'calendar', label: 'Takvim Görünümü' },
+                  { id: 'campaigns', label: 'Kampanyalar' },
+                  { id: 'finance', label: 'Finans & Fatura' },
+                  { id: 'customers', label: 'Müşteri Rehberi' },
+                  { id: 'users', label: 'Kullanıcı Yönetimi' },
+                  { id: 'reports', label: 'Raporlar & AI Öneri' },
+                  { id: 'media', label: 'Medya & Foto Yükle' }
                 ]
                 .filter(item => (tabPermissionsState[item.id] || []).includes(activeRole))
                 .map(item => (
@@ -1525,7 +1571,7 @@
                     }`}
                     aria-current={activeTab === item.id ? 'page' : undefined}
                   >
-                    <span className="text-base" aria-hidden="true">{item.icon}</span>
+                    <SvgIcon name={item.id} className="w-4 h-4 shrink-0" />
                     <span>{item.label}</span>
                   </a>
                 ))}
@@ -1541,7 +1587,7 @@
                         activeTab === 'settings' ? 'bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 shadow-sm' : 'text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-brand-card'
                       }`}
                     >
-                      <span className="text-base">⚙️</span>
+                      <SvgIcon name="settings" className="w-4 h-4 shrink-0" />
                       <span>Sistem Ayarları</span>
                     </a>
                     <div className="pl-6 space-y-1">
@@ -1552,7 +1598,7 @@
                           activeTab === 'settings-appearance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
                         }`}
                       >
-                        <span>🎨</span>
+                        <SvgIcon name="appearance" className="w-3.5 h-3.5 shrink-0" />
                         <span>Görünüm & Tema</span>
                       </a>
                       <a
@@ -1562,7 +1608,7 @@
                           activeTab === 'settings-performance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
                         }`}
                       >
-                        <span>⚡</span>
+                        <SvgIcon name="performance" className="w-3.5 h-3.5 shrink-0" />
                         <span>Önbellek & Performans</span>
                       </a>
                       <a
@@ -1572,7 +1618,7 @@
                           activeTab === 'settings-rbac' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
                         }`}
                       >
-                        <span>🛡️</span>
+                        <SvgIcon name="rbac" className="w-3.5 h-3.5 shrink-0" />
                         <span>Rol & İzin Yönetimi</span>
                       </a>
                     </div>
