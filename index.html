@@ -299,6 +299,50 @@
       box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
     }
 
+    /* ---------------------------------------------------- */
+    /* GLOBAL HIGH-END SHARP BUTTON & MONOCHROME ICON RULES */
+    /* ---------------------------------------------------- */
+    html[data-ui-theme="nordic-light"] button,
+    html[data-ui-theme="elite-luxury"] button,
+    html[data-ui-theme="nordic-light"] a,
+    html[data-ui-theme="elite-luxury"] a,
+    html[data-ui-theme="nordic-light"] input,
+    html[data-ui-theme="elite-luxury"] input,
+    html[data-ui-theme="nordic-light"] select,
+    html[data-ui-theme="elite-luxury"] select,
+    html[data-ui-theme="nordic-light"] textarea,
+    html[data-ui-theme="elite-luxury"] textarea,
+    html[data-ui-theme="nordic-light"] .gold-button,
+    html[data-ui-theme="elite-luxury"] .gold-button,
+    html[data-ui-theme="nordic-light"] .rounded-2xl,
+    html[data-ui-theme="elite-luxury"] .rounded-2xl,
+    html[data-ui-theme="nordic-light"] .rounded-3xl,
+    html[data-ui-theme="elite-luxury"] .rounded-3xl,
+    html[data-ui-theme="nordic-light"] .rounded-xl,
+    html[data-ui-theme="elite-luxury"] .rounded-xl,
+    html[data-ui-theme="nordic-light"] .rounded-lg,
+    html[data-ui-theme="elite-luxury"] .rounded-lg {
+      border-radius: 0px !important;
+    }
+
+    html[data-ui-theme="nordic-light"] button,
+    html[data-ui-theme="elite-luxury"] button,
+    html[data-ui-theme="nordic-light"] .gold-button,
+    html[data-ui-theme="elite-luxury"] .gold-button {
+      text-transform: uppercase !important;
+      letter-spacing: 0.06em !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-weight: 700 !important;
+    }
+
+    /* MONOCHROME EMOJI FILTER & REFINED MINIMALIST ACCENT FOR THEMES */
+    html[data-ui-theme="nordic-light"] button span,
+    html[data-ui-theme="elite-luxury"] button span,
+    html[data-ui-theme="nordic-light"] a span,
+    html[data-ui-theme="elite-luxury"] a span {
+      filter: grayscale(100%) opacity(0.85) !important;
+    }
+
     :focus-visible {
       outline: 3px solid #d97706 !important;
       outline-offset: 2px !important;
