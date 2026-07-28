@@ -447,6 +447,99 @@
       );
     }
 
+    // RE-USABLE INTERACTIVE IMAGE DROPZONE & FILE UPLOADER COMPONENT
+    function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '📷' }) {
+      const [isDragging, setIsDragging] = useState(false);
+      const fileInputRef = useRef(null);
+
+      const processFile = (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          alert('Lütfen geçerli bir görsel dosyası (JPG, PNG, WebP vb.) seçiniz.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          onChange(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      };
+
+      const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        processFile(file);
+      };
+
+      const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        processFile(file);
+      };
+
+      return (
+        <div className="space-y-1.5 text-xs">
+          <div className="flex justify-between items-center">
+            <label className="font-bold text-slate-700 dark:text-gray-300 block">{label}</label>
+            <span className="text-[10px] text-amber-700 dark:text-gold-400 font-mono font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              📐 Önerilen Boyut: {aspectGuide}
+            </span>
+          </div>
+
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`relative border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center space-y-2 ${
+              isDragging
+                ? 'border-amber-500 bg-amber-500/10 scale-[1.01]'
+                : 'border-slate-300 dark:border-brand-border/60 bg-slate-50 dark:bg-brand-dark/50 hover:border-amber-500/70 hover:bg-slate-100 dark:hover:bg-brand-card'
+            }`}
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+
+            {value ? (
+              <div className="relative w-full h-36 rounded-xl overflow-hidden group border border-slate-200 dark:border-brand-border">
+                <img src={value} alt="Yüklenen Görsel" className="w-full h-full object-cover rounded-xl" />
+                <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white font-bold text-xs space-y-1 p-2">
+                  <span className="text-lg">🔄</span>
+                  <span>Görseli Değiştir</span>
+                  <span className="text-[10px] text-gray-300 font-normal">Tıklayın veya yeni görseli buraya bırakın</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1 py-3">
+                <div className="text-3xl">{placeholderIcon}</div>
+                <div className="font-bold text-slate-800 dark:text-gray-100 text-xs">
+                  Görsel Yüklemek İçin Tıklayın veya Dosyayı Sürükleyip Bırakın
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-gray-400">
+                  PNG, JPG, WebP, GIF desteklenir (Maksimum 5MB)
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-1">
+            <input
+              type="text"
+              placeholder="veya doğrudan Görsel URL adresi yapıştırın..."
+              value={value || ''}
+              onChange={e => onChange(e.target.value)}
+              className="w-full bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-[11px] text-slate-600 dark:text-gray-400 font-mono"
+            />
+          </div>
+        </div>
+      );
+    }
+
     // LAYER 1: SKELETON LOADER COMPONENTS
     function SkeletonCard() {
       return (
@@ -2626,7 +2719,13 @@
                 <div><label className="font-bold block mb-1">Kiralama Fiyatı (TL):</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" /></div>
                 <div><label className="font-bold block mb-1">Asgari Kaparo Bedeli (TL):</label><input type="number" value={deposit} onChange={e => setDeposit(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-emerald-600 font-bold" /></div>
               </div>
-              <div><label className="font-bold block mb-1">Görsel URL:</label><input type="text" value={image} onChange={e => setImage(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" /></div>
+              <ImageDropzoneUploader
+                label="Salon Kapak Görseli Yükle"
+                value={image}
+                onChange={setImage}
+                aspectGuide="1200x800 px (16:9 Geniş)"
+                placeholderIcon="🏰"
+              />
               <div><label className="font-bold block mb-1">Açıklama & Detaylar:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16 text-slate-800 dark:text-gray-200" /></div>
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
                 <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
@@ -2677,7 +2776,13 @@
                 </div>
                 <div><label className="font-bold block mb-1">Birim Fiyat (TL):</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" /></div>
               </div>
-              <div><label className="font-bold block mb-1">Görsel URL:</label><input type="text" value={image} onChange={e => setImage(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+              <ImageDropzoneUploader
+                label="Hizmet Kapak Görseli Yükle"
+                value={image}
+                onChange={setImage}
+                aspectGuide="600x400 px (3:2)"
+                placeholderIcon="✨"
+              />
               <div><label className="font-bold block mb-1">Açıklama:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16" /></div>
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
                 <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
@@ -2778,7 +2883,13 @@
                   <option value="musteri">Müşteri 💑 (Özel Takip Portalı)</option>
                 </select>
               </div>
-              <div><label className="font-bold block mb-1">Profil Fotoğrafı URL:</label><input type="text" value={avatar} onChange={e => setAvatar(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+              <ImageDropzoneUploader
+                label="Kullanıcı Profil Fotoğrafı Yükle"
+                value={avatar}
+                onChange={setAvatar}
+                aspectGuide="400x400 px (1:1 Kare)"
+                placeholderIcon="👤"
+              />
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
                 <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
                 <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kullanıcıyı Kaydet ✓</button>
@@ -3156,15 +3267,26 @@
 
     // --- MEDIA COMPONENT ---
     function MediaComponent({ reservations, showToast }) {
+      const [mediaUrl, setMediaUrl] = useState('');
+
       return (
-        <div className="space-y-6 max-w-xl mx-auto text-center">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Medya & Foto Yükleme</h2>
-          <div className="glass-panel p-8 rounded-3xl space-y-4 shadow-sm">
-            <div className="text-4xl" aria-hidden="true">📤</div>
-            <p className="text-xs text-slate-600 dark:text-gray-300">Rezervasyon fotoğraf ve video galerisini güncellemek için dosya yükleyin.</p>
-            <button onClick={() => showToast('📸 Örnek Medya Galerisi Güncellendi!')} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs">
-              Fotoğraf Yükle
-            </button>
+        <div className="space-y-6 max-w-2xl mx-auto">
+          <div className="text-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Medya & Fotoğraf Galerisi Yükleyici</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Düğün salonları, organizasyon galerileri veya müşteri albümleri için yüksek çözünürlüklü görsel yükleyin.</p>
+          </div>
+
+          <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+            <ImageDropzoneUploader
+              label="Galeri Fotoğrafı Yükle"
+              value={mediaUrl}
+              onChange={(url) => {
+                setMediaUrl(url);
+                showToast('📸 Medya Görseli Başarıyla Yüklendi ve Önizlemeye Alındı!');
+              }}
+              aspectGuide="1920x1080 px (Full HD Galeri Görseli)"
+              placeholderIcon="📸"
+            />
           </div>
         </div>
       );
@@ -3256,13 +3378,13 @@
                 />
               </div>
 
-              <div>
-                <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Profil Fotoğrafı URL:</label>
-                <input
-                  type="text"
+              <div className="sm:col-span-2">
+                <ImageDropzoneUploader
+                  label="Profil Fotoğrafı Yükle"
                   value={avatar}
-                  onChange={e => setAvatar(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200"
+                  onChange={setAvatar}
+                  aspectGuide="400x400 px (1:1 Kare Profil Görseli)"
+                  placeholderIcon="👤"
                 />
               </div>
             </div>
