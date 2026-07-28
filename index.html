@@ -938,22 +938,11 @@
               { id: 'reservations', label: 'Rezervasyon', icon: '📋' },
               { id: 'calendar', label: 'Takvim', icon: '📅' }
             ].map(tab => (
-              <a key={tab.id} href={`#/${TAB_TO_SLUG[tab.id]}`} onClick={(e) => { e.preventDefault(); navigateTo(tab.id); }} className={`flex flex-col items-center py-1 px-2.5 rounded-xl ${activeTab === tab.id ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400'}`} aria-current={activeTab === tab.id ? 'page' : undefined}>
+              <a key={tab.id} href={`#/${TAB_TO_SLUG[tab.id]}`} onClick={(e) => { e.preventDefault(); navigateTo(tab.id); }} className={`flex flex-col items-center py-1 px-3 rounded-xl ${activeTab === tab.id ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400'}`} aria-current={activeTab === tab.id ? 'page' : undefined}>
                 <span className="text-lg" aria-hidden="true">{tab.icon}</span>
                 <span className="text-[10px]">{tab.label}</span>
               </a>
             ))}
-
-            {/* FULL MOBILE MENU DRAWER BUTTON */}
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="flex flex-col items-center py-1 px-2.5 rounded-xl text-amber-800 dark:text-gold-400 font-bold bg-amber-500/20 border border-amber-500/40"
-              title="Tüm Panelleri Göster"
-            >
-              <span className="text-lg">☰</span>
-              <span className="text-[10px]">Tüm Paneller</span>
-            </button>
           </nav>
 
           {/* 90% SCREEN WIDTH NAVIGATION DRAWER MODAL (DESKTOP & MOBILE) */}
