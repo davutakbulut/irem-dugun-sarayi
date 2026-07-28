@@ -2470,7 +2470,7 @@
       );
     }
 
-    // --- FULL PAGE VENUE DETAIL POPUP MODAL COMPONENT ---
+    // --- VENUE DETAIL POPUP MODAL COMPONENT (DESKTOP CENTERED / MOBILE FULL SCREEN) ---
     function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
       if (!venue) return null;
 
@@ -2487,10 +2487,10 @@
       ];
 
       const supportedEvents = [
-        { title: 'Düğün Organizasyonu', icon: '💍', desc: 'Yemekli & Yemeksiz Düğün Baloları' },
-        { title: 'Kına Gecesi Konsepti', icon: '👑', desc: 'Taht, Otantik Süslemeler & DJ' },
-        { title: 'Nişan & Söz Töreni', icon: '✨', desc: 'Butik ve Şık Kutlamalar' },
-        { title: 'Kurumsal Gala & Lansman', icon: '🥂', desc: 'VIP Şirket Etkinlikleri' }
+        { title: 'Düğün Organizasyonu', desc: 'Yemekli & Yemeksiz Düğün Baloları' },
+        { title: 'Kına Gecesi Konsepti', desc: 'Taht, Otantik Süslemeler & DJ' },
+        { title: 'Nişan & Söz Töreni', desc: 'Butik ve Şık Kutlamalar' },
+        { title: 'Kurumsal Gala & Lansman', desc: 'VIP Şirket Etkinlikleri' }
       ];
 
       const availableServices = [
@@ -2502,24 +2502,28 @@
       ];
 
       return (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/30 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden my-auto space-y-0">
+        <div className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full sm:h-auto sm:max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-0 sm:my-auto sm:max-h-[90vh]">
             
             {/* MODAL HEADER */}
-            <div className="relative h-64 sm:h-80 overflow-hidden">
+            <div className="relative h-48 sm:h-72 overflow-hidden shrink-0">
               <img src={venue.image} alt={venue.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent flex flex-col justify-end p-4 sm:p-6 text-white">
                 <div className="flex justify-between items-end">
                   <div>
-                    <span className="gold-button text-xs font-bold px-3 py-1 rounded-full shadow">
+                    <span className="gold-button text-[10px] sm:text-xs font-bold px-3 py-0.5 sm:py-1 rounded-full shadow">
                       📍 {venue.location || 'Sapanca Göl Kenarı, Sakarya'}
                     </span>
-                    <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-white mt-2 drop-shadow">
+                    <h2 className="text-xl sm:text-3xl font-heading font-extrabold text-white mt-1.5 drop-shadow">
                       {venue.name}
                     </h2>
-                    <p className="text-xs text-gray-200 mt-1 max-w-2xl">{venue.description}</p>
+                    <p className="text-[11px] sm:text-xs text-gray-200 mt-1 max-w-2xl line-clamp-2 sm:line-clamp-none">{venue.description}</p>
                   </div>
-                  <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/20 hover:bg-red-600 text-white font-bold text-lg flex items-center justify-center backdrop-blur-md transition border border-white/30">
+                  <button
+                    onClick={onClose}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-red-600 text-white font-bold text-base sm:text-lg flex items-center justify-center backdrop-blur-md transition border border-white/30 shrink-0"
+                    title="Kapat"
+                  >
                     ✕
                   </button>
                 </div>
@@ -2527,40 +2531,40 @@
             </div>
 
             {/* MODAL CONTENT BODY */}
-            <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-xs">
+            <div className="p-4 sm:p-6 space-y-5 flex-1 overflow-y-auto custom-scrollbar text-xs">
               
               {/* KEY SPECS GRID */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl">
-                  <span className="text-slate-500 block text-[11px] font-bold">Kapasite:</span>
-                  <span className="text-base font-extrabold text-amber-800 dark:text-gold-400">👥 {venue.capacity} Kişi</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Kapasite:</span>
+                  <span className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-gray-100">{venue.capacity} Kişi</span>
                 </div>
 
-                <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl">
-                  <span className="text-slate-500 block text-[11px] font-bold">Kiralama Liste Fiyatı:</span>
-                  <span className="text-base font-extrabold text-amber-800 dark:text-gold-400">{formatCurrency(venue.price)}</span>
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Kiralama Liste Fiyatı:</span>
+                  <span className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-gray-100">{formatCurrency(venue.price)}</span>
                 </div>
 
-                <div className="bg-emerald-500/10 border border-emerald-500/30 p-3.5 rounded-2xl">
-                  <span className="text-slate-500 block text-[11px] font-bold">Kapora Bedeli:</span>
-                  <span className="text-base font-extrabold text-emerald-600">{formatCurrency(venue.deposit || 15000)}</span>
+                <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Kapora Bedeli:</span>
+                  <span className="text-sm sm:text-base font-extrabold text-emerald-600 dark:text-emerald-400">{formatCurrency(venue.deposit || 15000)}</span>
                 </div>
 
-                <div className="bg-blue-500/10 border border-blue-500/30 p-3.5 rounded-2xl">
-                  <span className="text-slate-500 block text-[11px] font-bold">Sezonluk Doluluk Oranı:</span>
+                <div className="bg-blue-500/10 border border-blue-500/30 p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Sezonluk Doluluk Oranı:</span>
                   <div className="flex items-center space-x-2 mt-1">
                     <div className="flex-1 bg-slate-200 dark:bg-brand-dark h-2 rounded-full overflow-hidden">
                       <div className="bg-blue-600 h-full rounded-full" style={{ width: `${venue.occupancyRate || 85}%` }}></div>
                     </div>
-                    <span className="font-extrabold text-blue-600">%{venue.occupancyRate || 85}</span>
+                    <span className="font-extrabold text-blue-600 dark:text-blue-400">%{venue.occupancyRate || 85}</span>
                   </div>
                 </div>
               </div>
 
               {/* İÇ GÖRSELLERİ GALERİSİ */}
               <div className="space-y-2">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                  <span>🏰</span>
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                   <span>İç Mekan & Balo Salonu Görselleri:</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -2572,8 +2576,8 @@
 
               {/* DIŞ GÖRSELLERİ GALERİSİ */}
               <div className="space-y-2">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                  <span>🌅</span>
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                   <span>Dış Mekan & Göl Manzarası Görselleri:</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -2585,14 +2589,13 @@
 
               {/* YAPILABİLECEK ETKİNLİKLER */}
               <div className="space-y-2">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                  <span>🎉</span>
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
                   <span>Yapılabilecek Etkinlik Türleri:</span>
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {supportedEvents.map((ev, i) => (
                     <div key={i} className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border text-center space-y-1">
-                      <div className="text-xl">{ev.icon}</div>
                       <div className="font-bold text-slate-800 dark:text-gray-200 text-xs">{ev.title}</div>
                       <div className="text-[10px] text-slate-500">{ev.desc}</div>
                     </div>
@@ -2602,8 +2605,8 @@
 
               {/* SEÇİLEBİLECEK HİZMETLER */}
               <div className="space-y-2">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                  <span>✨</span>
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span>Dahil Edilebilir Hizmet Paket İçerikleri:</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2619,8 +2622,8 @@
             </div>
 
             {/* MODAL FOOTER */}
-            <div className="p-4 bg-slate-50 dark:bg-brand-dark border-t border-slate-200 dark:border-brand-border flex justify-between items-center">
-              <button onClick={onClose} className="px-5 py-2.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-300">
+            <div className="p-3 sm:p-4 bg-slate-50 dark:bg-brand-dark border-t border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-center gap-2 shrink-0">
+              <button onClick={onClose} className="w-full sm:w-auto px-5 py-2.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-300 text-center">
                 Kapat
               </button>
               <button
@@ -2628,7 +2631,7 @@
                   onSelectVenue(venue);
                   onClose();
                 }}
-                className="gold-button font-extrabold px-6 py-2.5 rounded-xl text-xs shadow-lg"
+                className="w-full sm:w-auto gold-button font-extrabold px-6 py-2.5 rounded-xl text-xs shadow-lg text-center"
               >
                 Bu Salonu Seç ve Rezervasyona Ekle ✓
               </button>
