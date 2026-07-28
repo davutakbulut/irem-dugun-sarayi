@@ -1012,6 +1012,25 @@
       }
     }
 
+    const CLASSIC_EMOJIS = {
+      'dashboard': '📊',
+      'create-reservation': '➕',
+      'venues': '🏛️',
+      'services': '✨',
+      'reservations': '📋',
+      'calendar': '📅',
+      'campaigns': '🎁',
+      'finance': '💰',
+      'customers': '👥',
+      'users': '⚙️',
+      'reports': '📈',
+      'media': '📷',
+      'settings': '⚙️',
+      'settings-appearance': '🎨',
+      'settings-performance': '⚡',
+      'settings-rbac': '🛡️'
+    };
+
     const TAB_LABELS = {
       'dashboard': 'Anasayfa / İstatistikler',
       'create-reservation': 'Yeni Rezervasyon Oluştur',
@@ -1542,7 +1561,6 @@
             {/* SIDEBAR */}
             <aside aria-label="Ana Gezinti Menüsü" className="w-64 glass-panel p-4 hidden lg:flex flex-col justify-between border-r border-slate-200 dark:border-brand-border/40">
               <nav className="space-y-1">
-                <div className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Menü</div>
                 {[
                   { id: 'dashboard', label: 'Anasayfa / İstatistikler' },
                   { id: 'create-reservation', label: 'Yeni Rezervasyon' },
@@ -1571,7 +1589,11 @@
                     }`}
                     aria-current={activeTab === item.id ? 'page' : undefined}
                   >
-                    <SvgIcon name={item.id} className="w-4 h-4 shrink-0" />
+                    {themeColor === 'gold' || (!document.documentElement.getAttribute('data-ui-theme')) ? (
+                      <span className="text-base" aria-hidden="true">{CLASSIC_EMOJIS[item.id]}</span>
+                    ) : (
+                      <SvgIcon name={item.id} className="w-4 h-4 shrink-0" />
+                    )}
                     <span>{item.label}</span>
                   </a>
                 ))}
@@ -1587,7 +1609,11 @@
                         activeTab === 'settings' ? 'bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 shadow-sm' : 'text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-brand-card'
                       }`}
                     >
-                      <SvgIcon name="settings" className="w-4 h-4 shrink-0" />
+                      {themeColor === 'gold' || (!document.documentElement.getAttribute('data-ui-theme')) ? (
+                        <span className="text-base">⚙️</span>
+                      ) : (
+                        <SvgIcon name="settings" className="w-4 h-4 shrink-0" />
+                      )}
                       <span>Sistem Ayarları</span>
                     </a>
                     <div className="pl-6 space-y-1">
@@ -1598,7 +1624,11 @@
                           activeTab === 'settings-appearance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
                         }`}
                       >
-                        <SvgIcon name="appearance" className="w-3.5 h-3.5 shrink-0" />
+                        {themeColor === 'gold' || (!document.documentElement.getAttribute('data-ui-theme')) ? (
+                          <span>🎨</span>
+                        ) : (
+                          <SvgIcon name="appearance" className="w-3.5 h-3.5 shrink-0" />
+                        )}
                         <span>Görünüm & Tema</span>
                       </a>
                       <a
@@ -1608,7 +1638,11 @@
                           activeTab === 'settings-performance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
                         }`}
                       >
-                        <SvgIcon name="performance" className="w-3.5 h-3.5 shrink-0" />
+                        {themeColor === 'gold' || (!document.documentElement.getAttribute('data-ui-theme')) ? (
+                          <span>⚡</span>
+                        ) : (
+                          <SvgIcon name="performance" className="w-3.5 h-3.5 shrink-0" />
+                        )}
                         <span>Önbellek & Performans</span>
                       </a>
                       <a
@@ -1618,7 +1652,11 @@
                           activeTab === 'settings-rbac' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
                         }`}
                       >
-                        <SvgIcon name="rbac" className="w-3.5 h-3.5 shrink-0" />
+                        {themeColor === 'gold' || (!document.documentElement.getAttribute('data-ui-theme')) ? (
+                          <span>🛡️</span>
+                        ) : (
+                          <SvgIcon name="rbac" className="w-3.5 h-3.5 shrink-0" />
+                        )}
                         <span>Rol & İzin Yönetimi</span>
                       </a>
                     </div>
