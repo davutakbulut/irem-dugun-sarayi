@@ -38,6 +38,25 @@
       }
     }
   </script>
+  
+  <!-- INSTANT THEME RESTORE SCRIPT (0ms INSTANT PAINT) -->
+  <script>
+    (function() {
+      try {
+        var raw = localStorage.getItem('irem_cache_theme_color');
+        if (raw) {
+          var theme = JSON.parse(raw);
+          if (theme === 'elite-luxury' || theme === 'obsidian') {
+            document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
+          } else if (theme === 'nordic-light') {
+            document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+          } else {
+            document.documentElement.removeAttribute('data-ui-theme');
+          }
+        }
+      } catch(e) {}
+    })();
+  </script>
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -1122,7 +1141,16 @@
 
       useEffect(() => { CacheService.set('roles', rolesState); }, [rolesState]);
       useEffect(() => { CacheService.set('tab_permissions', tabPermissionsState); }, [tabPermissionsState]);
-      useEffect(() => { CacheService.set('theme_color', themeColor); }, [themeColor]);
+      useEffect(() => {
+        CacheService.set('theme_color', themeColor);
+        if (themeColor === 'elite-luxury' || themeColor === 'obsidian') {
+          document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
+        } else if (themeColor === 'nordic-light') {
+          document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+        } else {
+          document.documentElement.removeAttribute('data-ui-theme');
+        }
+      }, [themeColor]);
       useEffect(() => { CacheService.set('cache_enabled', isCacheEnabledState); }, [isCacheEnabledState]);
 
       const handleAddRole = (roleId, roleName) => {
