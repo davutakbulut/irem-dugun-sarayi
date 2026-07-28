@@ -1,15 +1,16 @@
 # 🏰 İREM DÜĞÜN SARAYI & ORGANİZASYON PLATFORMU
 ## KAPSAMLI PROJE DETAYLARI VE MASTER PROMPT DOSYASI
 
-> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), Tam Sayfa Rezervasyon & Kiralama Çalışma Alanı (`#/yeni-rezervasyon`), Otomatik Müşteri Üyelik Kaydı, Akış Planlaması, Canlı Takvim Önizlemesi, Resmi Sözleşme Çıktısı, MySQL veritabanı şeması ve eklenen eklentilerin (plugins) detaylarını içeren tam kapsamlı master referans kılavuzudur.
+> **Not:** Bu doküman, NotebookLM'e yüklenmek üzere hazırlanan **İrem Düğün Sarayı & Organizasyon Şirketi** projesinin tüm mimari, iş mantığı, kullanıcı rolleri (RBAC), Tam Sayfa Rezervasyon & Kiralama Çalışma Alanı (`#/yeni-rezervasyon`), Otomatik Müşteri Üyelik Kaydı, Akış Planlaması, Canlı Takvim Önizlemesi, Resmi Sözleşme Çıktısı, Kalıcı Geliştirme Kuralları ve eklenen eklentilerin (plugins) detaylarını içeren tam kapsamlı master referans kılavuzudur.
 
 ---
 
-## 🛑 KRİTİK GELİŞTİRME & TEST KURALI (USER DIRECTIVE)
+## 🛑 KRİTİK GELİŞTİRME, SUBAGENT VE TEST KURALLARI (USER DIRECTIVES)
 
-> **[ÖNEMLİ TALİMAT]:** Her işlem/kod değişikliğinden önce ve sonra:
-> 1. **Çok Yönlü Yetenek Değerlendirmesi:** Alınan karar ve çözümün mantıklı olup olmadığı tüm beceriler (`frontend-design`, `security-guidance`, `superpowers`, `claude-mem`) açısından sorgulanacaktır.
-> 2. **Zorunlu Canlı Test:** Yapılan her işlemden sonra uygulama **mutlaka** canlı tarayıcı test ajanları (`Chrome_DevTools_Test_Agent`) veya otomatik test komutları ile doğrulanacak, test edilmeden işlem tamamlandı denmeyecektir!
+> **[ÖNEMLİ KURALLAR]:** Her işlem/kod değişikliğinde:
+> 1. **Çok Yönlü Yetenek & Skill Değerlendirmesi:** Alınan karar ve çözümün mantıklı olup olmadığı tüm bağlı beceriler (`frontend-design`, `security-guidance`, `superpowers`, `claude-mem`, `a11y-debugging`) kılavuzları aktif olarak okunup çağrılarak sorgulanacaktır.
+> 2. **Mevcut Subagent'ı Yeniden Kullanma & Öğretme:** Her işlem için sıfırdan yeni subagent açmak YASAKTIR! Mevcut aktif test ajanı (`send_message` ile) kullanılacak, ajana yeni talimatlar iletilerek geçmiş hatalardan ders çıkarması ve tecrübe kazanması sağlanacaktır.
+> 3. **Zorunlu Canlı Test:** Yapılan her işlemden sonra uygulama **mutlaka** mevcut canlı tarayıcı test ajanı (`send_message`) ile doğrulanacak, test edilmeden işlem tamamlandı denmeyecektir!
 
 ---
 

@@ -647,20 +647,24 @@
                   )}
 
                   {activeTab === 'create-reservation' && (
-                    <CreateReservationPageComponent
-                      venues={venues}
-                      services={services}
-                      customers={customers}
-                      campaigns={campaigns}
-                      reservations={reservations}
-                      onSaveReservation={(newRes, newCust) => {
-                        if (newCust) setCustomers(prev => [...prev, newCust]);
-                        setReservations(prev => [newRes, ...prev]);
-                        showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
-                        navigateTo('reservations');
-                      }}
-                      onCancel={() => navigateTo('reservations')}
-                    />
+                    hasPermission(activeRole, 'create-reservation') ? (
+                      <CreateReservationPageComponent
+                        venues={venues}
+                        services={services}
+                        customers={customers}
+                        campaigns={campaigns}
+                        reservations={reservations}
+                        onSaveReservation={(newRes, newCust) => {
+                          if (newCust) setCustomers(prev => [...prev, newCust]);
+                          setReservations(prev => [newRes, ...prev]);
+                          showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
+                          navigateTo('reservations');
+                        }}
+                        onCancel={() => navigateTo('reservations')}
+                      />
+                    ) : (
+                      <AccessDeniedComponent role={activeRole} />
+                    )
                   )}
 
                   {activeTab === 'venues' && (
