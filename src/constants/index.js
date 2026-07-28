@@ -1,4 +1,4 @@
-// --- CONSTANTS, ROLES, PERMISSIONS, THEMES & MOCK DATA ---
+// --- CONSTANTS, ROLES, PERMISSIONS, 10 CORPORATE THEMES & MOCK DATA ---
 
 export const ROLE_NAMES = {
   admin: 'Admin 👑',
@@ -49,13 +49,21 @@ export const INITIAL_TAB_PERMISSIONS = {
   'settings': ['admin']
 };
 
-// 5 KURUMSAL TEMA PALETİ JETONLARI (GELİŞTİRİCİLER TARAFINDAN GENİŞLETİLEBİLİR)
+// 10 KURUMSAL & DİNAMİK TEMA PALETİ VE KESKİNLİK JETONLARI
 export const THEME_PALETTES = [
-  { id: 'gold', name: 'Altın & Şampanya 👑', primaryColor: '#d97706', description: 'Lüks balo ve kır düğünü konsepti (Varsayılan)' },
-  { id: 'emerald', name: 'Zümrüt Yeşili 💚', primaryColor: '#059669', description: 'Doğa ve açık hava kır bahçesi konsepti' },
-  { id: 'sapphire', name: 'Safir Mavi 💙', primaryColor: '#2563eb', description: 'Kraliyet ve kurumsal balo salonu konsepti' },
-  { id: 'rose', name: 'Gül Altını 🌹', primaryColor: '#e11d48', description: 'Romantik ve lüks davet konsepti' },
-  { id: 'violet', name: 'Mor Lüks 💜', primaryColor: '#7c3aed', description: 'VIP gece ve sahne ışıkları konsepti' }
+  // MEVCUT SOFT TEMALAR
+  { id: 'gold', name: 'Altın & Şampanya 👑', primaryColor: '#d97706', geometry: 'rounded-2xl', description: 'Lüks balo ve kır düğünü konsepti (Varsayılan)' },
+  { id: 'emerald', name: 'Zümrüt Yeşili 💚', primaryColor: '#059669', geometry: 'rounded-2xl', description: 'Doğa ve açık hava kır bahçesi konsepti' },
+  { id: 'sapphire', name: 'Safir Mavi 💙', primaryColor: '#2563eb', geometry: 'rounded-2xl', description: 'Kraliyet ve kurumsal balo salonu konsepti' },
+  { id: 'rose', name: 'Gül Altını 🌹', primaryColor: '#e11d48', geometry: 'rounded-2xl', description: 'Romantik ve lüks davet konsepti' },
+  { id: 'violet', name: 'Mor Lüks 💜', primaryColor: '#7c3aed', geometry: 'rounded-2xl', description: 'VIP gece ve sahne ışıkları konsepti' },
+
+  // YENİ 5 KESKİN & KURUMSAL TEMA
+  { id: 'obsidian-gold', name: 'Keskin Lüks Obsidiyen 🖤👑', primaryColor: '#d97706', geometry: 'rounded-none', description: 'Dik keskin köşeler (rounded-none), metalik altın çeperler ve lüks siyah kontrast' },
+  { id: 'sapphire-clean', name: 'Neo-Minimalist Safir 🔷', primaryColor: '#1d4ed8', geometry: 'rounded-md', description: 'Hafif 4px kavisli köşeler (rounded-md), kraliyet mavisi ve düz kurumsal kartlar' },
+  { id: 'platinum-silver', name: 'Premium Platin & Gümüş 🩶', primaryColor: '#475569', geometry: 'rounded-sm', description: 'Metalik gümüş çeperler, lüks platin vurgular ve keskin kurumsal çizgiler' },
+  { id: 'emerald-royal', name: 'Kraliyet Zümrüt Kır Bahçesi 🌿', primaryColor: '#047857', geometry: 'rounded-none', description: 'Keskin zümrüt yeşili çeperler ve orman yeşili kurumsal gradyanlar' },
+  { id: 'titanium-tech', name: 'Titanium Tech Modern ⚡', primaryColor: '#6d28d9', geometry: 'rounded-md', description: 'Titanyum gri kartlar, teknolojik mor gradyanlar ve keskin kurumsal butonlar' }
 ];
 
 export const formatCurrency = (amount) => {
@@ -179,6 +187,31 @@ export const INITIAL_CUSTOMERS = [
 ];
 
 export const AI_RECOMMENDATIONS = [
-  { id: 'ai-1', title: '🎯 Ağustos Ayı Kır Bahçesi Fiyat Çarpanı Önerisi', description: 'Ağustos hafta sonları doluluk %92 seviyesine ulaştı. Kır bahçesi kiralama paket fiyatını %10 artırmanız gelirinizi 140.000 ₺ yükseltebilir.', actionText: 'Fiyatı Güncelle' },
-  { id: 'ai-2', title: '💡 Drone Çekimi Çapraz Satış Fırsatı', description: 'Son 5 kiralama rezervasyonunda ek drone çekimi seçilmedi. İndirimli paket sunarak ek 60.000 ₺ ciro elde edebilirsiniz.', actionText: 'Kampanya Başlat' }
+  {
+    id: 'ai-1',
+    code: 'AĞUSTOS10',
+    title: '🎯 Ağustos Ayı Kır Bahçesi Fiyat Artırım & Fırsat Önerisi',
+    type: 'percent',
+    value: 10,
+    description: 'Ağustos hafta sonları Kır Bahçesi doluluğu %92 seviyesine ulaştı. Kiralama fiyatını %10 artırmak 140.000 ₺ ek gelir sağlar.',
+    actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀'
+  },
+  {
+    id: 'ai-2',
+    code: 'DRONE20',
+    title: '💡 Drone Çekimi Çapraz Satış Fırsatı',
+    type: 'free_service',
+    value: 0,
+    description: 'Son 5 kiralama rezervasyonunda drone çekimi seçilmedi. İndirimli drone paketi sunarak ek 60.000 ₺ ciro elde edin.',
+    actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀'
+  },
+  {
+    id: 'ai-3',
+    code: 'SONBAHAR26',
+    title: '🍂 Sonbahar Erken Rezervasyon Fırsatı (%20 Net İndirim)',
+    type: 'percent',
+    value: 20,
+    description: 'Eylül ve Ekim düğün tarihleri için %20 Erken Rezervasyon Kampanyası başlatarak doluluğu %100 seviyesine çıkarın.',
+    actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀'
+  }
 ];
