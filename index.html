@@ -761,12 +761,24 @@
     // --- FULL PAGE DEDICATED RESERVATION WORKSPACE COMPONENT ---
     function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations, onSaveReservation, onCancel }) {
       // 1. Venue, Date & Slot
+      const venueCarouselRef = useRef(null);
       const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 65000);
       const [eventDate, setEventDate] = useState('2026-08-25');
       const [timeSlot, setTimeSlot] = useState('19:00-23:00');
       const [customTimeRange, setCustomTimeRange] = useState('');
       const [guestCount, setGuestCount] = useState(500);
+
+      const scrollVenueCarouselLeft = () => {
+        if (venueCarouselRef.current) {
+          venueCarouselRef.current.scrollBy({ left: -260, behavior: 'smooth' });
+        }
+      };
+      const scrollVenueCarouselRight = () => {
+        if (venueCarouselRef.current) {
+          venueCarouselRef.current.scrollBy({ left: 260, behavior: 'smooth' });
+        }
+      };
 
       // Update customVenuePrice when venueId changes
       useEffect(() => {
@@ -1012,16 +1024,37 @@
                   <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">1. Salon & Kiralama Tarih/Saat Seçimi</h3>
                 </div>
 
-                {/* VISUAL HORIZONTAL SCROLLABLE VENUE CAROUSEL */}
+                {/* VISUAL HORIZONTAL SCROLLABLE VENUE CAROUSEL WITH ARROW CONTROLS */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="font-bold text-slate-800 dark:text-gray-200 text-xs flex items-center space-x-1">
                       <span>🏛️ Düğün Salonu Seçin (Yatay Kayan Kartlar):</span>
                     </label>
-                    <span className="text-[10px] text-amber-700 dark:text-gold-400 font-medium">👈 Sağa/Sola Kaydırın & Seçin 👉</span>
+                    
+                    {/* Interactive Arrow Navigation Buttons */}
+                    <div className="flex items-center space-x-1.5">
+                      <button
+                        type="button"
+                        onClick={scrollVenueCarouselLeft}
+                        className="w-7 h-7 rounded-full border border-amber-500/40 bg-white dark:bg-brand-card text-amber-800 dark:text-gold-400 hover:bg-amber-500 hover:text-white font-bold text-xs shadow flex items-center justify-center transition active:scale-95 cursor-pointer"
+                        title="Sola Kaydır"
+                        aria-label="Salonları Sola Kaydır"
+                      >
+                        ❮
+                      </button>
+                      <button
+                        type="button"
+                        onClick={scrollVenueCarouselRight}
+                        className="w-7 h-7 rounded-full border border-amber-500/40 bg-white dark:bg-brand-card text-amber-800 dark:text-gold-400 hover:bg-amber-500 hover:text-white font-bold text-xs shadow flex items-center justify-center transition active:scale-95 cursor-pointer"
+                        title="Sağa Kaydır"
+                        aria-label="Salonları Sağa Kaydır"
+                      >
+                        ❯
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex overflow-x-auto gap-4 pb-3 pt-1 no-scrollbar snap-x snap-mandatory">
+                  <div ref={venueCarouselRef} className="flex overflow-x-auto gap-4 pb-3 pt-1 no-scrollbar snap-x snap-mandatory scroll-smooth">
                     {venues.map(v => {
                       const isSelected = venueId === v.id;
                       return (
