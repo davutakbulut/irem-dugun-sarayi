@@ -411,6 +411,47 @@
       background-color: #F1F3F5 !important;
     }
 
+    /* ------------------------------------------------------------------- */
+    /* STRICT PALETTE NORMALIZATION (PURGES ALL UNRELATED BADGE/TAG COLORS) */
+    /* ------------------------------------------------------------------- */
+    html[data-ui-theme="elite-luxury"] .text-emerald-500,
+    html[data-ui-theme="elite-luxury"] .text-emerald-600,
+    html[data-ui-theme="elite-luxury"] .text-blue-500,
+    html[data-ui-theme="elite-luxury"] .text-blue-600,
+    html[data-ui-theme="elite-luxury"] .text-rose-500,
+    html[data-ui-theme="elite-luxury"] .text-purple-500,
+    html[data-ui-theme="elite-luxury"] .text-indigo-500 {
+      color: #E5C158 !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .bg-emerald-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-blue-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-rose-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-purple-500\/10 {
+      background-color: #22252F !important;
+      color: #E5C158 !important;
+      border: 1px solid rgba(212, 175, 55, 0.2) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-emerald-500,
+    html[data-ui-theme="nordic-light"] .text-emerald-600,
+    html[data-ui-theme="nordic-light"] .text-blue-500,
+    html[data-ui-theme="nordic-light"] .text-blue-600,
+    html[data-ui-theme="nordic-light"] .text-rose-500,
+    html[data-ui-theme="nordic-light"] .text-purple-500,
+    html[data-ui-theme="nordic-light"] .text-indigo-500 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-emerald-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-blue-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-rose-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-purple-500\/10 {
+      background-color: #F1F3F5 !important;
+      color: #0F172A !important;
+      border: 1px solid #E2E8F0 !important;
+    }
+
     :focus-visible {
       outline: 3px solid #0F172A !important;
       outline-offset: 2px !important;
