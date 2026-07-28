@@ -1716,6 +1716,28 @@
               Salon: <strong>${venue?.name || 'Kraliyet Balo Salonu'}</strong> | Etkinlik Tarihi: <strong>${formatDate(res.date)}</strong> | Saat Dilimi: <strong>${res.timeSlot}</strong> | Davetli Sayısı: <strong>${res.guestCount} Kişi</strong>
             </div>
 
+            ${res.flowPlan && res.flowPlan.length > 0 ? `
+              <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #b45309; text-transform: uppercase;">6. ORGANİZASYON & ETKİNLİK AKIŞ PLANLAMASI:</h4>
+                <table style="margin-top: 5px;">
+                  <thead>
+                    <tr>
+                      <th style="width: 100px;">Saat</th>
+                      <th>Program / Etkinlik Adımı</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${res.flowPlan.map(fp => `
+                      <tr>
+                        <td style="font-weight: bold; color: #b45309; font-family: monospace;">${fp.time}</td>
+                        <td>${fp.title}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : ''}
+
             <table>
               <thead>
                 <tr>
@@ -2586,14 +2608,17 @@
 
       // Collision Check Logic & Same Date Reservations
       const conflictInfo = useMemo(() => {
-        const sameVenueDateRes = (reservations || []).filter(r => r.venueId === venueId && r.date === startDate);
+        const sameVenueDateRes = (reservations || []).filter(r => r.venueId === venueId && r.date === startDate && r.paymentStatus !== 'İptal');
         if (sameVenueDateRes.length === 0) {
           return { hasConflict: false, conflictingRes: null, sameDateResCount: (reservations || []).filter(r => r.date === startDate).length };
         }
 
+        const isSelectedAllDay = activeSlot.includes('Tüm Gün') || (startTime === '09:00' && endTime === '23:30') || (startTime === '08:00' && endTime === '23:59');
+
         // Check if time slot overlaps
         const conflictingRes = sameVenueDateRes.find(r => {
-          if ((r.timeSlot || '').includes('Tüm Gün') || activeSlot.includes('Tüm Gün')) return true;
+          if (isSelectedAllDay) return true;
+          if ((r.timeSlot || '').includes('Tüm Gün') || (r.timeSlot || '').includes('09:00 - 23:30')) return true;
           if (r.timeSlot === activeSlot) return true;
           
           const parseHour = (str) => {
@@ -2607,10 +2632,10 @@
 
         return {
           hasConflict: !!conflictingRes,
-          conflictingRes,
+          conflictingRes: conflictingRes || (isSelectedAllDay ? sameVenueDateRes[0] : null),
           sameDateResCount: (reservations || []).filter(r => r.date === startDate).length
         };
-      }, [reservations, venueId, startDate, activeSlot]);
+      }, [reservations, venueId, startDate, activeSlot, startTime, endTime]);
 
       // 2. Customer & Auto-Membership (DEFAULT TO NEW MEMBER)
       const [customerMode, setCustomerMode] = useState('new'); // 'new' or 'existing'
@@ -2620,6 +2645,7 @@
       const [newCustEmail, setNewCustEmail] = useState('');
       const [newCustPhone, setNewCustPhone] = useState('');
       const [newCustSecondaryPhone, setNewCustSecondaryPhone] = useState('');
+      const [customerError, setCustomerError] = useState(false);
 
       // 3. Services & Per-service Guest Quantities & Paid status & Custom Unit Prices
       const [selectedServices, setSelectedServices] = useState([
@@ -2628,12 +2654,12 @@
         { serviceId: 's3', quantity: 1, customUnitPrice: 25000, isPaid: false }
       ]);
 
-      // 4. Financials, Referrer, Deposit & Promo
+      // 4. Financials, Referrer, Deposit & Promo (DEFAULT HASDEPOSIT TO FALSE)
       const [referrerName, setReferrerName] = useState('');
       const [campaignCode, setCampaignCode] = useState('');
-      const [hasDeposit, setHasDeposit] = useState(true);
-      const [depositPaid, setDepositPaid] = useState(40000);
-      const [paymentStatus, setPaymentStatus] = useState('Kapora Alındı');
+      const [hasDeposit, setHasDeposit] = useState(false); // Default: Hayır
+      const [depositPaid, setDepositPaid] = useState(0); // Default: 0 TL
+      const [paymentStatus, setPaymentStatus] = useState('Bekliyor'); // Default: Bekliyor
 
       // 5. Invoicing Details (Bireysel / Tüzel) - DEFAULT TO UNCHECKED
       const [isInvoiced, setIsInvoiced] = useState(false);
@@ -2643,14 +2669,29 @@
       const [taxOffice, setTaxOffice] = useState('Sapanca VD');
       const [invoiceAddress, setInvoiceAddress] = useState('Atatürk Mah. Sapanca / Sakarya');
 
-      // 6. Flow Planning & Notes (Draggable & Reorderable)
+      // 6. Flow Planning & Notes (Draggable & Reorderable, Default Finish Step)
       const [flowPlan, setFlowPlan] = useState([
         { time: '19:00', title: 'Misafir Karşılama & Kokteyl' },
         { time: '19:30', title: 'Gelin Damat Giriş & İlk Dans' },
         { time: '20:15', title: 'Yemek Servisi' },
         { time: '21:30', title: 'Pasta Kesimi & Şov' },
-        { time: '22:00', title: 'Takı & Eğlence' }
+        { time: '22:00', title: 'Takı & Eğlence' },
+        { time: endTime || '23:00', title: 'Etkinlik Bitişi & Kapanış' }
       ]);
+
+      // Keep last flow step time synced with endTime
+      useEffect(() => {
+        setFlowPlan(prev => {
+          if (!prev || prev.length === 0) return prev;
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (updated[lastIdx].title.includes('Bitişi')) {
+            updated[lastIdx] = { ...updated[lastIdx], time: endTime };
+          }
+          return updated;
+        });
+      }, [endTime]);
+
       const [draggedIdx, setDraggedIdx] = useState(null);
       const [dragOverIdx, setDragOverIdx] = useState(null);
       const [notes, setNotes] = useState('Özel çiçek süslemeleri ve gelin odası ikramları dahildir.');
@@ -2717,10 +2758,13 @@
       const selectedVenue = venues.find(v => v.id === venueId);
       const existingCustomer = customers.find(c => c.id === selectedCustomerId);
 
-      // Financial Calculation
+      // Financial Calculation with Paid Services Breakdown & Deduction
       const calculations = useMemo(() => {
         const vPrice = Number(customVenuePrice) || 0;
         let servTotal = 0;
+        let paidServicesTotal = 0;
+        const paidServicesList = [];
+
         const mappedServices = selectedServices.map(item => {
           const s = services.find(x => x.id === item.serviceId);
           if (!s) return null;
@@ -2728,7 +2772,13 @@
           const qty = s.pricingType === 'per_person' ? item.quantity : 1;
           const cost = unitPrice * qty;
           servTotal += cost;
-          return { serviceId: s.id, quantity: qty, unitPrice, isPaid: item.isPaid };
+
+          if (item.isPaid) {
+            paidServicesTotal += cost;
+            paidServicesList.push({ ...s, quantity: qty, unitPrice, cost });
+          }
+
+          return { serviceId: s.id, quantity: qty, unitPrice, isPaid: item.isPaid, cost };
         }).filter(Boolean);
 
         const sub = vPrice + servTotal;
@@ -2739,10 +2789,12 @@
         const afterDisc = Math.max(0, sub - disc);
         const vat = isInvoiced ? afterDisc * 0.20 : 0;
         const grandTotal = afterDisc + vat;
-        const dep = hasDeposit ? depositPaid : 0;
-        const remaining = Math.max(0, grandTotal - dep);
 
-        return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, remaining, mappedServices };
+        const dep = hasDeposit ? Number(depositPaid) || 0 : 0;
+        const netDeductions = dep + paidServicesTotal;
+        const remaining = Math.max(0, grandTotal - netDeductions);
+
+        return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, paidServicesTotal, paidServicesList, netDeductions, remaining, mappedServices };
       }, [customVenuePrice, selectedServices, campaignCode, hasDeposit, depositPaid, isInvoiced, services]);
 
       const handleAddFlowItem = () => {
@@ -2753,6 +2805,28 @@
       };
 
       const handleSubmit = () => {
+        // Customer validation check with smooth scroll & focus
+        if (customerMode === 'new') {
+          if (!newCustName.trim() || !newCustPhone.trim()) {
+            setCustomerError(true);
+            alert('⚠️ LÜTFEN MÜŞTERİ BİLGİLERİNİ EKSİKSİZ DOLDURUNUZ!\nMüşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur.');
+            const el = document.getElementById('customer-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const nameInput = document.getElementById('new-cust-name-input');
+            if (nameInput) nameInput.focus();
+            return;
+          }
+        } else if (customerMode === 'existing') {
+          if (!selectedCustomerId) {
+            setCustomerError(true);
+            alert('⚠️ LÜTFEN SİSTEMDE KAYITLI BİR MÜŞTERİ SEÇİNİZ!');
+            const el = document.getElementById('customer-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+        }
+        setCustomerError(false);
+
         if (conflictInfo.hasConflict) {
           alert(`⛔ SEANS ÇAKIŞMA UYARISI: ${selectedVenue?.name} salonunda ${formatDate(startDate)} tarihinde (${conflictInfo.conflictingRes?.timeSlot}) aktif bir rezervasyon bulunmaktadır! Lütfen başka bir saat seansı veya başka bir salon seçiniz.`);
           return;
@@ -3138,20 +3212,27 @@
                 )}
               </div>
 
-              {/* SECTION 2: MÜŞTERİ BİLGİLERİ VE OTOMATİK ÜYELİK (BAŞLIK & DÜĞME HİZALAMASI YENİLENDİ) */}
-              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+              {/* SECTION 2: MÜŞTERİ BİLGİLERİ VE OTOMATİK ÜYELİK (EKSİK ALAN UYARISI & SCROLL YÖNLENDİRMELİ) */}
+              <div id="customer-section" className={`glass-panel p-6 rounded-3xl space-y-4 shadow-sm border transition ${customerError ? 'border-2 border-red-500 shadow-red-500/20 bg-red-500/5' : 'border-slate-200 dark:border-brand-border'}`}>
                 <div className="border-b border-slate-200 dark:border-brand-border pb-3 space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg">👥</span>
-                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">2. Müşteri İletişim & Otomatik Üyelik Kartı</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">👥</span>
+                      <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">2. Müşteri İletişim & Otomatik Üyelik Kartı</h3>
+                    </div>
+                    {customerError && (
+                      <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/30 animate-pulse">
+                        ⚠️ LÜTFEN ZORUNLU ALANLARI DOLDURUNUZ
+                      </span>
+                    )}
                   </div>
 
                   {/* MODES BUTTONS MOVED BELOW TITLE AND CENTERED ON MOBILE (AUTOMATIC MEMBER FIRST) */}
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2 text-xs font-bold">
-                    <button onClick={() => setCustomerMode('new')} className={`px-3.5 py-2 rounded-xl border transition ${customerMode === 'new' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400'}`}>
+                    <button onClick={() => { setCustomerMode('new'); setCustomerError(false); }} className={`px-3.5 py-2 rounded-xl border transition ${customerMode === 'new' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400'}`}>
                       ➕ Otomatik Yeni Üyelik Oluştur
                     </button>
-                    <button onClick={() => setCustomerMode('existing')} className={`px-3.5 py-2 rounded-xl border transition ${customerMode === 'existing' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400'}`}>
+                    <button onClick={() => { setCustomerMode('existing'); setCustomerError(false); }} className={`px-3.5 py-2 rounded-xl border transition ${customerMode === 'existing' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400'}`}>
                       👥 Müşteri Rehberinden Seç
                     </button>
                   </div>
@@ -3172,8 +3253,8 @@
 
                     <select
                       value={selectedCustomerId}
-                      onChange={e => setSelectedCustomerId(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                      onChange={e => { setSelectedCustomerId(e.target.value); setCustomerError(false); }}
+                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold ${customerError && !selectedCustomerId ? 'border-red-500 bg-red-500/10' : 'border-slate-200 dark:border-brand-border'}`}
                     >
                       {customers
                         .filter(c => {
@@ -3194,12 +3275,38 @@
                       ✨ Bu kişi için sistemde otomatik olarak yeni üye ve müşteri kartı oluşturulacaktır.
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div><label className="font-bold block mb-1">Adı Soyadı / Firma Unvanı:</label><input type="text" placeholder="Örn: Mehmet Yılmaz & Zeynep Can" value={newCustName} onChange={e => setNewCustName(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
-                      <div><label className="font-bold block mb-1">E-posta Adresi:</label><input type="email" placeholder="ornek@domain.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+                      <div>
+                        <label className="font-bold block mb-1">Adı Soyadı / Firma Unvanı <span className="text-red-500">*</span>:</label>
+                        <input
+                          id="new-cust-name-input"
+                          type="text"
+                          placeholder="Örn: Mehmet Yılmaz & Zeynep Can"
+                          value={newCustName}
+                          onChange={e => { setNewCustName(e.target.value); setCustomerError(false); }}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustName.trim() ? 'border-2 border-red-500 bg-red-500/10 font-bold' : 'border-slate-200 dark:border-brand-border'}`}
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1">E-posta Adresi:</label>
+                        <input type="email" placeholder="ornek@domain.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" />
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div><label className="font-bold block mb-1">Birincil Telefon (+90):</label><input type="text" placeholder="+90 532 000 0000" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
-                      <div><label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu:</label><input type="text" placeholder="+90 535 000 0000 (Anne/Baba Tel)" value={newCustSecondaryPhone} onChange={e => setNewCustSecondaryPhone(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+                      <div>
+                        <label className="font-bold block mb-1">Birincil Telefon (+90) <span className="text-red-500">*</span>:</label>
+                        <input
+                          id="new-cust-phone-input"
+                          type="text"
+                          placeholder="+90 532 000 0000"
+                          value={newCustPhone}
+                          onChange={e => { setNewCustPhone(e.target.value); setCustomerError(false); }}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustPhone.trim() ? 'border-2 border-red-500 bg-red-500/10 font-bold' : 'border-slate-200 dark:border-brand-border'}`}
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu:</label>
+                        <input type="text" placeholder="+90 535 000 0000 (Anne/Baba Tel)" value={newCustSecondaryPhone} onChange={e => setNewCustSecondaryPhone(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -3508,35 +3615,54 @@
 
               {/* CANLI FİNANSAL ÖZET & SÖZLEŞME ONAY KARTI */}
               <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-xl border-2 border-amber-500/40 sticky top-24">
-                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 border-b border-slate-200 pb-2">
+                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 border-b border-slate-200 dark:border-brand-border pb-2">
                   💰 Canlı Hesaplama & Sözleşme Kartı
                 </h3>
 
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(calculations.vPrice)}</span></div>
-                  <div className="flex justify-between"><span>Seçilen Hizmetler:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
-                  <div className="flex justify-between border-t border-slate-200 pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
-                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans İndirimi:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
-                  {isInvoiced && <div className="flex justify-between text-slate-600"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>}
+                  <div className="flex justify-between"><span>Seçilen Ek Hizmetler:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
+                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans / İndirim:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
+                  {isInvoiced && <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>}
                   
-                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 pt-2">
+                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-2">
                     <span>Genel Toplam Tutar:</span>
                     <span>{formatCurrency(calculations.grandTotal)}</span>
                   </div>
 
-                  <div className="flex justify-between text-emerald-600 pt-1"><span>Tahsil Edilen Kapora:</span><span className="font-bold">{formatCurrency(calculations.dep)}</span></div>
-                  <div className="flex justify-between text-red-600 font-bold text-sm bg-red-500/10 p-2 rounded-xl border border-red-500/20">
-                    <span>Kalan Ödenecek Bakiye:</span>
-                    <span>{formatCurrency(calculations.remaining)}</span>
+                  {/* DÜŞÜLEN HİZMETLER SATIR SATIR */}
+                  {calculations.paidServicesList && calculations.paidServicesList.length > 0 && (
+                    <div className="space-y-1 pt-1">
+                      <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">✨ Ödendi İşaretlenen ve Düşülen Hizmetler:</div>
+                      {calculations.paidServicesList.map(ps => (
+                        <div key={ps.id} className="flex justify-between items-center text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20">
+                          <span>✓ {ps.name} (Tahsil Edildi)</span>
+                          <span className="font-mono">-{formatCurrency(ps.cost)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {hasDeposit && (
+                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 font-bold">
+                      <span>Tahsil Edilen Kapora:</span>
+                      <span className="font-mono">-{formatCurrency(calculations.dep)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-red-600 dark:text-red-400 font-bold text-sm bg-red-500/10 p-2.5 rounded-xl border border-red-500/20 mt-2">
+                    <span>Kalan Ödenecek Net Bakiye:</span>
+                    <span className="font-mono font-extrabold text-base">{formatCurrency(calculations.remaining)}</span>
                   </div>
                 </div>
 
                 <div className="pt-2">
                   <button
-                    disabled={collisionDetected}
+                    disabled={conflictInfo.hasConflict}
                     onClick={handleSubmit}
                     className={`w-full gold-button font-bold py-3.5 rounded-2xl text-xs shadow-xl flex items-center justify-center space-x-2 ${
-                      collisionDetected ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
+                      conflictInfo.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
                     }`}
                   >
                     <span>🎉</span><span>Rezervasyonu ve Sözleşmeyi Kaydet</span>
@@ -5230,6 +5356,21 @@
               <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Toplam Tutar</div><div className="font-bold text-amber-700 dark:text-gold-400">{formatCurrency(res.totalAmount)}</div></div>
               <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Kalan Bakiye</div><div className="font-bold text-red-500 dark:text-red-400">{formatCurrency(Math.max(0, res.totalAmount - deposit))}</div></div>
             </div>
+
+            {/* FLOW PLAN PREVIEW */}
+            {res.flowPlan && res.flowPlan.length > 0 && (
+              <div className="bg-slate-50 dark:bg-brand-dark/70 p-3 rounded-xl border border-slate-200 dark:border-brand-border space-y-2 text-xs">
+                <h4 className="font-bold text-amber-700 dark:text-gold-400">📋 Etkinlik Akış Planlaması ({res.flowPlan.length} Adım):</h4>
+                <div className="space-y-1 max-h-28 overflow-y-auto">
+                  {res.flowPlan.map((fp, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-[11px] bg-white dark:bg-brand-card p-1.5 rounded border border-slate-200/60 dark:border-brand-border/40">
+                      <span className="font-mono font-bold text-amber-700 dark:text-gold-300">{fp.time}</span>
+                      <span className="text-slate-800 dark:text-gray-200 font-medium">{fp.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="bg-slate-50 dark:bg-brand-dark/70 p-4 rounded-xl border border-amber-500/30 space-y-3">
               <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400">💳 Ödeme ve Kapora Güncelleme</h4>
