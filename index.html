@@ -758,10 +758,180 @@
       );
     }
 
+    // --- FULL PAGE VENUE DETAIL POPUP MODAL COMPONENT ---
+    function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
+      if (!venue) return null;
+
+      const interiorImages = [
+        venue.image || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80'
+      ];
+
+      const exteriorImages = [
+        'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80'
+      ];
+
+      const supportedEvents = [
+        { title: 'Düğün Organizasyonu', icon: '💍', desc: 'Yemekli & Yemeksiz Düğün Baloları' },
+        { title: 'Kına Gecesi Konsepti', icon: '👑', desc: 'Taht, Otantik Süslemeler & DJ' },
+        { title: 'Nişan & Söz Töreni', icon: '✨', desc: 'Butik ve Şık Kutlamalar' },
+        { title: 'Kurumsal Gala & Lansman', icon: '🥂', desc: 'VIP Şirket Etkinlikleri' }
+      ];
+
+      const availableServices = [
+        'Gurme Yemek Servisi (Et / Tavuk / Vejetaryen)',
+        '4K Fotoğraf & Sinematik Video Çekimi',
+        'Canlı Müzik Orkestrası & Profesyonel DJ',
+        'Özel Çiçekli Masa ve Sahne Dekoru',
+        'Gelin Odası İkramları & VIP Karşılama'
+      ];
+
+      return (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/30 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden my-auto space-y-0">
+            
+            {/* MODAL HEADER */}
+            <div className="relative h-64 sm:h-80 overflow-hidden">
+              <img src={venue.image} alt={venue.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-white">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <span className="gold-button text-xs font-bold px-3 py-1 rounded-full shadow">
+                      📍 {venue.location || 'Sapanca Göl Kenarı, Sakarya'}
+                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-heading font-extrabold text-white mt-2 drop-shadow">
+                      {venue.name}
+                    </h2>
+                    <p className="text-xs text-gray-200 mt-1 max-w-2xl">{venue.description}</p>
+                  </div>
+                  <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/20 hover:bg-red-600 text-white font-bold text-lg flex items-center justify-center backdrop-blur-md transition border border-white/30">
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* MODAL CONTENT BODY */}
+            <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-xs">
+              
+              {/* KEY SPECS GRID */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[11px] font-bold">Kapasite:</span>
+                  <span className="text-base font-extrabold text-amber-800 dark:text-gold-400">👥 {venue.capacity} Kişi</span>
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[11px] font-bold">Kiralama Liste Fiyatı:</span>
+                  <span className="text-base font-extrabold text-amber-800 dark:text-gold-400">{formatCurrency(venue.price)}</span>
+                </div>
+
+                <div className="bg-emerald-500/10 border border-emerald-500/30 p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[11px] font-bold">Kapora Bedeli:</span>
+                  <span className="text-base font-extrabold text-emerald-600">{formatCurrency(venue.deposit || 15000)}</span>
+                </div>
+
+                <div className="bg-blue-500/10 border border-blue-500/30 p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[11px] font-bold">Sezonluk Doluluk Oranı:</span>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <div className="flex-1 bg-slate-200 dark:bg-brand-dark h-2 rounded-full overflow-hidden">
+                      <div className="bg-blue-600 h-full rounded-full" style={{ width: `${venue.occupancyRate || 85}%` }}></div>
+                    </div>
+                    <span className="font-extrabold text-blue-600">%{venue.occupancyRate || 85}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* İÇ GÖRSELLERİ GALERİSİ */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <span>🏰</span>
+                  <span>İç Mekan & Balo Salonu Görselleri:</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {interiorImages.map((img, i) => (
+                    <img key={i} src={img} alt="İç Mekan" className="w-full h-32 object-cover rounded-2xl border border-slate-200 dark:border-brand-border shadow-sm hover:scale-[1.02] transition" />
+                  ))}
+                </div>
+              </div>
+
+              {/* DIŞ GÖRSELLERİ GALERİSİ */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <span>🌅</span>
+                  <span>Dış Mekan & Göl Manzarası Görselleri:</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {exteriorImages.map((img, i) => (
+                    <img key={i} src={img} alt="Dış Mekan" className="w-full h-32 object-cover rounded-2xl border border-slate-200 dark:border-brand-border shadow-sm hover:scale-[1.02] transition" />
+                  ))}
+                </div>
+              </div>
+
+              {/* YAPILABİLECEK ETKİNLİKLER */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <span>🎉</span>
+                  <span>Yapılabilecek Etkinlik Türleri:</span>
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {supportedEvents.map((ev, i) => (
+                    <div key={i} className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border text-center space-y-1">
+                      <div className="text-xl">{ev.icon}</div>
+                      <div className="font-bold text-slate-800 dark:text-gray-200 text-xs">{ev.title}</div>
+                      <div className="text-[10px] text-slate-500">{ev.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SEÇİLEBİLECEK HİZMETLER */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <span>✨</span>
+                  <span>Dahil Edilebilir Hizmet Paket İçerikleri:</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {availableServices.map((srv, i) => (
+                    <div key={i} className="flex items-center space-x-2 bg-slate-50 dark:bg-brand-dark p-2.5 rounded-xl border border-slate-200 dark:border-brand-border font-semibold text-slate-700 dark:text-gray-300">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{srv}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="p-4 bg-slate-50 dark:bg-brand-dark border-t border-slate-200 dark:border-brand-border flex justify-between items-center">
+              <button onClick={onClose} className="px-5 py-2.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-300">
+                Kapat
+              </button>
+              <button
+                onClick={() => {
+                  onSelectVenue(venue);
+                  onClose();
+                }}
+                className="gold-button font-extrabold px-6 py-2.5 rounded-xl text-xs shadow-lg"
+              >
+                Bu Salonu Seç ve Rezervasyona Ekle ✓
+              </button>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
     // --- FULL PAGE DEDICATED RESERVATION WORKSPACE COMPONENT ---
     function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations, onSaveReservation, onCancel }) {
       // 1. Venue, Date & Slot
       const venueCarouselRef = useRef(null);
+      const [selectedVenueForDetail, setSelectedVenueForDetail] = useState(null);
       const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 65000);
       const [eventDate, setEventDate] = useState('2026-08-25');
@@ -996,14 +1166,26 @@
       return (
         <div className="space-y-6 max-w-7xl mx-auto pb-12">
           
+          {/* VENUE DETAIL POPUP MODAL */}
+          {selectedVenueForDetail && (
+            <VenueDetailModalComponent
+              venue={selectedVenueForDetail}
+              onClose={() => setSelectedVenueForDetail(null)}
+              onSelectVenue={(v) => {
+                setVenueId(v.id);
+                setCustomVenuePrice(v.price);
+              }}
+            />
+          )}
+
           {/* PAGE HEADER */}
           <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
             <div className="space-y-1">
               <span className="inline-block bg-amber-500/10 text-amber-800 dark:text-gold-400 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20 leading-normal">
-                📝 Rezervasyon & Kiralama Çalışma Alanı
+                📝 Rezervasyon Oluşturma ve Kiralama
               </span>
               <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-1">
-                Tam Sayfa Rezervasyon Oluşturma & Planlama
+                Hayalinizdeki düğünü birlikte planlayalım!
               </h2>
               <p className="text-[11px] sm:text-xs text-slate-500 dark:text-gray-400">Salon kiralama, hizmet adetleri, müşteri üyelik kaydı, fatura ve etkinlik akışını tek ekranda yönetin.</p>
             </div>
@@ -1017,12 +1199,8 @@
             {/* LEFT COLUMN: FORM SECTIONS (8 Cols) */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* SECTION 1: SALON & TARİH SEÇİMİ */}
+              {/* SECTION 1: SALON & TARİH SEÇİMİ (BAŞLIK KALDIRILDI - ALANDAN TASARRUF) */}
               <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
-                <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
-                  <span className="text-lg">🏛️</span>
-                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">1. Salon & Kiralama Tarih/Saat Seçimi</h3>
-                </div>
 
                 {/* VISUAL HORIZONTAL SCROLLABLE VENUE CAROUSEL WITH ARROW CONTROLS */}
                 <div>
@@ -1080,6 +1258,20 @@
                                 SEÇİLDİ ✓
                               </div>
                             )}
+
+                            {/* 🔍 DETAYLAR FULL PAGE POPUP BUTTON */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedVenueForDetail(v);
+                              }}
+                              className="absolute bottom-2 right-2 bg-slate-900/80 hover:bg-amber-600 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-white/20 transition flex items-center space-x-1 shadow"
+                              title="Salon Detaylarını Göster"
+                            >
+                              <span>🔍</span>
+                              <span>Detaylar</span>
+                            </button>
                           </div>
 
                           <div className="p-3 space-y-1.5 flex-1 flex flex-col justify-between">
