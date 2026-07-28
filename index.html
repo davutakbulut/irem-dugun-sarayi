@@ -1491,6 +1491,7 @@
       const [campaignModalData, setCampaignModalData] = useState(null);
       const [userModalData, setUserModalData] = useState(null);
       const [emailModalData, setEmailModalData] = useState(null);
+      const [prefilledCreateDate, setPrefilledCreateDate] = useState(null);
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
@@ -2025,13 +2026,18 @@
                       customers={customers}
                       campaigns={campaigns}
                       reservations={reservations}
+                      prefilledDate={prefilledCreateDate}
                       onSaveReservation={(newRes, newCust) => {
                         if (newCust) setCustomers(prev => [...prev, newCust]);
                         setReservations(prev => [newRes, ...prev]);
+                        setPrefilledCreateDate(null);
                         showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
                         navigateTo('reservations');
                       }}
-                      onCancel={() => navigateTo('reservations')}
+                      onCancel={() => {
+                        setPrefilledCreateDate(null);
+                        navigateTo('reservations');
+                      }}
                     />
                   )}
 
@@ -2063,6 +2069,10 @@
                       venues={venues}
                       onResClick={setSelectedResForDetail}
                       onReschedule={handleRescheduleReservation}
+                      onCreateNewForDate={(dateStr) => {
+                        setPrefilledCreateDate(dateStr);
+                        navigateTo('create-reservation');
+                      }}
                     />
                   )}
 
@@ -2542,15 +2552,15 @@
     }
 
     // --- FULL PAGE DEDICATED RESERVATION WORKSPACE COMPONENT ---
-    function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations, onSaveReservation, onCancel }) {
+    function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations = [], prefilledDate, onSaveReservation, onCancel }) {
       // 1. Venue, Start/End Date & Time
       const venueCarouselRef = useRef(null);
       const [selectedVenueForDetail, setSelectedVenueForDetail] = useState(null);
       const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 65000);
-      const [startDate, setStartDate] = useState('2026-08-25');
+      const [startDate, setStartDate] = useState(prefilledDate || '2026-08-25');
       const [startTime, setStartTime] = useState('19:00');
-      const [endDate, setEndDate] = useState('2026-08-25');
+      const [endDate, setEndDate] = useState(prefilledDate || '2026-08-25');
       const [endTime, setEndTime] = useState('23:00');
       const [guestCount, setGuestCount] = useState(500);
 
@@ -2573,6 +2583,34 @@
         const v = venues.find(x => x.id === venueId);
         if (v) setCustomVenuePrice(v.price);
       }, [venueId]);
+
+      // Collision Check Logic & Same Date Reservations
+      const conflictInfo = useMemo(() => {
+        const sameVenueDateRes = (reservations || []).filter(r => r.venueId === venueId && r.date === startDate);
+        if (sameVenueDateRes.length === 0) {
+          return { hasConflict: false, conflictingRes: null, sameDateResCount: (reservations || []).filter(r => r.date === startDate).length };
+        }
+
+        // Check if time slot overlaps
+        const conflictingRes = sameVenueDateRes.find(r => {
+          if ((r.timeSlot || '').includes('Tüm Gün') || activeSlot.includes('Tüm Gün')) return true;
+          if (r.timeSlot === activeSlot) return true;
+          
+          const parseHour = (str) => {
+            const match = (str || '').match(/(\d{1,2}):(\d{2})/);
+            return match ? parseInt(match[1]) : 12;
+          };
+          const rStart = parseHour(r.timeSlot);
+          const currStart = parseHour(activeSlot);
+          return Math.abs(rStart - currStart) < 4;
+        });
+
+        return {
+          hasConflict: !!conflictingRes,
+          conflictingRes,
+          sameDateResCount: (reservations || []).filter(r => r.date === startDate).length
+        };
+      }, [reservations, venueId, startDate, activeSlot]);
 
       // 2. Customer & Auto-Membership (DEFAULT TO NEW MEMBER)
       const [customerMode, setCustomerMode] = useState('new'); // 'new' or 'existing'
@@ -2715,7 +2753,10 @@
       };
 
       const handleSubmit = () => {
-        if (collisionDetected) return;
+        if (conflictInfo.hasConflict) {
+          alert(`⛔ SEANS ÇAKIŞMA UYARISI: ${selectedVenue?.name} salonunda ${formatDate(startDate)} tarihinde (${conflictInfo.conflictingRes?.timeSlot}) aktif bir rezervasyon bulunmaktadır! Lütfen başka bir saat seansı veya başka bir salon seçiniz.`);
+          return;
+        }
         
         let custId = selectedCustomerId;
         let custName = existingCustomer?.name || 'Müşteri';
@@ -2933,8 +2974,53 @@
                   </div>
                 </div>
 
+                {/* QUICK TIME SLOT SEANSLARI PRESETS */}
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-brand-border">
+                  <label className="font-bold text-slate-800 dark:text-gray-200 text-xs block">
+                    ⏰ Hızlı Seans Seçimi (Aynı Gün Farklı Seans Rezerve Edilebilir):
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setStartTime('10:00'); setEndTime('15:00'); }}
+                      className={`p-2.5 rounded-xl border text-center transition font-bold text-xs flex flex-col items-center justify-center space-y-0.5 ${
+                        startTime === '10:00' && endTime === '15:00'
+                          ? 'gold-button shadow border-amber-500'
+                          : 'bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-500'
+                      }`}
+                    >
+                      <span>🌅 Gündüz Seansı</span>
+                      <span className="text-[10px] opacity-80 font-mono font-bold">10:00 - 15:00</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setStartTime('18:00'); setEndTime('23:00'); }}
+                      className={`p-2.5 rounded-xl border text-center transition font-bold text-xs flex flex-col items-center justify-center space-y-0.5 ${
+                        startTime === '18:00' && endTime === '23:00'
+                          ? 'gold-button shadow border-amber-500'
+                          : 'bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-500'
+                      }`}
+                    >
+                      <span>🌙 Gece Balo Seansı</span>
+                      <span className="text-[10px] opacity-80 font-mono font-bold">18:00 - 23:00</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setStartTime('09:00'); setEndTime('23:30'); }}
+                      className={`p-2.5 rounded-xl border text-center transition font-bold text-xs flex flex-col items-center justify-center space-y-0.5 ${
+                        startTime === '09:00' && endTime === '23:30'
+                          ? 'gold-button shadow border-amber-500'
+                          : 'bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-500'
+                      }`}
+                    >
+                      <span>👑 Tüm Gün Kiralama</span>
+                      <span className="text-[10px] opacity-80 font-mono font-bold">09:00 - 23:30</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* START AND END DATE & TIME SELECTION */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2 border-t border-slate-100 dark:border-brand-border">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
                   <div className="space-y-2">
                     <label className="font-bold text-slate-800 dark:text-gray-200 block">📅 Etkinlik Başlangıç Tarihi & Saati:</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -2951,6 +3037,47 @@
                     </div>
                   </div>
                 </div>
+
+                {/* REAL-TIME CONFLICT / AVAILABILITY WARNING BANNER */}
+                {conflictInfo.hasConflict ? (
+                  <div className="p-4 rounded-2xl border-2 border-red-500/60 bg-red-500/10 text-red-700 dark:text-red-300 space-y-2.5 shadow-xl animate-fade-in">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-2xl bg-red-500 text-white font-extrabold flex items-center justify-center text-xl shrink-0 shadow-md">
+                        ⛔
+                      </div>
+                      <div>
+                        <h4 className="font-heading font-extrabold text-sm text-red-600 dark:text-red-400">
+                          ÇAKIŞMA ENGELLENDİ: SEÇİLEN SALON VE SEANS ZATEN REZERVE EDİLMİŞ!
+                        </h4>
+                        <p className="text-xs text-red-700 dark:text-red-300 leading-normal">
+                          <strong>{selectedVenue?.name}</strong> salonunda <strong>{formatDate(startDate)}</strong> tarihinde <strong>{conflictInfo.conflictingRes?.timeSlot}</strong> seansı için onaylı bir rezervasyon bulunmaktadır.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="bg-white/90 dark:bg-brand-card/90 p-3 rounded-xl border border-red-500/30 text-xs flex justify-between items-center shadow-sm">
+                      <div className="space-x-2">
+                        <span className="font-bold text-slate-800 dark:text-gray-100">Dolu Rezervasyon: </span>
+                        <span className="font-mono text-amber-700 dark:text-gold-400 font-bold">{conflictInfo.conflictingRes?.id}</span>
+                        <span className="text-slate-600 dark:text-gray-300">• {conflictInfo.conflictingRes?.customerName}</span>
+                      </div>
+                      <span className="text-[10px] font-extrabold bg-red-500/20 text-red-600 dark:text-red-400 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                        SEANS DOLU 🔒
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="text-lg">✅</span>
+                      <div className="text-xs font-bold">
+                        {selectedVenue?.name} • {formatDate(startDate)} ({activeSlot}) — Bu Salon ve Seans Tamamen Müsait!
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                      MÜSAİT ✨
+                    </span>
+                  </div>
+                )}
 
                 {/* LIVE CALENDAR PREVIEW & OCCUPANCY TIMELINE */}
                 <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-4 rounded-2xl space-y-2 text-xs">
@@ -2973,7 +3100,7 @@
                       const dayDate = new Date(2026, 7, 20 + i);
                       const dateStr = dayDate.toISOString().split('T')[0];
                       const isSelectedDate = dateStr === startDate;
-                      const hasExistingBooking = reservations.some(r => r.venueId === venueId && r.eventDate === dateStr && r.status !== 'İptal');
+                      const hasExistingBooking = reservations.some(r => r.venueId === venueId && r.date === dateStr && r.paymentStatus !== 'İptal');
 
                       return (
                         <div
@@ -3918,16 +4045,157 @@
       );
     }
 
-    // --- CALENDAR COMPONENT WITH HTML5 DRAG & DROP RESCHEDULING ---
-    function CalendarComponent({ reservations, venues, onResClick, onReschedule }) {
+    // --- CALENDAR DAY SCHEDULE & TIME CONFLICT INSPECTOR MODAL ---
+    function DayDetailModalComponent({ dayData, venues = [], onResClick, onCreateNewForDay, onClose }) {
+      if (!dayData) return null;
+      const { dateStr, dayNumber, reservations = [] } = dayData;
+      const formattedDate = formatDate(dateStr);
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-2xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in">
+            
+            {/* HEADER */}
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-gold-400 font-extrabold flex items-center justify-center text-xl border border-amber-500/30">
+                  📅
+                </div>
+                <div>
+                  <h3 className="text-lg font-heading font-extrabold text-slate-800 dark:text-gray-100">
+                    {formattedDate} – Günlük Organizasyon & Saat Çakışma Paneli
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">
+                    Bu güne ait tüm rezervasyonlar, salon doluluk durumları ve saat seansı detayları
+                  </p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+            </div>
+
+            {/* VENUES AVAILABILITY & CONFLICT MATRIX */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-gray-300">
+                  🏛️ Salon Doluluk & Seans Çakışma Analizi
+                </h4>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-gray-400 font-mono bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg">
+                  Toplam {reservations.length} Rezervasyon Kayıtlı
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {venues.map(venue => {
+                  const venueRes = reservations.filter(r => r.venueId === venue.id);
+                  const isOccupied = venueRes.length > 0;
+
+                  return (
+                    <div
+                      key={venue.id}
+                      className={`p-4 rounded-2xl border transition ${
+                        isOccupied
+                          ? 'bg-amber-500/10 border-amber-500/40 text-slate-800 dark:text-gray-100'
+                          : 'bg-emerald-500/5 border-emerald-500/30 text-slate-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-sm">{venue.name}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            isOccupied
+                              ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+                          }`}>
+                            {isOccupied ? `⚠️ ${venueRes.length} Organizasyon Yapılacak` : '✅ TAMAMEN MÜSAİT'}
+                          </span>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-amber-700 dark:text-gold-400">
+                          {formatCurrency(venue.price)}
+                        </span>
+                      </div>
+
+                      {/* RESERVATIONS IN THIS VENUE */}
+                      {isOccupied ? (
+                        <div className="mt-3 space-y-2 pt-2 border-t border-amber-500/20">
+                          {venueRes.map(r => (
+                            <div
+                              key={r.id}
+                              onClick={() => { onClose(); onResClick(r); }}
+                              className="bg-white dark:bg-brand-card p-3 rounded-xl border border-amber-500/30 flex justify-between items-center hover:scale-[1.01] transition cursor-pointer shadow-sm"
+                            >
+                              <div className="space-y-0.5">
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-mono text-[10px] font-bold text-amber-700 dark:text-gold-400">{r.id}</span>
+                                  <span className="font-bold text-xs text-slate-800 dark:text-gray-100">{r.customerName}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-500 dark:text-gray-400 flex items-center space-x-2">
+                                  <span>⏰ Seans: <strong className="text-amber-800 dark:text-gold-300">{r.timeSlot}</strong></span>
+                                  <span>• 👥 {r.guestCount} Davetli</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                  {r.paymentStatus}
+                                </span>
+                                <span className="text-xs text-amber-700 dark:text-gold-400">Detay 🔍</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1.5">
+                          💡 Bu salon için {formattedDate} tarihinde henüz hiç rezervasyon yapılmamıştır. Gündüz veya Gece seansı hemen rezerve edilebilir!
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="pt-3 border-t border-slate-200 dark:border-brand-border flex justify-between items-center">
+              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">
+                Kapat
+              </button>
+              <button
+                onClick={() => { onClose(); onCreateNewForDay(dateStr); }}
+                className="gold-button font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg flex items-center space-x-2"
+              >
+                <span>➕</span>
+                <span>{formattedDate} İçin Yeni Rezervasyon Oluştur</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // --- CALENDAR COMPONENT WITH HTML5 DRAG & DROP RESCHEDULING & DAY INSPECTOR ---
+    function CalendarComponent({ reservations, venues, onResClick, onReschedule, onCreateNewForDate }) {
       const [draggedResId, setDraggedResId] = useState(null);
+      const [selectedDayData, setSelectedDayData] = useState(null);
 
       return (
         <div className="space-y-6">
+          {/* DAY DETAIL INSPECTOR MODAL */}
+          {selectedDayData && (
+            <DayDetailModalComponent
+              dayData={selectedDayData}
+              venues={venues}
+              onResClick={onResClick}
+              onCreateNewForDay={(dateStr) => {
+                if (onCreateNewForDate) onCreateNewForDate(dateStr);
+              }}
+              onClose={() => setSelectedDayData(null)}
+            />
+          )}
+
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim & Sürükle-Bırak Taşıma</h2>
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim & Saat Çakışma Denetleyicisi</h2>
             <span className="text-xs text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
-              💡 Rezervasyonu tutup başka bir güne bırakarak tarihini değiştirebilirsiniz.
+              💡 Günün üzerine tıklayarak tüm salon doluluklarını inceleyebilir veya kartı sürükleyerek başka güne taşıyabilirsiniz.
             </span>
           </div>
 
@@ -3950,21 +4218,32 @@
                         setDraggedResId(null);
                       }
                     }}
-                    className={`min-h-[85px] p-2 rounded-xl border text-left flex flex-col justify-between transition ${
-                      dayRes.length > 0 ? 'bg-amber-50 dark:bg-brand-card border-amber-500/40' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-amber-500'
+                    onClick={() => setSelectedDayData({ dateStr, dayNumber: day, reservations: dayRes })}
+                    className={`min-h-[90px] p-2 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer hover:shadow-md ${
+                      dayRes.length > 0 ? 'bg-amber-50/80 dark:bg-brand-card border-amber-500/40 hover:border-amber-500' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-emerald-500'
                     }`}
                   >
-                    <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
+                      {dayRes.length > 0 && (
+                        <span className="text-[9px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                          {dayRes.length} Etkinlik
+                        </span>
+                      )}
+                    </div>
                     <div className="space-y-1">
                       {dayRes.map(r => (
                         <div
                           key={r.id}
                           draggable={true}
                           onDragStart={() => setDraggedResId(r.id)}
-                          onClick={() => onResClick(r)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onResClick(r);
+                          }}
                           className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/40 cursor-grab active:cursor-grabbing hover:bg-amber-500 hover:text-white transition"
                         >
-                          ⋮⋮ {r.customerName.split(' ')[0]}
+                          ⋮⋮ {r.customerName.split(' ')[0]} ({r.timeSlot ? r.timeSlot.split('-')[0] : ''})
                         </div>
                       ))}
                     </div>
