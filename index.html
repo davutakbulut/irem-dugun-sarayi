@@ -613,11 +613,103 @@
       // Modals State
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
       const [customerModalData, setCustomerModalData] = useState(null);
+      const [venueModalData, setVenueModalData] = useState(null);
+      const [serviceModalData, setServiceModalData] = useState(null);
+      const [campaignModalData, setCampaignModalData] = useState(null);
+      const [userModalData, setUserModalData] = useState(null);
+      const [emailModalData, setEmailModalData] = useState(null);
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
       const [resSearchQuery, setResSearchQuery] = useState('');
       const [resStatusFilter, setResStatusFilter] = useState('all');
+
+      // CRUD HANDLERS
+      const handleSaveVenue = (vObj) => {
+        setVenues(prev => {
+          const idx = prev.findIndex(x => x.id === vObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = vObj;
+            return updated;
+          }
+          return [...prev, vObj];
+        });
+        setVenueModalData(null);
+        showToast('🏰 Düğün Salonu Başarıyla Kaydedildi!');
+      };
+
+      const handleDeleteVenue = (vId) => {
+        setVenues(prev => prev.filter(x => x.id !== vId));
+        showToast('🗑️ Düğün Salonu Sistemden Silindi.');
+      };
+
+      const handleSaveService = (sObj) => {
+        setServices(prev => {
+          const idx = prev.findIndex(x => x.id === sObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = sObj;
+            return updated;
+          }
+          return [...prev, sObj];
+        });
+        setServiceModalData(null);
+        showToast('✨ Ek Hizmet Başarıyla Kaydedildi!');
+      };
+
+      const handleDeleteService = (sId) => {
+        setServices(prev => prev.filter(x => x.id !== sId));
+        showToast('🗑️ Ek Hizmet Silindi.');
+      };
+
+      const handleSaveCampaign = (cObj) => {
+        setCampaigns(prev => {
+          const idx = prev.findIndex(x => x.id === cObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = cObj;
+            return updated;
+          }
+          return [...prev, cObj];
+        });
+        setCampaignModalData(null);
+        showToast('🎁 Özel Kampanya Başarıyla Oluşturuldu!');
+      };
+
+      const handleDeleteCampaign = (cId) => {
+        setCampaigns(prev => prev.filter(x => x.id !== cId));
+        showToast('🗑️ Kampanya Kaldırıldı.');
+      };
+
+      const handleSaveUser = (uObj) => {
+        setUsers(prev => {
+          const idx = prev.findIndex(x => x.id === uObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = uObj;
+            return updated;
+          }
+          return [...prev, uObj];
+        });
+        setUserModalData(null);
+        showToast('⚙️ Kullanıcı Bilgileri Başarıyla Güncellendi!');
+      };
+
+      const handleDeleteUser = (uId) => {
+        setUsers(prev => prev.filter(x => x.id !== uId));
+        showToast('🗑️ Kullanıcı Sistemden Silindi.');
+      };
+
+      const handleDeleteCustomer = (cId) => {
+        setCustomers(prev => prev.filter(x => x.id !== cId));
+        showToast('🗑️ Müşteri Rehberden Silindi.');
+      };
+
+      const handleRescheduleReservation = (resId, newDate) => {
+        setReservations(prev => prev.map(r => r.id === resId ? { ...r, date: newDate, dateFormatted: newDate } : r));
+        showToast(`📅 Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi!`);
+      };
 
       const navigateTo = (tab) => {
         setActiveTabState(tab);
@@ -1028,11 +1120,21 @@
                   )}
 
                   {activeTab === 'venues' && (
-                    <VenuesComponent venues={venues} />
+                    <VenuesComponent
+                      venues={venues}
+                      onAddClick={() => setVenueModalData('new')}
+                      onEditClick={v => setVenueModalData(v)}
+                      onDeleteClick={handleDeleteVenue}
+                    />
                   )}
 
                   {activeTab === 'services' && (
-                    <ServicesComponent services={services} />
+                    <ServicesComponent
+                      services={services}
+                      onAddClick={() => setServiceModalData('new')}
+                      onEditClick={s => setServiceModalData(s)}
+                      onDeleteClick={handleDeleteService}
+                    />
                   )}
 
                   {activeTab === 'reservations' && (
@@ -1040,11 +1142,21 @@
                   )}
 
                   {activeTab === 'calendar' && (
-                    <CalendarComponent reservations={reservations} venues={venues} onResClick={setSelectedResForDetail} />
+                    <CalendarComponent
+                      reservations={reservations}
+                      venues={venues}
+                      onResClick={setSelectedResForDetail}
+                      onReschedule={handleRescheduleReservation}
+                    />
                   )}
 
                   {activeTab === 'campaigns' && (
-                    <CampaignsComponent campaigns={campaigns} />
+                    <CampaignsComponent
+                      campaigns={campaigns}
+                      onAddClick={() => setCampaignModalData('new')}
+                      onEditClick={c => setCampaignModalData(c)}
+                      onDeleteClick={handleDeleteCampaign}
+                    />
                   )}
 
                   {activeTab === 'finance' && (
@@ -1052,11 +1164,21 @@
                   )}
 
                   {activeTab === 'customers' && (
-                    <CustomersComponent customers={customers} onAddClick={() => setCustomerModalData('new')} onEditClick={c => setCustomerModalData(c)} />
+                    <CustomersComponent
+                      customers={customers}
+                      onAddClick={() => setCustomerModalData('new')}
+                      onEditClick={c => setCustomerModalData(c)}
+                      onDeleteClick={handleDeleteCustomer}
+                    />
                   )}
 
                   {activeTab === 'users' && (
-                    <UsersComponent users={users} />
+                    <UsersComponent
+                      users={users}
+                      onAddClick={() => setUserModalData('new')}
+                      onEditClick={u => setUserModalData(u)}
+                      onDeleteClick={handleDeleteUser}
+                    />
                   )}
 
                   {activeTab === 'reports' && (
@@ -1223,6 +1345,45 @@
           )}
 
           {/* MODALS */}
+          {venueModalData && (
+            <VenueModalComponent
+              venue={venueModalData === 'new' ? null : venueModalData}
+              onClose={() => setVenueModalData(null)}
+              onSave={handleSaveVenue}
+            />
+          )}
+
+          {serviceModalData && (
+            <ServiceModalComponent
+              service={serviceModalData === 'new' ? null : serviceModalData}
+              onClose={() => setServiceModalData(null)}
+              onSave={handleSaveService}
+            />
+          )}
+
+          {campaignModalData && (
+            <CampaignModalComponent
+              campaign={campaignModalData === 'new' ? null : campaignModalData}
+              onClose={() => setCampaignModalData(null)}
+              onSave={handleSaveCampaign}
+            />
+          )}
+
+          {userModalData && (
+            <UserModalComponent
+              user={userModalData === 'new' ? null : userModalData}
+              onClose={() => setUserModalData(null)}
+              onSave={handleSaveUser}
+            />
+          )}
+
+          {emailModalData && (
+            <EmailNotificationModal
+              emailData={emailModalData}
+              onClose={() => setEmailModalData(null)}
+            />
+          )}
+
           {customerModalData && (
             <CustomerFormModal
               customer={customerModalData === 'new' ? null : customerModalData}
@@ -1242,6 +1403,13 @@
               services={services}
               onClose={() => setSelectedResForDetail(null)}
               onPrintInvoice={() => handlePrintInvoice(selectedResForDetail)}
+              onShowEmail={(r) => setEmailModalData({
+                to: r.customerEmail || 'musteri@example.com',
+                name: r.customerName,
+                subject: 'Rezervasyonunuz Oluşturuldu! – İrem Düğün Sarayı',
+                type: 'reservation',
+                res: r
+              })}
               onUpdatePayment={(id, dep, stat) => {
                 setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
                 showToast('💳 Ödeme & Sözleşme Güncellendi!');
@@ -2394,21 +2562,306 @@
       );
     }
 
+    // --- VENUE MODAL COMPONENT ---
+    function VenueModalComponent({ venue, onClose, onSave }) {
+      const [name, setName] = useState(venue?.name || '');
+      const [category, setCategory] = useState(venue?.category || 'Kır Düğünü');
+      const [capacity, setCapacity] = useState(venue?.capacity || 500);
+      const [price, setPrice] = useState(venue?.price || 50000);
+      const [deposit, setDeposit] = useState(venue?.deposit || 10000);
+      const [description, setDescription] = useState(venue?.description || '');
+      const [image, setImage] = useState(venue?.image || venue?.images?.[0] || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: venue?.id || `v-${Date.now()}`,
+          name,
+          category,
+          capacity: Number(capacity),
+          price: Number(price),
+          deposit: Number(deposit),
+          description,
+          image,
+          images: [image],
+          occupancy: venue?.occupancy || '%75',
+          events: venue?.events || ['Düğün', 'Nişan', 'Kına', 'Sünnet', 'Gala']
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{venue ? '🏰 Düğün Salonunu Düzenle' : '➕ Yeni Düğün Salonu Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div><label className="font-bold block mb-1">Salon Adı:</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="font-bold block mb-1">Kategori / Konsept:</label><input type="text" value={category} onChange={e => setCategory(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" /></div>
+                <div><label className="font-bold block mb-1">Maksimum Kapasite (Kişi):</label><input type="number" value={capacity} onChange={e => setCapacity(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="font-bold block mb-1">Kiralama Fiyatı (TL):</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" /></div>
+                <div><label className="font-bold block mb-1">Asgari Kaparo Bedeli (TL):</label><input type="number" value={deposit} onChange={e => setDeposit(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-emerald-600 font-bold" /></div>
+              </div>
+              <div><label className="font-bold block mb-1">Görsel URL:</label><input type="text" value={image} onChange={e => setImage(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" /></div>
+              <div><label className="font-bold block mb-1">Açıklama & Detaylar:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16 text-slate-800 dark:text-gray-200" /></div>
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Salonu Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SERVICE MODAL COMPONENT ---
+    function ServiceModalComponent({ service, onClose, onSave }) {
+      const [name, setName] = useState(service?.name || '');
+      const [pricingType, setPricingType] = useState(service?.pricingType || 'per_person');
+      const [price, setPrice] = useState(service?.price || 250);
+      const [description, setDescription] = useState(service?.description || '');
+      const [image, setImage] = useState(service?.image || 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=400&q=80');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: service?.id || `s-${Date.now()}`,
+          name,
+          pricingType,
+          price: Number(price),
+          description,
+          image
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{service ? '✨ Ek Hizmeti Düzenle' : '➕ Yeni Ek Hizmet Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div><label className="font-bold block mb-1">Hizmet Adı:</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Fiyatlandırma Tipi:</label>
+                  <select value={pricingType} onChange={e => setPricingType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold">
+                    <option value="per_person">Kişi Başı (₺/Kişi)</option>
+                    <option value="flat">Sabit Paket (₺/Paket)</option>
+                  </select>
+                </div>
+                <div><label className="font-bold block mb-1">Birim Fiyat (TL):</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" /></div>
+              </div>
+              <div><label className="font-bold block mb-1">Görsel URL:</label><input type="text" value={image} onChange={e => setImage(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+              <div><label className="font-bold block mb-1">Açıklama:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16" /></div>
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Hizmeti Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- CAMPAIGN MODAL COMPONENT ---
+    function CampaignModalComponent({ campaign, onClose, onSave }) {
+      const [code, setCode] = useState(campaign?.code || '');
+      const [title, setTitle] = useState(campaign?.title || '');
+      const [type, setType] = useState(campaign?.type || 'percent');
+      const [value, setValue] = useState(campaign?.value || 15);
+      const [description, setDescription] = useState(campaign?.description || '');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: campaign?.id || `c-${Date.now()}`,
+          code: code.toUpperCase(),
+          title,
+          type,
+          value: Number(value),
+          description
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{campaign ? '🎁 Kampanyayı Düzenle' : '➕ Yeni Özel Kampanya Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="font-bold block mb-1">Referans / İndirim Kodu:</label><input type="text" placeholder="Örn: YAZ2026" value={code} onChange={e => setCode(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-mono font-bold uppercase text-amber-700" /></div>
+                <div>
+                  <label className="font-bold block mb-1">Kampanya Tipi:</label>
+                  <select value={type} onChange={e => setType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold">
+                    <option value="percent">% Yüzde İndirimi</option>
+                    <option value="amount">TL Tutar İndirimi</option>
+                    <option value="free_service">Hediye Hizmet</option>
+                  </select>
+                </div>
+              </div>
+              <div><label className="font-bold block mb-1">Kampanya Başlığı:</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div><label className="font-bold block mb-1">İndirim Değeri ({type === 'percent' ? '%' : 'TL'}):</label><input type="number" value={value} onChange={e => setValue(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-emerald-600" /></div>
+              <div><label className="font-bold block mb-1">Detaylı Kampanya Açıklaması:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16" /></div>
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kampanyayı Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- USER MODAL COMPONENT ---
+    function UserModalComponent({ user, onClose, onSave }) {
+      const [name, setName] = useState(user?.name || '');
+      const [email, setEmail] = useState(user?.email || '');
+      const [role, setRole] = useState(user?.role || 'satisci');
+      const [avatar, setAvatar] = useState(user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: user?.id || `u-${Date.now()}`,
+          name,
+          email,
+          role,
+          avatar
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{user ? '⚙️ Kullanıcıyı Düzenle' : '➕ Yeni Kullanıcı Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div><label className="font-bold block mb-1">Adı Soyadı:</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div><label className="font-bold block mb-1">E-posta Adresi:</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div>
+                <label className="font-bold block mb-1">Sistem Rolü & Yetki Seviyesi:</label>
+                <select value={role} onChange={e => setRole(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-amber-700">
+                  <option value="admin">Admin 👑 (Tam Yetkili)</option>
+                  <option value="satisci">Satış Müdürü 💼 (Rezervasyon & Satış)</option>
+                  <option value="sosyal_medyaci">Sosyal Medya Sorumlusu 📸 (Foto/Medya)</option>
+                  <option value="musteri">Müşteri 💑 (Özel Takip Portalı)</option>
+                </select>
+              </div>
+              <div><label className="font-bold block mb-1">Profil Fotoğrafı URL:</label><input type="text" value={avatar} onChange={e => setAvatar(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kullanıcıyı Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- EMAIL NOTIFICATION SIMULATION MODAL ---
+    function EmailNotificationModal({ emailData, onClose }) {
+      if (!emailData) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-2 border-amber-500/50 rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl">✉️</span>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">Otomatik E-Posta Gönderim Simülatörü</h3>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Müşteri E-Posta Adresine Başarıyla İletildi</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold">✕</button>
+            </div>
+
+            {/* EMAIL TEMPLATE PREVIEW */}
+            <div className="bg-slate-50 dark:bg-brand-dark p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-4 text-xs font-sans">
+              <div className="space-y-1 border-b border-slate-200 dark:border-brand-border pb-3">
+                <div><strong className="text-slate-500">Alıcı:</strong> <span className="font-bold text-slate-800 dark:text-gray-200">{emailData.to}</span></div>
+                <div><strong className="text-slate-500">Konu:</strong> <span className="font-bold text-amber-700 dark:text-gold-400">{emailData.subject}</span></div>
+              </div>
+
+              <div className="space-y-3 leading-relaxed text-slate-700 dark:text-gray-300">
+                <p>Merhaba <strong>{emailData.name}</strong>,</p>
+                <p>İrem Düğün Sarayı'nı tercih ettiğiniz için bizi çok mutlu ettiniz. Aşağıdaki bilgilerle tüm süreçleri anlık ve sorunsuz takip edebilirsiniz:</p>
+
+                {emailData.type === 'welcome' && (
+                  <div className="bg-white dark:bg-brand-card p-4 rounded-xl border border-amber-500/30 space-y-2">
+                    <div className="font-bold text-amber-700 dark:text-gold-400">🔑 Üyelik ve Giriş Bilgileriniz:</div>
+                    <div>• Kullanıcı Adı / E-Posta: <strong className="font-mono text-slate-900 dark:text-white">{emailData.email}</strong></div>
+                    <div>• Geçici Giriş Şifresi: <strong className="font-mono text-slate-900 dark:text-white">İrem2026!</strong></div>
+                  </div>
+                )}
+
+                {emailData.type === 'reservation' && emailData.res && (
+                  <div className="bg-white dark:bg-brand-card p-4 rounded-xl border border-amber-500/30 space-y-2">
+                    <div className="font-bold text-amber-700 dark:text-gold-400">📋 Rezervasyon Fatura ve Ödeme Özeti ({emailData.res.id}):</div>
+                    <table className="w-full text-left text-[11px] border-collapse">
+                      <tbody>
+                        <tr className="border-b"><td className="py-1">Salon:</td><td className="font-bold">{emailData.res.customerName}</td></tr>
+                        <tr className="border-b"><td className="py-1">Tarih & Saat:</td><td className="font-bold">{formatDate(emailData.res.date)} ({emailData.res.timeSlot})</td></tr>
+                        <tr className="border-b"><td className="py-1">Toplam Tutarı:</td><td className="font-bold text-slate-900 dark:text-white">{formatCurrency(emailData.res.totalAmount)}</td></tr>
+                        <tr className="border-b"><td className="py-1">Ödenen Kapora:</td><td className="font-bold text-emerald-600">{formatCurrency(emailData.res.depositPaid)}</td></tr>
+                        <tr><td className="py-1">Kalan Bakiye:</td><td className="font-bold text-red-500">{formatCurrency(emailData.res.remainingBalance)}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-slate-200 dark:border-brand-border text-[11px] text-slate-500 text-center">
+                  Hayallerinizdeki etkinliği unutulmaz kılmak bizim işimiz!<br />
+                  <strong>İREM DÜĞÜN SARAYI</strong> | Sakarya, Sapanca | +90 555 555 55 55 | @iremdugunsarayi
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button onClick={onClose} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow">Tamam, Kapat</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // --- VENUES COMPONENT ---
-    function VenuesComponent({ venues }) {
+    function VenuesComponent({ venues, onAddClick, onEditClick, onDeleteClick }) {
       return (
         <div className="space-y-6">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Düğün Salonlarım</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Düğün Salonlarım</h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">➕ Yeni Düğün Salonu Ekle</button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {venues.map(v => (
-              <div key={v.id} className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden space-y-3 shadow-sm">
-                <OptimizedImage src={v.image || v.images[0]} alt={`${v.name} Görseli`} className="w-full h-44" />
-                <div className="p-4 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">{v.name}</h3>
-                    <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full">{v.category}</span>
+              <div key={v.id} className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden space-y-3 shadow-sm flex flex-col justify-between">
+                <div>
+                  <OptimizedImage src={v.image || v.images[0]} alt={`${v.name} Görseli`} className="w-full h-44" />
+                  <div className="p-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">{v.name}</h3>
+                      <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full">{v.category}</span>
+                    </div>
+                    <div className="text-xs text-slate-600 dark:text-gray-300 font-bold">Kapasite: {v.capacity} Kişi | Fiyat: {formatCurrency(v.price)}</div>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">{v.description}</p>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-gray-400">{v.description}</p>
+                </div>
+
+                <div className="p-4 pt-0 flex space-x-2">
+                  <button onClick={() => onEditClick(v)} className="flex-1 py-1.5 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30">Düzenle ✏️</button>
+                  <button onClick={() => onDeleteClick(v.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold text-xs border border-red-500/20">Sil 🗑️</button>
                 </div>
               </div>
             ))}
@@ -2418,16 +2871,29 @@
     }
 
     // --- SERVICES COMPONENT ---
-    function ServicesComponent({ services }) {
+    function ServicesComponent({ services, onAddClick, onEditClick, onDeleteClick }) {
       return (
         <div className="space-y-6">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Ek Hizmetlerim</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Ek Hizmetlerim</h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">➕ Yeni Ek Hizmet Ekle</button>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map(s => (
-              <div key={s.id} className="glass-panel p-4 rounded-2xl space-y-3 shadow-sm">
-                <OptimizedImage src={s.image} alt={`${s.name} Görseli`} className="w-full h-32 rounded-xl border border-slate-200 dark:border-brand-border" />
-                <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{s.name}</h3>
-                <p className="text-xs text-slate-500 dark:text-gray-400">{s.description}</p>
+              <div key={s.id} className="glass-panel p-4 rounded-2xl space-y-3 shadow-sm flex flex-col justify-between">
+                <div>
+                  <OptimizedImage src={s.image} alt={`${s.name} Görseli`} className="w-full h-32 rounded-xl border border-slate-200 dark:border-brand-border" />
+                  <div className="flex justify-between items-center pt-2">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{s.name}</h3>
+                    <span className="font-bold text-xs text-amber-700 dark:text-gold-400">{formatCurrency(s.price)}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 pt-1">{s.description}</p>
+                </div>
+
+                <div className="flex space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40">
+                  <button onClick={() => onEditClick(s)} className="flex-1 py-1.5 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30">Düzenle ✏️</button>
+                  <button onClick={() => onDeleteClick(s.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold text-xs border border-red-500/20">Sil 🗑️</button>
+                </div>
               </div>
             ))}
           </div>
@@ -2484,11 +2950,19 @@
       );
     }
 
-    // --- CALENDAR COMPONENT ---
-    function CalendarComponent({ reservations, venues, onResClick }) {
+    // --- CALENDAR COMPONENT WITH HTML5 DRAG & DROP RESCHEDULING ---
+    function CalendarComponent({ reservations, venues, onResClick, onReschedule }) {
+      const [draggedResId, setDraggedResId] = useState(null);
+
       return (
         <div className="space-y-6">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim & Sürükle-Bırak Taşıma</h2>
+            <span className="text-xs text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+              💡 Rezervasyonu tutup başka bir güne bırakarak tarihini değiştirebilirsiniz.
+            </span>
+          </div>
+
           <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm">
             <h3 className="font-bold text-amber-700 dark:text-gold-400">📅 Ağustos 2026</h3>
             <div className="grid grid-cols-7 gap-2 text-center text-xs">
@@ -2496,14 +2970,36 @@
               {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
                 const dateStr = `2026-08-${day < 10 ? '0' + day : day}`;
                 const dayRes = reservations.filter(r => r.date === dateStr);
+
                 return (
-                  <div key={day} className={`min-h-[70px] p-2 rounded-xl border text-left flex flex-col justify-between ${dayRes.length > 0 ? 'bg-amber-50 dark:bg-brand-card border-amber-500/40' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30'}`}>
+                  <div
+                    key={day}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => {
+                      e.preventDefault();
+                      if (draggedResId && onReschedule) {
+                        onReschedule(draggedResId, dateStr);
+                        setDraggedResId(null);
+                      }
+                    }}
+                    className={`min-h-[85px] p-2 rounded-xl border text-left flex flex-col justify-between transition ${
+                      dayRes.length > 0 ? 'bg-amber-50 dark:bg-brand-card border-amber-500/40' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-amber-500'
+                    }`}
+                  >
                     <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
-                    {dayRes.map(r => (
-                      <button key={r.id} onClick={() => onResClick(r)} className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/30">
-                        {r.customerName.split(' ')[0]}
-                      </button>
-                    ))}
+                    <div className="space-y-1">
+                      {dayRes.map(r => (
+                        <div
+                          key={r.id}
+                          draggable={true}
+                          onDragStart={() => setDraggedResId(r.id)}
+                          onClick={() => onResClick(r)}
+                          className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/40 cursor-grab active:cursor-grabbing hover:bg-amber-500 hover:text-white transition"
+                        >
+                          ⋮⋮ {r.customerName.split(' ')[0]}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })}
@@ -2514,16 +3010,26 @@
     }
 
     // --- CAMPAIGNS COMPONENT ---
-    function CampaignsComponent({ campaigns }) {
+    function CampaignsComponent({ campaigns, onAddClick, onEditClick, onDeleteClick }) {
       return (
         <div className="space-y-6">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Aktif Kampanyalar</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Aktif Kampanyalar</h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">➕ Yeni Özel Kampanya Ekle</button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {campaigns.map(c => (
-              <div key={c.id} className="glass-panel p-5 rounded-2xl space-y-2 border border-amber-500/30 shadow-sm">
-                <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full border border-amber-500/20">{c.code}</span>
-                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">{c.title}</h3>
-                <p className="text-xs text-slate-500 dark:text-gray-400">{c.description}</p>
+              <div key={c.id} className="glass-panel p-5 rounded-2xl space-y-3 border border-amber-500/30 shadow-sm flex flex-col justify-between">
+                <div>
+                  <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full border border-amber-500/20">{c.code}</span>
+                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 mt-2">{c.title}</h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">{c.description}</p>
+                </div>
+
+                <div className="flex space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40">
+                  <button onClick={() => onEditClick(c)} className="flex-1 py-1.5 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30">Düzenle ✏️</button>
+                  <button onClick={() => onDeleteClick(c.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold text-xs border border-red-500/20">Sil 🗑️</button>
+                </div>
               </div>
             ))}
           </div>
@@ -2546,7 +3052,7 @@
     }
 
     // --- CUSTOMERS COMPONENT ---
-    function CustomersComponent({ customers, onAddClick, onEditClick }) {
+    function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick }) {
       return (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -2560,7 +3066,10 @@
                 <div className="flex-1 space-y-2">
                   <div className="flex justify-between items-start">
                     <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
-                    <button onClick={() => onEditClick(c)} className="text-[10px] text-amber-700 font-bold bg-amber-500/10 px-2 py-0.5 rounded">Düzenle ✏️</button>
+                    <div className="flex space-x-1">
+                      <button onClick={() => onEditClick(c)} className="text-[10px] text-amber-700 font-bold bg-amber-500/10 px-2 py-0.5 rounded">Düzenle ✏️</button>
+                      <button onClick={() => onDeleteClick(c.id)} className="text-[10px] text-red-600 font-bold bg-red-500/10 px-2 py-0.5 rounded">Sil 🗑️</button>
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
                   <div className="text-[11px] text-slate-600 dark:text-gray-400">{c.taxType === 'corporate' ? `Kurumsal VKN: ${c.vknNo || c.tcNo || '-'}` : `Bireysel TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</div>
@@ -2576,19 +3085,29 @@
     }
 
     // --- USERS COMPONENT ---
-    function UsersComponent({ users }) {
+    function UsersComponent({ users, onAddClick, onEditClick, onDeleteClick }) {
       return (
         <div className="space-y-6">
-          <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Kullanıcı Yönetimi</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Kullanıcı Yönetimi</h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">➕ Yeni Kullanıcı Tanımla</button>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {users.map(u => (
-              <div key={u.id} className="glass-panel p-5 rounded-2xl text-center space-y-3 shadow-sm">
-                <img src={u.avatar} alt={`${u.name} Profil Resmi`} className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-amber-500/50" />
+              <div key={u.id} className="glass-panel p-5 rounded-2xl text-center space-y-3 shadow-sm flex flex-col justify-between">
                 <div>
-                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{u.name}</h3>
-                  <div className="text-xs text-slate-500 dark:text-gray-400 truncate">{u.email}</div>
+                  <img src={u.avatar} alt={`${u.name} Profil Resmi`} className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-amber-500/50" />
+                  <div className="mt-2">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{u.name}</h3>
+                    <div className="text-xs text-slate-500 dark:text-gray-400 truncate">{u.email}</div>
+                  </div>
+                  <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border border-amber-500/20 inline-block mt-2">{u.role}</span>
                 </div>
-                <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border border-amber-500/20">{u.role}</span>
+
+                <div className="flex space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40">
+                  <button onClick={() => onEditClick(u)} className="flex-1 py-1.5 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30">Düzenle ✏️</button>
+                  <button onClick={() => onDeleteClick(u.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold text-xs border border-red-500/20">Sil 🗑️</button>
+                </div>
               </div>
             ))}
           </div>
@@ -3107,10 +3626,17 @@
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border">
-              <button onClick={onPrintInvoice} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
-                <span>📄</span><span>Resmi Sözleşme & Fatura Yazdır</span>
-              </button>
+            <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border gap-2 flex-wrap">
+              <div className="flex space-x-2">
+                <button onClick={onPrintInvoice} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
+                  <span>📄</span><span>Yazdır</span>
+                </button>
+                {onShowEmail && (
+                  <button onClick={() => onShowEmail(res)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
+                    <span>✉️</span><span>E-Posta Önizle</span>
+                  </button>
+                )}
+              </div>
 
               <div className="flex space-x-2">
                 <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
