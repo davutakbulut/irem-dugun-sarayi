@@ -61,24 +61,10 @@
       --glass-border: rgba(217, 119, 6, 0.2);
     }
 
-    .dark {
-      --color-gold: #f59e0b;
-      --color-gold-hover: #fbbf24;
-      --color-gold-light: #78350f;
-      --color-bg: #0b0f17;
-      --color-card: #161e2e;
-      --color-card-border: #2a3447;
-      --color-text-main: #f3f4f6;
-      --color-text-muted: #94a3b8;
-      --glass-bg: rgba(22, 30, 46, 0.85);
-      --glass-border: rgba(217, 119, 6, 0.25);
-    }
-
     body {
       background-color: var(--color-bg);
       color: var(--color-text-main);
       font-family: 'Inter', sans-serif;
-      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .glass-panel {
@@ -182,8 +168,8 @@
     ];
 
     const INITIAL_CUSTOMERS = [
-      { id: 'cust1', name: 'Ahmet Yılmaz & Ayşe Kaya', email: 'ahmet.yilmaz@example.com', phone: '+90 532 111 2233', address: 'Atatürk Mah. Sapanca / Sakarya', taxType: 'individual', tcNo: '12345678901', taxOffice: 'Sapanca VD', followUp: true, followUpNote: 'Sünnet düğünü için 2 yıl sonra görüşülecek.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
-      { id: 'cust2', name: 'Mehmet Demir (Demir İnşaat)', email: 'mehmet@demiras.com', phone: '+90 533 444 5566', address: 'Bağdat Cad. Kadıköy / İstanbul', taxType: 'corporate', vknNo: '9876543210', taxOffice: 'Kadıköy VD', followUp: false, followUpNote: '', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' }
+      { id: 'cust1', name: 'Ahmet Yılmaz & Ayşe Kaya', email: 'ahmet.yilmaz@example.com', phone: '+90 532 111 2233', secondaryPhone: '+90 535 999 8877', address: 'Atatürk Mah. Sapanca / Sakarya', taxType: 'individual', tcNo: '12345678901', taxOffice: 'Sapanca VD', followUp: true, followUpNote: 'Sünnet düğünü için 2 yıl sonra görüşülecek.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
+      { id: 'cust2', name: 'Mehmet Demir (Demir İnşaat)', email: 'mehmet@demiras.com', phone: '+90 533 444 5566', secondaryPhone: '+90 216 333 2211', address: 'Bağdat Cad. Kadıköy / İstanbul', taxType: 'corporate', vknNo: '9876543210', taxOffice: 'Kadıköy VD', followUp: false, followUpNote: '', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' }
     ];
 
     const INITIAL_RESERVATIONS = [
@@ -194,13 +180,14 @@
         customerName: 'Ahmet Yılmaz & Ayşe Kaya',
         customerEmail: 'ahmet.yilmaz@example.com',
         customerPhone: '+90 532 111 2233',
+        secondaryPhone: '+90 535 999 8877',
         date: '2026-08-15',
         timeSlot: '19:00-23:00',
         guestCount: 500,
         selectedServices: [
-          { serviceId: 's1', quantity: 500, unitPrice: 350 },
-          { serviceId: 's2', quantity: 1, unitPrice: 18000 },
-          { serviceId: 's3', quantity: 1, unitPrice: 25000 }
+          { serviceId: 's1', quantity: 500, unitPrice: 350, isPaid: true },
+          { serviceId: 's2', quantity: 1, unitPrice: 18000, isPaid: true },
+          { serviceId: 's3', quantity: 1, unitPrice: 25000, isPaid: false }
         ],
         venuePrice: 65000,
         subtotal: 283000,
@@ -213,9 +200,13 @@
         paymentStatus: 'Kapora Alındı',
         isInvoiced: true,
         invoiceType: 'individual',
+        taxOffice: 'Sapanca VD',
+        tcNo: '12345678901',
+        invoiceAddress: 'Atatürk Mah. Sapanca / Sakarya',
+        notes: 'Gelin odasına taze meyve sepeti ve ikram hazırlanacak.',
         flowPlan: [
           { time: '19:00', title: 'Misafir Karşılama & Kokteyl' },
-          { time: '19:30', title: 'Gelin Damat Giriş & Dans' },
+          { time: '19:30', title: 'Gelin Damat Giriş & İlk Dans' },
           { time: '20:15', title: 'Yemek Servisi' },
           { time: '21:30', title: 'Pasta Kesimi & Şov' },
           { time: '22:00', title: 'Takı & Eğlence' }
@@ -235,8 +226,8 @@
         timeSlot: '13:00-17:00',
         guestCount: 800,
         selectedServices: [
-          { serviceId: 's1', quantity: 800, unitPrice: 350 },
-          { serviceId: 's4', quantity: 1, unitPrice: 15000 }
+          { serviceId: 's1', quantity: 800, unitPrice: 350, isPaid: true },
+          { serviceId: 's4', quantity: 1, unitPrice: 15000, isPaid: true }
         ],
         venuePrice: 85000,
         subtotal: 380000,
@@ -249,6 +240,10 @@
         paymentStatus: 'Ödendi',
         isInvoiced: true,
         invoiceType: 'corporate',
+        taxOffice: 'Kadıköy VD',
+        vknNo: '9876543210',
+        invoiceAddress: 'Bağdat Cad. Kadıköy / İstanbul',
+        notes: 'Kurumsal bayii toplantısı ve gala yemeği.',
         flowPlan: [
           { time: '13:00', title: 'Açılış Konuşması' },
           { time: '14:00', title: 'Gala Yemeği' }
@@ -271,6 +266,7 @@
 
     const TAB_TO_SLUG = {
       'dashboard': 'anasayfa',
+      'create-reservation': 'yeni-rezervasyon',
       'venues': 'dugun-salonlari',
       'services': 'ek-hizmetler',
       'reservations': 'rezervasyonlar',
@@ -285,6 +281,7 @@
 
     const SLUG_TO_TAB = {
       'anasayfa': 'dashboard',
+      'yeni-rezervasyon': 'create-reservation',
       'dugun-salonlari': 'venues',
       'ek-hizmetler': 'services',
       'rezervasyonlar': 'reservations',
@@ -299,6 +296,7 @@
 
     const TAB_LABELS = {
       'dashboard': 'Anasayfa / İstatistikler',
+      'create-reservation': '➕ Yeni Rezervasyon Oluştur',
       'venues': 'Düğün Salonlarım',
       'services': 'Ek Hizmetlerim',
       'reservations': 'Rezervasyonlar',
@@ -313,6 +311,7 @@
 
     const TAB_PERMISSIONS = {
       'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'create-reservation': ['admin', 'satisci'],
       'venues': ['admin', 'satisci'],
       'services': ['admin', 'satisci'],
       'reservations': ['admin', 'satisci'],
@@ -360,37 +359,17 @@
       const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
       const [users, setUsers] = useState(INITIAL_USERS);
 
-      const [themeMode, setThemeMode] = useState('light');
-      const [customGoldColor, setCustomGoldColor] = useState('#d97706');
-      const [customColorPickerOpen, setCustomColorPickerOpen] = useState(false);
-
       const [activeRole, setActiveRole] = useState('admin');
       const [activeTab, setActiveTabState] = useState(getHashTab);
 
       const [toast, setToast] = useState(null);
 
       // Modals State
-      const [wizardModalOpen, setWizardModalOpen] = useState(false);
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
       const [customerModalData, setCustomerModalData] = useState(null);
 
       const [resSearchQuery, setResSearchQuery] = useState('');
       const [resStatusFilter, setResStatusFilter] = useState('all');
-
-      useEffect(() => {
-        const rootEl = document.documentElement;
-        if (themeMode === 'dark') {
-          rootEl.classList.add('dark');
-          rootEl.classList.remove('light');
-        } else {
-          rootEl.classList.add('light');
-          rootEl.classList.remove('dark');
-        }
-      }, [themeMode]);
-
-      useEffect(() => {
-        document.documentElement.style.setProperty('--color-gold', customGoldColor);
-      }, [customGoldColor]);
 
       const navigateTo = (tab) => {
         setActiveTabState(tab);
@@ -519,7 +498,7 @@
                   const serv = services.find(x => x.id === s.serviceId);
                   return `
                     <tr>
-                      <td>${serv?.name || 'Ek Hizmet'}</td>
+                      <td>${serv?.name || 'Ek Hizmet'} ${s.isPaid ? '(Ödendi ✓)' : ''}</td>
                       <td>${s.quantity} ${serv?.pricingType === 'per_person' ? 'Kişi' : 'Adet'}</td>
                       <td>${formatCurrency(s.unitPrice)}</td>
                       <td>${formatCurrency(s.quantity * s.unitPrice)}</td>
@@ -606,6 +585,7 @@
                 <div className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Menü</div>
                 {[
                   { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: '📊', roles: ['admin', 'satisci', 'sosyal_medyaci', 'musteri'] },
+                  { id: 'create-reservation', label: '➕ Yeni Rezervasyon Oluştur', icon: '📝', roles: ['admin', 'satisci'] },
                   { id: 'venues', label: 'Düğün Salonlarım', icon: '🏛️', roles: ['admin', 'satisci'] },
                   { id: 'services', label: 'Ek Hizmetler', icon: '✨', roles: ['admin', 'satisci'] },
                   { id: 'reservations', label: 'Rezervasyonlarım', icon: '📋', roles: ['admin', 'satisci'] },
@@ -663,7 +643,24 @@
               ) : (
                 <>
                   {activeTab === 'dashboard' && (
-                    <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => setWizardModalOpen(true)} onTabChange={navigateTo} />
+                    <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => navigateTo('create-reservation')} onTabChange={navigateTo} />
+                  )}
+
+                  {activeTab === 'create-reservation' && (
+                    <CreateReservationPageComponent
+                      venues={venues}
+                      services={services}
+                      customers={customers}
+                      campaigns={campaigns}
+                      reservations={reservations}
+                      onSaveReservation={(newRes, newCust) => {
+                        if (newCust) setCustomers(prev => [...prev, newCust]);
+                        setReservations(prev => [newRes, ...prev]);
+                        showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
+                        navigateTo('reservations');
+                      }}
+                      onCancel={() => navigateTo('reservations')}
+                    />
                   )}
 
                   {activeTab === 'venues' && (
@@ -675,7 +672,7 @@
                   )}
 
                   {activeTab === 'reservations' && (
-                    <ReservationsComponent reservations={filteredReservations} venues={venues} searchQuery={resSearchQuery} setSearchQuery={setResSearchQuery} statusFilter={resStatusFilter} setStatusFilter={setResStatusFilter} onNewResClick={() => setWizardModalOpen(true)} onDetailClick={setSelectedResForDetail} />
+                    <ReservationsComponent reservations={filteredReservations} venues={venues} searchQuery={resSearchQuery} setSearchQuery={setResSearchQuery} statusFilter={resStatusFilter} setStatusFilter={setResStatusFilter} onNewResClick={() => navigateTo('create-reservation')} onDetailClick={setSelectedResForDetail} />
                   )}
 
                   {activeTab === 'calendar' && (
@@ -715,9 +712,9 @@
           <nav aria-label="Mobil Gezinti Menüsü" className="lg:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-slate-200 dark:border-brand-border/40 px-2 py-2 z-40 flex justify-around items-center">
             {[
               { id: 'dashboard', label: 'Anasayfa', icon: '📊' },
+              { id: 'create-reservation', label: 'Ekle', icon: '📝' },
               { id: 'reservations', label: 'Rezervasyon', icon: '📋' },
-              { id: 'calendar', label: 'Takvim', icon: '📅' },
-              { id: 'venues', label: 'Salonlar', icon: '🏛️' }
+              { id: 'calendar', label: 'Takvim', icon: '📅' }
             ].map(tab => (
               <a key={tab.id} href={`#/${TAB_TO_SLUG[tab.id]}`} onClick={(e) => { e.preventDefault(); navigateTo(tab.id); }} className={`flex flex-col items-center py-1 px-3 rounded-xl ${activeTab === tab.id ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400'}`} aria-current={activeTab === tab.id ? 'page' : undefined}>
                 <span className="text-lg" aria-hidden="true">{tab.icon}</span>
@@ -727,22 +724,6 @@
           </nav>
 
           {/* MODALS */}
-          {wizardModalOpen && (
-            <NewReservationWizardModal
-              venues={venues}
-              services={services}
-              customers={customers}
-              campaigns={campaigns}
-              reservations={reservations}
-              onClose={() => setWizardModalOpen(false)}
-              onSave={(newRes) => {
-                setReservations(prev => [newRes, ...prev]);
-                showToast('🎉 Yeni Rezervasyon & Sözleşme Başarıyla Oluşturuldu!');
-                setWizardModalOpen(false);
-              }}
-            />
-          )}
-
           {customerModalData && (
             <CustomerFormModal
               customer={customerModalData === 'new' ? null : customerModalData}
@@ -774,38 +755,74 @@
       );
     }
 
-    // --- 3-STEP RESERVATION WIZARD MODAL ---
-    function NewReservationWizardModal({ venues, services, customers, campaigns, reservations, onClose, onSave }) {
-      const [step, setStep] = useState(1);
+    // --- FULL PAGE DEDICATED RESERVATION WORKSPACE COMPONENT ---
+    function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations, onSaveReservation, onCancel }) {
+      // 1. Venue, Date & Slot
       const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
-      const [eventDate, setEventDate] = useState('2026-08-20');
+      const [eventDate, setEventDate] = useState('2026-08-25');
       const [timeSlot, setTimeSlot] = useState('19:00-23:00');
+      const [customTimeRange, setCustomTimeRange] = useState('');
       const [guestCount, setGuestCount] = useState(500);
 
-      const [customerId, setCustomerId] = useState(customers[0]?.id || 'cust1');
-      const [selectedServiceIds, setSelectedServiceIds] = useState(['s1', 's2']);
+      // 2. Customer & Auto-Membership
+      const [customerMode, setCustomerMode] = useState('existing'); // 'existing' or 'new'
+      const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || 'cust1');
+      const [newCustName, setNewCustName] = useState('');
+      const [newCustEmail, setNewCustEmail] = useState('');
+      const [newCustPhone, setNewCustPhone] = useState('');
+      const [newCustSecondaryPhone, setNewCustSecondaryPhone] = useState('');
 
+      // 3. Services & Per-service Guest Quantities & Paid status
+      const [selectedServices, setSelectedServices] = useState([
+        { serviceId: 's1', quantity: 500, isPaid: true },
+        { serviceId: 's2', quantity: 1, isPaid: true },
+        { serviceId: 's3', quantity: 1, isPaid: false }
+      ]);
+
+      // 4. Financials, Deposit & Promo
       const [campaignCode, setCampaignCode] = useState('');
-      const [depositPaid, setDepositPaid] = useState(30000);
+      const [hasDeposit, setHasDeposit] = useState(true);
+      const [depositPaid, setDepositPaid] = useState(40000);
+      const [paymentStatus, setPaymentStatus] = useState('Kapora Alındı');
+
+      // 5. Invoicing Details (Bireysel / Tüzel)
+      const [isInvoiced, setIsInvoiced] = useState(true);
+      const [invoiceType, setInvoiceType] = useState('individual'); // 'individual' or 'corporate'
+      const [tcNo, setTcNo] = useState('12345678901');
+      const [vknNo, setVknNo] = useState('9876543210');
+      const [taxOffice, setTaxOffice] = useState('Sapanca VD');
+      const [invoiceAddress, setInvoiceAddress] = useState('Atatürk Mah. Sapanca / Sakarya');
+
+      // 6. Flow Planning & Notes
+      const [flowPlan, setFlowPlan] = useState([
+        { time: '19:00', title: 'Misafir Karşılama & Kokteyl' },
+        { time: '19:30', title: 'Gelin Damat Giriş & İlk Dans' },
+        { time: '20:15', title: 'Yemek Servisi' },
+        { time: '21:30', title: 'Pasta Kesimi & Şov' },
+        { time: '22:00', title: 'Takı & Eğlence' }
+      ]);
+      const [notes, setNotes] = useState('Özel çiçek süslemeleri ve gelin odası ikramları dahildir.');
 
       // Collision Check Logic
+      const activeSlot = timeSlot === 'custom' ? customTimeRange : timeSlot;
       const collisionDetected = useMemo(() => {
-        return reservations.some(r => r.venueId === venueId && r.date === eventDate && r.timeSlot === timeSlot);
-      }, [reservations, venueId, eventDate, timeSlot]);
+        return reservations.some(r => r.venueId === venueId && r.date === eventDate && r.timeSlot === activeSlot);
+      }, [reservations, venueId, eventDate, activeSlot]);
 
       const selectedVenue = venues.find(v => v.id === venueId);
-      const selectedCustomer = customers.find(c => c.id === customerId);
+      const existingCustomer = customers.find(c => c.id === selectedCustomerId);
 
       // Financial Calculation
       const calculations = useMemo(() => {
         const vPrice = selectedVenue ? selectedVenue.price : 0;
         let servTotal = 0;
-        const mappedServices = selectedServiceIds.map(sid => {
-          const s = services.find(x => x.id === sid);
+        const mappedServices = selectedServices.map(item => {
+          const s = services.find(x => x.id === item.serviceId);
           if (!s) return null;
-          const qty = s.pricingType === 'per_person' ? guestCount : 1;
-          servTotal += s.price * qty;
-          return { serviceId: s.id, quantity: qty, unitPrice: s.price };
+          const qty = s.pricingType === 'per_person' ? item.quantity : 1;
+          const cost = s.price * qty;
+          servTotal += cost;
+          return { serviceId: s.id, quantity: qty, unitPrice: s.price, isPaid: item.isPaid };
         }).filter(Boolean);
 
         const sub = vPrice + servTotal;
@@ -814,24 +831,64 @@
         else if (campaignCode === 'VIP5000') disc = 5000;
 
         const afterDisc = Math.max(0, sub - disc);
-        const vat = afterDisc * 0.20;
+        const vat = isInvoiced ? afterDisc * 0.20 : 0;
         const grandTotal = afterDisc + vat;
-        const remaining = Math.max(0, grandTotal - depositPaid);
+        const dep = hasDeposit ? depositPaid : 0;
+        const remaining = Math.max(0, grandTotal - dep);
 
-        return { vPrice, servTotal, sub, disc, vat, grandTotal, remaining, mappedServices };
-      }, [selectedVenue, selectedServiceIds, guestCount, campaignCode, depositPaid, services]);
+        return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, remaining, mappedServices };
+      }, [selectedVenue, selectedServices, campaignCode, hasDeposit, depositPaid, isInvoiced, services]);
+
+      const handleAddFlowItem = () => {
+        setFlowPlan(prev => [...prev, { time: '22:30', title: 'Yeni Akış Adımı' }]);
+      };
+      const handleRemoveFlowItem = (index) => {
+        setFlowPlan(prev => prev.filter((_, i) => i !== index));
+      };
 
       const handleSubmit = () => {
         if (collisionDetected) return;
+        
+        let custId = selectedCustomerId;
+        let custName = existingCustomer?.name || 'Müşteri';
+        let custEmail = existingCustomer?.email || '';
+        let custPhone = existingCustomer?.phone || '';
+        let custSecondaryPhone = existingCustomer?.secondaryPhone || '';
+        let newCustomerObj = null;
+
+        if (customerMode === 'new') {
+          custId = 'cust-' + Date.now();
+          custName = newCustName || 'Yeni Müşteri';
+          custEmail = newCustEmail;
+          custPhone = newCustPhone;
+          custSecondaryPhone = newCustSecondaryPhone;
+          newCustomerObj = {
+            id: custId,
+            name: custName,
+            email: custEmail,
+            phone: custPhone,
+            secondaryPhone: custSecondaryPhone,
+            address: invoiceAddress,
+            taxType: invoiceType,
+            tcNo: taxType === 'individual' ? tcNo : '',
+            vknNo: taxType === 'corporate' ? vknNo : '',
+            taxOffice,
+            followUp: false,
+            followUpNote: 'Otomatik kayıt oluşturan üye',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+          };
+        }
+
         const newRes = {
           id: `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
           venueId,
-          customerId,
-          customerName: selectedCustomer?.name || 'Değerli Müşteri',
-          customerEmail: selectedCustomer?.email || '',
-          customerPhone: selectedCustomer?.phone || '',
+          customerId: custId,
+          customerName: custName,
+          customerEmail: custEmail,
+          customerPhone: custPhone,
+          secondaryPhone: custSecondaryPhone,
           date: eventDate,
-          timeSlot,
+          timeSlot: activeSlot,
           guestCount,
           selectedServices: calculations.mappedServices,
           venuePrice: calculations.vPrice,
@@ -840,160 +897,408 @@
           discountAmount: calculations.disc,
           vatAmount: calculations.vat,
           totalAmount: calculations.grandTotal,
-          depositPaid,
+          depositPaid: calculations.dep,
           remainingBalance: calculations.remaining,
-          paymentStatus: depositPaid >= calculations.grandTotal ? 'Ödendi' : 'Kapora Alındı',
-          isInvoiced: true,
-          invoiceType: selectedCustomer?.taxType || 'individual',
-          flowPlan: [
-            { time: '19:00', title: 'Misafir Karşılama' },
-            { time: '20:00', title: 'Gala Yemeği & Müzik' }
-          ],
+          paymentStatus: paymentStatus,
+          isInvoiced,
+          invoiceType,
+          tcNo: invoiceType === 'individual' ? tcNo : '',
+          vknNo: invoiceType === 'corporate' ? vknNo : '',
+          taxOffice,
+          invoiceAddress,
+          notes,
+          flowPlan,
           mediaGallery: []
         };
-        onSave(newRes);
+
+        onSaveReservation(newRes, newCustomerObj);
       };
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-2xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="space-y-6 max-w-7xl mx-auto pb-12">
+          
+          {/* PAGE HEADER */}
+          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex justify-between items-center shadow-sm">
+            <div>
+              <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20">
+                📝 Rezervasyon & Kiralama Çalışma Alanı
+              </span>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text mt-1">
+                Tam Sayfa Rezervasyon Oluşturma & Planlama
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Salon kiralama, hizmet adetleri, müşteri üyelik kaydı, fatura ve etkinlik akışını tek ekranda yönetin.</p>
+            </div>
+            <button onClick={onCancel} className="px-4 py-2 bg-slate-100 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-200">
+              ← Rezervasyon Listesine Dön
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* Header */}
-            <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
-              <div>
-                <span className="text-amber-700 dark:text-gold-400 font-bold text-xs">Adım {step} / 3</span>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">
-                  {step === 1 && '1. Salon & Tarih Seçimi'}
-                  {step === 2 && '2. Müşteri & Hizmet Paketi'}
-                  {step === 3 && '3. Kampanya, KDV & Kapora Onayı'}
-                </h3>
-              </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
-            </div>
-
-            {/* Step Indicators */}
-            <div className="flex justify-between space-x-2 text-xs font-bold">
-              <div className={`flex-1 py-1.5 text-center rounded-lg ${step >= 1 ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/40' : 'bg-slate-100 dark:bg-brand-dark text-slate-400'}`}>1. Tarih & Salon</div>
-              <div className={`flex-1 py-1.5 text-center rounded-lg ${step >= 2 ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/40' : 'bg-slate-100 dark:bg-brand-dark text-slate-400'}`}>2. Müşteri & Hizmet</div>
-              <div className={`flex-1 py-1.5 text-center rounded-lg ${step >= 3 ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/40' : 'bg-slate-100 dark:bg-brand-dark text-slate-400'}`}>3. KDV & Kapora</div>
-            </div>
-
-            {/* STEP 1 */}
-            {step === 1 && (
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Düğün Salonu Seçin:</label>
-                  <select value={venueId} onChange={e => setVenueId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
-                    {venues.map(v => <option key={v.id} value={v.id}>{v.name} ({v.category} - {formatCurrency(v.price)})</option>)}
-                  </select>
+            {/* LEFT COLUMN: FORM SECTIONS (8 Cols) */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* SECTION 1: SALON & TARİH SEÇİMİ */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
+                  <span className="text-lg">🏛️</span>
+                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">1. Salon & Kiralama Tarih/Saat Seçimi</h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Düğün Salonu Seçin:</label>
+                    <select value={venueId} onChange={e => setVenueId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                      {venues.map(v => <option key={v.id} value={v.id}>{v.name} ({v.capacity} Kişi - {formatCurrency(v.price)})</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Davetli Sayısı (Kişi):</label>
+                    <input type="number" value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
                     <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Etkinlik Tarihi:</label>
-                    <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                    <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
                   </div>
+
                   <div>
-                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Saat Dilimi:</label>
-                    <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200">
-                      <option value="13:00-17:00">13:00 - 17:00 (Gündüz)</option>
-                      <option value="19:00-23:00">19:00 - 23:00 (Gece)</option>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Saat Dilimi Seçimi:</label>
+                    <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                      <option value="13:00-17:00">13:00 - 17:00 (Gündüz Dilimi)</option>
+                      <option value="19:00-23:00">19:00 - 23:00 (Gece Dilimi)</option>
+                      <option value="custom">Özel Saat Aralığı Gir</option>
                     </select>
                   </div>
                 </div>
 
-                {collisionDetected && (
-                  <div className="bg-red-500/10 border border-red-500/40 p-3 rounded-xl text-red-600 dark:text-red-400 font-bold text-xs flex items-center space-x-2">
-                    <span>⚠️ ÇAKIŞMA UYARISI:</span>
-                    <span>Bu salon seçtiğiniz tarih ve saat diliminde DOLUDUR! Lütfen farklı bir saat veya tarih seçiniz.</span>
+                {timeSlot === 'custom' && (
+                  <div className="text-xs">
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Özel Saat Aralığı (Örn: 15:00 - 20:00):</label>
+                    <input type="text" placeholder="Örn: 15:00 - 20:00" value={customTimeRange} onChange={e => setCustomTimeRange(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
                   </div>
                 )}
 
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Tahmini Davetli Sayısı:</label>
-                  <input type="number" value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
-                </div>
+                {collisionDetected && (
+                  <div className="bg-red-500/10 border border-red-500/40 p-4 rounded-2xl text-red-600 dark:text-red-400 font-bold text-xs flex items-center space-x-3 shadow-sm">
+                    <span className="text-xl">⚠️</span>
+                    <div>
+                      <div>ÇAKIŞMA UYARISI: Daha önce rezerve edilmiş gün/saat!</div>
+                      <div className="text-[11px] font-normal mt-0.5">Seçtiğiniz <strong>{selectedVenue?.name}</strong> salonu <strong>{formatDate(eventDate)}</strong> tarihinde <strong>{activeSlot}</strong> saat diliminde doludur. Lütfen farklı bir gün veya saat dilimi seçiniz.</div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* STEP 2 */}
-            {step === 2 && (
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Müşteri Seçin:</label>
-                  <select value={customerId} onChange={e => setCustomerId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
-                    {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone})</option>)}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-2">Düğün Paketi Ek Hizmetleri:</label>
-                  <div className="space-y-2 max-h-48 overflow-y-auto p-1">
-                    {services.map(s => {
-                      const isChecked = selectedServiceIds.includes(s.id);
-                      return (
-                        <label key={s.id} className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer ${isChecked ? 'bg-amber-500/10 border-amber-500/50' : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'}`}>
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={e => {
-                                if (e.target.checked) setSelectedServiceIds(prev => [...prev, s.id]);
-                                else setSelectedServiceIds(prev => prev.filter(x => x !== s.id));
-                              }}
-                              className="w-4 h-4 accent-amber-600"
-                            />
-                            <span className="font-bold text-slate-800 dark:text-gray-200">{s.name}</span>
-                          </div>
-                          <span className="font-bold text-amber-700 dark:text-gold-400">{formatCurrency(s.price)} {s.pricingType === 'per_person' ? '/Kişi' : ''}</span>
-                        </label>
-                      );
-                    })}
+              {/* SECTION 2: MÜŞTERİ BİLGİLERİ VE OTOMATİK ÜYELİK */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">👥</span>
+                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">2. Müşteri İletişim & Otomatik Üyelik Kartı</h3>
+                  </div>
+                  <div className="flex space-x-2 text-xs font-bold">
+                    <button onClick={() => setCustomerMode('existing')} className={`px-3 py-1.5 rounded-xl border ${customerMode === 'existing' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600'}`}>Mevcut Müşteri Seç</button>
+                    <button onClick={() => setCustomerMode('new')} className={`px-3 py-1.5 rounded-xl border ${customerMode === 'new' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600'}`}>➕ Otomatik Yeni Üyelik Oluştur</button>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* STEP 3 */}
-            {step === 3 && (
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Kampanya / İndirim Kodu:</label>
-                  <select value={campaignCode} onChange={e => setCampaignCode(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200">
-                    <option value="">İndirim Kodu Yok</option>
-                    {campaigns.map(c => <option key={c.id} value={c.code}>{c.code} - {c.title}</option>)}
+                {customerMode === 'existing' ? (
+                  <div className="text-xs">
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Mevcut Müşterilerden Seçin:</label>
+                    <select value={selectedCustomerId} onChange={e => setSelectedCustomerId(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                      {customers.map(c => <option key={c.id} value={c.id}>{c.name} (Tel: {c.phone} | {c.email})</option>)}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="space-y-3 text-xs">
+                    <div className="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl text-amber-800 dark:text-gold-400 font-bold">
+                      ✨ Bu kişi için sistemde otomatik olarak yeni üye ve müşteri kartı oluşturulacaktır.
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div><label className="font-bold block mb-1">Adı Soyadı / Firma Unvanı:</label><input type="text" placeholder="Örn: Mehmet Yılmaz & Zeynep Can" value={newCustName} onChange={e => setNewCustName(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+                      <div><label className="font-bold block mb-1">E-posta Adresi:</label><input type="email" placeholder="ornek@domain.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div><label className="font-bold block mb-1">Birincil Telefon (+90):</label><input type="text" placeholder="+90 532 000 0000" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+                      <div><label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu:</label><input type="text" placeholder="+90 535 000 0000 (Anne/Baba Tel)" value={newCustSecondaryPhone} onChange={e => setNewCustSecondaryPhone(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" /></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 3: HİZMETLER VE HİZMET BAZLI KİŞİ SAYILARI */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
+                  <span className="text-lg">✨</span>
+                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">3. Alınan Ek Hizmetler & Hizmet Bazlı Kişi/Adet Sayıları</h3>
+                </div>
+
+                <div className="space-y-3">
+                  {services.map(s => {
+                    const found = selectedServices.find(x => x.serviceId === s.id);
+                    const isSelected = !!found;
+                    const qty = found ? found.quantity : (s.pricingType === 'per_person' ? guestCount : 1);
+                    const isPaid = found ? found.isPaid : false;
+
+                    return (
+                      <div key={s.id} className={`p-4 rounded-2xl border transition space-y-2 ${isSelected ? 'bg-amber-500/10 border-amber-500/50' : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'}`}>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={e => {
+                                if (e.target.checked) {
+                                  setSelectedServices(prev => [...prev, { serviceId: s.id, quantity: s.pricingType === 'per_person' ? guestCount : 1, isPaid: false }]);
+                                } else {
+                                  setSelectedServices(prev => prev.filter(x => x.serviceId !== s.id));
+                                }
+                              }}
+                              className="w-5 h-5 accent-amber-600 rounded"
+                            />
+                            <div>
+                              <div className="font-bold text-xs text-slate-800 dark:text-gray-200">{s.name}</div>
+                              <div className="text-[10px] text-slate-500">{s.description} | {formatCurrency(s.price)} {s.pricingType === 'per_person' ? '/Kişi' : '/Paket'}</div>
+                            </div>
+                          </label>
+
+                          {isSelected && (
+                            <div className="flex items-center space-x-3 text-xs">
+                              {s.pricingType === 'per_person' && (
+                                <div className="flex items-center space-x-1">
+                                  <span className="font-bold">Kişi Sayısı:</span>
+                                  <input
+                                    type="number"
+                                    value={qty}
+                                    onChange={e => {
+                                      const val = Number(e.target.value);
+                                      setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, quantity: val } : x));
+                                    }}
+                                    className="w-20 bg-white dark:bg-brand-card border border-slate-200 rounded-lg p-1 font-bold text-center"
+                                  />
+                                </div>
+                              )}
+
+                              <label className="flex items-center space-x-1 font-bold text-emerald-600 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={isPaid}
+                                  onChange={e => {
+                                    const checked = e.target.checked;
+                                    setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, isPaid: checked } : x));
+                                  }}
+                                  className="w-4 h-4 accent-emerald-600"
+                                />
+                                <span>Ödendi ✓</span>
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* SECTION 4: FİNANS, REFERANS KODU VE KAPORA */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
+                  <span className="text-lg">💰</span>
+                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">4. Ödeme, Kapora & İndirim Kodu Bilgileri</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Referans / İndirim Kodu:</label>
+                    <select value={campaignCode} onChange={e => setCampaignCode(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold">
+                      <option value="">İndirim Kodu Yok</option>
+                      {campaigns.map(c => <option key={c.id} value={c.code}>{c.code} - {c.title}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1">Kapora Ödendi Mi?</label>
+                    <select value={hasDeposit ? 'yes' : 'no'} onChange={e => setHasDeposit(e.target.value === 'yes')} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold">
+                      <option value="yes">Evet, Kapora Alındı</option>
+                      <option value="no">Hayır, Henüz Ödenmedi</option>
+                    </select>
+                  </div>
+
+                  {hasDeposit && (
+                    <div>
+                      <label className="font-bold block mb-1">Ödenen Kapora Tutarı (TL):</label>
+                      <input type="number" value={depositPaid} onChange={e => setDepositPaid(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold text-emerald-600" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-xs">
+                  <label className="font-bold block mb-1">Genel Ödeme Statüsü:</label>
+                  <select value={paymentStatus} onChange={e => setPaymentStatus(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold">
+                    <option value="Bekliyor">Bekliyor</option>
+                    <option value="Kapora Alındı">Kapora Alındı</option>
+                    <option value="Ödendi">Ödendi (Tam ödeme yapıldı)</option>
+                    <option value="Tamamlandı">Tamamlandı</option>
                   </select>
                 </div>
+              </div>
 
-                {/* Financial Summary */}
-                <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-amber-500/30 space-y-2">
-                  <div className="flex justify-between"><span>Salon Fiyatı:</span><span className="font-bold">{formatCurrency(calculations.vPrice)}</span></div>
-                  <div className="flex justify-between"><span>Ek Hizmetler Toplamı:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
-                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
-                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>İndirim Tutarı:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
-                  <div className="flex justify-between text-slate-600 dark:text-gray-400"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>
-                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-1"><span>Genel Toplam Tutar:</span><span>{formatCurrency(calculations.grandTotal)}</span></div>
+              {/* SECTION 5: FATURA BİLGİLERİ (BİREYSEL / TÜZEL) */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">📄</span>
+                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">5. Fatura Bilgileri (Resmi Belge Düzenleme)</h3>
+                  </div>
+                  <label className="flex items-center space-x-2 text-xs font-bold cursor-pointer">
+                    <input type="checkbox" checked={isInvoiced} onChange={e => setIsInvoiced(e.target.checked)} className="w-4 h-4 accent-amber-600" />
+                    <span>Faturalı İşlem (%20 KDV Hesapla)</span>
+                  </label>
                 </div>
 
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Tahsil Edilen Kapora Tutarı (TL):</label>
-                  <input type="number" value={depositPaid} onChange={e => setDepositPaid(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
-                  <span className="text-[10px] text-slate-500 mt-1 block">Kalan Bakiye: <strong className="text-red-500">{formatCurrency(calculations.remaining)}</strong></span>
+                {isInvoiced && (
+                  <div className="space-y-4 text-xs">
+                    <div>
+                      <label className="font-bold block mb-1">Fatura Tipi:</label>
+                      <div className="flex space-x-4">
+                        <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                          <input type="radio" name="invType" value="individual" checked={invoiceType === 'individual'} onChange={() => setInvoiceType('individual')} className="accent-amber-600" />
+                          <span>Bireysel Fatura (TC Kimlik No)</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                          <input type="radio" name="invType" value="corporate" checked={invoiceType === 'corporate'} onChange={() => setInvoiceType('corporate')} className="accent-amber-600" />
+                          <span>Tüzel / Kurumsal Fatura (VKN)</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {invoiceType === 'individual' ? (
+                        <div><label className="font-bold block mb-1">TC Kimlik No:</label><input type="text" value={tcNo} onChange={e => setTcNo(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5" /></div>
+                      ) : (
+                        <div><label className="font-bold block mb-1">Vergi Kimlik No (VKN):</label><input type="text" value={vknNo} onChange={e => setVknNo(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5" /></div>
+                      )}
+                      <div><label className="font-bold block mb-1">Vergi Dairesi:</label><input type="text" value={taxOffice} onChange={e => setTaxOffice(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5" /></div>
+                    </div>
+
+                    <div>
+                      <label className="font-bold block mb-1">Fatura Adresi:</label>
+                      <textarea value={invoiceAddress} onChange={e => setInvoiceAddress(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 h-16" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 6: ETKİNLİK AKIŞ PLANLAMA */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">⏱️</span>
+                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100">6. Organizasyon & Etkinlik Akış Planlaması</h3>
+                  </div>
+                  <button onClick={handleAddFlowItem} className="px-3 py-1 bg-amber-500/10 text-amber-700 dark:text-gold-400 font-bold rounded-lg text-xs">➕ Akış Adımı Ekle</button>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  {flowPlan.map((item, idx) => (
+                    <div key={idx} className="flex items-center space-x-3 bg-slate-50 dark:bg-brand-dark p-2 rounded-xl border border-slate-200">
+                      <input
+                        type="text"
+                        value={item.time}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setFlowPlan(prev => prev.map((x, i) => i === idx ? { ...x, time: val } : x));
+                        }}
+                        className="w-20 bg-white dark:bg-brand-card border border-slate-200 rounded-lg p-1.5 font-mono font-bold text-center"
+                      />
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setFlowPlan(prev => prev.map((x, i) => i === idx ? { ...x, title: val } : x));
+                        }}
+                        className="flex-1 bg-white dark:bg-brand-card border border-slate-200 rounded-lg p-1.5 font-bold"
+                      />
+                      <button onClick={() => handleRemoveFlowItem(idx)} className="text-red-500 font-bold px-2">✕</button>
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
 
-            {/* Buttons */}
-            <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-brand-border">
-              {step > 1 ? (
-                <button onClick={() => setStep(s => s - 1)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold">← Geri</button>
-              ) : <div />}
+              {/* SECTION 7: OPERASYONEL EK NOTLAR */}
+              <div className="glass-panel p-6 rounded-3xl space-y-3 shadow-sm border border-slate-200 dark:border-brand-border text-xs">
+                <label className="font-bold text-slate-800 dark:text-gray-100 block">7. Operasyonel Ek Notlar & Özel İstekler:</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Gelin odası ikramları, çiçek renk tercihleri, özel teknik ekipman talepleri..." className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-3 h-20" />
+              </div>
 
-              {step < 3 ? (
-                <button disabled={collisionDetected} onClick={() => setStep(s => s + 1)} className={`gold-button font-bold px-6 py-2 rounded-xl text-xs ${collisionDetected ? 'opacity-50 cursor-not-allowed' : ''}`}>İleri ➔</button>
-              ) : (
-                <button onClick={handleSubmit} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg">🎉 Rezervasyonu ve Sözleşmeyi Onayla</button>
-              )}
+            </div>
+
+            {/* RIGHT COLUMN: LIVE INTERACTIVE PREVIEW & SUMMARY CARD (4 Cols) */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              {/* TAKVİM ÖN İZLEME KARTI */}
+              <div className="glass-panel p-5 rounded-3xl space-y-3 shadow-sm border border-amber-500/30">
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                  <span className="font-bold text-xs text-amber-700 dark:text-gold-400">📅 Takvim Canlı Ön İzlemesi</span>
+                  <span className="text-[10px] bg-amber-500/10 text-amber-800 font-bold px-2 py-0.5 rounded">{eventDate}</span>
+                </div>
+                
+                <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border text-center space-y-2 text-xs">
+                  <div className="font-bold text-slate-800 dark:text-gray-100">{formatDate(eventDate)}</div>
+                  <div className="text-amber-700 dark:text-gold-400 font-bold">{selectedVenue?.name}</div>
+                  <div className="text-[11px] font-mono text-slate-600 bg-white dark:bg-brand-card py-1 px-2 rounded-lg border">{activeSlot}</div>
+                  {collisionDetected ? (
+                    <div className="bg-red-500/10 text-red-600 font-bold p-2 rounded-lg text-[10px]">⚠️ BU SAAT DİLİMİ DOLUDUR</div>
+                  ) : (
+                    <div className="bg-emerald-500/10 text-emerald-600 font-bold p-2 rounded-lg text-[10px]">✅ BU SAAT DİLİMİ MÜSAİTTİR</div>
+                  )}
+                </div>
+              </div>
+
+              {/* CANLI FİNANSAL ÖZET & SÖZLEŞME ONAY KARTI */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-xl border-2 border-amber-500/40 sticky top-24">
+                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 border-b border-slate-200 pb-2">
+                  💰 Canlı Hesaplama & Sözleşme Kartı
+                </h3>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(calculations.vPrice)}</span></div>
+                  <div className="flex justify-between"><span>Seçilen Hizmetler:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
+                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans İndirimi:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
+                  {isInvoiced && <div className="flex justify-between text-slate-600"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>}
+                  
+                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 pt-2">
+                    <span>Genel Toplam Tutar:</span>
+                    <span>{formatCurrency(calculations.grandTotal)}</span>
+                  </div>
+
+                  <div className="flex justify-between text-emerald-600 pt-1"><span>Tahsil Edilen Kapora:</span><span className="font-bold">{formatCurrency(calculations.dep)}</span></div>
+                  <div className="flex justify-between text-red-600 font-bold text-sm bg-red-500/10 p-2 rounded-xl border border-red-500/20">
+                    <span>Kalan Ödenecek Bakiye:</span>
+                    <span>{formatCurrency(calculations.remaining)}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    disabled={collisionDetected}
+                    onClick={handleSubmit}
+                    className={`w-full gold-button font-bold py-3.5 rounded-2xl text-xs shadow-xl flex items-center justify-center space-x-2 ${
+                      collisionDetected ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
+                    }`}
+                  >
+                    <span>🎉</span><span>Rezervasyonu ve Sözleşmeyi Kaydet</span>
+                  </button>
+                </div>
+
+              </div>
+
             </div>
 
           </div>
@@ -1060,7 +1365,7 @@
 
             {(activeRole === 'admin' || activeRole === 'satisci') && (
               <button onClick={onNewResClick} className="gold-button font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center space-x-2 text-xs">
-                <span>➕</span><span>3-Adımlı Yeni Rezervasyon Sihirbazı</span>
+                <span>➕</span><span>Tam Sayfa Yeni Rezervasyon Çalışma Alanı</span>
               </button>
             )}
           </div>
@@ -1135,7 +1440,7 @@
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Tüm Rezervasyonlar</h2>
-            <button onClick={onNewResClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">➕ Sihirbaz İle Yeni Rezervasyon</button>
+            <button onClick={onNewResClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs">📝 Tam Sayfa Yeni Rezervasyon</button>
           </div>
 
           <div className="glass-panel p-4 rounded-2xl flex gap-3 shadow-sm">
@@ -1257,7 +1562,7 @@
                     <button onClick={() => onEditClick(c)} className="text-[10px] text-amber-700 font-bold bg-amber-500/10 px-2 py-0.5 rounded">Düzenle ✏️</button>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
-                  <div className="text-[11px] text-slate-600 dark:text-gray-400">{c.taxType === 'corporate' ? `Kurumsal VKN: ${c.vkn_no || c.tcNo || '-'}` : `Bireysel TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</div>
+                  <div className="text-[11px] text-slate-600 dark:text-gray-400">{c.taxType === 'corporate' ? `Kurumsal VKN: ${c.vknNo || c.tcNo || '-'}` : `Bireysel TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</div>
                   <a href={generateWhatsAppLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs inline-flex items-center space-x-1 shadow">
                     <span>💬 WhatsApp İle Mesaj At</span>
                   </a>
