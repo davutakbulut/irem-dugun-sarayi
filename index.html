@@ -1349,6 +1349,65 @@
       return SLUG_TO_TAB[slug] || 'dashboard';
     }
 
+    // --- GLOBAL REACT ERROR BOUNDARY COMPONENT ---
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error("React ErrorBoundary caught an exception:", error, errorInfo);
+        this.setState({ errorInfo });
+      }
+
+      handleReset = () => {
+        this.setState({ hasError: false, error: null, errorInfo: null });
+        if (this.props.onReset) {
+          this.props.onReset();
+        }
+      };
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="p-8 max-w-xl mx-auto my-12 glass-panel rounded-3xl border border-red-500/40 shadow-2xl text-center space-y-4 animate-fade-in">
+              <div className="text-5xl" aria-hidden="true">⚠️</div>
+              <span className="bg-red-500/10 text-red-500 font-extrabold text-xs px-3 py-1 rounded-full border border-red-500/30 uppercase tracking-wider">
+                Bileşen / Sayfa Yükleme Uyarısı
+              </span>
+              <h3 className="text-xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+                {this.props.fallbackTitle || "Bu Bölümde Beklenmeyen Bir İşlem Oluştu"}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                Sisteminizin diğer tüm bölümleri, navigasyon menünüz ve üst kontrol barınız kesintisiz çalışmaya devam etmektedir. Sol menüden başka bir sayfaya geçebilir veya bu bölümü yenileyebilirsiniz.
+              </p>
+              {this.state.error && (
+                <div className="bg-slate-950/80 text-red-400 font-mono text-[10px] p-3 rounded-xl text-left overflow-x-auto border border-red-500/20 max-h-28">
+                  {this.state.error.toString()}
+                </div>
+              )}
+              <div className="pt-2 flex justify-center space-x-3">
+                <button
+                  type="button"
+                  onClick={this.handleReset}
+                  className="gold-button font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg"
+                >
+                  🔄 Yeniden Dene & Bölümü Kurtar
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        return this.props.children;
+      }
+    }
+
     // --- MAIN APP COMPONENT ---
     function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
@@ -1545,6 +1604,7 @@
 
       const handleRescheduleReservation = (resId, newDate) => {
         setReservations(prev => prev.map(r => r.id === resId ? { ...r, date: newDate, dateFormatted: newDate } : r));
+        setSelectedResForDetail(prev => (prev && prev.id === resId ? { ...prev, date: newDate, dateFormatted: newDate } : prev));
         showToast(`📅 Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi!`);
       };
 
@@ -1945,7 +2005,7 @@
                 </div>
               )}
 
-              {/* RBAC PERMISSION GUARD */}
+              {/* RBAC PERMISSION GUARD & ERROR BOUNDARY WRAPPER */}
               {!(activeRole === 'admin' || (tabPermissionsState[activeTab] || tabPermissionsState[activeTab.split('-')[0]] || ['admin']).includes(activeRole)) ? (
                 <UnauthorizedAccessScreen
                   pageTitle={TAB_LABELS[activeTab] || activeTab}
@@ -1953,7 +2013,7 @@
                   onGoHome={() => navigateTo('dashboard')}
                 />
               ) : (
-                <>
+                <ErrorBoundary key={activeTab} fallbackTitle={`"${TAB_LABELS[activeTab] || 'Sayfa'}" Yüklenirken Bir İşlem Uyarısı Oluştu`}>
                   {activeTab === 'dashboard' && (
                     <DashboardComponent activeRole={activeRole} venues={venues} reservations={reservations} financialStats={financialStats} onNewResClick={() => navigateTo('create-reservation')} onTabChange={navigateTo} />
                   )}
@@ -2097,7 +2157,7 @@
                       }
                     />
                   )}
-                </>
+                </ErrorBoundary>
               )}
 
             </main>
@@ -2285,25 +2345,27 @@
           )}
 
           {selectedResForDetail && (
-            <ReservationDetailModal
-              res={selectedResForDetail}
-              venues={venues}
-              services={services}
-              onClose={() => setSelectedResForDetail(null)}
-              onPrintInvoice={() => handlePrintInvoice(selectedResForDetail)}
-              onShowEmail={(r) => setEmailModalData({
-                to: r.customerEmail || 'musteri@example.com',
-                name: r.customerName,
-                subject: 'Rezervasyonunuz Oluşturuldu! – İrem Düğün Sarayı',
-                type: 'reservation',
-                res: r
-              })}
-              onUpdatePayment={(id, dep, stat) => {
-                setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
-                showToast('💳 Ödeme & Sözleşme Güncellendi!');
-                setSelectedResForDetail(null);
-              }}
-            />
+            <ErrorBoundary onReset={() => setSelectedResForDetail(null)} fallbackTitle="Rezervasyon Detay Modalı Yükleme Hatası">
+              <ReservationDetailModal
+                res={selectedResForDetail}
+                venues={venues}
+                services={services}
+                onClose={() => setSelectedResForDetail(null)}
+                onPrintInvoice={() => handlePrintInvoice(selectedResForDetail)}
+                onShowEmail={(r) => setEmailModalData({
+                  to: r.customerEmail || 'musteri@example.com',
+                  name: r.customerName,
+                  subject: 'Rezervasyonunuz Oluşturuldu! – İrem Düğün Sarayı',
+                  type: 'reservation',
+                  res: r
+                })}
+                onUpdatePayment={(id, dep, stat) => {
+                  setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
+                  showToast('💳 Ödeme & Sözleşme Güncellendi!');
+                  setSelectedResForDetail(null);
+                }}
+              />
+            </ErrorBoundary>
           )}
 
         </div>
@@ -4866,10 +4928,11 @@
     }
 
     // --- RESERVATION DETAIL MODAL ---
-    function ReservationDetailModal({ res, venues, services, onClose, onPrintInvoice, onUpdatePayment }) {
-      const venue = venues.find(v => v.id === res.venueId);
-      const [deposit, setDeposit] = useState(res.depositPaid);
-      const [status, setStatus] = useState(res.paymentStatus);
+    function ReservationDetailModal({ res, venues = [], services = [], onClose, onPrintInvoice, onUpdatePayment, onShowEmail }) {
+      if (!res) return null;
+      const venue = (venues || []).find(v => v.id === res.venueId);
+      const [deposit, setDeposit] = useState(res.depositPaid || 0);
+      const [status, setStatus] = useState(res.paymentStatus || 'Bekliyor');
 
       return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
