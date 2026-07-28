@@ -50,6 +50,10 @@
             document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
           } else if (theme === 'nordic-light') {
             document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+          } else if (theme === 'sapphire-minimal' || theme === 'sapphire_clean' || theme === 'sapphire') {
+            document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
+          } else if (theme === 'emerald-royal' || theme === 'emerald_royal' || theme === 'emerald') {
+            document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
           } else {
             document.documentElement.removeAttribute('data-ui-theme');
           }
@@ -316,6 +320,188 @@
       border-color: #1E293B !important;
       transform: translateY(-1px) !important;
       box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+    }
+
+    /* ----------------------------------------------------------- */
+    /* NEO-MINIMALIST SAFİR (TECH CORPORATE & ELECTRIC BLUE)        */
+    /* ----------------------------------------------------------- */
+    html[data-ui-theme="sapphire-minimal"] {
+      --color-gold: #0284C7;
+      --color-gold-hover: #0369A1;
+      --color-bg: #0F172A;
+      --color-card: #1E293B;
+      --color-surface: #334155;
+      --glass-bg: rgba(30, 41, 59, 0.95);
+      --glass-border: #334155;
+      color: #F8FAFC !important;
+      background-color: #0F172A !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] body {
+      background-color: #0F172A !important;
+      color: #F8FAFC !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] h1,
+    html[data-ui-theme="sapphire-minimal"] h2,
+    html[data-ui-theme="sapphire-minimal"] h3,
+    html[data-ui-theme="sapphire-minimal"] .font-heading {
+      font-family: 'Outfit', sans-serif !important;
+      letter-spacing: 0.05em !important;
+      font-weight: 800 !important;
+      color: #F8FAFC !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .gold-gradient-text {
+      color: #38BDF8 !important;
+      background: linear-gradient(135deg, #38BDF8 0%, #0284C7 50%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      letter-spacing: 0.05em !important;
+      font-weight: 800 !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .text-slate-500,
+    html[data-ui-theme="sapphire-minimal"] .text-slate-400,
+    html[data-ui-theme="sapphire-minimal"] .text-gray-400 {
+      color: #94A3B8 !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .text-slate-800,
+    html[data-ui-theme="sapphire-minimal"] .text-gray-100,
+    html[data-ui-theme="sapphire-minimal"] .text-gray-200 {
+      color: #F8FAFC !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .bg-white,
+    html[data-ui-theme="sapphire-minimal"] .bg-brand-card,
+    html[data-ui-theme="sapphire-minimal"] .glass-panel {
+      background-color: #1E293B !important;
+      border-color: #334155 !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .glass-panel,
+    html[data-ui-theme="sapphire-minimal"] button,
+    html[data-ui-theme="sapphire-minimal"] input,
+    html[data-ui-theme="sapphire-minimal"] select,
+    html[data-ui-theme="sapphire-minimal"] textarea,
+    html[data-ui-theme="sapphire-minimal"] .rounded-3xl,
+    html[data-ui-theme="sapphire-minimal"] .rounded-2xl,
+    html[data-ui-theme="sapphire-minimal"] .rounded-xl {
+      border-radius: 8px !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .gold-button {
+      background: #0284C7 !important;
+      color: #FFFFFF !important;
+      border: 1px solid #0284C7 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.04em !important;
+      font-size: 0.75rem !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .gold-button:hover {
+      background: #0369A1 !important;
+      color: #FFFFFF !important;
+      border-color: #0369A1 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45) !important;
+    }
+
+    /* ----------------------------------------------------------- */
+    /* KRALİYET ZÜMRÜT KIR BAHÇESİ (BOTANICAL VELVET & EMERALD)    */
+    /* ----------------------------------------------------------- */
+    html[data-ui-theme="emerald-royal"] {
+      --color-gold: #10B981;
+      --color-gold-hover: #059669;
+      --color-bg: #042F2E;
+      --color-card: #064E3B;
+      --color-surface: #0f766e;
+      --glass-bg: rgba(6, 78, 59, 0.95);
+      --glass-border: rgba(52, 211, 153, 0.3);
+      color: #ECFDF5 !important;
+      background-color: #042F2E !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] body {
+      background-color: #042F2E !important;
+      color: #ECFDF5 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] h1,
+    html[data-ui-theme="emerald-royal"] h2,
+    html[data-ui-theme="emerald-royal"] h3,
+    html[data-ui-theme="emerald-royal"] .font-heading {
+      font-family: 'Outfit', sans-serif !important;
+      letter-spacing: 0.03em !important;
+      font-weight: 800 !important;
+      color: #ECFDF5 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .gold-gradient-text {
+      color: #34D399 !important;
+      background: linear-gradient(135deg, #6EE7B7 0%, #10B981 50%, #047857 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      letter-spacing: 0.03em !important;
+      font-weight: 800 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .text-slate-500,
+    html[data-ui-theme="emerald-royal"] .text-slate-400,
+    html[data-ui-theme="emerald-royal"] .text-gray-400 {
+      color: #A7F3D0 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .text-slate-800,
+    html[data-ui-theme="emerald-royal"] .text-gray-100,
+    html[data-ui-theme="emerald-royal"] .text-gray-200 {
+      color: #ECFDF5 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .bg-white,
+    html[data-ui-theme="emerald-royal"] .bg-brand-card,
+    html[data-ui-theme="emerald-royal"] .glass-panel {
+      background-color: #064E3B !important;
+      border-color: rgba(52, 211, 153, 0.3) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .glass-panel,
+    html[data-ui-theme="emerald-royal"] button,
+    html[data-ui-theme="emerald-royal"] input,
+    html[data-ui-theme="emerald-royal"] select,
+    html[data-ui-theme="emerald-royal"] textarea,
+    html[data-ui-theme="emerald-royal"] .rounded-3xl,
+    html[data-ui-theme="emerald-royal"] .rounded-2xl,
+    html[data-ui-theme="emerald-royal"] .rounded-xl {
+      border-radius: 14px !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .gold-button {
+      background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important;
+      color: #FFFFFF !important;
+      border: 1px solid #34D399 !important;
+      border-radius: 14px !important;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.03em !important;
+      font-size: 0.75rem !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .gold-button:hover {
+      background: linear-gradient(135deg, #34D399 0%, #059669 100%) !important;
+      color: #FFFFFF !important;
+      border-color: #6EE7B7 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45) !important;
     }
 
     /* ---------------------------------------------------- */
@@ -1147,6 +1333,10 @@
           document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
         } else if (themeColor === 'nordic-light') {
           document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+        } else if (themeColor === 'sapphire-minimal' || themeColor === 'sapphire_clean' || themeColor === 'sapphire') {
+          document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
+        } else if (themeColor === 'emerald-royal' || themeColor === 'emerald_royal' || themeColor === 'emerald') {
+          document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
         } else {
           document.documentElement.removeAttribute('data-ui-theme');
         }
@@ -4377,6 +4567,76 @@
                     </div>
                   </div>
 
+                  {/* THEME PREVIEW CARD 4: NEO-MINIMALIST SAFİR */}
+                  <div
+                    onClick={() => setDraftTheme('sapphire-minimal')}
+                    style={{ borderRadius: '12px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean'
+                        ? 'border-[#0284C7] bg-[#1E293B] text-[#F8FAFC] shadow-2xl ring-4 ring-[#0284C7]/30 scale-[1.01]'
+                        : 'border-[#334155] bg-[#0F172A] text-[#94A3B8] hover:border-[#0284C7]/50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🔷⚡</span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-[#38BDF8] tracking-wide">Neo-Minimalist Safir (Tech Corporate)</h4>
+                          <span className="text-[10px] text-[#94A3B8] font-mono font-bold">Deep Slate (#0F172A) • Electric Blue (#0284C7) • 8px Rounded</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean') && <span style={{ borderRadius: '6px' }} className="bg-[#0284C7] text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '8px', background: '#0F172A', borderColor: '#334155' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#38BDF8] uppercase tracking-widest">SAFİR TECH DESIGN TOKENS ÖNİZLEME:</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-extrabold text-xs text-[#F8FAFC]">İrem Safir Sarayı</span>
+                        <div style={{ borderRadius: '8px', background: '#0284C7', color: '#FFFFFF', boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)' }} className="font-bold text-[10px] px-3.5 py-1.5">SAFİR BUTON</div>
+                      </div>
+                      <div style={{ borderRadius: '8px', background: '#1E293B', borderColor: '#334155' }} className="p-3 border text-[11px]">
+                        <div className="font-bold text-[#F8FAFC]">Kraliyet Safir Balo Düzeni</div>
+                        <div className="text-[10px] text-[#94A3B8]">Modern Dijital Teknoloji Balo Mimarisi</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* THEME PREVIEW CARD 5: KRALİYET ZÜMRÜT KIR BAHÇESİ */}
+                  <div
+                    onClick={() => setDraftTheme('emerald-royal')}
+                    style={{ borderRadius: '16px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal'
+                        ? 'border-[#34D399] bg-[#064E3B] text-[#ECFDF5] shadow-2xl ring-4 ring-[#10B981]/30 scale-[1.01]'
+                        : 'border-emerald-900/60 bg-[#042F2E] text-[#A7F3D0] hover:border-[#34D399]/50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🌿🏰</span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-[#34D399] tracking-wide">Kraliyet Zümrüt Kır Bahçesi (Botanık Lüks)</h4>
+                          <span className="text-[10px] text-[#A7F3D0] font-mono font-bold">Forest Emerald (#042F2E) • Mint Gold Trim (#34D399) • 14px Curved</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal') && <span style={{ borderRadius: '12px' }} className="bg-[#10B981] text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '14px', background: '#042F2E', borderColor: 'rgba(52, 211, 153, 0.3)' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#34D399] uppercase tracking-widest">ZÜMRÜT BOTANİK PREVIEW:</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-extrabold text-xs text-[#ECFDF5]">Kır Bahçesi VİP Estate</span>
+                        <div style={{ borderRadius: '14px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', color: '#FFFFFF', border: '1px solid #34D399', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)' }} className="font-bold text-[10px] px-3.5 py-1.5">ZÜMRÜT BUTON</div>
+                      </div>
+                      <div style={{ borderRadius: '14px', background: '#064E3B', borderColor: 'rgba(52, 211, 153, 0.3)' }} className="p-3 border text-[11px]">
+                        <div className="font-bold text-[#ECFDF5]">Doğal Kır Bahçesi & Botanik Balo Düzeni</div>
+                        <div className="text-[10px] text-[#A7F3D0]">Zümrüt Yeşili & Çim Alan Organizasyonu</div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* SAVE CHANGES BUTTON */}
@@ -4392,13 +4652,14 @@
                         document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
                       } else if (draftTheme === 'nordic-light') {
                         document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+                      } else if (draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean' || draftTheme === 'sapphire') {
+                        document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
+                      } else if (draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal' || themeColor === 'emerald') {
+                        document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
                       } else {
                         document.documentElement.removeAttribute('data-ui-theme');
-                        const selectedPal = colorPalettes.find(p => p.id === draftTheme) || colorPalettes[0];
-                        document.documentElement.style.setProperty('--color-gold', selectedPal.primary);
-                        document.documentElement.style.setProperty('--color-gold-hover', selectedPal.hover);
                       }
-                      showToast(`❄️👑 Tasarım Değişiklikleri Başarıyla Kaydedildi ve Uygulandı! (${draftTheme})`);
+                      showToast(`🎨 Tasarım Konsepti Başarıyla Değiştirildi ve Uygulandı! (${draftTheme})`);
                     }}
                     className="gold-button font-bold text-xs py-3 px-8 rounded-2xl shadow-xl hover:scale-105 transition flex items-center space-x-2"
                   >
