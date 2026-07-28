@@ -2891,6 +2891,17 @@
             if (phoneInput) phoneInput.focus();
             return;
           }
+          const p1 = newCustPhone.replace(/\D/g, '');
+          const p2 = newCustSecondaryPhone.replace(/\D/g, '');
+          if (p1 && p2 && p1 === p2) {
+            setCustomerError(true);
+            alert('⚠️ BİRİNCİL VE İKİNCİL TELEFON NUMARASI AYNI OLAMAZ!\nLütfen ikincil iletişim için farklı bir yakın veya akraba telefon numarası giriniz.');
+            const el = document.getElementById('customer-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const secInput = document.getElementById('new-cust-sec-phone-input');
+            if (secInput) secInput.focus();
+            return;
+          }
         } else if (customerMode === 'existing') {
           if (!selectedCustomerId) {
             setCustomerError(true);
@@ -3421,19 +3432,27 @@
                       <div>
                         <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu:</label>
                         <input
+                          id="new-cust-sec-phone-input"
                           type="text"
                           placeholder="0 (5XX) XXX XX XX (Anne/Baba Tel)"
                           value={newCustSecondaryPhone}
                           onChange={e => setNewCustSecondaryPhone(formatPhoneNumber(e.target.value))}
                           className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold ${
-                            newCustSecondaryPhone && isValidPhoneNumber(newCustSecondaryPhone)
+                            newCustPhone && newCustSecondaryPhone && newCustPhone.replace(/\D/g, '') === newCustSecondaryPhone.replace(/\D/g, '')
+                              ? 'border-2 border-red-500 bg-red-500/10 text-red-600'
+                              : newCustSecondaryPhone && isValidPhoneNumber(newCustSecondaryPhone)
                               ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                               : 'border-slate-200 dark:border-brand-border text-slate-800 dark:text-gray-200'
                           }`}
                         />
                         {newCustSecondaryPhone && (
                           <div className="mt-1 text-[10px] font-bold">
-                            {isValidPhoneNumber(newCustSecondaryPhone) ? (
+                            {newCustPhone && newCustPhone.replace(/\D/g, '') === newCustSecondaryPhone.replace(/\D/g, '') ? (
+                              <span className="text-red-600 dark:text-red-400 flex items-center space-x-1">
+                                <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>Birincil ve ikincil telefon aynı olamaz!</span>
+                              </span>
+                            ) : isValidPhoneNumber(newCustSecondaryPhone) ? (
                               <span className="text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
                                 <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                                 <span>Geçerli Telefon Numarası</span>
