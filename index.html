@@ -647,24 +647,20 @@
                   )}
 
                   {activeTab === 'create-reservation' && (
-                    hasPermission(activeRole, 'create-reservation') ? (
-                      <CreateReservationPageComponent
-                        venues={venues}
-                        services={services}
-                        customers={customers}
-                        campaigns={campaigns}
-                        reservations={reservations}
-                        onSaveReservation={(newRes, newCust) => {
-                          if (newCust) setCustomers(prev => [...prev, newCust]);
-                          setReservations(prev => [newRes, ...prev]);
-                          showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
-                          navigateTo('reservations');
-                        }}
-                        onCancel={() => navigateTo('reservations')}
-                      />
-                    ) : (
-                      <AccessDeniedComponent role={activeRole} />
-                    )
+                    <CreateReservationPageComponent
+                      venues={venues}
+                      services={services}
+                      customers={customers}
+                      campaigns={campaigns}
+                      reservations={reservations}
+                      onSaveReservation={(newRes, newCust) => {
+                        if (newCust) setCustomers(prev => [...prev, newCust]);
+                        setReservations(prev => [newRes, ...prev]);
+                        showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
+                        navigateTo('reservations');
+                      }}
+                      onCancel={() => navigateTo('reservations')}
+                    />
                   )}
 
                   {activeTab === 'venues' && (
@@ -874,8 +870,8 @@
             secondaryPhone: custSecondaryPhone,
             address: invoiceAddress,
             taxType: invoiceType,
-            tcNo: taxType === 'individual' ? tcNo : '',
-            vknNo: taxType === 'corporate' ? vknNo : '',
+            tcNo: invoiceType === 'individual' ? tcNo : '',
+            vknNo: invoiceType === 'corporate' ? vknNo : '',
             taxOffice,
             followUp: false,
             followUpNote: 'Otomatik kayıt oluşturan üye',
