@@ -355,7 +355,10 @@
       'reports': 'raporlar-ai',
       'media': 'medya-yukle',
       'profile': 'profil',
-      'settings': 'ayarlar'
+      'settings': 'ayarlar',
+      'settings-appearance': 'ayarlar/gorunum',
+      'settings-performance': 'ayarlar/onbellek',
+      'settings-rbac': 'ayarlar/rol-izinleri'
     };
 
     const SLUG_TO_TAB = {
@@ -372,7 +375,10 @@
       'raporlar-ai': 'reports',
       'medya-yukle': 'media',
       'profil': 'profile',
-      'ayarlar': 'settings'
+      'ayarlar': 'settings',
+      'ayarlar/gorunum': 'settings-appearance',
+      'ayarlar/onbellek': 'settings-performance',
+      'ayarlar/rol-izinleri': 'settings-rbac'
     };
 
     // ==========================================
@@ -490,7 +496,10 @@
       'reports': 'Raporlar & AI Önerileri',
       'media': 'Medya & Foto Yükleme',
       'profile': '👤 Profilim & Hesap Ayarları',
-      'settings': '⚙️ Genel Ayarlar & Rol Yönetimi'
+      'settings': '⚙️ Genel Ayarlar & Rol Yönetimi',
+      'settings-appearance': '🎨 Görünüm & Tema Ayarları',
+      'settings-performance': '⚡ Önbellek & Performans',
+      'settings-rbac': '🛡️ Rol & İzin Yönetimi'
     };
 
     const TAB_PERMISSIONS = {
@@ -507,7 +516,10 @@
       'reports': ['admin'],
       'media': ['admin', 'sosyal_medyaci', 'musteri'],
       'profile': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
-      'settings': ['admin']
+      'settings': ['admin'],
+      'settings-appearance': ['admin'],
+      'settings-performance': ['admin'],
+      'settings-rbac': ['admin']
     };
 
     const ROLE_NAMES = {
@@ -898,8 +910,7 @@
                   { id: 'customers', label: 'Müşteri Rehberi', icon: '👥' },
                   { id: 'users', label: 'Kullanıcı Yönetimi', icon: '⚙️' },
                   { id: 'reports', label: 'Raporlar & AI Öneri', icon: '📈' },
-                  { id: 'media', label: 'Medya & Foto Yükle', icon: '📷' },
-                  { id: 'settings', label: 'Sistem Ayarları', icon: '⚙️' }
+                  { id: 'media', label: 'Medya & Foto Yükle', icon: '📷' }
                 ]
                 .filter(item => (tabPermissionsState[item.id] || []).includes(activeRole))
                 .map(item => (
@@ -919,6 +930,55 @@
                     <span>{item.label}</span>
                   </a>
                 ))}
+
+                {/* SETTINGS WITH SUB-ITEMS IN SIDEBAR */}
+                {(tabPermissionsState['settings'] || []).includes(activeRole) && (
+                  <div className="pt-2 space-y-1 border-t border-slate-200 dark:border-brand-border/40">
+                    <div className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider px-3 my-1">Ayarlar</div>
+                    <a
+                      href="#/ayarlar"
+                      onClick={(e) => { e.preventDefault(); navigateTo('settings'); }}
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-bold transition ${
+                        activeTab === 'settings' ? 'bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 shadow-sm' : 'text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-brand-card'
+                      }`}
+                    >
+                      <span className="text-base">⚙️</span>
+                      <span>Sistem Ayarları</span>
+                    </a>
+                    <div className="pl-6 space-y-1">
+                      <a
+                        href="#/ayarlar/gorunum"
+                        onClick={(e) => { e.preventDefault(); navigateTo('settings-appearance'); }}
+                        className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                          activeTab === 'settings-appearance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
+                        }`}
+                      >
+                        <span>🎨</span>
+                        <span>Görünüm & Tema</span>
+                      </a>
+                      <a
+                        href="#/ayarlar/onbellek"
+                        onClick={(e) => { e.preventDefault(); navigateTo('settings-performance'); }}
+                        className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                          activeTab === 'settings-performance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
+                        }`}
+                      >
+                        <span>⚡</span>
+                        <span>Önbellek & Performans</span>
+                      </a>
+                      <a
+                        href="#/ayarlar/rol-izinleri"
+                        onClick={(e) => { e.preventDefault(); navigateTo('settings-rbac'); }}
+                        className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                          activeTab === 'settings-rbac' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800'
+                        }`}
+                      >
+                        <span>🛡️</span>
+                        <span>Rol & İzin Yönetimi</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
               </nav>
 
               <div className="bg-white dark:bg-brand-card p-4 rounded-2xl border border-amber-500/20 text-center space-y-1 shadow-sm">
@@ -938,7 +998,7 @@
               )}
 
               {/* RBAC PERMISSION GUARD */}
-              {!((tabPermissionsState[activeTab] || []).includes(activeRole)) ? (
+              {!((tabPermissionsState[activeTab] || tabPermissionsState['settings'] || []).includes(activeRole)) ? (
                 <UnauthorizedAccessScreen
                   pageTitle={TAB_LABELS[activeTab] || activeTab}
                   activeRoleName={rolesState[activeRole] || activeRole}
@@ -1007,27 +1067,7 @@
                     <MediaComponent reservations={reservations} showToast={showToast} />
                   )}
 
-                  {activeTab === 'profile' && (
-                    <ProfileComponent
-                      currentUser={{
-                        name: 'İrem Yılmaz',
-                        email: 'admin@iremdugunsarayi.com',
-                        phone: '+90 532 000 0000',
-                        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80'
-                      }}
-                      activeRole={activeRole}
-                      onSaveProfile={(updated) => {
-                        showToast('👤 Profil Bilgileri Başarıyla Güncellendi!');
-                      }}
-                      showToast={showToast}
-                      onRoleChange={(newRole) => {
-                        setActiveRole(newRole);
-                        showToast(`Rol Değiştirildi: ${rolesState[newRole] || newRole}`);
-                      }}
-                    />
-                  )}
-
-                  {activeTab === 'settings' && (
+                  {activeTab.startsWith('settings') && (
                     <SettingsComponent
                       activeRole={activeRole}
                       roles={rolesState}
@@ -1040,6 +1080,11 @@
                       onToggleCache={setIsCacheEnabledState}
                       onClearCache={handleClearCache}
                       showToast={showToast}
+                      initialSubTab={
+                        activeTab === 'settings-appearance' ? 'appearance' :
+                        activeTab === 'settings-performance' ? 'performance' :
+                        activeTab === 'settings-rbac' ? 'rbac' : 'appearance'
+                      }
                     />
                   )}
                 </>
@@ -1105,8 +1150,7 @@
                       { id: 'customers', label: 'Müşteri Rehberi', icon: '👥', roles: ['admin', 'satisci'] },
                       { id: 'users', label: 'Kullanıcı Yönetimi', icon: '⚙️', roles: ['admin'] },
                       { id: 'reports', label: 'Raporlar & AI Önerileri', icon: '📈', roles: ['admin'] },
-                      { id: 'media', label: 'Medya & Foto Yükleme', icon: '📷', roles: ['sosyal_medyaci', 'admin', 'musteri'] },
-                      { id: 'profile', label: '👤 Profilim & Hesap Ayarları', icon: '👤', roles: ['admin', 'satisci', 'sosyal_medyaci', 'musteri'] }
+                      { id: 'media', label: 'Medya & Foto Yükleme', icon: '📷', roles: ['sosyal_medyaci', 'admin', 'musteri'] }
                     ]
                     .filter(item => item.roles.includes(activeRole))
                     .map(item => (
@@ -1126,6 +1170,40 @@
                         <span className="text-xs sm:text-sm">{item.label}</span>
                       </button>
                     ))}
+
+                    {/* SETTINGS LINKS IN DRAWER */}
+                    {(tabPermissionsState['settings'] || []).includes(activeRole) && (
+                      <div className="pt-2 space-y-1.5 border-t border-slate-200 dark:border-brand-border/40">
+                        <div className="text-[10px] font-bold text-amber-700 dark:text-gold-400 uppercase tracking-wider px-1">Sistem Ayarları</div>
+                        <button
+                          onClick={() => { navigateTo('settings-appearance'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left ${
+                            activeTab === 'settings-appearance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <span className="text-base">🎨</span>
+                          <span>Görünüm & Tema Ayarları</span>
+                        </button>
+                        <button
+                          onClick={() => { navigateTo('settings-performance'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left ${
+                            activeTab === 'settings-performance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <span className="text-base">⚡</span>
+                          <span>Önbellek & Performans</span>
+                        </button>
+                        <button
+                          onClick={() => { navigateTo('settings-rbac'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left ${
+                            activeTab === 'settings-rbac' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <span className="text-base">🛡️</span>
+                          <span>Rol & İzin Yönetimi</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -2725,9 +2803,14 @@
       isCacheEnabled,
       onToggleCache,
       onClearCache,
-      showToast
+      showToast,
+      initialSubTab = 'appearance'
     }) {
-      const [settingsTab, setSettingsTab] = useState('appearance'); // 'appearance' | 'performance' | 'rbac'
+      const [settingsTab, setSettingsTab] = useState(initialSubTab);
+
+      useEffect(() => {
+        if (initialSubTab) setSettingsTab(initialSubTab);
+      }, [initialSubTab]);
 
       // New role form state
       const [newRoleId, setNewRoleId] = useState('');
