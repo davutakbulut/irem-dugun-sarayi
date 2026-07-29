@@ -24,6 +24,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { VenuesPage } from './pages/VenuesPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { UsersPage } from './pages/UsersPage';
+import { Page404, Page301, Page403, Page500 } from './pages/ErrorPages';
 
 export default function App() {
   // Global State
@@ -275,7 +276,35 @@ export default function App() {
               onThemeChange={setCurrentTheme}
               buttonStyle={buttonStyle}
               onButtonStyleChange={setButtonStyle}
+              onNavigate={setActiveTab}
             />
+          )}
+
+          {activeTab === '301' && (
+            <Page301
+              targetRoute="reservations"
+              targetName="Rezervasyonlar & Canlı Takvim"
+              onNavigate={setActiveTab}
+            />
+          )}
+
+          {activeTab === '403' && (
+            <Page403
+              requiredRole="Süper Yönetici (SuperAdmin)"
+              onNavigate={setActiveTab}
+            />
+          )}
+
+          {activeTab === '500' && (
+            <Page500
+              errorDetails="Veritabanı bağlantı zaman aşımı (ETIMEDOUT)."
+              onNavigate={setActiveTab}
+            />
+          )}
+
+          {/* FALLBACK 404 ROUTE */}
+          {(!['dashboard', 'create-reservation', 'reservations', 'venues', 'services', 'customers', 'campaigns', 'reports', 'users', 'settings', '301', '403', '500'].includes(activeTab) || activeTab === '404') && (
+            <Page404 onNavigate={setActiveTab} />
           )}
         </main>
       </div>

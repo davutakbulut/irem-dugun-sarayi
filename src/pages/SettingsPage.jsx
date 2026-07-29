@@ -128,6 +128,53 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
           </button>
         </div>
       </div>
+
+      {/* ERROR & REDIRECT PAGES TEST PANEL */}
+      <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
+        <div>
+          <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+            <span>🚨</span>
+            <span>Hata & Yönlendirme Sayfaları Canlı Simülasyon Paneli</span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+            HTTP 404 Sayfa Bulunamadı, 301 Kalıcı Yönlendirme, 403 Yetkisiz Erişim ve 500 Sistem Hatası sayfalarını canlı olarak önizleyin.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-bold">
+          <button
+            onClick={() => onNavigate && onNavigate('404')}
+            className="p-3 bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 rounded-2xl hover:bg-amber-500/20 transition flex flex-col items-center space-y-1"
+          >
+            <span className="text-xl">🔍</span>
+            <span>404 Bulunamadı</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate && onNavigate('301')}
+            className="p-3 bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 rounded-2xl hover:bg-amber-500/20 transition flex flex-col items-center space-y-1"
+          >
+            <span className="text-xl">🔄</span>
+            <span>301 Yönlendirme</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate && onNavigate('403')}
+            className="p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/30 rounded-2xl hover:bg-red-500/20 transition flex flex-col items-center space-y-1"
+          >
+            <span className="text-xl">🛡️</span>
+            <span>403 Yetkisiz Erişim</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate && onNavigate('500')}
+            className="p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/30 rounded-2xl hover:bg-red-500/20 transition flex flex-col items-center space-y-1"
+          >
+            <span className="text-xl">💥</span>
+            <span>500 Sunucu Hatası</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
