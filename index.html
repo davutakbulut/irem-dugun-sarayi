@@ -1550,28 +1550,39 @@
       const [activeTab, setActiveTabState] = useState(getHashTab);
 
       const [toast, setToast] = useState(null);
-      const [globalAlert, setGlobalAlert] = useState({ isOpen: false, title: '', message: '', targetInputId: null });
+      const [globalAlerts, setGlobalAlerts] = useState([]);
 
-      useEffect(() => {
-        window.showGlobalAlert = (title, message, targetInputId = null) => {
-          setGlobalAlert({ isOpen: true, title, message, targetInputId });
-        };
-        return () => {
-          delete window.showGlobalAlert;
-        };
+      const removeGlobalAlert = useCallback((id) => {
+        setGlobalAlerts(prev => prev.filter(alert => alert.id !== id));
       }, []);
 
-      const closeGlobalAlert = () => {
-        const targetId = globalAlert.targetInputId;
-        setGlobalAlert({ isOpen: false, title: '', message: '', targetInputId: null });
-        if (targetId) {
-          const el = document.getElementById(targetId);
+      const closeGlobalAlert = (alert) => {
+        if (alert && alert.id) {
+          removeGlobalAlert(alert.id);
+        }
+        if (alert && alert.targetInputId) {
+          const el = document.getElementById(alert.targetInputId);
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.focus();
           }
         }
       };
+
+      useEffect(() => {
+        window.showGlobalAlert = (title, message, targetInputId = null) => {
+          const id = Date.now() + Math.random();
+          const newAlert = { id, title, message, targetInputId };
+          setGlobalAlerts(prev => [...prev, newAlert].slice(-4));
+
+          setTimeout(() => {
+            removeGlobalAlert(id);
+          }, 3500);
+        };
+        return () => {
+          delete window.showGlobalAlert;
+        };
+      }, [removeGlobalAlert]);
 
       // Modals State
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
@@ -1933,44 +1944,49 @@
       return (
         <div className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative">
           
-          {/* GLOBAL ROOT VIEWPORT STANDALONE FLOATING NOTIFICATION (100% INDEPENDENT OF PAGE BODY & SCROLL) */}
-          {globalAlert.isOpen && (
-            <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[999999] max-w-md w-full animate-slide-left pointer-events-auto">
-              <div className="bg-slate-900/95 dark:bg-slate-900/95 border-2 border-red-500/80 rounded-2xl p-4 sm:p-5 shadow-[0_25px_60px_rgba(239,68,68,0.45)] backdrop-blur-2xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600 text-white">
-                {/* Red Pulse Warning Icon */}
-                <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-xl font-bold shrink-0 border border-red-500/40 animate-pulse mt-0.5">
-                  ⚠️
-                </div>
-
-                {/* Content Area */}
-                <div className="flex-1 space-y-1 pr-6 text-left">
-                  <h4 className="font-heading font-extrabold text-sm sm:text-base text-white flex items-center space-x-1.5">
-                    <span>{globalAlert.title}</span>
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed font-semibold">
-                    {globalAlert.message}
-                  </p>
-                  
-                  {/* Action Button */}
-                  <div className="pt-2">
-                    <button
-                      onClick={closeGlobalAlert}
-                      className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1 cursor-pointer"
-                    >
-                      <span>Anladım, Düzelt ✓</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Close X Button */}
-                <button
-                  onClick={closeGlobalAlert}
-                  className="absolute top-3 right-3 text-slate-400 hover:text-white transition p-1 cursor-pointer"
-                  aria-label="Kapat"
+          {/* GLOBAL ROOT STACKED VIEWPORT NOTIFICATIONS QUEUE (3.5s AUTO-DISMISS & VERTICAL STACK) */}
+          {globalAlerts.length > 0 && (
+            <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[999999] max-w-md w-full flex flex-col space-y-3 pointer-events-none">
+              {globalAlerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className="bg-slate-900/95 dark:bg-slate-900/95 border-2 border-red-500/80 rounded-2xl p-3.5 sm:p-4 shadow-[0_20px_50px_rgba(239,68,68,0.4)] backdrop-blur-2xl flex items-start space-x-3 relative border-l-8 border-l-red-600 text-white animate-slide-left pointer-events-auto"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-              </div>
+                  {/* Red Pulse Warning Icon */}
+                  <div className="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg font-bold shrink-0 border border-red-500/40 animate-pulse mt-0.5">
+                    ⚠️
+                  </div>
+
+                  {/* Content Area */}
+                  <div className="flex-1 space-y-1 pr-6 text-left">
+                    <h4 className="font-heading font-extrabold text-xs sm:text-sm text-white flex items-center space-x-1.5">
+                      <span>{alert.title}</span>
+                    </h4>
+                    <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-semibold">
+                      {alert.message}
+                    </p>
+                    
+                    {/* Action Button */}
+                    <div className="pt-1.5">
+                      <button
+                        onClick={() => closeGlobalAlert(alert)}
+                        className="px-3 py-1 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] shadow transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1 cursor-pointer"
+                      >
+                        <span>Anladım, Düzelt ✓</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Close X Button */}
+                  <button
+                    onClick={() => removeGlobalAlert(alert.id)}
+                    className="absolute top-3 right-3 text-slate-400 hover:text-white transition p-1 cursor-pointer"
+                    aria-label="Kapat"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 
