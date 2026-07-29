@@ -1559,6 +1559,7 @@
       const [campaignModalData, setCampaignModalData] = useState(null);
       const [userModalData, setUserModalData] = useState(null);
       const [emailModalData, setEmailModalData] = useState(null);
+      const [redAlertModalData, setRedAlertModalData] = useState(null);
       const [prefilledCreateDate, setPrefilledCreateDate] = useState(null);
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -1581,9 +1582,19 @@
         showToast('🏰 Düğün Salonu Başarıyla Kaydedildi!');
       };
 
-      const handleDeleteVenue = (vId) => {
-        setVenues(prev => prev.filter(x => x.id !== vId));
-        showToast('🗑️ Düğün Salonu Sistemden Silindi.');
+      const handleDeleteVenue = (vIdOrObj) => {
+        const vId = typeof vIdOrObj === 'object' ? vIdOrObj.id : vIdOrObj;
+        const venue = venues.find(x => x.id === vId);
+        const vName = venue ? venue.name : 'Düğün Salonu';
+        setRedAlertModalData({
+          title: '🚨 DÜĞÜN SALONU SİLİNECEK',
+          message: `"${vName}" salonunu sistemden tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
+          confirmText: 'Evet, Salonu Sil',
+          onConfirm: () => {
+            setVenues(prev => prev.filter(x => x.id !== vId));
+            showToast('🗑️ Düğün Salonu Sistemden Silindi.');
+          }
+        });
       };
 
       const handleSaveService = (sObj) => {
@@ -1600,9 +1611,19 @@
         showToast('✨ Ek Hizmet Başarıyla Kaydedildi!');
       };
 
-      const handleDeleteService = (sId) => {
-        setServices(prev => prev.filter(x => x.id !== sId));
-        showToast('🗑️ Ek Hizmet Silindi.');
+      const handleDeleteService = (sIdOrObj) => {
+        const sId = typeof sIdOrObj === 'object' ? sIdOrObj.id : sIdOrObj;
+        const service = services.find(x => x.id === sId);
+        const sName = service ? service.name : 'Ek Hizmet';
+        setRedAlertModalData({
+          title: '🚨 EK HİZMET SİLİNECEK',
+          message: `"${sName}" ek hizmet kartını silmek istediğinize emin misiniz?`,
+          confirmText: 'Evet, Hizmeti Sil',
+          onConfirm: () => {
+            setServices(prev => prev.filter(x => x.id !== sId));
+            showToast('🗑️ Ek Hizmet Silindi.');
+          }
+        });
       };
 
       const handleSaveCampaign = (cObj) => {
@@ -1642,9 +1663,19 @@
       };
 
 
-      const handleDeleteCampaign = (cId) => {
-        setCampaigns(prev => prev.filter(x => x.id !== cId));
-        showToast('🗑️ Kampanya Kaldırıldı.');
+      const handleDeleteCampaign = (cIdOrObj) => {
+        const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
+        const campaign = campaigns.find(x => x.id === cId);
+        const cTitle = campaign ? campaign.title : 'Özel Kampanya';
+        setRedAlertModalData({
+          title: '🚨 ÖZEL KAMPANYA SİLİNECEK',
+          message: `"${cTitle}" kampanyasını sistemden kaldırmak istediğinize emin misiniz?`,
+          confirmText: 'Evet, Kampanyayı Sil',
+          onConfirm: () => {
+            setCampaigns(prev => prev.filter(x => x.id !== cId));
+            showToast('🗑️ Kampanya Kaldırıldı.');
+          }
+        });
       };
 
       const handleSaveUser = (uObj) => {
@@ -1661,14 +1692,34 @@
         showToast('⚙️ Kullanıcı Bilgileri Başarıyla Güncellendi!');
       };
 
-      const handleDeleteUser = (uId) => {
-        setUsers(prev => prev.filter(x => x.id !== uId));
-        showToast('🗑️ Kullanıcı Sistemden Silindi.');
+      const handleDeleteUser = (uIdOrObj) => {
+        const uId = typeof uIdOrObj === 'object' ? uIdOrObj.id : uIdOrObj;
+        const user = users.find(x => x.id === uId);
+        const uName = user ? user.name : 'Kullanıcı';
+        setRedAlertModalData({
+          title: '🚨 KULLANICI HESABI SİLİNECEK',
+          message: `"${uName}" kullanıcısının yetkilerini iptal edip sistemden silmek istediğinize emin misiniz?`,
+          confirmText: 'Evet, Kullanıcıyı Sil',
+          onConfirm: () => {
+            setUsers(prev => prev.filter(x => x.id !== uId));
+            showToast('🗑️ Kullanıcı Sistemden Silindi.');
+          }
+        });
       };
 
-      const handleDeleteCustomer = (cId) => {
-        setCustomers(prev => prev.filter(x => x.id !== cId));
-        showToast('🗑️ Müşteri Rehberden Silindi.');
+      const handleDeleteCustomer = (cIdOrObj) => {
+        const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
+        const customer = customers.find(x => x.id === cId);
+        const cName = customer ? customer.name : 'Müşteri';
+        setRedAlertModalData({
+          title: '🚨 MÜŞTERİ KARTI SİLİNECEK',
+          message: `"${cName}" müşteri kaydını rehberden silmek istediğinize emin misiniz?`,
+          confirmText: 'Evet, Müşteriyi Sil',
+          onConfirm: () => {
+            setCustomers(prev => prev.filter(x => x.id !== cId));
+            showToast('🗑️ Müşteri Rehberden Silindi.');
+          }
+        });
       };
 
       const handleRescheduleReservation = (resId, newDate) => {
@@ -2091,8 +2142,8 @@
             <main role="main" className="flex-1 p-4 lg:p-8 overflow-y-auto pb-24 lg:pb-8">
               
               {toast && (
-                <div role="status" aria-live="polite" className="fixed top-20 right-6 z-50 px-5 py-3 rounded-xl bg-emerald-900 text-emerald-100 border border-emerald-500/50 shadow-2xl font-medium text-xs">
-                  {toast.msg}
+                <div role="status" aria-live="polite" className="fixed top-4 left-4 right-4 sm:top-20 sm:left-auto sm:right-6 z-[99999] px-5 py-3 rounded-2xl sm:rounded-xl bg-slate-900/95 dark:bg-slate-900/95 text-slate-100 border border-amber-500/50 shadow-2xl font-bold text-xs flex items-center justify-between sm:justify-start space-x-2 animate-slide-down sm:animate-fade-in">
+                  <span>{toast.msg}</span>
                 </div>
               )}
 
@@ -2431,6 +2482,17 @@
             <EmailNotificationModal
               emailData={emailModalData}
               onClose={() => setEmailModalData(null)}
+            />
+          )}
+
+          {redAlertModalData && (
+            <RedAlertConfirmModal
+              isOpen={true}
+              title={redAlertModalData.title}
+              message={redAlertModalData.message}
+              confirmText={redAlertModalData.confirmText}
+              onConfirm={redAlertModalData.onConfirm}
+              onClose={() => setRedAlertModalData(null)}
             />
           )}
 
@@ -3050,12 +3112,12 @@
       return (
         <div className="space-y-6 max-w-7xl mx-auto pb-12 relative">
           
-          {/* SLEEK IN-APP RED CORPORATE ALERT MODAL */}
+          {/* SLEEK IN-APP RED CORPORATE ALERT MODAL (SCREEN STATE ADAPTIVE) */}
           {alertModal.isOpen && (
-            <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-              <div className="bg-white dark:bg-slate-900 border-2 border-red-500/60 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-[0_25px_60px_-15px_rgba(239,68,68,0.35)] relative animate-scale-up text-center space-y-5">
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-slate-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
+              <div className="w-full max-w-lg sm:max-w-md bg-white dark:bg-slate-900 border-t-2 sm:border-2 border-red-500/60 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(239,68,68,0.4)] relative animate-slide-up sm:animate-scale-up text-center space-y-5 max-h-[85vh] overflow-y-auto">
                 {/* Red Pulse Badge Icon */}
-                <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center text-3xl mx-auto border border-red-500/30 shadow-inner animate-pulse">
+                <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center text-3xl mx-auto border border-red-500/30 shadow-inner animate-pulse shrink-0">
                   ⚠️
                 </div>
 
@@ -4429,6 +4491,58 @@
       );
     }
 
+    // --- RED ALERT CONFIRMATION POPUP MODAL ---
+    function RedAlertConfirmModal({ isOpen, title, message, confirmText = 'Evet, Sil', cancelText = 'Vazgeç', onConfirm, onClose, icon = '🚨' }) {
+      if (!isOpen) return null;
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [onClose]);
+
+      return (
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-slate-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
+          <div className="w-full max-w-lg sm:max-w-md bg-white dark:bg-slate-900 border-t-2 sm:border-2 border-red-500/60 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(239,68,68,0.4)] relative animate-slide-up sm:animate-scale-up text-center space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center text-3xl mx-auto border border-red-500/30 shadow-inner animate-pulse shrink-0">
+              {icon}
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="font-heading font-extrabold text-lg sm:text-xl text-slate-800 dark:text-white">
+                {title}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 leading-relaxed font-medium">
+                {message}
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-gray-200 font-bold text-xs sm:text-sm transition"
+              >
+                {cancelText}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onConfirm();
+                  onClose();
+                }}
+                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-red-500/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center space-x-1"
+              >
+                <span>{confirmText}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // --- EMAIL NOTIFICATION SIMULATION MODAL ---
     function EmailNotificationModal({ emailData, onClose }) {
       if (!emailData) return null;
@@ -5666,8 +5780,15 @@
                   <button
                     type="button"
                     onClick={() => {
-                      onClearCache();
-                      showToast('🗑️ Yerel Önbellek Tamamen Sıfırlandı!');
+                      setRedAlertModalData({
+                        title: '⚠️ ÖNBELLEK VE SİSTEM VERİSİ SIFIRLANACAK',
+                        message: 'Sistemde depolanan tüm yerel ayarlar, salon tercihleri ve önbellek verileri sıfırlanacaktır. Devam etmek istiyor musunuz?',
+                        confirmText: 'Evet, Önbelleği Sıfırla',
+                        onConfirm: () => {
+                          onClearCache();
+                          showToast('🗑️ Yerel Önbellek Tamamen Sıfırlandı!');
+                        }
+                      });
                     }}
                     className="bg-red-500/10 hover:bg-red-500 text-red-700 hover:text-white border border-red-500/40 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow"
                   >

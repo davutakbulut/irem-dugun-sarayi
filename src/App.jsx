@@ -39,7 +39,9 @@ import {
   UserModalComponent,
   CustomerFormModal,
   ReservationDetailModal,
-  EmailNotificationModal
+  EmailNotificationModal,
+  RedAlertConfirmModal,
+  InvoiceNotificationModal
 } from './components/Modals';
 
 export default function App() {
@@ -74,6 +76,8 @@ export default function App() {
   const [customerModalData, setCustomerModalData] = useState(null);
   const [emailModalData, setEmailModalData] = useState(null);
   const [selectedResForDetail, setSelectedResForDetail] = useState(null);
+  const [redAlertModalData, setRedAlertModalData] = useState(null);
+  const [invoiceModalData, setInvoiceModalData] = useState(null);
 
   const [resSearchQuery, setResSearchQuery] = useState('');
   const [resStatusFilter, setResStatusFilter] = useState('ALL');
@@ -112,11 +116,18 @@ export default function App() {
     setVenueModalData(null);
   };
 
-  const handleDeleteVenue = (id) => {
-    if (confirm('Bu düğün salonunu silmek istediğinize emin misiniz?')) {
-      setVenues(prev => prev.filter(v => v.id !== id));
-      showToast('🗑️ Düğün Salonu Silindi.');
-    }
+  const handleDeleteVenue = (venueOrId) => {
+    const vId = typeof venueOrId === 'object' ? venueOrId.id : venueOrId;
+    const vName = typeof venueOrId === 'object' ? venueOrId.name : 'Düğün Salonu';
+    setRedAlertModalData({
+      title: '🚨 DÜĞÜN SALONU SİLİNECEK',
+      message: `"${vName}" salonunu sistemden tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
+      confirmText: 'Evet, Salonu Sil',
+      onConfirm: () => {
+        setVenues(prev => prev.filter(v => v.id !== vId));
+        showToast('🗑️ Düğün Salonu Silindi.');
+      }
+    });
   };
 
   const handleSaveService = (service) => {
@@ -125,11 +136,18 @@ export default function App() {
     setServiceModalData(null);
   };
 
-  const handleDeleteService = (id) => {
-    if (confirm('Bu ek hizmeti silmek istediğinize emin misiniz?')) {
-      setServices(prev => prev.filter(s => s.id !== id));
-      showToast('🗑️ Ek Hizmet Silindi.');
-    }
+  const handleDeleteService = (serviceOrId) => {
+    const sId = typeof serviceOrId === 'object' ? serviceOrId.id : serviceOrId;
+    const sName = typeof serviceOrId === 'object' ? serviceOrId.name : 'Ek Hizmet';
+    setRedAlertModalData({
+      title: '🚨 EK HİZMET SİLİNECEK',
+      message: `"${sName}" ek hizmet kartını silmek istediğinize emin misiniz?`,
+      confirmText: 'Evet, Hizmeti Sil',
+      onConfirm: () => {
+        setServices(prev => prev.filter(s => s.id !== sId));
+        showToast('🗑️ Ek Hizmet Silindi.');
+      }
+    });
   };
 
   const handleSaveCampaign = (campaign) => {
@@ -138,11 +156,18 @@ export default function App() {
     setCampaignModalData(null);
   };
 
-  const handleDeleteCampaign = (id) => {
-    if (confirm('Bu kampanyayı silmek istediğinize emin misiniz?')) {
-      setCampaigns(prev => prev.filter(c => c.id !== id));
-      showToast('🗑️ Kampanya Silindi.');
-    }
+  const handleDeleteCampaign = (campaignOrId) => {
+    const cId = typeof campaignOrId === 'object' ? campaignOrId.id : campaignOrId;
+    const cTitle = typeof campaignOrId === 'object' ? campaignOrId.title : 'Özel Kampanya';
+    setRedAlertModalData({
+      title: '🚨 ÖZEL KAMPANYA SİLİNECEK',
+      message: `"${cTitle}" kampanyasını sistemden kaldırmak istediğinize emin misiniz?`,
+      confirmText: 'Evet, Kampanyayı Sil',
+      onConfirm: () => {
+        setCampaigns(prev => prev.filter(c => c.id !== cId));
+        showToast('🗑️ Kampanya Silindi.');
+      }
+    });
   };
 
   const handleAddCampaignFromAI = (aiCampaign) => {
@@ -160,18 +185,32 @@ export default function App() {
     setUserModalData(null);
   };
 
-  const handleDeleteUser = (id) => {
-    if (confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) {
-      setUsers(prev => prev.filter(u => u.id !== id));
-      showToast('🗑️ Kullanıcı Silindi.');
-    }
+  const handleDeleteUser = (userOrId) => {
+    const uId = typeof userOrId === 'object' ? userOrId.id : userOrId;
+    const uName = typeof userOrId === 'object' ? userOrId.name : 'Kullanıcı';
+    setRedAlertModalData({
+      title: '🚨 KULLANICI HESABI SİLİNECEK',
+      message: `"${uName}" kullanıcısının erişim yetkilerini iptal edip silmek istediğinize emin misiniz?`,
+      confirmText: 'Evet, Kullanıcıyı Sil',
+      onConfirm: () => {
+        setUsers(prev => prev.filter(u => u.id !== uId));
+        showToast('🗑️ Kullanıcı Silindi.');
+      }
+    });
   };
 
-  const handleDeleteCustomer = (id) => {
-    if (confirm('Bu müşteri kartını silmek istediğinize emin misiniz?')) {
-      setCustomers(prev => prev.filter(c => c.id !== id));
-      showToast('🗑️ Müşteri Kartı Silindi.');
-    }
+  const handleDeleteCustomer = (customerOrId) => {
+    const cId = typeof customerOrId === 'object' ? customerOrId.id : customerOrId;
+    const cName = typeof customerOrId === 'object' ? customerOrId.name : 'Müşteri';
+    setRedAlertModalData({
+      title: '🚨 MÜŞTERİ KARTI SİLİNECEK',
+      message: `"${cName}" müşteri kaydını rehberden silmek istediğinize emin misiniz?`,
+      confirmText: 'Evet, Müşteriyi Sil',
+      onConfirm: () => {
+        setCustomers(prev => prev.filter(c => c.id !== cId));
+        showToast('🗑️ Müşteri Kartı Silindi.');
+      }
+    });
   };
 
   const handleRescheduleReservation = (resId, newDate) => {
@@ -180,7 +219,7 @@ export default function App() {
   };
 
   const handlePrintInvoice = (res) => {
-    alert(`📄 REZERVASYON FATURASI & SÖZLEŞMESİ YAZDIRILIYOR\n-----------------------------------\nSözleşme No: ${res.id}\nMüşteri: ${res.customerName}\nToplam Tutar: ${res.totalAmount} ₺\nTahsil Kaparo: ${res.depositPaid} ₺`);
+    setInvoiceModalData(res);
   };
 
   const financialStats = useMemo(() => {
@@ -428,6 +467,48 @@ export default function App() {
         />
       )}
       {emailModalData && <EmailNotificationModal emailData={emailModalData} onClose={() => setEmailModalData(null)} />}
+      {redAlertModalData && (
+        <RedAlertConfirmModal
+          isOpen={true}
+          title={redAlertModalData.title}
+          message={redAlertModalData.message}
+          confirmText={redAlertModalData.confirmText}
+          onConfirm={redAlertModalData.onConfirm}
+          onClose={() => setRedAlertModalData(null)}
+        />
+      )}
+      {invoiceModalData && (
+        <InvoiceNotificationModal
+          res={invoiceModalData}
+          onClose={() => setInvoiceModalData(null)}
+          onPrint={(res) => {
+            const printWin = window.open('', '_blank', 'width=900,height=700');
+            if (printWin) {
+              printWin.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <title>İrem Düğün Sarayı - Fatura (${res.id})</title>
+                  <style>
+                    body { font-family: sans-serif; padding: 30px; }
+                    .header { font-size: 20px; font-weight: bold; border-bottom: 2px solid #d97706; padding-bottom: 10px; margin-bottom: 20px; }
+                  </style>
+                </head>
+                <body>
+                  <div className="header">İREM DÜĞÜN SARAYI & ORGANİZASYON - RESMİ SÖZLEŞME FATURASI</div>
+                  <p><strong>Sözleşme No:</strong> ${res.id}</p>
+                  <p><strong>Müşteri:</strong> ${res.customerName}</p>
+                  <p><strong>Toplam Tutar:</strong> ${res.totalAmount} ₺</p>
+                  <p><strong>Tahsil Edilen Kaparo:</strong> ${res.depositPaid} ₺</p>
+                  <p><strong>Kalan Bakiye:</strong> ${Math.max(0, res.totalAmount - res.depositPaid)} ₺</p>
+                  <script>window.print();</script>
+                </body>
+                </html>
+              `);
+            }
+          }}
+        />
+      )}
 
       <ToastNotification message={toastMessage} isVisible={isToastVisible} onClose={() => setIsToastVisible(false)} />
     </div>
