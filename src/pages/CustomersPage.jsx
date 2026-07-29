@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CustomerFormModal } from '../components/Modals';
-import { ThemeIcon } from '../components/ThemeIcon';
+import { ThemeIcon, WhatsAppButton } from '../components/ThemeIcon';
 
 export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,6 +90,10 @@ export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer })
                 </h4>
                 <div className="text-xs text-slate-500 font-mono font-bold mt-0.5">{c.phone}</div>
                 <div className="text-xs text-slate-400 mt-0.5">{c.email || 'E-posta Girilmemiş'}</div>
+              </div>
+
+              <div className="pt-2">
+                <WhatsAppButton phone={c.phone} customerName={c.name} className="w-full justify-center" />
               </div>
             </div>
 
