@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Unified SVG Icon Map for Nordic Clarity & Scandinavian Minimal
+// Unified SVG Icon Map for Nordic Clarity & Scandinavian Minimal (STRICT ZERO EMOJI)
 const NordicSvgMap = {
   crown: (props) => (
     <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75">
@@ -151,17 +151,77 @@ const NordicSvgMap = {
     <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75">
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
     </svg>
+  ),
+  list: (props) => (
+    <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75">
+      <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+    </svg>
   )
+};
+
+// CONCEPT-SPECIFIC EMOJI MAP FOR NON-NORDIC THEMES
+const ThemeConceptEmojis = {
+  crown: {
+    'classic_gold': '👑',
+    'obsidian_gold': '🖤',
+    'sapphire_clean': '🔷',
+    'platinum_silver': '🥈',
+    'emerald_royal': '🌿',
+    'titanium_tech': '⚡'
+  },
+  venue: {
+    'classic_gold': '🏰',
+    'obsidian_gold': '🏛️',
+    'sapphire_clean': '🏢',
+    'platinum_silver': '🏛️',
+    'emerald_royal': '🏡',
+    'titanium_tech': '🏬'
+  },
+  edit: {
+    'classic_gold': '✏️',
+    'obsidian_gold': '🖊️',
+    'sapphire_clean': '📝',
+    'platinum_silver': '⚙️',
+    'emerald_royal': '✍️',
+    'titanium_tech': '🛠️'
+  },
+  preview: {
+    'classic_gold': '👁️',
+    'obsidian_gold': '🌟',
+    'sapphire_clean': '🔍',
+    'platinum_silver': '🔍',
+    'emerald_royal': '👁️',
+    'titanium_tech': '📡'
+  },
+  delete: {
+    'classic_gold': '🗑️',
+    'obsidian_gold': '💣',
+    'sapphire_clean': '❌',
+    'platinum_silver': '🗑️',
+    'emerald_royal': '🍂',
+    'titanium_tech': '🚫'
+  },
+  plus: {
+    'classic_gold': '➕',
+    'obsidian_gold': '✨',
+    'sapphire_clean': '🔹',
+    'platinum_silver': '▫️',
+    'emerald_royal': '🌱',
+    'titanium_tech': '⚡'
+  }
 };
 
 /**
  * Universal Theme-Aware Icon Component
- * - If theme is 'nordic': renders clean Scandinavian SVG icons ONLY (Zero Emoji).
+ * - If theme is 'nordic' or 'nordic-light': renders clean Scandinavian SVG icons ONLY (Zero Emoji).
  * - For other themes: renders concept-specific emojis or fallback icons.
  */
-export function ThemeIcon({ icon, fallbackEmoji, activeTheme, className = "w-4 h-4" }) {
-  const selectedTheme = activeTheme || (typeof window !== 'undefined' ? localStorage.getItem('selected_theme') : 'classic_gold') || 'classic_gold';
-  const isNordic = selectedTheme === 'nordic';
+export function ThemeIcon({ icon, fallbackEmoji, activeTheme, className = "w-4 h-4 inline-block" }) {
+  const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
+  const rawTheme = activeTheme || domTheme || (typeof window !== 'undefined' ? (localStorage.getItem('selected_theme') || localStorage.getItem('irem_cache_theme_color')) : 'classic_gold') || 'classic_gold';
+  
+  // Normalize theme name
+  const isNordic = rawTheme === 'nordic' || rawTheme === 'nordic-light' || rawTheme === 'nordic_light';
 
   if (isNordic) {
     const Component = NordicSvgMap[icon];
@@ -170,6 +230,11 @@ export function ThemeIcon({ icon, fallbackEmoji, activeTheme, className = "w-4 h
     }
   }
 
-  // Fallback to theme emoji for non-nordic themes
+  // Concept-specific emojis for other themes
+  if (ThemeConceptEmojis[icon] && ThemeConceptEmojis[icon][rawTheme]) {
+    return <span className="inline-block">{ThemeConceptEmojis[icon][rawTheme]}</span>;
+  }
+
+  // Fallback to theme default emoji
   return <span className="inline-block">{fallbackEmoji}</span>;
 }

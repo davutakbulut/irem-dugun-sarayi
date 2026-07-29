@@ -392,22 +392,25 @@ export function ReservationsListPage({
                           <div className="flex items-center justify-end space-x-1.5">
                             <button
                               onClick={() => setSelectedResForPreview(res)}
-                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20 transition font-bold text-xs"
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20 transition font-bold text-xs flex items-center space-x-1"
                               title="Detaylı Önizle"
                             >
-                              👁️ Detay Önizle
+                              <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                              <span>Önizle</span>
                             </button>
                             <button
                               onClick={() => handleOpenEdit(res)}
-                              className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold text-xs hover:bg-amber-500/30 transition"
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold text-xs hover:bg-amber-500/30 transition flex items-center space-x-1"
                             >
-                              ✏️ Düzenle
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                              <span>Düzenle</span>
                             </button>
                             <button
                               onClick={() => setDeletingRes(res)}
-                              className="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-xs hover:bg-red-500/30 transition"
+                              className="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-xs hover:bg-red-500/30 transition flex items-center space-x-1"
                             >
-                              🗑️ Sil
+                              <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                              <span>Sil</span>
                             </button>
                           </div>
                         </td>
