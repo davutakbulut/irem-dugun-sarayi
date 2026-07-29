@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatCurrency, formatDate, isValidPhoneNumber, formatPhoneNumber } from '../utils/formatters';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function ReservationsListPage({
   reservations = [],
@@ -161,8 +162,9 @@ export function ReservationsListPage({
       {/* 1. HEADER & TOP CONTROLS */}
       <div className="glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            📅 Rezervasyonlar & Canlı Takvim Yönetimi
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-6 h-6 text-amber-500" />
+            <span>Rezervasyonlar & Canlı Takvim Yönetimi</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Tüm düğün sözleşmelerini detaylarıyla inceleyin, takvimde sürükleyip taşıyın veya yeniden düzenleyin.
@@ -182,9 +184,7 @@ export function ReservationsListPage({
             }`}
             title="Detaylı Filtreleri Aç / Kapat"
           >
-            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
+            <ThemeIcon icon="filter" fallbackEmoji="🔍" className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">Filtreler</span>
             <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
           </button>
@@ -195,7 +195,7 @@ export function ReservationsListPage({
             className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer"
             title="Yeni Rezervasyon Oluştur"
           >
-            <span className="text-sm">➕</span>
+            <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">Yeni Rezervasyon</span>
           </button>
 
