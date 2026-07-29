@@ -4319,12 +4319,11 @@
                                   <div
                                     key={cust.id}
                                     onClick={() => {
-                                      setNewCustName(cust.name || '');
-                                      setNewCustPhone(cust.phone || '');
-                                      setNewCustSecondaryPhone(cust.secondaryPhone || cust.phone || '');
-                                      setNewCustEmail(cust.email || '');
                                       setSelectedCustomerId(cust.id);
-                                      showToast(`👥 "${cust.name}" Bilgileri Form Alanına Aktarıldı!`);
+                                      setCustomerSearchQuery('');
+                                      setCustomerMode('existing');
+                                      setCustomerError(false);
+                                      showToast(`👥 "${cust.name}" Kayıtlı Müşteri Olarak Seçildi ve Aktarıldı!`);
                                     }}
                                     className="p-3 hover:bg-amber-500/10 dark:hover:bg-slate-800/80 cursor-pointer transition flex items-center justify-between text-left group"
                                   >
