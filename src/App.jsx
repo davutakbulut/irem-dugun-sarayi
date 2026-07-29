@@ -75,6 +75,16 @@ export default function App() {
     setActiveTab('reservations');
   };
 
+  const handleUpdateReservation = (updatedRes) => {
+    setReservations(prev => prev.map(r => r.id === updatedRes.id ? updatedRes : r));
+    showAlert('✏️ REZERVASYON GÜNCELLENDİ!', `${updatedRes.customerName} için ${updatedRes.id} sözleşme kayıtları güncellendi.`);
+  };
+
+  const handleDeleteReservation = (resId) => {
+    setReservations(prev => prev.filter(r => r.id !== resId));
+    showAlert('🗑️ REZERVASYON SİLİNDİ', `${resId} sözleşme kodlu rezervasyon başarıyla silindi.`);
+  };
+
   // Venue Handlers
   const handleAddVenue = (vObj) => {
     setVenues(prev => [vObj, ...prev]);
@@ -202,7 +212,12 @@ export default function App() {
             <ReservationsListPage
               reservations={reservations}
               venues={venues}
+              services={services}
+              customers={customers}
+              campaigns={campaigns}
               onNewResClick={() => setActiveTab('create-reservation')}
+              onUpdateReservation={handleUpdateReservation}
+              onDeleteReservation={handleDeleteReservation}
             />
           )}
 
