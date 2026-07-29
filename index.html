@@ -1051,6 +1051,7 @@
     const SLUG_TO_TAB = {
       'anasayfa': 'dashboard',
       'yeni-rezervasyon': 'create-reservation',
+      'rezervasyon-olustur': 'create-reservation',
       'dugun-salonlari': 'venues',
       'ek-hizmetler': 'services',
       'rezervasyonlar': 'reservations',
@@ -1551,6 +1552,17 @@
 
       const [toast, setToast] = useState(null);
       const [globalAlerts, setGlobalAlerts] = useState([]);
+      const [mobileReservationSummary, setMobileReservationSummary] = useState(null);
+      const [isMobileSummaryDrawerOpen, setIsMobileSummaryDrawerOpen] = useState(false);
+
+      useEffect(() => {
+        window.updateMobileReservationSummary = (summaryData) => {
+          setMobileReservationSummary(summaryData);
+        };
+        return () => {
+          delete window.updateMobileReservationSummary;
+        };
+      }, []);
 
       const removeGlobalAlert = useCallback((id) => {
         setGlobalAlerts(prev => prev.filter(alert => alert.id !== id));
@@ -2407,7 +2419,135 @@
                   <span className="text-[10px]">{tab.label}</span>
                 </a>
               ))}
-            </nav>
+          {/* MOBILE ONLY STICKY VIEWPORT ACTION BAR FOR REZERVASYON OLUŞTUR (OUTSIDE MAIN SCROLL CONTAINER) */}
+          {activeTab === 'create-reservation' && mobileReservationSummary && (
+            <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t-2 border-amber-500/40 p-2.5 shadow-[0_-10px_30px_rgba(0,0,0,0.25)] flex items-center justify-between gap-2 pointer-events-auto">
+              <div
+                onClick={() => setIsMobileSummaryDrawerOpen(true)}
+                className="shrink-0 flex flex-col justify-center bg-slate-50 dark:bg-brand-dark px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-brand-border cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 transition"
+                title="Detaylı Canlı Hesaplamayı Aç"
+              >
+                <div className="flex items-center space-x-1 text-[10px] font-bold text-slate-600 dark:text-gray-300">
+                  <span className="inline-flex items-center space-x-1 bg-amber-500/15 text-amber-800 dark:text-gold-400 px-1.5 py-0.5 rounded-md text-[9px] font-extrabold border border-amber-500/30 shrink-0">
+                    <svg className="w-3 h-3 text-amber-700 dark:text-gold-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7"></path></svg>
+                    <span>▲ Detaylar</span>
+                  </span>
+                  <span className="whitespace-nowrap">Net Bakiye:</span>
+                </div>
+                <div className={`text-xs font-extrabold font-mono mt-0.5 ${
+                  mobileReservationSummary.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {mobileReservationSummary.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(mobileReservationSummary.remaining)}
+                </div>
+              </div>
+
+              <button
+                disabled={mobileReservationSummary.hasConflict}
+                onClick={() => mobileReservationSummary.onSubmit && mobileReservationSummary.onSubmit()}
+                className={`flex-1 gold-button font-extrabold px-3 py-3 rounded-xl text-xs shadow-md flex items-center justify-center space-x-1.5 whitespace-nowrap ${
+                  mobileReservationSummary.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'
+                }`}
+              >
+                <svg className="w-4 h-4 text-slate-900 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                <span>Rezervasyonu Oluştur</span>
+              </button>
+            </div>
+          )}
+
+          {/* MOBILE ONLY SLIDE-UP SUMMARY DRAWER FOR REZERVASYON OLUŞTUR (OUTSIDE MAIN SCROLL CONTAINER) */}
+          {activeTab === 'create-reservation' && isMobileSummaryDrawerOpen && mobileReservationSummary && (
+            <div className="fixed inset-0 z-[99999] bg-slate-950/35 backdrop-blur-xs flex flex-col justify-end sm:hidden animate-fade-in pointer-events-auto">
+              <div className="flex-1 w-full" onClick={() => setIsMobileSummaryDrawerOpen(false)}></div>
+              <div className="bg-white dark:bg-slate-900 rounded-t-3xl border-t-2 border-amber-500/40 p-5 space-y-4 shadow-[0_-15px_40px_rgba(0,0,0,0.3)] w-full max-h-[85vh] overflow-y-auto animate-slide-up">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-amber-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    <span>Canlı Hesaplama & Sözleşme Detayı</span>
+                  </h3>
+                  <button
+                    onClick={() => setIsMobileSummaryDrawerOpen(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center border border-slate-200 dark:border-brand-border text-sm hover:scale-105 active:scale-95 transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.vPrice)}</span></div>
+                  <div className="flex justify-between"><span>Seçilen Ek Hizmetler:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.servTotal)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1.5"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.sub)}</span></div>
+                  {mobileReservationSummary.calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans / İndirim:</span><span className="font-bold">-{formatCurrency(mobileReservationSummary.calculations.disc)}</span></div>}
+                  {mobileReservationSummary.isInvoiced && <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.vat)}</span></div>}
+                  
+                  <div className="flex justify-between text-sm font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-2">
+                    <span>Genel Toplam Tutar:</span>
+                    <span>{formatCurrency(mobileReservationSummary.calculations.grandTotal)}</span>
+                  </div>
+
+                  {mobileReservationSummary.calculations.paidServicesList && mobileReservationSummary.calculations.paidServicesList.length > 0 && (
+                    <div className="space-y-1 pt-1">
+                      <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Ödendi İşaretlenen ve Düşülen Hizmetler:</span>
+                      </div>
+                      {mobileReservationSummary.calculations.paidServicesList.map(ps => (
+                        <div key={ps.id} className="flex justify-between items-center text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20">
+                          <span className="flex items-center space-x-1">
+                            <svg className="w-3 h-3 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>{ps.name} (Tahsil Edildi)</span>
+                          </span>
+                          <span className="font-mono">-{formatCurrency(ps.cost)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {mobileReservationSummary.calculations.isFullyPaid ? (
+                    <div className="flex justify-between items-center text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/30 mt-2">
+                      <span className="flex items-center space-x-1.5">
+                        <svg className="w-4 h-4 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Genel Ödeme ({mobileReservationSummary.paymentStatus}):</span>
+                      </span>
+                      <span className="font-mono text-sm">-{formatCurrency(mobileReservationSummary.calculations.grandTotal)}</span>
+                    </div>
+                  ) : (
+                    mobileReservationSummary.hasDeposit && (
+                      <div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 font-bold">
+                        <span>Tahsil Edilen Kapora:</span>
+                        <span className="font-mono">-{formatCurrency(mobileReservationSummary.calculations.dep)}</span>
+                      </div>
+                    )
+                  )}
+
+                  <div className={`flex justify-between font-bold text-sm p-3 rounded-xl border mt-2 ${
+                    mobileReservationSummary.calculations.isFullyPaid
+                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+                  }`}>
+                    <span>Kalan Ödenecek Net Bakiye:</span>
+                    <span className="font-mono font-extrabold text-base">
+                      {mobileReservationSummary.calculations.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(mobileReservationSummary.calculations.remaining)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    disabled={mobileReservationSummary.hasConflict}
+                    onClick={() => {
+                      setIsMobileSummaryDrawerOpen(false);
+                      if (mobileReservationSummary.onSubmit) mobileReservationSummary.onSubmit();
+                    }}
+                    className={`w-full gold-button font-bold py-3.5 rounded-2xl text-xs shadow-xl flex items-center justify-center space-x-2 ${
+                      mobileReservationSummary.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'
+                    }`}
+                  >
+                    <svg className="w-4 h-4 text-slate-900 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Rezervasyonu Oluştur</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* 90% SCREEN WIDTH NAVIGATION DRAWER MODAL (DESKTOP & MOBILE) */}
@@ -3191,6 +3331,21 @@
 
         onSaveReservation(newRes, newCustomerObj);
       };
+
+      useEffect(() => {
+        if (window.updateMobileReservationSummary) {
+          window.updateMobileReservationSummary({
+            remaining: calculations.remaining,
+            isFullyPaid: calculations.isFullyPaid,
+            calculations,
+            isInvoiced,
+            paymentStatus,
+            hasDeposit,
+            hasConflict: conflictInfo.hasConflict,
+            onSubmit: handleSubmit
+          });
+        }
+      }, [calculations, isInvoiced, paymentStatus, hasDeposit, conflictInfo, handleSubmit]);
 
       return (
         <div className="space-y-6 max-w-7xl mx-auto pb-24 sm:pb-12 relative">
