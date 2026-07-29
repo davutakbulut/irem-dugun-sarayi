@@ -3165,6 +3165,31 @@
       const [startTime, setStartTime] = useState('19:00');
       const [endDate, setEndDate] = useState(prefilledDate || '2026-08-25');
       const [endTime, setEndTime] = useState('23:00');
+
+      // Dynamic 14-day preview offset around selected startDate
+      const [calendarOffsetDays, setCalendarOffsetDays] = useState(0);
+
+      // Calculate 14-day preview window dynamically centered on startDate
+      const preview14Days = useMemo(() => {
+        const parts = (startDate || '2026-08-25').split('-');
+        const selYear = Number(parts[0]) || 2026;
+        const selMonth = (Number(parts[1]) || 8) - 1;
+        const selDay = Number(parts[2]) || 25;
+        const selected = new Date(selYear, selMonth, selDay);
+
+        const dayOfWeek = selected.getDay(); // 0 is Sun, 1 is Mon...
+        const distanceToMonday = (dayOfWeek + 6) % 7;
+        const monday = new Date(selected);
+        monday.setDate(selected.getDate() - distanceToMonday + calendarOffsetDays);
+
+        const days = [];
+        for (let i = 0; i < 14; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          days.push(d);
+        }
+        return days;
+      }, [startDate, calendarOffsetDays]);
       const [guestCount, setGuestCount] = useState(500);
 
       const showAlertModal = (title, message, targetInputId = null) => {
@@ -3835,27 +3860,66 @@
                 )}
 
                 {/* LIVE CALENDAR PREVIEW & OCCUPANCY TIMELINE (RESTORED INSIDE SECTION 1) */}
-                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-4 rounded-2xl space-y-2 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1">
-                      <span>🗓️ Canlı Takvim & Çakışma Önizlemesi ({selectedVenue?.name}):</span>
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-4 rounded-2xl space-y-3 text-xs">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <span className="font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1.5">
+                      <ThemeIcon icon="calendar" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Canlı Takvim & Çakışma Önizlemesi ({selectedVenue?.name}):</span>
                     </span>
-                    <span className="text-[10px] bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold px-2 py-0.5 rounded-full border border-amber-500/20">
-                      Seçilen: {formatDate(startDate)} ({startTime} - {endTime})
-                    </span>
+
+                    <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
+                      <span className="text-[10px] bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold px-2.5 py-1 rounded-full border border-amber-500/20 whitespace-nowrap">
+                        Seçilen: {formatDate(startDate)} ({startTime} - {endTime})
+                      </span>
+
+                      {/* NAV ARROWS FOR 14-DAY CALENDAR SHIFT */}
+                      <div className="flex items-center space-x-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setCalendarOffsetDays(prev => prev - 7)}
+                          className="w-7 h-7 rounded-lg bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-200 hover:border-amber-500 flex items-center justify-center font-extrabold text-sm shadow-sm hover:scale-105 transition cursor-pointer"
+                          title="Önceki Hafta (-7 Gün)"
+                          aria-label="Önceki Hafta"
+                        >
+                          ‹
+                        </button>
+                        {calendarOffsetDays !== 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setCalendarOffsetDays(0)}
+                            className="px-2 py-0.5 text-[10px] font-extrabold bg-amber-500/20 text-amber-800 dark:text-gold-400 rounded-md border border-amber-500/30 hover:bg-amber-500/30 transition"
+                            title="Seçili Tarihe Sıfırla"
+                          >
+                            Bugün
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setCalendarOffsetDays(prev => prev + 7)}
+                          className="w-7 h-7 rounded-lg bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-200 hover:border-amber-500 flex items-center justify-center font-extrabold text-sm shadow-sm hover:scale-105 transition cursor-pointer"
+                          title="Sonraki Hafta (+7 Gün)"
+                          aria-label="Sonraki Hafta"
+                        >
+                          ›
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-500 pt-1">
                     <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
                   </div>
 
-                  {/* MINI CALENDAR DAYS GRID */}
+                  {/* MINI CALENDAR DAYS GRID (DYNAMIC 14 DAYS AROUND SELECTED DATE + OFFSET) */}
                   <div className="grid grid-cols-7 gap-1 text-[11px]">
-                    {[...Array(14)].map((_, i) => {
-                      const dayDate = new Date(2026, 7, 20 + i);
-                      const dateStr = dayDate.toISOString().split('T')[0];
+                    {preview14Days.map((dayDate) => {
+                      const yr = dayDate.getFullYear();
+                      const mo = String(dayDate.getMonth() + 1).padStart(2, '0');
+                      const dy = String(dayDate.getDate()).padStart(2, '0');
+                      const dateStr = `${yr}-${mo}-${dy}`;
                       const isSelectedDate = dateStr === startDate;
-                      const hasExistingBooking = reservations.some(r => r.venueId === venueId && r.date === dateStr && r.paymentStatus !== 'İptal');
+                      const hasExistingBooking = (reservations || []).some(r => r.venueId === venueId && r.date === dateStr && r.paymentStatus !== 'İptal');
+                      const monthNameShort = dayDate.toLocaleDateString('tr-TR', { month: 'short' });
 
                       return (
                         <div
@@ -3864,7 +3928,7 @@
                             setStartDate(dateStr);
                             setEndDate(dateStr);
                           }}
-                          className={`p-2 rounded-xl text-center cursor-pointer transition border flex flex-col justify-between h-12 ${
+                          className={`p-1.5 rounded-xl text-center cursor-pointer transition border flex flex-col justify-between h-12 ${
                             isSelectedDate
                               ? 'gold-button shadow font-extrabold border-amber-500'
                               : hasExistingBooking
@@ -3872,7 +3936,7 @@
                               : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:border-amber-500/50'
                           }`}
                         >
-                          <span className="text-[9px] opacity-75">{dayDate.getDate()} Ağu</span>
+                          <span className="text-[9px] opacity-75">{dayDate.getDate()} {monthNameShort}</span>
                           <span className="text-[9px] font-bold">
                             {isSelectedDate ? 'SEÇİLDİ' : hasExistingBooking ? 'DOLU' : 'BOŞ'}
                           </span>
