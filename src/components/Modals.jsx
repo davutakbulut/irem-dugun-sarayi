@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { formatCurrency, formatPhoneNumber, isValidPhoneNumber } from '../utils/formatters';
 
 export function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
@@ -41,9 +42,9 @@ export function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
 
   const mapQueryUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((venue.name || '') + ' ' + (venue.location || 'Sapanca Sakarya İrem Düğün Sarayı'))}`;
 
-  return (
-    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
-      <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+  const modalJSX = (
+    <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-4xl rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between custom-scrollbar my-auto">
         
         {/* MODAL HEADER */}
         <div className="relative h-44 sm:h-72 overflow-hidden shrink-0 bg-slate-900">
@@ -216,6 +217,8 @@ export function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modalJSX, document.body);
 }
 
 export function CustomerFormModal({ customer, onClose, onSave }) {
