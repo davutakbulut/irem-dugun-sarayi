@@ -43,7 +43,7 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
                 <div className="space-y-2">
                   <div className="flex justify-between items-center flex-wrap gap-1">
                     <span className="text-[9px] font-extrabold bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                      {theme.isZeroEmoji ? '❄️ SIFIR EMOJİ DIRECTIVE' : (theme.geometry || 'KURUMSAL KONSEPT')}
+                      {theme.isZeroEmoji ? 'SIFIR EMOJİ DIRECTIVE' : (theme.geometry || 'KURUMSAL KONSEPT')}
                     </span>
                     {isSelected && (
                       <span className="text-[10px] font-extrabold gold-button px-2.5 py-0.5 rounded-full shadow">
@@ -76,7 +76,7 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
       {/* BUTTON ROUNDNESS / SHARPNESS */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
         <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-          <span>🔲</span>
+          <ThemeIcon icon="ruler" fallbackEmoji="" className="w-5 h-5 text-amber-500 shrink-0" />
           <span>Buton ve Kart Keskinlik Stili</span>
         </h3>
 

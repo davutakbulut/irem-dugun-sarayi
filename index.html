@@ -7177,7 +7177,7 @@
           <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-2xl">⚙️</span>
+                <ThemeIcon icon="settings" fallbackEmoji="" className="w-6 h-6 text-amber-500 shrink-0" />
                 <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">
                   Sistem Ayarları & Rol Yönetimi
                 </h2>
@@ -7191,29 +7191,30 @@
             <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-2xl border border-slate-200 dark:border-brand-border/40 text-xs font-bold whitespace-nowrap overflow-x-auto no-scrollbar">
               <button
                 onClick={() => { setSettingsTab('appearance'); if (onNavigate) onNavigate('settings-appearance'); }}
-                className={`px-3.5 py-1.5 rounded-xl transition ${settingsTab === 'appearance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
+                className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'appearance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
-                🎨 Görünüm & Tema
+                <ThemeIcon icon="paint" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                <span>Görünüm & Tema</span>
               </button>
               <button
                 onClick={() => { setSettingsTab('performance'); if (onNavigate) onNavigate('settings-performance'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'performance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
-                <ThemeIcon icon="zap" fallbackEmoji="⚡" className="w-3.5 h-3.5 shrink-0" />
+                <ThemeIcon icon="zap" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
                 <span>Önbellek & Performans</span>
               </button>
               <button
                 onClick={() => { setSettingsTab('rbac'); if (onNavigate) onNavigate('settings-rbac'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'rbac' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
-                <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-3.5 h-3.5 shrink-0" />
+                <ThemeIcon icon="shield" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
                 <span>Rol & İzin Matrisi</span>
               </button>
               <button
                 onClick={() => { setSettingsTab('errors'); if (onNavigate) onNavigate('settings-errors'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'errors' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
-                <ThemeIcon icon="alert" fallbackEmoji="🚨" className="w-3.5 h-3.5 shrink-0" />
+                <ThemeIcon icon="alert" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
                 <span>Hata & Yönlendirme Simülasyonu</span>
               </button>
             </div>
@@ -7320,7 +7321,7 @@
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl">❄️🏛️</span>
+                        <ThemeIcon icon="venue" fallbackEmoji="" className="w-6 h-6 text-[#0F172A] shrink-0" />
                         <div>
                           <h4 className="font-heading font-bold text-sm text-[#0F172A] uppercase tracking-wider">Nordic Clarity & Scandinavian Minimal</h4>
                           <span className="text-[10px] text-[#64748B] font-mono font-bold">Alabaster (#FAFAFA) • Midnight Navy (#0F172A) • 0px Sharp Geometry</span>
