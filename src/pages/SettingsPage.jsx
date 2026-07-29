@@ -110,7 +110,7 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-bold">
           <button
-            onClick={() => onNavigate && onNavigate('404')}
+            onClick={() => onNavigate && onNavigate('simulasyon-404')}
             className="p-3 bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 rounded-2xl hover:bg-amber-500/20 transition flex flex-col items-center space-y-1"
           >
             <span className="text-xl">🔍</span>
@@ -118,7 +118,7 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
           </button>
 
           <button
-            onClick={() => onNavigate && onNavigate('301')}
+            onClick={() => onNavigate && onNavigate('simulasyon-301')}
             className="p-3 bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 rounded-2xl hover:bg-amber-500/20 transition flex flex-col items-center space-y-1"
           >
             <span className="text-xl">🔄</span>
@@ -126,7 +126,7 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
           </button>
 
           <button
-            onClick={() => onNavigate && onNavigate('403')}
+            onClick={() => onNavigate && onNavigate('simulasyon-403')}
             className="p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/30 rounded-2xl hover:bg-red-500/20 transition flex flex-col items-center space-y-1"
           >
             <span className="text-xl">🛡️</span>
@@ -134,7 +134,7 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
           </button>
 
           <button
-            onClick={() => onNavigate && onNavigate('500')}
+            onClick={() => onNavigate && onNavigate('simulasyon-500')}
             className="p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/30 rounded-2xl hover:bg-red-500/20 transition flex flex-col items-center space-y-1"
           >
             <span className="text-xl">💥</span>

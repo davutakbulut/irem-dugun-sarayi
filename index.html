@@ -1046,7 +1046,12 @@
       'settings': 'ayarlar',
       'settings-appearance': 'ayarlar/gorunum',
       'settings-performance': 'ayarlar/onbellek',
-      'settings-rbac': 'ayarlar/rol-izinleri'
+      'settings-rbac': 'ayarlar/rol-izinleri',
+      'settings-errors': 'ayarlar/hata-simulasyonu',
+      'simulasyon-404': 'simulasyon-404',
+      'simulasyon-301': 'simulasyon-301',
+      'simulasyon-403': 'simulasyon-403',
+      'simulasyon-500': 'simulasyon-500'
     };
 
     const SLUG_TO_TAB = {
@@ -1067,7 +1072,16 @@
       'ayarlar': 'settings',
       'ayarlar/gorunum': 'settings-appearance',
       'ayarlar/onbellek': 'settings-performance',
-      'ayarlar/rol-izinleri': 'settings-rbac'
+      'ayarlar/rol-izinleri': 'settings-rbac',
+      'ayarlar/hata-simulasyonu': 'settings-errors',
+      'simulasyon-404': 'simulasyon-404',
+      'simulasyon-301': 'simulasyon-301',
+      'simulasyon-403': 'simulasyon-403',
+      'simulasyon-500': 'simulasyon-500',
+      '404': 'simulasyon-404',
+      '301': 'simulasyon-301',
+      '403': 'simulasyon-403',
+      '500': 'simulasyon-500'
     };
 
     // ==========================================
@@ -1413,7 +1427,12 @@
       'settings': '⚙️',
       'settings-appearance': '🎨',
       'settings-performance': '⚡',
-      'settings-rbac': '🛡️'
+      'settings-rbac': '🛡️',
+      'settings-errors': '🚨',
+      'simulasyon-404': '🔍',
+      'simulasyon-301': '🔄',
+      'simulasyon-403': '🚫',
+      'simulasyon-500': '💥'
     };
 
     const TAB_LABELS = {
@@ -1433,7 +1452,12 @@
       'settings': 'Genel Ayarlar & Rol Yönetimi',
       'settings-appearance': 'Görünüm & Tema Ayarları',
       'settings-performance': 'Önbellek & Performans',
-      'settings-rbac': 'Rol & İzin Yönetimi'
+      'settings-rbac': 'Rol & İzin Yönetimi',
+      'settings-errors': 'Hata & Yönlendirme Simülasyonu',
+      'simulasyon-404': 'HTTP 404 - Sayfa Bulunamadı Simülasyonu',
+      'simulasyon-301': 'HTTP 301 - Kalıcı Yönlendirme Simülasyonu',
+      'simulasyon-403': 'HTTP 403 - Yetkisiz Erişim Uyarısı Simülasyonu',
+      'simulasyon-500': 'HTTP 500 - Sunucu Hatası Simülasyonu'
     };
 
     const TAB_PERMISSIONS = {
@@ -1453,7 +1477,12 @@
       'settings': ['admin'],
       'settings-appearance': ['admin'],
       'settings-performance': ['admin'],
-      'settings-rbac': ['admin']
+      'settings-rbac': ['admin'],
+      'settings-errors': ['admin'],
+      'simulasyon-404': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'simulasyon-301': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'simulasyon-403': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'simulasyon-500': ['admin', 'satisci', 'sosyal_medyaci', 'musteri']
     };
 
     const ROLE_NAMES = {
@@ -2506,6 +2535,7 @@
                       onToggleCache={setIsCacheEnabledState}
                       onClearCache={handleClearCache}
                       showToast={showToast}
+                      onNavigate={navigateTo}
                       initialSubTab={
                         activeTab === 'settings-appearance' ? 'appearance' :
                         activeTab === 'settings-performance' ? 'performance' :
@@ -7089,6 +7119,7 @@
       onToggleCache,
       onClearCache,
       showToast,
+      onNavigate,
       initialSubTab = 'appearance'
     }) {
       const [settingsTab, setSettingsTab] = useState(initialSubTab);
@@ -7148,27 +7179,27 @@
             {/* SETTINGS SUB-TABS */}
             <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-2xl border border-slate-200 dark:border-brand-border/40 text-xs font-bold whitespace-nowrap overflow-x-auto no-scrollbar">
               <button
-                onClick={() => setSettingsTab('appearance')}
+                onClick={() => { setSettingsTab('appearance'); if (onNavigate) onNavigate('settings-appearance'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition ${settingsTab === 'appearance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
                 🎨 Görünüm & Tema
               </button>
               <button
-                onClick={() => setSettingsTab('performance')}
+                onClick={() => { setSettingsTab('performance'); if (onNavigate) onNavigate('settings-performance'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'performance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
                 <ThemeIcon icon="zap" fallbackEmoji="⚡" className="w-3.5 h-3.5 shrink-0" />
                 <span>Önbellek & Performans</span>
               </button>
               <button
-                onClick={() => setSettingsTab('rbac')}
+                onClick={() => { setSettingsTab('rbac'); if (onNavigate) onNavigate('settings-rbac'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'rbac' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
                 <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-3.5 h-3.5 shrink-0" />
                 <span>Rol & İzin Matrisi</span>
               </button>
               <button
-                onClick={() => setSettingsTab('errors')}
+                onClick={() => { setSettingsTab('errors'); if (onNavigate) onNavigate('settings-errors'); }}
                 className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'errors' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
               >
                 <ThemeIcon icon="alert" fallbackEmoji="🚨" className="w-3.5 h-3.5 shrink-0" />
@@ -7577,7 +7608,7 @@
                     <span className="text-amber-800 dark:text-gold-400 text-sm font-extrabold block">🔍 HTTP 404 - Sayfa Bulunamadı</span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Geçersiz rota veya silinmiş içeriklerde arama çubuğu ve hızlı aksiyon butonlarıyla gösterilir.</p>
                     <button
-                      onClick={() => window.location.hash = '#/simulasyon-404'}
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-404'); } else { window.location.hash = '#/simulasyon-404'; } }}
                       className="w-full bg-amber-500 text-slate-900 font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
                     >
                       404 Ekranını Simüle Et 🚀
@@ -7589,7 +7620,7 @@
                     <span className="text-blue-700 dark:text-blue-400 text-sm font-extrabold block">🔄 HTTP 301 - Kalıcı Yönlendirme</span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Eski veya taşınmış rotalarda geri sayım sayacı ile otomatik hedef sayfaya yönlendirir.</p>
                     <button
-                      onClick={() => window.location.hash = '#/simulasyon-301'}
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-301'); } else { window.location.hash = '#/simulasyon-301'; } }}
                       className="w-full bg-blue-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
                     >
                       301 Ekranını Simüle Et 🚀
@@ -7601,7 +7632,7 @@
                     <span className="text-red-700 dark:text-red-400 text-sm font-extrabold block">🚫 HTTP 403 - Yetkisiz Erişim Uyarısı</span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Kullanıcı rolünün izin vermediği sayfalarda yetki isteme butonuyla uyarı verir.</p>
                     <button
-                      onClick={() => window.location.hash = '#/simulasyon-403'}
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-403'); } else { window.location.hash = '#/simulasyon-403'; } }}
                       className="w-full bg-red-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
                     >
                       403 Ekranını Simüle Et 🚀
@@ -7613,7 +7644,7 @@
                     <span className="text-purple-700 dark:text-purple-400 text-sm font-extrabold block">💥 HTTP 500 - Sunucu / Sistem Hatası</span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Çalışma zamanı istisnalarında akordeon teknik hata detayı ve sistemi yeniden başlatma butonu sunar.</p>
                     <button
-                      onClick={() => window.location.hash = '#/simulasyon-500'}
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-500'); } else { window.location.hash = '#/simulasyon-500'; } }}
                       className="w-full bg-purple-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
                     >
                       500 Ekranını Simüle Et 🚀
