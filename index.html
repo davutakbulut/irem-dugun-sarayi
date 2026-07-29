@@ -4,14 +4,647 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>İrem Düğün Sarayı & VIP Organizasyon Platformu v2.0</title>
-  
-  <!-- Fonts -->
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              gold: '#d97706',
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              borderLight: '#e2e8f0'
+            },
+            gold: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Embedded Design Tokens & Animations -->
+  <style>
+    :root {
+      --color-gold: #d97706;
+      --color-gold-hover: #b45309;
+      --glass-bg: rgba(255, 255, 255, 0.96);
+      --glass-border: rgba(217, 119, 6, 0.25);
+    }
+    .dark {
+      --glass-bg: rgba(30, 41, 59, 0.96);
+      --glass-border: rgba(217, 119, 6, 0.35);
+    }
+    html[data-theme="obsidian-gold"], [data-theme="obsidian-gold"] { --color-gold: #d97706; --glass-border: rgba(217, 119, 6, 0.75); }
+    html[data-theme="sapphire-clean"], [data-theme="sapphire-clean"] { --color-gold: #2563eb; --glass-border: rgba(37, 99, 235, 0.45); }
+    html[data-theme="platinum-silver"], [data-theme="platinum-silver"] { --color-gold: #475569; --glass-border: rgba(148, 163, 184, 0.55); }
+    html[data-theme="emerald-royal"], [data-theme="emerald-royal"] { --color-gold: #059669; --glass-border: rgba(4, 120, 87, 0.65); }
+    html[data-theme="titanium-tech"], [data-theme="titanium-tech"] { --color-gold: #7c3aed; --glass-border: rgba(124, 58, 237, 0.55); }
+
+    body { font-family: 'Inter', sans-serif; }
+    .glass-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .gold-button { background: linear-gradient(135deg, var(--color-gold) 0%, #b45309 100%); color: #ffffff; transition: all 0.2s ease-in-out; }
+    .gold-button:hover { background: linear-gradient(135deg, #fbbf24 0%, var(--color-gold) 100%); box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3); }
+    .gold-gradient-text { color: var(--color-gold); background: linear-gradient(135deg, var(--color-gold) 0%, #d97706 50%, #92400e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    @keyframes slideLeft { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+    .animate-slide-left { animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+    .animate-fade-in { animation: fadeIn 0.25s ease-in-out forwards; }
+  </style>
+
+  <!-- React 18 & Babel Standalone (Bypasses MIME type & ESM server restrictions) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-slate-900 dark:bg-brand-dark text-slate-100 font-sans antialiased overflow-x-hidden">
   <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // --- UTILITIES ---
+    const formatCurrency = (val) => {
+      if (val === undefined || val === null || isNaN(val)) return '₺0';
+      return '₺' + Number(val).toLocaleString('tr-TR');
+    };
+
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '';
+      try {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          const year = parts[0];
+          const monthIdx = parseInt(parts[1], 10) - 1;
+          const day = parseInt(parts[2], 10);
+          const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+          return `${day} ${months[monthIdx]} ${year}`;
+        }
+      } catch (e) {}
+      return dateStr;
+    };
+
+    const formatPhoneNumber = (val) => {
+      if (!val) return '';
+      const digits = val.replace(/\D/g, '');
+      if (digits.length === 0) return '';
+      let formatted = '0 ';
+      let d = digits.startsWith('0') ? digits.slice(1) : digits;
+      if (d.length > 0) formatted += '(' + d.slice(0, 3);
+      if (d.length >= 3) formatted += ') ' + d.slice(3, 6);
+      if (d.length >= 6) formatted += ' ' + d.slice(6, 8);
+      if (d.length >= 8) formatted += ' ' + d.slice(8, 10);
+      return formatted;
+    };
+
+    const isValidPhoneNumber = (phoneStr) => {
+      if (!phoneStr) return false;
+      const digits = phoneStr.replace(/\D/g, '');
+      return digits.length === 11 && digits.startsWith('05');
+    };
+
+    const calculateReservationTotals = ({
+      venuePrice = 0, guestCount = 0, selectedServices = [], allServices = [], campaignCode = '', campaigns = [], isInvoiced = false, hasDeposit = false, depositPaid = 0, paymentStatus = 'Bekliyor'
+    }) => {
+      const vPrice = Number(venuePrice) || 0;
+      let servicesTotal = 0;
+      const serviceBreakdown = [];
+
+      (selectedServices || []).forEach(item => {
+        const sObj = allServices.find(x => x.id === item.serviceId);
+        if (sObj) {
+          const uPrice = item.customUnitPrice !== undefined ? Number(item.customUnitPrice) : Number(sObj.price);
+          const qty = item.quantity !== undefined ? Number(item.quantity) : (sObj.pricingType === 'per_person' ? Number(guestCount) : 1);
+          const lineTotal = uPrice * qty;
+          servicesTotal += lineTotal;
+          serviceBreakdown.push({ id: sObj.id, name: sObj.name, unitPrice: uPrice, quantity: qty, pricingType: sObj.pricingType, total: lineTotal, isPaid: item.isPaid || false });
+        }
+      });
+
+      const subtotal = vPrice + servicesTotal;
+      let discount = 0;
+      if (campaignCode) {
+        const cmp = campaigns.find(c => c.code === campaignCode && c.active);
+        if (cmp) {
+          if (cmp.discountType === 'fixed') discount = Number(cmp.discountValue);
+          else if (cmp.discountType === 'percent') discount = (subtotal * Number(cmp.discountValue)) / 100;
+        }
+      }
+
+      const afterDiscount = Math.max(0, subtotal - discount);
+      const vat = isInvoiced ? afterDiscount * 0.20 : 0;
+      const grandTotal = afterDiscount + vat;
+      let dep = 0;
+      if (paymentStatus === 'Ödendi' || paymentStatus === 'Tamamlandı') dep = grandTotal;
+      else if (hasDeposit || paymentStatus === 'Kapora Alındı') dep = Number(depositPaid) || 0;
+
+      const remaining = Math.max(0, grandTotal - dep);
+      const isFullyPaid = remaining === 0 || paymentStatus === 'Ödendi' || paymentStatus === 'Tamamlandı';
+
+      return { venuePrice: vPrice, servicesTotal, serviceBreakdown, subtotal, discount, afterDiscount, vat, grandTotal, dep, remaining, isFullyPaid };
+    };
+
+    // --- INITIAL DATASETS ---
+    const INITIAL_VENUES = [
+      { id: 'v1', name: 'Safir Balo Salonu (Kapsamlı İç Mekan)', category: 'Kapalı Balo Salonu', capacity: 1000, price: 85000, deposit: 15000, location: 'Ana Bina 1. Kat', description: 'Kristal avizeler, yüksek tavan, profesyonel ses-ışık sistemi ve havalandırma.', image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80' },
+      { id: 'v2', name: 'Yakut Kır Bahçesi (Açık Hava)', category: 'Kır Bahçesi', capacity: 1500, price: 110000, deposit: 20000, location: 'Doğa Alanı & Bahçe', description: 'Doğal çim alan, peyzaj aydınlatmaları, şelale konsepti ve dev dans pisti.', image: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80' },
+      { id: 'v3', name: 'Zümrüt VIP Salon (Butik & Nişan)', category: 'Butik Salon', capacity: 400, price: 45000, deposit: 10000, location: 'Ana Bina 2. Kat', description: 'Sıcak atmosfer, modern dekorasyon, nişan, kına ve küçük resepsiyonlar için ideal.', image: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80' }
+    ];
+
+    const INITIAL_SERVICES = [
+      { id: 's1', name: 'Ordövr Tabaklı Yemek Menüsü', category: 'Catering', price: 250, pricingType: 'per_person', description: '6 Çeşit Soğuk Ordövr, Ara Sıcak, Kırmızı/Beyaz Et Seçeneği, Meyve & Meşrubat.' },
+      { id: 's2', name: 'Ordövr Tabaksız Standart Menü', category: 'Catering', price: 180, pricingType: 'per_person', description: 'Ana Yemek (Tavuk/Et Sote), Pilav, Salata, Yaş Pasta ve Sınırsız Meşrubat.' },
+      { id: 's3', name: 'Kuru Pasta & Meşrubat İkramı', category: 'Catering', price: 80, pricingType: 'per_person', description: 'Taze Tatlı/Tuzlu Kuru Pasta Çeşitleri, Yaş Pasta ve Çay/Meşrubat İkramı.' },
+      { id: 's4', name: 'Profesyonel 4K Fotoğraf & Video Çekimi', category: 'Medya', price: 18000, pricingType: 'fixed', description: '2 Çift Kameralı HD Çekim, Jimmy Jib, Dron Çekimi ve Tüm Ham Fotoğraflar USB.' },
+      { id: 's5', name: 'Canlı Orkestra & Sanatçı Performansı', category: 'Müzik', price: 22000, pricingType: 'fixed', description: '4 Kişilik Profesyonel Orkestra, Solist, DJ Performansı ve Ses Sistemi.' },
+      { id: 's6', name: 'Görkemli Sis & Volkan Şovu', category: 'Efekt', price: 6500, pricingType: 'fixed', description: 'İlk Dans ve Pasta Kesiminde 8 Adet Soğuk Volkan, Kuru Buz Sis Şovu.' },
+      { id: 's7', name: 'Lüks VIP Gelin Arabası Süsleme & Şoför', category: 'Ulaşım', price: 7500, pricingType: 'fixed', description: 'Özel Çiçek Tasarımı, Şehir İçi Şoförlü VIP Araç Hizmeti.' }
+    ];
+
+    const INITIAL_CUSTOMERS = [
+      { id: 'c1', name: 'Ahmet Yılmaz & Zeynep Demir', phone: '0 (532) 111 22 33', email: 'ahmet.zeynep@email.com', tcNo: '12345678901', address: 'Kadıköy, İstanbul', totalBookings: 1 },
+      { id: 'c2', name: 'Mehmet Kaya & Elif Şahin', phone: '0 (533) 444 55 66', email: 'mehmet.elif@email.com', tcNo: '98765432109', address: 'Çankaya, Ankara', totalBookings: 2 }
+    ];
+
+    const INITIAL_RESERVATIONS = [
+      {
+        id: 'RES-2026-1001', venueId: 'v1', customerId: 'c1', customerName: 'Ahmet Yılmaz & Zeynep Demir', customerPhone: '0 (532) 111 22 33', customerEmail: 'ahmet.zeynep@email.com',
+        eventDate: '2026-08-15', startDate: '2026-08-15', endDate: '2026-08-15', startTime: '19:00', endTime: '23:30', timeSlot: '19:00 - 23:30', guestCount: 600, venuePrice: 85000,
+        selectedServices: [{ serviceId: 's1', quantity: 600, isPaid: true }, { serviceId: 's4', quantity: 1, isPaid: true }],
+        subtotal: 253000, campaignCode: 'YAZ2026', discountAmount: 15000, vatAmount: 47600, totalAmount: 285600, depositPaid: 50000, remainingBalance: 235600, paymentStatus: 'Kapora Alındı', isInvoiced: true
+      }
+    ];
+
+    const INITIAL_CAMPAIGNS = [
+      { id: 'cmp1', code: 'YAZ2026', title: 'Erken Yaz Rezervasyon İndirimi', discountType: 'fixed', discountValue: 15000, minGuest: 400, validUntil: '2026-08-31', active: true, description: '400 kişi ve üzeri erken rezervasyonlarda ₺15.000 net indirim.' }
+    ];
+
+    const INITIAL_USERS = [
+      { id: 'u1', name: 'Davut Akbulut', email: 'davut@iremdugun.com', role: 'SuperAdmin', title: 'Genel Müdürü & Sistem Yöneticisi', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' }
+    ];
+
+    const DEFAULT_FLOW_PLAN = [
+      { time: '19:00', title: 'Misafir Karşılama ve Kokteyl İkramı' },
+      { time: '20:00', title: 'Görkemli Çift Girişi ve İlk Dans' },
+      { time: '20:30', title: 'Yemek / İkram Servisi ve Slayt Gösterisi' },
+      { time: '21:30', title: 'Pasta Kesim Merasimi & Volkan Şovu' },
+      { time: '22:00', title: 'Takı Töreni ve Tebrikler' },
+      { time: '23:30', title: 'Kapanış ve Uğurlama' }
+    ];
+
+    // --- COMPONENTS ---
+    function NotificationPopup({ alertModal, onClose }) {
+      if (!alertModal || !alertModal.isOpen) return null;
+      return (
+        <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-left">
+          <div className="bg-white/95 dark:bg-slate-900/95 border-2 border-red-500/70 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600">
+            <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-xl font-bold shrink-0 border border-red-500/30 animate-pulse mt-0.5">⚠️</div>
+            <div className="flex-1 space-y-1 pr-6 text-left">
+              <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">{alertModal.title}</h4>
+              <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-semibold">{alertModal.message}</p>
+              <div className="pt-2">
+                <button onClick={onClose} className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition hover:scale-[1.02] active:scale-[0.98]">Anladım, Düzelt ✓</button>
+              </div>
+            </div>
+            <button onClick={onClose} className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 dark:hover:text-white transition p-1">✕</button>
+          </div>
+        </div>
+      );
+    }
+
+    function MobileBottomSummaryBar() {
+      const [data, setData] = useState(null);
+      const [isOpen, setIsOpen] = useState(false);
+
+      useEffect(() => {
+        window.updateMobileReservationSummary = (summaryData) => { setData(summaryData); };
+        return () => { delete window.updateMobileReservationSummary; };
+      }, []);
+
+      if (!data) return null;
+      const { remaining = 0, isFullyPaid = false, calculations = {}, isInvoiced = false, paymentStatus = 'Bekliyor', hasDeposit = false, hasConflict = false, onSubmit } = data;
+
+      return (
+        <>
+          {isOpen && <div onClick={() => setIsOpen(false)} className="fixed inset-0 z-[8888] bg-black/25 backdrop-blur-[2px] sm:hidden" />}
+          <div className={`fixed left-0 right-0 z-[8889] bg-white dark:bg-brand-card border-t-2 border-amber-500/40 rounded-t-3xl shadow-2xl transition-all duration-300 transform sm:hidden ${isOpen ? 'translate-y-0 bottom-16 max-h-[80vh] overflow-y-auto p-5 space-y-4' : 'translate-y-full bottom-16 p-0 max-h-0 pointer-events-none opacity-0'}`}>
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+              <h4 className="font-heading font-extrabold text-sm text-slate-800 dark:text-gray-100">📜 Canlı Hesaplama & Sözleşme Kartı</h4>
+              <button onClick={() => setIsOpen(false)} className="w-7 h-7 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 flex items-center justify-center font-bold text-xs">✕</button>
+            </div>
+            {calculations && (
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Salon Kiralama Fiyatı:</span><span className="font-mono font-bold">{formatCurrency(calculations.venuePrice)}</span></div>
+                <div className={`flex justify-between font-extrabold text-sm p-3 rounded-2xl border mt-2 ${isFullyPaid ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700' : 'bg-red-500/10 border-red-500/30 text-red-600'}`}>
+                  <span>Kalan Ödenecek Net Bakiye:</span>
+                  <span className="font-mono text-base">{isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(remaining)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="fixed bottom-0 left-0 right-0 z-[8890] bg-slate-900/95 dark:bg-brand-card/95 border-t border-amber-500/40 p-2.5 sm:hidden shadow-2xl backdrop-blur-xl flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 shrink-0">
+              <button type="button" onClick={() => setIsOpen(!isOpen)} className="bg-slate-800 dark:bg-brand-dark hover:bg-slate-700 text-amber-800 dark:text-gold-400 font-bold px-2.5 py-1.5 rounded-xl border border-amber-500/30 text-xs flex items-center space-x-1 shadow">
+                <span>{isOpen ? '▼' : '▲'}</span><span>Detaylar</span>
+              </button>
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Kalan Toplam:</span>
+                <span className="font-mono font-extrabold text-base text-gold-400 leading-tight">{isFullyPaid ? '₺0 (Ödendi)' : formatCurrency(remaining)}</span>
+              </div>
+            </div>
+            <button type="button" disabled={hasConflict} onClick={() => { if (onSubmit) onSubmit(); }} className={`gold-button font-extrabold px-3 py-2 rounded-xl text-xs shadow-lg flex items-center space-x-1.5 shrink-0 ${hasConflict ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}>
+              <svg className="w-4 h-4 text-amber-950 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <span className="whitespace-nowrap">Rezervasyonu Oluştur</span>
+            </button>
+          </div>
+        </>
+      );
+    }
+
+    function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleChange }) {
+      const menuItems = [
+        { id: 'dashboard', label: 'Genel Bakış', icon: '📊' },
+        { id: 'create-reservation', label: 'Rezervasyon Oluştur', icon: '✨', badge: 'YENİ' },
+        { id: 'reservations', label: 'Rezervasyonlar & Takvim', icon: '📅' },
+        { id: 'venues', label: 'Düğün Salonları', icon: '🏰' },
+        { id: 'services', label: 'Ek Hizmetler', icon: '🎁' },
+        { id: 'customers', label: 'Müşteriler & Üyeler', icon: '👥' },
+        { id: 'campaigns', label: 'Kampanyalar & AI', icon: '🔥' },
+        { id: 'reports', label: 'Raporlar & Analizler', icon: '📈' },
+        { id: 'settings', label: 'Ayarlar & Görünüm', icon: '⚙️' }
+      ];
+
+      return (
+        <aside className="w-64 bg-white dark:bg-brand-card border-r border-slate-200 dark:border-brand-border flex flex-col justify-between shrink-0 shadow-sm transition-all duration-300">
+          <div>
+            <div className="p-5 border-b border-slate-200 dark:border-brand-border flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-2xl gold-button flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">🏰</div>
+              <div>
+                <h1 className="font-heading font-extrabold text-base gold-gradient-text leading-tight tracking-tight">İREM DÜĞÜN SARAYI</h1>
+                <p className="text-[10px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider">Rezervasyon & Yönetim</p>
+              </div>
+            </div>
+            <nav className="p-3 space-y-1.5">
+              {menuItems.map(item => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button key={item.id} onClick={() => onTabChange(item.id)} className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 ${isActive ? 'gold-button shadow-md transform translate-x-1' : 'text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-brand-dark'}`}>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-base">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && <span className="text-[9px] bg-red-500 text-white font-extrabold px-2 py-0.5 rounded-full shadow">{item.badge}</span>}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+          <div className="p-4 border-t border-slate-200 dark:border-brand-border space-y-2 bg-slate-50/50 dark:bg-brand-dark/50">
+            <div className="text-[10px] text-center text-slate-400 dark:text-gray-500 font-bold">İrem Düğün Sarayı v2.0 • Standalone & Modular</div>
+          </div>
+        </aside>
+      );
+    }
+
+    function HeaderComponent({ activeTab, onTabChange, activeRole, currentUser }) {
+      return (
+        <header className="h-16 bg-white/80 dark:bg-brand-card/80 backdrop-blur-md border-b border-slate-200 dark:border-brand-border px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+          <h2 className="font-heading font-extrabold text-sm sm:text-base text-slate-800 dark:text-gray-100">
+            {activeTab === 'dashboard' && '📊 Genel Bakış & Performans Özeti'}
+            {activeTab === 'create-reservation' && '✨ Yeni Rezervasyon & Sözleşme Kartı'}
+            {activeTab === 'reservations' && '📅 Rezervasyon Yönetimi & Canlı Takvim'}
+            {activeTab === 'venues' && '🏰 Düğün Salonları & Kapasite Bilgileri'}
+            {activeTab === 'services' && '🎁 Ek Hizmetler & Birim Fiyatlar'}
+            {activeTab === 'customers' && '👥 Müşteri Rehberi & Otomatik Üyelikler'}
+            {activeTab === 'campaigns' && '🔥 Kampanyalar & AI Öneri Motoru'}
+            {activeTab === 'reports' && '📈 Raporlar & Finansal Analizler'}
+            {activeTab === 'settings' && '⚙️ Sistem Ayarları & 5 Kurumsal Tema'}
+          </h2>
+          {activeTab !== 'create-reservation' && (
+            <button onClick={() => onTabChange('create-reservation')} className="gold-button font-bold text-xs px-3.5 py-2 rounded-xl shadow flex items-center space-x-1.5 hover:scale-105 transition">
+              <span>➕</span><span>Yeni Rezervasyon Oluştur</span>
+            </button>
+          )}
+        </header>
+      );
+    }
+
+    function DashboardPage({ venues = [], reservations = [], onNewResClick, onTabChange }) {
+      const totalRevenue = reservations.reduce((acc, r) => acc + (Number(r.totalAmount) || 0), 0);
+      const totalDeposit = reservations.reduce((acc, r) => acc + (Number(r.depositPaid) || 0), 0);
+      const totalRemaining = reservations.reduce((acc, r) => acc + (Number(r.remainingBalance) || 0), 0);
+
+      return (
+        <div className="space-y-6 animate-fade-in max-w-7xl mx-auto">
+          <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex justify-between items-center shadow-sm">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">İrem Düğün Sarayı Yönetim Paneli</h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Salon dolulukları, anlık rezervasyonlar ve finansal raporları tek bakışta izleyin.</p>
+            </div>
+            <button onClick={onNewResClick} className="gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow">✨ Hızlı Rezervasyon Gir</button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border"><div className="text-xs font-bold text-slate-500">Toplam Ciro</div><div className="text-xl font-extrabold font-mono">{formatCurrency(totalRevenue)}</div></div>
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border"><div className="text-xs font-bold text-slate-500">Kaporalar</div><div className="text-xl font-extrabold font-mono text-emerald-600">{formatCurrency(totalDeposit)}</div></div>
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border"><div className="text-xs font-bold text-slate-500">Net Kalan Alacak</div><div className="text-xl font-extrabold font-mono text-amber-600">{formatCurrency(totalRemaining)}</div></div>
+          </div>
+        </div>
+      );
+    }
+
+    function CreateReservationPage({ venues = [], services = [], customers = [], campaigns = [], reservations = [], onSaveReservation, onCancel }) {
+      const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
+      const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 85000);
+      const [guestCount, setGuestCount] = useState(500);
+      const todayStr = new Date().toISOString().split('T')[0];
+      const [startDate, setStartDate] = useState(todayStr);
+      const [endDate, setEndDate] = useState(todayStr);
+      const [startTime, setStartTime] = useState('18:00');
+      const [endTime, setEndTime] = useState('23:00');
+      const [selectedServices, setSelectedServices] = useState([]);
+      const [campaignCode, setCampaignCode] = useState('');
+      const [hasDeposit, setHasDeposit] = useState(true);
+      const [depositPaid, setDepositPaid] = useState(15000);
+      const [paymentStatus, setPaymentStatus] = useState('Kapora Alındı');
+      const [customerMode, setCustomerMode] = useState('new');
+      const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || '');
+      const [newCustName, setNewCustName] = useState('');
+      const [newCustPhone, setNewCustPhone] = useState('');
+      const [referrerName, setReferrerName] = useState('');
+      const [isInvoiced, setIsInvoiced] = useState(false);
+      const [notes, setNotes] = useState('');
+      const [flowPlan, setFlowPlan] = useState(DEFAULT_FLOW_PLAN);
+
+      const selectedVenue = venues.find(v => v.id === venueId) || venues[0];
+      const activeSlot = `${startTime} - ${endTime}`;
+
+      const calculations = calculateReservationTotals({
+        venuePrice: customVenuePrice, guestCount, selectedServices, allServices: services, campaignCode, campaigns, isInvoiced, hasDeposit, depositPaid, paymentStatus
+      });
+
+      const handleSubmit = () => {
+        let custId = selectedCustomerId;
+        let custName = newCustName || 'Müşteri';
+        let custPhone = newCustPhone || '05000000000';
+        let newCustObj = null;
+
+        if (customerMode === 'new' && newCustName) {
+          custId = 'c-' + Date.now();
+          newCustObj = { id: custId, name: newCustName, phone: newCustPhone };
+        }
+
+        const newRes = {
+          id: `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          venueId, customerId: custId, customerName: custName, customerPhone: custPhone, eventDate: startDate, startDate, endDate, startTime, endTime, timeSlot: activeSlot, guestCount, venuePrice: customVenuePrice, selectedServices, subtotal: calculations.subtotal, campaignCode, discountAmount: calculations.discount, vatAmount: calculations.vat, totalAmount: calculations.grandTotal, depositPaid: calculations.dep, remainingBalance: calculations.remaining, paymentStatus, notes, flowPlan
+        };
+
+        onSaveReservation(newRes, newCustObj);
+      };
+
+      useEffect(() => {
+        if (window.updateMobileReservationSummary) {
+          window.updateMobileReservationSummary({ remaining: calculations.remaining, isFullyPaid: calculations.isFullyPaid, calculations, isInvoiced, paymentStatus, hasDeposit, hasConflict: false, onSubmit: handleSubmit });
+        }
+      }, [calculations, isInvoiced, paymentStatus, hasDeposit]);
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto pb-24 sm:pb-12 animate-fade-in">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex justify-between items-center">
+            <div>
+              <h1 className="font-heading font-extrabold text-xl sm:text-2xl gold-gradient-text">Hayalinizdeki Düğünü Birlikte Planlayalım!</h1>
+              <p className="text-xs text-slate-500">Salon kiralama, hizmetler, fatura ve etkinlik akışını yönetin.</p>
+            </div>
+            <button onClick={onCancel} className="px-4 py-2 bg-slate-100 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold">← Dön</button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* SECTION 1: DÜĞÜN SALONU SEÇİN */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">1. Düğün Salonu Seçin:</h3>
+                <div className="flex overflow-x-auto gap-3.5 pb-2">
+                  {venues.map(v => (
+                    <div key={v.id} onClick={() => setVenueId(v.id)} className={`shrink-0 w-64 rounded-2xl border-2 p-3 cursor-pointer ${venueId === v.id ? 'border-amber-500 bg-amber-500/10' : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card'}`}>
+                      <img src={v.image} className="w-full h-28 object-cover rounded-xl mb-2" />
+                      <div className="font-bold text-xs text-slate-800 dark:text-gray-100">{v.name}</div>
+                      <div className="text-xs font-extrabold text-amber-600">{formatCurrency(v.price)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-xs pt-2">
+                  <div>
+                    <label className="font-bold block mb-1">Etkinlik Başlangıç Tarihi:</label>
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold" />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Davetli Sayısı (Kişi):</label>
+                    <input type="number" value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold" />
+                  </div>
+                </div>
+
+                {/* 14 GÜNLÜK MİNİK TAKVİM (RESTORED INSIDE SECTION 1) */}
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-4 rounded-2xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800 dark:text-gray-200">🗓️ Canlı Takvim & Çakışma Önizlemesi ({selectedVenue?.name}):</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-500">
+                    <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 text-[11px]">
+                    {[...Array(14)].map((_, i) => {
+                      const dayDate = new Date(2026, 7, 20 + i);
+                      const dateStr = dayDate.toISOString().split('T')[0];
+                      const isSelectedDate = dateStr === startDate;
+                      return (
+                        <div key={dateStr} onClick={() => setStartDate(dateStr)} className={`p-2 rounded-xl text-center cursor-pointer border ${isSelectedDate ? 'gold-button shadow font-extrabold' : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border'}`}>
+                          <span className="text-[9px]">{dayDate.getDate()} Ağu</span>
+                          <span className="text-[9px] font-bold block">{isSelectedDate ? 'SEÇİLDİ' : 'BOŞ'}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2: EK HİZMETLER */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">2. Ek Hizmetler:</h3>
+                <div className="space-y-2 text-xs">
+                  {services.map(s => {
+                    const isSelected = selectedServices.some(x => x.serviceId === s.id);
+                    return (
+                      <label key={s.id} className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer ${isSelected ? 'bg-amber-500/10 border-amber-500' : 'bg-slate-50 dark:bg-brand-dark border-slate-200'}`}>
+                        <div className="flex items-center space-x-2">
+                          <input type="checkbox" checked={isSelected} onChange={e => {
+                            if (e.target.checked) setSelectedServices(prev => [...prev, { serviceId: s.id, quantity: 1 }]);
+                            else setSelectedServices(prev => prev.filter(x => x.serviceId !== s.id));
+                          }} className="w-4 h-4 accent-amber-600" />
+                          <span className="font-bold text-slate-800 dark:text-gray-200">{s.name}</span>
+                        </div>
+                        <span className="font-mono font-bold text-amber-600">{formatCurrency(s.price)}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* SECTION 3: ÖDEME & KAPORA */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">3. Ödeme, Kapora & İndirim Kodu Bilgileri</h3>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Kapora Ödendi Mi?</label>
+                    <select value={hasDeposit ? 'yes' : 'no'} onChange={e => setHasDeposit(e.target.value === 'yes')} className="w-full bg-slate-50 dark:bg-brand-dark border p-2.5 rounded-xl font-bold">
+                      <option value="yes">Evet, Kapora Alındı</option>
+                      <option value="no">Hayır, Ödenmedi</option>
+                    </select>
+                  </div>
+                  {hasDeposit && (
+                    <div>
+                      <label className="font-bold block mb-1">Ödenen Kapora (TL):</label>
+                      <input type="number" value={depositPaid} onChange={e => setDepositPaid(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border p-2.5 rounded-xl font-bold text-emerald-600" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SECTION 4: MÜŞTERİ BİLGİLERİ */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">4. Müşteri İletişim Bilgileri:</h3>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Adı Soyadı / Firma:</label>
+                    <input type="text" value={newCustName} onChange={e => setNewCustName(e.target.value)} placeholder="Mehmet Yılmaz" className="w-full bg-slate-50 dark:bg-brand-dark border p-2.5 rounded-xl font-bold" />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Telefon Numarası:</label>
+                    <input type="text" value={newCustPhone} onChange={e => setNewCustPhone(formatPhoneNumber(e.target.value))} placeholder="0 (5XX) XXX XX XX" className="w-full bg-slate-50 dark:bg-brand-dark border p-2.5 rounded-xl font-bold" />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 5: FATURA */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">5. Fatura Bilgileri</h3>
+                <label className="flex items-center space-x-2 text-xs font-bold cursor-pointer">
+                  <input type="checkbox" checked={isInvoiced} onChange={e => setIsInvoiced(e.target.checked)} className="w-4 h-4 accent-amber-600" />
+                  <span>Faturalı İşlem (%20 KDV Hesapla)</span>
+                </label>
+              </div>
+
+              {/* SECTION 6: AKIŞ PLANLAMASI */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">6. Organizasyon & Etkinlik Akış Planlaması</h3>
+                <div className="space-y-2 text-xs">
+                  {flowPlan.map((item, idx) => (
+                    <div key={idx} className="flex items-center space-x-2 p-2 bg-slate-50 dark:bg-brand-dark rounded-xl border">
+                      <input type="text" value={item.time} onChange={e => { const val = e.target.value; setFlowPlan(prev => prev.map((x, i) => i === idx ? { ...x, time: val } : x)); }} className="w-20 bg-white dark:bg-brand-card border p-1 rounded font-mono font-bold text-center" />
+                      <input type="text" value={item.title} onChange={e => { const val = e.target.value; setFlowPlan(prev => prev.map((x, i) => i === idx ? { ...x, title: val } : x)); }} className="flex-1 bg-white dark:bg-brand-card border p-1 rounded font-bold" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION 7: EK NOTLAR */}
+              <div className="glass-panel p-6 rounded-3xl space-y-3 border border-slate-200 dark:border-brand-border text-xs">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100 border-b pb-2">7. Operasyonel Ek Notlar & Özel İstekler:</h3>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Gelin odası ikramları, çiçek renk tercihleri..." className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3 h-20" />
+              </div>
+
+            </div>
+
+            {/* DESKTOP RIGHT SUMMARY */}
+            <div className="hidden sm:block lg:col-span-4 space-y-6">
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border-2 border-slate-200 dark:border-brand-border sticky top-24">
+                <h3 className="font-heading font-extrabold text-base border-b pb-3">📜 Canlı Hesaplama Kartı</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between font-bold"><span>Salon Kiralama:</span><span className="font-mono">{formatCurrency(calculations.venuePrice)}</span></div>
+                  <div className="flex justify-between font-extrabold text-base border-t pt-2"><span>Genel Toplam:</span><span className="font-mono text-amber-600">{formatCurrency(calculations.grandTotal)}</span></div>
+                  <div className={`flex justify-between font-bold text-sm p-2.5 rounded-xl border mt-2 ${calculations.isFullyPaid ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
+                    <span>Kalan Net Bakiye:</span>
+                    <span className="font-mono font-extrabold">{calculations.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(calculations.remaining)}</span>
+                  </div>
+                </div>
+                <button onClick={handleSubmit} className="w-full gold-button font-bold py-3.5 rounded-2xl text-xs shadow-xl">🎉 Rezervasyonu Kaydet</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('create-reservation');
+      const [activeRole, setActiveRole] = useState('SuperAdmin');
+      const [currentTheme, setCurrentTheme] = useState('obsidian-gold');
+      const [venues, setVenues] = useState(INITIAL_VENUES);
+      const [services, setServices] = useState(INITIAL_SERVICES);
+      const [customers, setCustomers] = useState(INITIAL_CUSTOMERS);
+      const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
+      const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
+      const [users, setUsers] = useState(INITIAL_USERS);
+      const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
+
+      const showAlert = (title, message) => { setAlertModal({ isOpen: true, title, message }); };
+
+      const handleSaveReservation = (newRes, newCustObj) => {
+        if (newCustObj) setCustomers(prev => [newCustObj, ...prev]);
+        setReservations(prev => [newRes, ...prev]);
+        showAlert('🎉 REZERVASYON VE SÖZLEŞME OLUŞTURULDU!', `${newRes.customerName} için ${newRes.id} sözleşme koduyla rezervasyon kaydedildi.`);
+        setActiveTab('reservations');
+      };
+
+      return (
+        <div className="flex h-screen bg-slate-900 dark:bg-brand-dark text-slate-100 font-sans overflow-hidden">
+          <NotificationPopup alertModal={alertModal} onClose={() => setAlertModal({ isOpen: false, title: '', message: '' })} />
+          <SidebarComponent activeTab={activeTab} onTabChange={setActiveTab} activeRole={activeRole} onRoleChange={setActiveRole} />
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200">
+            <HeaderComponent activeTab={activeTab} onTabChange={setActiveTab} activeRole={activeRole} currentUser={users[0]} />
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+              {activeTab === 'dashboard' && <DashboardPage venues={venues} reservations={reservations} onNewResClick={() => setActiveTab('create-reservation')} onTabChange={setActiveTab} />}
+              {activeTab === 'create-reservation' && <CreateReservationPage venues={venues} services={services} customers={customers} campaigns={campaigns} reservations={reservations} onSaveReservation={handleSaveReservation} onCancel={() => setActiveTab('reservations')} />}
+              {activeTab === 'reservations' && (
+                <div className="glass-panel p-6 rounded-3xl border text-xs space-y-4">
+                  <h2 className="text-xl font-bold">📅 Rezervasyon Listesi ({reservations.length} Adet)</h2>
+                  <div className="space-y-2">
+                    {reservations.map(r => (
+                      <div key={r.id} className="p-3 bg-slate-50 dark:bg-brand-dark rounded-xl border flex justify-between">
+                        <span className="font-bold">{r.id} - {r.customerName}</span>
+                        <span className="font-mono text-amber-600 font-extrabold">{formatCurrency(r.totalAmount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </main>
+          </div>
+          <MobileBottomSummaryBar />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
