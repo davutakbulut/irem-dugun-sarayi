@@ -1957,7 +1957,7 @@
       const [isPageTabLoading, setIsPageTabLoading] = useState(false);
 
       const navigateTo = (tab) => {
-        if (tab !== activeTabState) {
+        if (tab !== activeTab) {
           setIsPageTabLoading(true);
           setTimeout(() => setIsPageTabLoading(false), 150);
         }
