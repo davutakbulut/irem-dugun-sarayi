@@ -169,13 +169,13 @@ export function ReservationsListPage({
           </p>
         </div>
 
-        {/* SINGLE LINE ACTION BAR ON MOBILE (Filtreler, Yeni Rez, Liste & Takvim Görünümü) */}
-        <div className="flex items-center space-x-1.5 sm:space-x-2 w-full md:w-auto justify-between md:justify-end shrink-0">
+        {/* HARMONIOUS ACTION TOOLBAR (UNIFORM H-10 HEIGHT & PROPER COMPONENT HIERARCHY) */}
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
           
-          {/* FILTER TOGGLE BUTTON */}
+          {/* 1. FILTER TOGGLE BUTTON */}
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`h-10 px-3 rounded-xl font-bold text-xs border transition flex items-center space-x-1.5 shadow-xs ${
+            className={`h-10 px-3.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-2 shadow-xs cursor-pointer ${
               isFilterOpen 
                 ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-gold-400' 
                 : 'bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:bg-slate-200 dark:hover:bg-slate-800'
@@ -185,34 +185,32 @@ export function ReservationsListPage({
             <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            <span className="hidden sm:inline">Filtreler</span>
-            <span className="text-[10px]">{isFilterOpen ? '▲' : '▼'}</span>
+            <span>Filtreler</span>
+            <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
           </button>
 
-          {/* YENİ REZERVASYON BUTTON */}
+          {/* 2. YENİ REZERVASYON PRIMARY BUTTON */}
           <button 
             onClick={onNewResClick} 
-            className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 shrink-0"
+            className="gold-button font-bold text-xs h-10 px-4 rounded-xl shadow-sm flex items-center space-x-2 shrink-0 cursor-pointer"
             title="Yeni Rezervasyon Oluştur"
           >
             <span className="text-sm">➕</span>
-            <span className="hidden sm:inline">Yeni Rezervasyon</span>
+            <span>Yeni Rezervasyon</span>
           </button>
 
-          {/* NORDIC MINIMAL VIEW TOGGLE (LIST VS CALENDAR - ICONIC NO TEXT) */}
+          {/* 3. SEGMENTED VIEW SWITCHER (LIST VS CALENDAR) */}
           <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border h-10 items-center shrink-0">
             <button
               onClick={() => setViewMode('table')}
-              className={`h-8 w-9 sm:w-10 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+              className={`h-8 px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
                 viewMode === 'table' 
                   ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
-                  : 'text-slate-400 hover:text-slate-700 dark:hover:text-gray-200'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
               }`}
               title="Liste Görünümü"
-              aria-label="Liste Görünümü"
             >
-              {/* Nordic Minimalist Table/List SVG */}
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="8" y1="6" x2="21" y2="6"/>
                 <line x1="8" y1="12" x2="21" y2="12"/>
                 <line x1="8" y1="18" x2="21" y2="18"/>
@@ -220,20 +218,19 @@ export function ReservationsListPage({
                 <line x1="3" y1="12" x2="3.01" y2="12"/>
                 <line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
+              <span>Liste</span>
             </button>
 
             <button
               onClick={() => setViewMode('calendar')}
-              className={`h-8 w-9 sm:w-10 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+              className={`h-8 px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
                 viewMode === 'calendar' 
                   ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
-                  : 'text-slate-400 hover:text-slate-700 dark:hover:text-gray-200'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
               }`}
               title="Takvim Görünümü"
-              aria-label="Takvim Görünümü"
             >
-              {/* Nordic Minimalist Calendar Grid SVG */}
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
@@ -245,6 +242,7 @@ export function ReservationsListPage({
                 <line x1="12" y1="18" x2="12.01" y2="18"/>
                 <line x1="16" y1="18" x2="16.01" y2="18"/>
               </svg>
+              <span>Takvim</span>
             </button>
           </div>
 
