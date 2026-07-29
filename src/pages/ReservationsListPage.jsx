@@ -87,17 +87,51 @@ export function ReservationsListPage({
     return matchesSearch && matchesVenue && matchesStatus && matchesDate;
   });
 
-  // August 2026 Calendar Grid Setup (1 to 31 Days)
-  const augustStartEmptyCount = 5;
-  const augustDaysCount = 31;
+  // Dynamic Month & Year Navigation State
+  const MONTH_NAMES = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+  ];
+
+  const [currentYear, setCurrentYear] = useState(2026);
+  const [currentMonth, setCurrentMonth] = useState(7); // 0-indexed: 7 = Ağustos 2026 (Sample Data)
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(prev => prev - 1);
+    } else {
+      setCurrentMonth(prev => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(prev => prev + 1);
+    } else {
+      setCurrentMonth(prev => prev + 1);
+    }
+  };
+
+  const handleGoToday = () => {
+    setCurrentYear(2026);
+    setCurrentMonth(7);
+  };
+
+  // Dynamic Calendar Grid Setup for currentYear & currentMonth (1 to 28..31 Days)
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const jsFirstDay = new Date(currentYear, currentMonth, 1).getDay(); // Sunday=0, Monday=1, ..., Saturday=6
+  const monthStartEmptyCount = jsFirstDay === 0 ? 6 : jsFirstDay - 1; // Monday-first calendar index
 
   const calendarGridCells = [];
-  for (let i = 0; i < augustStartEmptyCount; i++) {
+  for (let i = 0; i < monthStartEmptyCount; i++) {
     calendarGridCells.push({ isEmpty: true, key: `empty-${i}` });
   }
-  for (let day = 1; day <= augustDaysCount; day++) {
+  for (let day = 1; day <= daysInMonth; day++) {
     const dayStr = day < 10 ? `0${day}` : `${day}`;
-    const dateStr = `2026-08-${dayStr}`;
+    const monthStr = (currentMonth + 1) < 10 ? `0${currentMonth + 1}` : `${currentMonth + 1}`;
+    const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
     calendarGridCells.push({ isEmpty: false, dayNumber: day, dateStr, key: dateStr });
   }
 
@@ -350,11 +384,64 @@ export function ReservationsListPage({
           </div>
 
           <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl">📅</span>
-              <h4 className="font-heading font-extrabold text-lg text-slate-900 dark:text-white">
-                Ağustos 2026
-              </h4>
+            
+            {/* DYNAMIC MONTH NAVIGATION TOOLBAR */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-brand-border">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handlePrevMonth}
+                  className="px-3.5 py-2 bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/20 dark:hover:bg-slate-800 rounded-xl font-bold text-xs border border-slate-200 dark:border-brand-border flex items-center space-x-1.5 transition cursor-pointer text-slate-700 dark:text-gray-200"
+                  title="Önceki Ay"
+                >
+                  <span>◀</span>
+                  <span className="hidden sm:inline">Önceki Ay</span>
+                </button>
+
+                <div className="flex items-center space-x-2 bg-amber-500/10 px-4 py-2 rounded-2xl border border-amber-500/30">
+                  <span className="text-xl">📅</span>
+                  <h4 className="font-heading font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
+                    {MONTH_NAMES[currentMonth]} {currentYear}
+                  </h4>
+                </div>
+
+                <button
+                  onClick={handleNextMonth}
+                  className="px-3.5 py-2 bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/20 dark:hover:bg-slate-800 rounded-xl font-bold text-xs border border-slate-200 dark:border-brand-border flex items-center space-x-1.5 transition cursor-pointer text-slate-700 dark:text-gray-200"
+                  title="Sonraki Ay"
+                >
+                  <span className="hidden sm:inline">Sonraki Ay</span>
+                  <span>▶</span>
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <select
+                  value={currentMonth}
+                  onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                  className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-gray-200"
+                >
+                  {MONTH_NAMES.map((name, idx) => (
+                    <option key={idx} value={idx}>{name}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={currentYear}
+                  onChange={(e) => setCurrentYear(Number(e.target.value))}
+                  className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-gray-200"
+                >
+                  {[2024, 2025, 2026, 2027, 2028].map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+
+                <button
+                  onClick={handleGoToday}
+                  className="px-3.5 py-2 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-gold-400 rounded-xl font-bold text-xs border border-amber-300 dark:border-amber-700/60 shadow-xs hover:bg-amber-100 transition cursor-pointer"
+                >
+                  🎯 Ağustos 2026
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-7 gap-2 text-center font-bold text-xs text-slate-600 dark:text-gray-300">
