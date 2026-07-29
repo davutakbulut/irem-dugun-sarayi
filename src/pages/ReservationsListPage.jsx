@@ -407,10 +407,10 @@ export function ReservationsListPage({
                             </button>
                             <button
                               onClick={() => setDeletingRes(res)}
-                              className="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-xs hover:bg-red-500/30 transition flex items-center space-x-1"
+                              className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group"
                             >
-                              <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
-                              <span>Sil</span>
+                              <span className="group-hover:text-white transition">SİL</span>
+                              <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
                             </button>
                           </div>
                         </td>
