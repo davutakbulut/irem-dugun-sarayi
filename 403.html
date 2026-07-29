@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP 403 - Yetkisiz Erişim Uyarısı | İrem Düğün Sarayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-heading { font-family: 'Playfair Display', serif; }
+    .gold-button {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      transition: all 0.2s ease-in-out;
+    }
+    .gold-button:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-lg bg-slate-900/80 backdrop-blur-xl border border-red-500/30 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+    
+    <!-- SVG SHIELD LOCK ICON (NO EMOJI) -->
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 shadow-inner">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+      </svg>
+    </div>
+
+    <span class="inline-block bg-red-500/10 text-red-400 font-mono font-bold text-xs px-3.5 py-1 rounded-full border border-red-500/30 uppercase tracking-wider">
+      HTTP 403 / Yetkisiz Erişim Uyarısı
+    </span>
+
+    <h1 class="text-xl sm:text-2xl font-bold text-white leading-tight">
+      Bu Sayfaya Erişim Yetkiniz Bulunmamaktadır
+    </h1>
+
+    <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+      Mevcut kullanıcınızın yetki rolü bu modüle kısıtlanmıştır. Güvenlik ve veri mahremiyeti nedeniyle bu içeriği görüntülemek için sistem yöneticinizden izin istemeniz gerekmektedir.
+    </p>
+
+    <div class="pt-2 flex justify-center gap-3 flex-wrap text-xs font-bold">
+      <a href="index.html#/anasayfa" class="gold-button font-extrabold px-6 py-2.5 rounded-xl shadow inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        <span>Güvenli Anasayfaya Dön</span>
+      </a>
+
+      <button id="reqBtn" onclick="requestPermission()" class="bg-red-500/10 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white font-bold px-5 py-2.5 rounded-xl border shadow transition inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        <span id="reqText">Yöneticiden Yetki İste</span>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function requestPermission() {
+      const btn = document.getElementById('reqBtn');
+      const txt = document.getElementById('reqText');
+      if (btn && txt) {
+        btn.className = "bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-bold px-5 py-2.5 rounded-xl border shadow transition inline-flex items-center space-x-1.5";
+        txt.innerText = "Yöneticiye Yetki Talebi İletildi";
+      }
+    }
+  </script>
+
+</body>
+</html>

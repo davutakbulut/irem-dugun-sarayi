@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP 301 - Kalıcı Yönlendirme | İrem Düğün Sarayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-heading { font-family: 'Playfair Display', serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-lg bg-slate-900/80 backdrop-blur-xl border border-blue-500/30 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+    
+    <!-- SVG REFRESH ICON WITH SPIN ANIMATION (NO EMOJI) -->
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-inner">
+      <svg class="w-10 h-10 animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+      </svg>
+    </div>
+
+    <span class="inline-block bg-blue-500/10 text-blue-400 font-mono font-bold text-xs px-3.5 py-1 rounded-full border border-blue-500/30 uppercase tracking-wider">
+      HTTP 301 / Kalıcı Yönlendirme (Moved Permanently)
+    </span>
+
+    <h1 class="text-xl sm:text-2xl font-bold text-white leading-tight">
+      Bu Sayfa Yeni Bir Adrese Kalıcı Olarak Taşındı
+    </h1>
+
+    <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+      Erişmeye çalıştığınız sayfa güncellendi ve doğrudan <strong class="text-blue-400">Rezervasyonlar & Takvim Yönetimi</strong> sayfasına aktarılıyor.
+    </p>
+
+    <div class="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center justify-between">
+      <span class="text-xs font-bold text-slate-300 flex items-center space-x-1.5">
+        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Otomatik Yönlendirme Sayacı:</span>
+      </span>
+      <span id="countdown" class="w-10 h-10 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-lg shadow-lg">
+        3
+      </span>
+    </div>
+
+    <div>
+      <a href="index.html#/rezervasyonlar" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition inline-flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span>Beklemeden Hemen Yönlendir</span>
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    let seconds = 3;
+    const countdownEl = document.getElementById('countdown');
+    const timer = setInterval(() => {
+      seconds--;
+      if (countdownEl) countdownEl.innerText = seconds;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = 'index.html#/rezervasyonlar';
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>

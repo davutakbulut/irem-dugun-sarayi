@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP 500 - Sunucu Hatası | İrem Düğün Sarayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-heading { font-family: 'Playfair Display', serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-xl bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+    
+    <!-- SVG SERVER ERROR ICON (NO EMOJI) -->
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-inner">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+    </div>
+
+    <span class="inline-block bg-purple-500/10 text-purple-400 font-mono font-bold text-xs px-3.5 py-1 rounded-full border border-purple-500/30 uppercase tracking-wider">
+      HTTP 500 / Sunucu & Sistem Hatası
+    </span>
+
+    <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-white leading-tight">
+      Beklenmeyen Bir Sistem Hatası Meydana Geldi
+    </h1>
+
+    <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+      Sunucumuzda geçici bir işlem hatası oluştu. Verilerinizin güvenliği korunmuştur. Aşağıdaki butona tıklayarak sistemi yeniden başlatabilirsiniz.
+    </p>
+
+    <div class="pt-2 flex justify-center gap-3 flex-wrap text-xs font-bold">
+      <a href="index.html#/anasayfa" onclick="localStorage.clear();" class="bg-purple-600 hover:bg-purple-500 text-white font-extrabold px-6 py-2.5 rounded-xl shadow-lg transition inline-flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span>Sistemi Yeniden Başlat & Önbelleği Temizle</span>
+      </a>
+    </div>
+
+  </div>
+
+</body>
+</html>

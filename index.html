@@ -1532,7 +1532,9 @@
 
     function getHashTab() {
       const slug = window.location.hash.replace('#/', '').replace('#', '');
-      return SLUG_TO_TAB[slug] || 'dashboard';
+      if (!slug || slug === 'anasayfa') return 'dashboard';
+      if (SLUG_TO_TAB[slug]) return SLUG_TO_TAB[slug];
+      return 'simulasyon-404';
     }
 
     // --- GLOBAL REACT ERROR BOUNDARY COMPONENT ---
@@ -7605,49 +7607,65 @@
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold">
                   {/* SIMULATE 404 */}
                   <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl space-y-2">
-                    <span className="text-amber-800 dark:text-gold-400 text-sm font-extrabold block">🔍 HTTP 404 - Sayfa Bulunamadı</span>
+                    <span className="text-amber-800 dark:text-gold-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="search" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>HTTP 404 - Sayfa Bulunamadı</span>
+                    </span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Geçersiz rota veya silinmiş içeriklerde arama çubuğu ve hızlı aksiyon butonlarıyla gösterilir.</p>
                     <button
                       onClick={() => { if (onNavigate) { onNavigate('simulasyon-404'); } else { window.location.hash = '#/simulasyon-404'; } }}
-                      className="w-full bg-amber-500 text-slate-900 font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                      className="w-full bg-amber-500 text-slate-900 font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
                     >
-                      404 Ekranını Simüle Et 🚀
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>404 Ekranını Simüle Et</span>
                     </button>
                   </div>
 
                   {/* SIMULATE 301 */}
                   <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl space-y-2">
-                    <span className="text-blue-700 dark:text-blue-400 text-sm font-extrabold block">🔄 HTTP 301 - Kalıcı Yönlendirme</span>
+                    <span className="text-blue-700 dark:text-blue-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="refresh" fallbackEmoji="" className="w-4 h-4 text-blue-500 shrink-0" />
+                      <span>HTTP 301 - Kalıcı Yönlendirme</span>
+                    </span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Eski veya taşınmış rotalarda geri sayım sayacı ile otomatik hedef sayfaya yönlendirir.</p>
                     <button
                       onClick={() => { if (onNavigate) { onNavigate('simulasyon-301'); } else { window.location.hash = '#/simulasyon-301'; } }}
-                      className="w-full bg-blue-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                      className="w-full bg-blue-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
                     >
-                      301 Ekranını Simüle Et 🚀
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>301 Ekranını Simüle Et</span>
                     </button>
                   </div>
 
                   {/* SIMULATE 403 */}
                   <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl space-y-2">
-                    <span className="text-red-700 dark:text-red-400 text-sm font-extrabold block">🚫 HTTP 403 - Yetkisiz Erişim Uyarısı</span>
+                    <span className="text-red-700 dark:text-red-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="shield" fallbackEmoji="" className="w-4 h-4 text-red-500 shrink-0" />
+                      <span>HTTP 403 - Yetkisiz Erişim Uyarısı</span>
+                    </span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Kullanıcı rolünün izin vermediği sayfalarda yetki isteme butonuyla uyarı verir.</p>
                     <button
                       onClick={() => { if (onNavigate) { onNavigate('simulasyon-403'); } else { window.location.hash = '#/simulasyon-403'; } }}
-                      className="w-full bg-red-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                      className="w-full bg-red-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
                     >
-                      403 Ekranını Simüle Et 🚀
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>403 Ekranını Simüle Et</span>
                     </button>
                   </div>
 
                   {/* SIMULATE 500 */}
                   <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-2xl space-y-2">
-                    <span className="text-purple-700 dark:text-purple-400 text-sm font-extrabold block">💥 HTTP 500 - Sunucu / Sistem Hatası</span>
+                    <span className="text-purple-700 dark:text-purple-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="alert" fallbackEmoji="" className="w-4 h-4 text-purple-500 shrink-0" />
+                      <span>HTTP 500 - Sunucu / Sistem Hatası</span>
+                    </span>
                     <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Çalışma zamanı istisnalarında akordeon teknik hata detayı ve sistemi yeniden başlatma butonu sunar.</p>
                     <button
                       onClick={() => { if (onNavigate) { onNavigate('simulasyon-500'); } else { window.location.hash = '#/simulasyon-500'; } }}
-                      className="w-full bg-purple-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                      className="w-full bg-purple-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
                     >
-                      500 Ekranını Simüle Et 🚀
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>500 Ekranını Simüle Et</span>
                     </button>
                   </div>
                 </div>
@@ -7744,8 +7762,10 @@
       const [searchQuery, setSearchQuery] = useState('');
       return (
         <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-amber-500/40 shadow-2xl animate-fade-in">
-          <div className="text-6xl animate-bounce" aria-hidden="true">🔍</div>
-          <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-gold-400 shadow-inner">
+            <ThemeIcon icon="search" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+          </div>
+          <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3.5 py-1 rounded-full border border-amber-500/30 inline-block">
             HTTP 404 / Sayfa Bulunamadı
           </span>
           <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
@@ -7763,13 +7783,25 @@
               onChange={e => setSearchQuery(e.target.value)}
               className="flex-1 bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium"
             />
-            <button type="submit" className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">Ara 🔍</button>
+            <button type="submit" className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1.5 shrink-0">
+              <ThemeIcon icon="search" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Ara</span>
+            </button>
           </form>
 
           <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
-            <button onClick={onGoHome} className="gold-button font-bold px-5 py-2.5 rounded-xl shadow">🏠 Anasayfaya Dön</button>
-            <button onClick={() => window.location.hash = '#/rezervasyon-olustur'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">➕ Rezervasyon Oluştur</button>
-            <button onClick={() => window.location.hash = '#/rezervasyonlar'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">📅 Rezervasyonlar & Takvim</button>
+            <button onClick={onGoHome} className="gold-button font-bold px-5 py-2.5 rounded-xl shadow flex items-center space-x-1.5">
+              <ThemeIcon icon="dashboard" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Anasayfaya Dön</span>
+            </button>
+            <button onClick={() => window.location.hash = '#/yeni-rezervasyon'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
+              <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Rezervasyon Oluştur</span>
+            </button>
+            <button onClick={() => window.location.hash = '#/rezervasyonlar'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
+              <ThemeIcon icon="calendar" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Rezervasyonlar & Takvim</span>
+            </button>
           </div>
         </div>
       );
@@ -7796,8 +7828,10 @@
 
       return (
         <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-5 border border-blue-500/40 shadow-2xl animate-fade-in">
-          <div className="text-5xl animate-spin" style={{ animationDuration: '3s' }} aria-hidden="true">🔄</div>
-          <span className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/30">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-inner">
+            <ThemeIcon icon="refresh" fallbackEmoji="" className="w-10 h-10 shrink-0 animate-spin" style={{ animationDuration: '3s' }} />
+          </div>
+          <span className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-bold px-3.5 py-1 rounded-full border border-blue-500/30 inline-block">
             HTTP 301 / Kalıcı Yönlendirme (Moved Permanently)
           </span>
           <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">
@@ -7808,15 +7842,19 @@
           </p>
 
           <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700 dark:text-gray-200">Otomatik Yönlendirme Sayacı:</span>
+            <span className="text-xs font-bold text-slate-700 dark:text-gray-200 flex items-center space-x-1.5">
+              <ThemeIcon icon="clock" fallbackEmoji="" className="w-4 h-4 text-blue-500 shrink-0" />
+              <span>Otomatik Yönlendirme Sayacı:</span>
+            </span>
             <span className="w-10 h-10 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-lg shadow-lg">
               {countdown}
             </span>
           </div>
 
           <div className="pt-2">
-            <button onClick={() => { if (onRedirect) onRedirect(targetPath); else window.location.hash = targetPath; }} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition">
-              🚀 Beklemeden Hemen Yönlendir ({targetName})
+            <button onClick={() => { if (onRedirect) onRedirect(targetPath); else window.location.hash = targetPath; }} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition inline-flex items-center space-x-1.5">
+              <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 shrink-0" />
+              <span>Beklemeden Hemen Yönlendir ({targetName})</span>
             </button>
           </div>
         </div>
@@ -7828,8 +7866,10 @@
       const [requested, setRequested] = useState(false);
       return (
         <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-4 border border-red-500/40 shadow-2xl animate-fade-in">
-          <div className="text-5xl" aria-hidden="true">🚫</div>
-          <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/20">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-600 dark:text-red-400 shadow-inner">
+            <ThemeIcon icon="shield" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+          </div>
+          <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3.5 py-1 rounded-full border border-red-500/20 inline-block">
             Hata 403 / Yetkisiz Erişim Uyarısı
           </span>
           <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">
@@ -7841,19 +7881,21 @@
           </p>
 
           <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
-            <button onClick={onGoHome} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg">
-              🏠 Güvenli Anasayfaya Dön
+            <button onClick={onGoHome} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg inline-flex items-center space-x-1.5">
+              <ThemeIcon icon="dashboard" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Güvenli Anasayfaya Dön</span>
             </button>
             <button
               onClick={() => {
                 setRequested(true);
                 if (onRequestPermission) onRequestPermission();
               }}
-              className={`font-bold px-5 py-2.5 rounded-xl text-xs border shadow transition ${
+              className={`font-bold px-5 py-2.5 rounded-xl text-xs border shadow transition inline-flex items-center space-x-1.5 ${
                 requested ? 'bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400 hover:bg-red-500 hover:text-white'
               }`}
             >
-              {requested ? '✅ Yöneticiye Yetki Talebi İletildi' : '📩 Yöneticiden Yetki İste'}
+              <ThemeIcon icon={requested ? "check" : "mail"} fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>{requested ? 'Yöneticiye Yetki Talebi İletildi' : 'Yöneticiden Yetki İste'}</span>
             </button>
           </div>
         </div>
@@ -7865,15 +7907,17 @@
       const [showDetails, setShowDetails] = useState(false);
       return (
         <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-purple-500/40 shadow-2xl animate-fade-in">
-          <div className="text-6xl" aria-hidden="true">💥</div>
-          <span className="bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-bold px-3 py-1 rounded-full border border-purple-500/30">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shadow-inner">
+            <ThemeIcon icon="alert" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+          </div>
+          <span className="bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-bold px-3.5 py-1 rounded-full border border-purple-500/30 inline-block">
             HTTP 500 / Sunucu & Sistem Hatası
           </span>
           <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
             Beklenmeyen Bir Sistem Hatası Meydana Geldi
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
-            Sunucumuzda geçici bir işlem hatası oluştu. Verilerinizin güvenliği korunmuştur. Aşağıdaki butona tıklayarak sistemi yeniden başlatabilirsiniz.
+            Sunucumuzda geçici bir işlem hatası oluştu. Verilerinizin güvenliği korunmıştır. Aşağıdaki butona tıklayarak sistemi yeniden başlatabilirsiniz.
           </p>
 
           {/* ACCORDION TECHNICAL DETAILS */}
@@ -7882,7 +7926,10 @@
               onClick={() => setShowDetails(!showDetails)}
               className="w-full p-3.5 flex justify-between items-center text-xs font-bold text-purple-800 dark:text-purple-300 hover:bg-purple-500/10 transition"
             >
-              <span>🛠️ Teknik Hata Detayı & Stack Trace</span>
+              <span className="flex items-center space-x-1.5">
+                <ThemeIcon icon="settings" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                <span>Teknik Hata Detayı & Stack Trace</span>
+              </span>
               <span>{showDetails ? '▲ Gizle' : '▼ Göster'}</span>
             </button>
 
@@ -7899,11 +7946,13 @@
           </div>
 
           <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
-            <button onClick={() => { if (onRestart) onRestart(); else window.location.reload(); }} className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
-              ⚡ Sistemi Yeniden Başlat & Yenile
+            <button onClick={() => { if (onRestart) onRestart(); else window.location.reload(); }} className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition inline-flex items-center space-x-1.5">
+              <ThemeIcon icon="refresh" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Sistemi Yeniden Başlat & Yenile</span>
             </button>
-            <button onClick={() => alert('Hata raporu teknik destek ekibine iletildi!')} className="bg-slate-100 dark:bg-brand-dark font-bold px-5 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">
-              📩 Teknik Desteğe Bildir
+            <button onClick={() => alert('Hata raporu teknik destek ekibine iletildi!')} className="bg-slate-100 dark:bg-brand-dark font-bold px-5 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border inline-flex items-center space-x-1.5 text-slate-700 dark:text-gray-300">
+              <ThemeIcon icon="mail" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Teknik Desteğe Bildir</span>
             </button>
           </div>
         </div>

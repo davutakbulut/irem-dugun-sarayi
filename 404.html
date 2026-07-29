@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP 404 - Sayfa Bulunamadı | İrem Düğün Sarayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              gold: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-heading { font-family: 'Playfair Display', serif; }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-button {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      transition: all 0.2s ease-in-out;
+    }
+    .gold-button:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-xl bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+    
+    {/* NORDIC NO-EMOJI SVG ICON */}
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-inner">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+    </div>
+
+    <span class="inline-block bg-amber-500/10 text-amber-400 font-mono font-bold text-xs px-3.5 py-1 rounded-full border border-amber-500/30 uppercase tracking-wider">
+      HTTP 404 — Sayfa Bulunamadı
+    </span>
+
+    <h1 className="text-2xl sm:text-3xl font-heading font-extrabold gold-gradient-text leading-tight">
+      Aradığınız Sayfa Mevcut Değil veya Taşınmış Olabilir
+    </h1>
+
+    <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+      Girdiğiniz web adresi hatalı olabilir veya bu içerik sistemden kaldırılmış olabilir. Hızlı arama çubuğunu kullanabilir veya aşağıdaki butonlarla doğrudan gezinebilirsiniz.
+    </p>
+
+    <!-- SEARCH FORM -->
+    <form action="index.html" method="GET" class="flex gap-2 max-w-md mx-auto">
+      <input
+        type="text"
+        name="q"
+        placeholder="Sistemde sayfa veya hizmet ara..."
+        class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+      />
+      <button type="submit" class="gold-button font-extrabold px-5 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1.5 shrink-0">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <span>Ara</span>
+      </button>
+    </form>
+
+    <!-- ACTION BUTTONS -->
+    <div class="pt-2 flex justify-center gap-3 flex-wrap text-xs font-bold">
+      <a href="index.html#/anasayfa" class="gold-button font-extrabold px-5 py-2.5 rounded-xl shadow inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        <span>Anasayfaya Dön</span>
+      </a>
+
+      <a href="index.html#/yeni-rezervasyon" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2.5 rounded-xl border border-slate-700 inline-flex items-center space-x-1.5 transition">
+        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Rezervasyon Oluştur</span>
+      </a>
+
+      <a href="index.html#/rezervasyonlar" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2.5 rounded-xl border border-slate-700 inline-flex items-center space-x-1.5 transition">
+        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <span>Rezervasyonlar & Takvim</span>
+      </a>
+    </div>
+
+  </div>
+
+</body>
+</html>
