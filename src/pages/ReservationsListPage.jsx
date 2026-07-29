@@ -23,6 +23,10 @@ export function ReservationsListPage({
   const [startDateFilter, setStartDateFilter] = useState('');
   const [endDateFilter, setEndDateFilter] = useState('');
 
+  // Drag & Drop State
+  const [draggedResId, setDraggedResId] = useState(null);
+  const [dragOverDate, setDragOverDate] = useState(null);
+
   // Modals State
   const [selectedResForPreview, setSelectedResForPreview] = useState(null);
   const [selectedDayInspector, setSelectedDayInspector] = useState(null);
@@ -81,7 +85,7 @@ export function ReservationsListPage({
 
   // August 2026 Calendar Grid Setup (1 to 31 Days)
   // August 1, 2026 is Saturday (Day 6 of week: Pzt=1, Sal=2, Çar=3, Per=4, Cum=5, Cmt=6, Paz=7)
-  const augustStartEmptyCount = 5; // 5 empty cells before Saturday
+  const augustStartEmptyCount = 5;
   const augustDaysCount = 31;
 
   const calendarGridCells = [];
@@ -94,17 +98,35 @@ export function ReservationsListPage({
     calendarGridCells.push({ isEmpty: false, dayNumber: day, dateStr, key: dateStr });
   }
 
+  // Handle Drag & Drop Date Change
+  const handleDropReschedule = (resId, newDateStr) => {
+    const targetRes = reservations.find(r => r.id === resId);
+    if (targetRes && targetRes.eventDate !== newDateStr && targetRes.date !== newDateStr) {
+      if (onUpdateReservation) {
+        onUpdateReservation({
+          ...targetRes,
+          eventDate: newDateStr,
+          date: newDateStr,
+          startDate: newDateStr,
+          endDate: newDateStr
+        });
+      }
+    }
+    setDraggedResId(null);
+    setDragOverDate(null);
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-fade-in pb-20">
       
-      {/* 1. HEADER & TOP CONTROLS (Görünüm Değiştirici En Sağda) */}
+      {/* 1. HEADER & TOP CONTROLS */}
       <div className="glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-sm">
         <div>
           <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
             📅 Rezervasyonlar & Canlı Takvim Yönetimi
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
-            Tüm düğün sözleşmelerini filtreleyin, canlı takvimde inceleyin veya düzenleyin.
+            Tüm düğün sözleşmelerini filtreleyin, canlı takvimde sürükleyip taşıyın veya düzenleyin.
           </p>
         </div>
 
@@ -310,7 +332,7 @@ export function ReservationsListPage({
           </div>
         </div>
       ) : (
-        /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID MATCHING USER SCREENSHOT) */
+        /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID WITH DRAG-AND-DROP & HOURLY TIMELINE FLOW) */
         <div className="space-y-4">
           
           {/* CALENDAR HEADER & HELP BADGE */}
@@ -322,7 +344,7 @@ export function ReservationsListPage({
             </div>
             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
               <span>💡</span>
-              <span>Günün üzerine tıklayarak tüm salon doluluklarını inceleyebilir veya kartı sürükleyerek başka güne taşıyabilirsiniz.</span>
+              <span>Günün üzerine tıklayarak tüm salon doluluklarını saat akışında inceleyebilir veya kartı sürükleyerek başka güne taşıyabilirsiniz.</span>
             </div>
           </div>
 
@@ -346,7 +368,7 @@ export function ReservationsListPage({
               <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Paz</div>
             </div>
 
-            {/* 31 DAYS MONTHLY GRID MATCHING USER SCREENSHOT */}
+            {/* 31 DAYS MONTHLY GRID WITH DRAG-AND-DROP TARGETS */}
             <div className="grid grid-cols-7 gap-2 text-xs">
               {calendarGridCells.map(cell => {
                 if (cell.isEmpty) {
@@ -365,13 +387,32 @@ export function ReservationsListPage({
                   });
 
                 const hasEvents = dayResList.length > 0;
+                const isDragOver = dragOverDate === cell.dateStr;
 
                 return (
                   <div
                     key={cell.key}
                     onClick={() => setSelectedDayInspector({ dateStr: cell.dateStr, dayNumber: cell.dayNumber, reservations: dayResList })}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setDragOverDate(cell.dateStr);
+                    }}
+                    onDragLeave={() => setDragOverDate(null)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const resId = e.dataTransfer.getData('text/plain') || draggedResId;
+                      if (resId) {
+                        handleDropReschedule(resId, cell.dateStr);
+                      }
+                    }}
                     className={`min-h-[110px] p-2.5 rounded-2xl border transition flex flex-col justify-between cursor-pointer space-y-1.5 group ${
-                      hasEvents
+                      isDragOver
+                        ? 'bg-amber-100/90 dark:bg-amber-900/50 border-2 border-amber-500 scale-[1.03] shadow-lg ring-2 ring-amber-400'
+                        : hasEvents
                         ? 'bg-amber-50/80 dark:bg-amber-950/20 border-amber-300 dark:border-amber-700/60 shadow-sm hover:border-amber-500'
                         : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border hover:border-amber-400'
                     }`}
@@ -388,19 +429,29 @@ export function ReservationsListPage({
                       )}
                     </div>
 
-                    {/* EVENT PILLS :: CustomerName (StartTime) MATCHING USER SCREENSHOT */}
+                    {/* EVENT PILLS :: CustomerName (StartTime) WITH HTML5 DRAGGABLE */}
                     <div className="space-y-1 overflow-y-auto max-h-20 custom-scrollbar">
                       {dayResList.map(r => {
                         const firstName = (r.customerName || 'Etkinlik').split(' ')[0];
                         return (
                           <div
                             key={r.id}
+                            draggable={true}
+                            onDragStart={(e) => {
+                              e.stopPropagation();
+                              e.dataTransfer.setData('text/plain', r.id);
+                              setDraggedResId(r.id);
+                            }}
+                            onDragEnd={() => {
+                              setDraggedResId(null);
+                              setDragOverDate(null);
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedResForPreview(r);
                             }}
-                            className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border hover:border-amber-500/60 p-1.5 rounded-xl text-[10px] font-bold text-slate-700 dark:text-gray-300 shadow-xs hover:scale-[1.02] transition flex items-center justify-between"
-                            title={`🕒 ${r.startTime || '18:00'} - ${r.customerName}`}
+                            className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border hover:border-amber-500/60 p-1.5 rounded-xl text-[10px] font-bold text-slate-700 dark:text-gray-300 shadow-xs hover:scale-[1.02] transition flex items-center justify-between cursor-grab active:cursor-grabbing"
+                            title="Sürükleyip başka bir güne bırakabilirsiniz. Tıklayarak Detay Önizleyin."
                           >
                             <span className="truncate">:: {firstName}</span>
                             <span className="text-[9px] font-mono text-amber-700 dark:text-gold-400 font-extrabold ml-1">({r.startTime || '18:00'})</span>
@@ -416,56 +467,102 @@ export function ReservationsListPage({
         </div>
       )}
 
-      {/* 4. DAY INSPECTOR & TIME CONFLICT MODAL */}
+      {/* 4. HOURLY TIMELINE SCHEDULE FLOW MODAL (GÜNE TIKLAYINCA SAAT AKIŞI GÖRÜNÜMÜ) */}
       {selectedDayInspector && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
               <div>
-                <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Tarih Detayı & Doluluk Denetleyicisi</span>
+                <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Saat Akışı & Doluluk Çizelgesi</span>
                 <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
-                  📅 {formatDate(selectedDayInspector.dateStr)} ({selectedDayInspector.reservations.length} Etkinlik)
+                  🕒 {formatDate(selectedDayInspector.dateStr)} ({selectedDayInspector.reservations.length} Etkinlik)
                 </h3>
               </div>
               <button onClick={() => setSelectedDayInspector(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              {selectedDayInspector.reservations.length === 0 ? (
-                <div className="p-6 text-center text-slate-400 font-bold bg-slate-50 dark:bg-brand-dark rounded-2xl border border-dashed">
-                  Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
+            {/* HOURLY TIMELINE SCHEDULE FLOW (08:00 - 24:00) */}
+            <div className="space-y-4 text-xs">
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-300 font-medium">
+                💡 <strong>Saat Akış Çizelgesi:</strong> Gün içindeki düğün ve etkinliklerin başlangıç-bitiş saatlerine göre kronolojik zaman çizelgesidir.
+              </div>
+
+              {/* VISUAL HOURLY TIME BARS */}
+              <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border space-y-3">
+                <span className="font-bold block text-slate-700 dark:text-gray-200">⏱️ Günlük Zaman Çizelgesi (08:00 - 24:00):</span>
+                <div className="flex justify-between text-[10px] font-mono font-bold text-slate-400 border-b pb-1">
+                  <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span><span>20:00</span><span>22:00</span><span>24:00</span>
                 </div>
-              ) : (
-                selectedDayInspector.reservations.map(r => {
-                  const vObj = venues.find(v => v.id === r.venueId);
-                  return (
-                    <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
-                      <div className="flex justify-between items-center font-bold">
-                        <span className="text-amber-700 dark:text-gold-400 font-mono">{r.id} - {vObj?.name || r.venueId}</span>
-                        <span className="text-emerald-600 font-mono font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+
+                {selectedDayInspector.reservations.length === 0 ? (
+                  <div className="py-4 text-center text-slate-400 font-bold">Bu saat aralıklarında kayıtlı organizasyon yok.</div>
+                ) : (
+                  selectedDayInspector.reservations.map(r => {
+                    const vObj = venues.find(v => v.id === r.venueId);
+                    const startH = parseInt((r.startTime || '18:00').split(':')[0]) || 18;
+                    const endH = parseInt((r.endTime || '23:00').split(':')[0]) || 23;
+                    const leftPct = Math.max(0, ((startH - 8) / 16) * 100);
+                    const widthPct = Math.min(100 - leftPct, Math.max(10, ((endH - startH) / 16) * 100));
+
+                    return (
+                      <div key={r.id} className="space-y-1">
+                        <div className="flex justify-between text-[11px] font-bold">
+                          <span className="text-slate-800 dark:text-gray-200">👑 {r.customerName} ({vObj?.name || r.venueId})</span>
+                          <span className="font-mono text-amber-600 font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+                        </div>
+                        <div className="w-full bg-slate-200 dark:bg-brand-card h-4 rounded-full overflow-hidden relative border border-slate-300 dark:border-brand-border">
+                          <div
+                            className="bg-amber-500 h-full rounded-full flex items-center justify-center text-[9px] text-slate-900 font-extrabold truncate px-2 shadow-sm"
+                            style={{ marginLeft: `${leftPct}%`, width: `${widthPct}%` }}
+                          >
+                            {r.startTime || '18:00'} - {r.customerName}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="font-extrabold text-sm text-slate-900 dark:text-white">👑 {r.customerName} ({r.guestCount} Kişi)</span>
-                        <span className="font-mono font-bold text-amber-600">{formatCurrency(r.totalAmount)}</span>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* DETAILED RESERVATION LIST FOR THE DAY */}
+              <div className="space-y-3">
+                <span className="font-bold block text-slate-700 dark:text-gray-200">📋 Günlük Etkinlik Kartları ({selectedDayInspector.reservations.length}):</span>
+                {selectedDayInspector.reservations.length === 0 ? (
+                  <div className="p-6 text-center text-slate-400 font-bold bg-slate-50 dark:bg-brand-dark rounded-2xl border border-dashed">
+                    Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
+                  </div>
+                ) : (
+                  selectedDayInspector.reservations.map(r => {
+                    const vObj = venues.find(v => v.id === r.venueId);
+                    return (
+                      <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                        <div className="flex justify-between items-center font-bold">
+                          <span className="text-amber-700 dark:text-gold-400 font-mono">{r.id} - {vObj?.name || r.venueId}</span>
+                          <span className="text-emerald-600 font-mono font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="font-extrabold text-sm text-slate-900 dark:text-white">👑 {r.customerName} ({r.guestCount} Kişi)</span>
+                          <span className="font-mono font-bold text-amber-600">{formatCurrency(r.totalAmount)}</span>
+                        </div>
+                        <div className="flex justify-end space-x-2 pt-1 border-t border-slate-200 dark:border-brand-border/40">
+                          <button
+                            onClick={() => setSelectedResForPreview(r)}
+                            className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-200 rounded-xl font-bold text-xs"
+                          >
+                            👁️ Detay Önizle
+                          </button>
+                          <button
+                            onClick={() => handleOpenEdit(r)}
+                            className="gold-button px-4 py-1.5 rounded-xl font-bold text-xs shadow"
+                          >
+                            ✏️ Rezervasyonu Düzenle
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex justify-end space-x-2 pt-1 border-t border-slate-200 dark:border-brand-border/40">
-                        <button
-                          onClick={() => setSelectedResForPreview(r)}
-                          className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-200 rounded-xl font-bold text-xs"
-                        >
-                          👁️ Detay Önizle
-                        </button>
-                        <button
-                          onClick={() => handleOpenEdit(r)}
-                          className="gold-button px-4 py-1.5 rounded-xl font-bold text-xs shadow"
-                        >
-                          ✏️ Rezervasyonu Düzenle
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
 
             <div className="pt-2 border-t flex justify-between items-center text-xs font-bold">
