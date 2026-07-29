@@ -3112,31 +3112,42 @@
       return (
         <div className="space-y-6 max-w-7xl mx-auto pb-12 relative">
           
-          {/* SLEEK IN-APP RED CORPORATE ALERT MODAL (SCREEN STATE ADAPTIVE) */}
+          {/* STANDALONE FLOATING TOP-RIGHT NOTIFICATION POPUP */}
           {alertModal.isOpen && (
-            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-slate-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
-              <div className="w-full max-w-lg sm:max-w-md bg-white dark:bg-slate-900 border-t-2 sm:border-2 border-red-500/60 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(239,68,68,0.4)] relative animate-slide-up sm:animate-scale-up text-center space-y-5 max-h-[85vh] overflow-y-auto">
-                {/* Red Pulse Badge Icon */}
-                <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center text-3xl mx-auto border border-red-500/30 shadow-inner animate-pulse shrink-0">
+            <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-down sm:animate-slide-left">
+              <div className="bg-white/95 dark:bg-slate-900/95 border-2 border-red-500/70 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(239,68,68,0.35)] backdrop-blur-xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600">
+                {/* Red Pulse Warning Icon */}
+                <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-xl font-bold shrink-0 border border-red-500/30 animate-pulse mt-0.5">
                   ⚠️
                 </div>
 
-                {/* Title & Message */}
-                <div className="space-y-2">
-                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-slate-800 dark:text-white">
-                    {alertModal.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 leading-relaxed font-medium">
+                {/* Content Area */}
+                <div className="flex-1 space-y-1 pr-6 text-left">
+                  <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-1.5">
+                    <span>{alertModal.title}</span>
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-semibold">
                     {alertModal.message}
                   </p>
+                  
+                  {/* Action Button */}
+                  <div className="pt-2">
+                    <button
+                      onClick={closeAlertModal}
+                      className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1"
+                    >
+                      <span>Anladım, Düzelt ✓</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Action Button */}
+                {/* Close X Button */}
                 <button
                   onClick={closeAlertModal}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-red-500/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center space-x-2"
+                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 dark:hover:text-white transition p-1"
+                  aria-label="Kapat"
                 >
-                  <span>Anladım, Düzelt ✓</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
               </div>
             </div>
