@@ -2416,9 +2416,26 @@
                       initialSubTab={
                         activeTab === 'settings-appearance' ? 'appearance' :
                         activeTab === 'settings-performance' ? 'performance' :
-                        activeTab === 'settings-rbac' ? 'rbac' : 'appearance'
+                        activeTab === 'settings-rbac' ? 'rbac' :
+                        activeTab === 'settings-errors' ? 'errors' : 'appearance'
                       }
                     />
+                  )}
+
+                  {activeTab === 'simulasyon-404' && (
+                    <NotFoundScreen onGoHome={() => navigateTo('dashboard')} onSearch={(q) => showToast(`Arama yapılıyor: ${q}`)} />
+                  )}
+
+                  {activeTab === 'simulasyon-301' && (
+                    <PermanentRedirectScreen targetPath="#/rezervasyonlar" targetName="Rezervasyonlarım & Takvim" onRedirect={() => navigateTo('reservations')} />
+                  )}
+
+                  {activeTab === 'simulasyon-403' && (
+                    <UnauthorizedAccessScreen pageTitle="Simülasyon Paneli" activeRoleName={rolesState[activeRole] || activeRole} onGoHome={() => navigateTo('dashboard')} onRequestPermission={() => showToast('📩 Yöneticiye yetki talebi iletildi!')} />
+                  )}
+
+                  {activeTab === 'simulasyon-500' && (
+                    <ServerErrorScreen errorMessage="Internal Exception: Database Connection Timeout at ReservationPool" onRestart={() => window.location.reload()} />
                   )}
                 </ErrorBoundary>
               )}
@@ -4827,7 +4844,7 @@
       onShowEmail
     }) {
       const [viewMode, setViewMode] = useState('table');
-      const [isFilterOpen, setIsFilterOpen] = useState(true);
+      const [isFilterOpen, setIsFilterOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
 
       const [searchQuery, setSearchQuery] = useState('');
       const [venueFilter, setVenueFilter] = useState('ALL');
@@ -4973,13 +4990,13 @@
               </p>
             </div>
 
-            {/* HARMONIOUS ACTION TOOLBAR (UNIFORM H-10 HEIGHT & PROPER COMPONENT HIERARCHY) */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* HARMONIOUS ACTION TOOLBAR (FORCED SINGLE ROW ON MOBILE, ICONIC WHEN TEXT DOESNT FIT) */}
+            <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0 flex-nowrap w-full sm:w-auto justify-between sm:justify-end">
               
               {/* 1. FILTER TOGGLE BUTTON */}
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`h-10 px-3.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-2 shadow-xs cursor-pointer ${
+                className={`h-10 px-2.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-1.5 sm:space-x-2 shadow-xs cursor-pointer shrink-0 ${
                   isFilterOpen 
                     ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-gold-400' 
                     : 'bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:bg-slate-200 dark:hover:bg-slate-800'
@@ -4989,25 +5006,25 @@
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
-                <span>Filtreler</span>
+                <span className="hidden sm:inline">Filtreler</span>
                 <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
               </button>
 
               {/* 2. YENİ REZERVASYON PRIMARY BUTTON */}
               <button 
                 onClick={onNewResClick} 
-                className="gold-button font-bold text-xs h-10 px-4 rounded-xl shadow-sm flex items-center space-x-2 shrink-0 cursor-pointer"
+                className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer"
                 title="Yeni Rezervasyon Oluştur"
               >
                 <span className="text-sm">➕</span>
-                <span>Yeni Rezervasyon</span>
+                <span className="hidden sm:inline">Yeni Rezervasyon</span>
               </button>
 
               {/* 3. SEGMENTED VIEW SWITCHER (LIST VS CALENDAR) */}
               <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border h-10 items-center shrink-0">
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`h-8 px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
+                  className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
                     viewMode === 'table' 
                       ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
@@ -5022,12 +5039,12 @@
                     <line x1="3" y1="12" x2="3.01" y2="12"/>
                     <line x1="3" y1="18" x2="3.01" y2="18"/>
                   </svg>
-                  <span>Liste</span>
+                  <span className="hidden md:inline">Liste</span>
                 </button>
 
                 <button
                   onClick={() => setViewMode('calendar')}
-                  className={`h-8 px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
+                  className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
                     viewMode === 'calendar' 
                       ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
@@ -5046,7 +5063,7 @@
                     <line x1="12" y1="18" x2="12.01" y2="18"/>
                     <line x1="16" y1="18" x2="16.01" y2="18"/>
                   </svg>
-                  <span>Takvim</span>
+                  <span className="hidden md:inline">Takvim</span>
                 </button>
               </div>
 
@@ -6810,6 +6827,12 @@
               >
                 🛡️ Rol & İzin Matrisi
               </button>
+              <button
+                onClick={() => setSettingsTab('errors')}
+                className={`px-3.5 py-1.5 rounded-xl transition ${settingsTab === 'errors' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
+              >
+                🚨 Hata & Yönlendirme Simülasyonu
+              </button>
             </div>
           </div>
 
@@ -7188,6 +7211,71 @@
                   </tbody>
                 </table>
               </div>
+          {/* TAB 4: ERROR & REDIRECTION PAGES LIVE SIMULATION PANEL */}
+          {settingsTab === 'errors' && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-3xl space-y-6 border border-red-500/30 shadow-md">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <span>🚨 Özel Hata & Yönlendirme Sayfaları Canlı Simülasyon Paneli</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Sistemdeki HTTP 404 (Bulunamadı), 301 (Kalıcı Yönlendirme), 403 (Yetkisiz Erişim) ve 500 (Sistem Hatası) ekranlarını canlı simüle edin.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold">
+                  {/* SIMULATE 404 */}
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl space-y-2">
+                    <span className="text-amber-800 dark:text-gold-400 text-sm font-extrabold block">🔍 HTTP 404 - Sayfa Bulunamadı</span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Geçersiz rota veya silinmiş içeriklerde arama çubuğu ve hızlı aksiyon butonlarıyla gösterilir.</p>
+                    <button
+                      onClick={() => window.location.hash = '#/simulasyon-404'}
+                      className="w-full bg-amber-500 text-slate-900 font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                    >
+                      404 Ekranını Simüle Et 🚀
+                    </button>
+                  </div>
+
+                  {/* SIMULATE 301 */}
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl space-y-2">
+                    <span className="text-blue-700 dark:text-blue-400 text-sm font-extrabold block">🔄 HTTP 301 - Kalıcı Yönlendirme</span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Eski veya taşınmış rotalarda geri sayım sayacı ile otomatik hedef sayfaya yönlendirir.</p>
+                    <button
+                      onClick={() => window.location.hash = '#/simulasyon-301'}
+                      className="w-full bg-blue-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                    >
+                      301 Ekranını Simüle Et 🚀
+                    </button>
+                  </div>
+
+                  {/* SIMULATE 403 */}
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl space-y-2">
+                    <span className="text-red-700 dark:text-red-400 text-sm font-extrabold block">🚫 HTTP 403 - Yetkisiz Erişim Uyarısı</span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Kullanıcı rolünün izin vermediği sayfalarda yetki isteme butonuyla uyarı verir.</p>
+                    <button
+                      onClick={() => window.location.hash = '#/simulasyon-403'}
+                      className="w-full bg-red-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                    >
+                      403 Ekranını Simüle Et 🚀
+                    </button>
+                  </div>
+
+                  {/* SIMULATE 500 */}
+                  <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-2xl space-y-2">
+                    <span className="text-purple-700 dark:text-purple-400 text-sm font-extrabold block">💥 HTTP 500 - Sunucu / Sistem Hatası</span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Çalışma zamanı istisnalarında akordeon teknik hata detayı ve sistemi yeniden başlatma butonu sunar.</p>
+                    <button
+                      onClick={() => window.location.hash = '#/simulasyon-500'}
+                      className="w-full bg-purple-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition"
+                    >
+                      500 Ekranını Simüle Et 🚀
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -7275,10 +7363,95 @@
       );
     }
 
-    // --- UNAUTHORIZED ACCESS (403) SCREEN ---
-    function UnauthorizedAccessScreen({ pageTitle, activeRoleName, onGoHome }) {
+    // --- HTTP 404: NOT FOUND SCREEN ---
+    function NotFoundScreen({ onGoHome, onSearch }) {
+      const [searchQuery, setSearchQuery] = useState('');
       return (
-        <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-4 border border-red-500/40 shadow-2xl">
+        <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-amber-500/40 shadow-2xl animate-fade-in">
+          <div className="text-6xl animate-bounce" aria-hidden="true">🔍</div>
+          <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">
+            HTTP 404 / Sayfa Bulunamadı
+          </span>
+          <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+            Aradığınız Sayfa Mevcut Değil veya Taşınmış Olabilir
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Girdiğiniz web adresi hatalı olabilir veya bu içerik sistemden kaldırılmış olabilir. Hızlı arama çubuğunu kullanabilir veya aşağıdaki butonlarla doğrudan gezinebilirsiniz.
+          </p>
+
+          <form onSubmit={(e) => { e.preventDefault(); if (onSearch) onSearch(searchQuery); }} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Sistemde sayfa veya hizmet ara..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="flex-1 bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium"
+            />
+            <button type="submit" className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">Ara 🔍</button>
+          </form>
+
+          <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
+            <button onClick={onGoHome} className="gold-button font-bold px-5 py-2.5 rounded-xl shadow">🏠 Anasayfaya Dön</button>
+            <button onClick={() => window.location.hash = '#/rezervasyon-olustur'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">➕ Rezervasyon Oluştur</button>
+            <button onClick={() => window.location.hash = '#/rezervasyonlar'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">📅 Rezervasyonlar & Takvim</button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 301: PERMANENT REDIRECT SCREEN ---
+    function PermanentRedirectScreen({ targetPath = '#/rezervasyonlar', targetName = 'Rezervasyonlarım & Takvim', onRedirect }) {
+      const [countdown, setCountdown] = useState(3);
+
+      useEffect(() => {
+        const timer = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              if (onRedirect) onRedirect(targetPath);
+              else window.location.hash = targetPath;
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [targetPath]);
+
+      return (
+        <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-5 border border-blue-500/40 shadow-2xl animate-fade-in">
+          <div className="text-5xl animate-spin" style={{ animationDuration: '3s' }} aria-hidden="true">🔄</div>
+          <span className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/30">
+            HTTP 301 / Kalıcı Yönlendirme (Moved Permanently)
+          </span>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">
+            Bu Sayfa Yeni Bir Adrese Kalıcı Olarak Taşındı
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Erişmeye çalıştığınız sayfa güncellendi ve doğrudan <strong className="text-blue-600 dark:text-blue-400">{targetName}</strong> sayfasına aktarılıyor.
+          </p>
+
+          <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700 dark:text-gray-200">Otomatik Yönlendirme Sayacı:</span>
+            <span className="w-10 h-10 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-lg shadow-lg">
+              {countdown}
+            </span>
+          </div>
+
+          <div className="pt-2">
+            <button onClick={() => { if (onRedirect) onRedirect(targetPath); else window.location.hash = targetPath; }} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition">
+              🚀 Beklemeden Hemen Yönlendir ({targetName})
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 403: UNAUTHORIZED ACCESS SCREEN ---
+    function UnauthorizedAccessScreen({ pageTitle = 'Bu Sayfa', activeRoleName = 'Müşteri', onGoHome, onRequestPermission }) {
+      const [requested, setRequested] = useState(false);
+      return (
+        <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-4 border border-red-500/40 shadow-2xl animate-fade-in">
           <div className="text-5xl" aria-hidden="true">🚫</div>
           <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/20">
             Hata 403 / Yetkisiz Erişim Uyarısı
@@ -7290,9 +7463,71 @@
             Mevcut kullanıcınızın yetki rolü: <strong className="text-amber-700 dark:text-gold-400">{activeRoleName}</strong>.<br />
             Bu sayfa güvenlik ve veri mahremiyeti nedeniyle bu rolün erişimine kısıtlanmıştır.
           </p>
-          <div className="pt-2">
+
+          <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
             <button onClick={onGoHome} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg">
               🏠 Güvenli Anasayfaya Dön
+            </button>
+            <button
+              onClick={() => {
+                setRequested(true);
+                if (onRequestPermission) onRequestPermission();
+              }}
+              className={`font-bold px-5 py-2.5 rounded-xl text-xs border shadow transition ${
+                requested ? 'bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400 hover:bg-red-500 hover:text-white'
+              }`}
+            >
+              {requested ? '✅ Yöneticiye Yetki Talebi İletildi' : '📩 Yöneticiden Yetki İste'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 500: SERVER / SYSTEM ERROR SCREEN ---
+    function ServerErrorScreen({ errorMessage = 'Internal Server Exception: Unhandled Promise Rejection at Controller', onRestart, onReport }) {
+      const [showDetails, setShowDetails] = useState(false);
+      return (
+        <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-purple-500/40 shadow-2xl animate-fade-in">
+          <div className="text-6xl" aria-hidden="true">💥</div>
+          <span className="bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-bold px-3 py-1 rounded-full border border-purple-500/30">
+            HTTP 500 / Sunucu & Sistem Hatası
+          </span>
+          <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+            Beklenmeyen Bir Sistem Hatası Meydana Geldi
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Sunucumuzda geçici bir işlem hatası oluştu. Verilerinizin güvenliği korunmuştur. Aşağıdaki butona tıklayarak sistemi yeniden başlatabilirsiniz.
+          </p>
+
+          {/* ACCORDION TECHNICAL DETAILS */}
+          <div className="border border-purple-500/30 rounded-2xl text-left overflow-hidden bg-purple-500/5">
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full p-3.5 flex justify-between items-center text-xs font-bold text-purple-800 dark:text-purple-300 hover:bg-purple-500/10 transition"
+            >
+              <span>🛠️ Teknik Hata Detayı & Stack Trace</span>
+              <span>{showDetails ? '▲ Gizle' : '▼ Göster'}</span>
+            </button>
+
+            {showDetails && (
+              <div className="p-4 border-t border-purple-500/20 font-mono text-[11px] text-purple-900 dark:text-purple-200 bg-black/80 space-y-2">
+                <div className="text-red-400 font-bold">ERROR: {errorMessage}</div>
+                <div className="text-gray-400 text-[10px]">
+                  at App.render (index.html:1320:14)<br />
+                  at React.useEffect (react-dom.umd.js:452:12)<br />
+                  at DispatchEvent (server.js:84:9)
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
+            <button onClick={() => { if (onRestart) onRestart(); else window.location.reload(); }} className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
+              ⚡ Sistemi Yeniden Başlat & Yenile
+            </button>
+            <button onClick={() => alert('Hata raporu teknik destek ekibine iletildi!')} className="bg-slate-100 dark:bg-brand-dark font-bold px-5 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">
+              📩 Teknik Desteğe Bildir
             </button>
           </div>
         </div>

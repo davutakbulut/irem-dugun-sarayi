@@ -13,9 +13,9 @@ export function ReservationsListPage({
   onPrintInvoice,
   onShowEmail
 }) {
-  // View & Filter State
+  // View & Filter State (Default filter open on desktop >= 768px, CLOSED on mobile < 768px)
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
-  const [isFilterOpen, setIsFilterOpen] = useState(true); // Default open on desktop
+  const [isFilterOpen, setIsFilterOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [venueFilter, setVenueFilter] = useState('ALL');
@@ -169,13 +169,13 @@ export function ReservationsListPage({
           </p>
         </div>
 
-        {/* HARMONIOUS ACTION TOOLBAR (UNIFORM H-10 HEIGHT & PROPER COMPONENT HIERARCHY) */}
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+        {/* HARMONIOUS ACTION TOOLBAR (FORCED SINGLE ROW ON MOBILE, ICONIC WHEN TEXT DOESNT FIT) */}
+        <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0 flex-nowrap w-full sm:w-auto justify-between sm:justify-end">
           
           {/* 1. FILTER TOGGLE BUTTON */}
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`h-10 px-3.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-2 shadow-xs cursor-pointer ${
+            className={`h-10 px-2.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-1.5 sm:space-x-2 shadow-xs cursor-pointer shrink-0 ${
               isFilterOpen 
                 ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-gold-400' 
                 : 'bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:bg-slate-200 dark:hover:bg-slate-800'
@@ -185,25 +185,25 @@ export function ReservationsListPage({
             <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            <span>Filtreler</span>
+            <span className="hidden sm:inline">Filtreler</span>
             <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
           </button>
 
           {/* 2. YENİ REZERVASYON PRIMARY BUTTON */}
           <button 
             onClick={onNewResClick} 
-            className="gold-button font-bold text-xs h-10 px-4 rounded-xl shadow-sm flex items-center space-x-2 shrink-0 cursor-pointer"
+            className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer"
             title="Yeni Rezervasyon Oluştur"
           >
             <span className="text-sm">➕</span>
-            <span>Yeni Rezervasyon</span>
+            <span className="hidden sm:inline">Yeni Rezervasyon</span>
           </button>
 
           {/* 3. SEGMENTED VIEW SWITCHER (LIST VS CALENDAR) */}
           <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border h-10 items-center shrink-0">
             <button
               onClick={() => setViewMode('table')}
-              className={`h-8 px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
+              className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
                 viewMode === 'table' 
                   ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
@@ -218,12 +218,12 @@ export function ReservationsListPage({
                 <line x1="3" y1="12" x2="3.01" y2="12"/>
                 <line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
-              <span>Liste</span>
+              <span className="hidden md:inline">Liste</span>
             </button>
 
             <button
               onClick={() => setViewMode('calendar')}
-              className={`h-8 px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
+              className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
                 viewMode === 'calendar' 
                   ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
@@ -242,7 +242,7 @@ export function ReservationsListPage({
                 <line x1="12" y1="18" x2="12.01" y2="18"/>
                 <line x1="16" y1="18" x2="16.01" y2="18"/>
               </svg>
-              <span>Takvim</span>
+              <span className="hidden md:inline">Takvim</span>
             </button>
           </div>
 
