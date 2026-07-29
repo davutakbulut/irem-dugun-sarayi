@@ -770,10 +770,11 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
                     />
                   </div>
                   <div>
-                    <label className="font-bold block mb-1">E-posta Adresi:</label>
+                    <label className="font-bold block mb-1">E-posta Adresi (Sözleşme & Fatura Gönderimi):</label>
                     <input type="email" placeholder="ornek@domain.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" />
                   </div>
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="font-bold block mb-1">Birincil Telefon (+90) <span className="text-red-500">*</span>:</label>
@@ -792,7 +793,7 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
                     />
                   </div>
                   <div>
-                    <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu:</label>
+                    <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu (Eş / Anne / Baba):</label>
                     <input
                       type="text"
                       placeholder="0 (5XX) XXX XX XX"
@@ -801,6 +802,47 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
                       className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold block mb-1">T.C. Kimlik No / Vergi Kimlik No:</label>
+                    <input
+                      type="text"
+                      maxLength="11"
+                      placeholder="11 haneli T.C. Kimlik No veya 10 haneli VKN"
+                      value={tcNo}
+                      onChange={e => setTcNo(e.target.value.replace(/\D/g, ''))}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Bizi Nereden Duydunuz? / Referans Kaynağı:</label>
+                    <select
+                      value={referrerName}
+                      onChange={e => setReferrerName(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                    >
+                      <option value="">Seçiniz / Tavsiye Eden Müşteri...</option>
+                      <option value="Tavsiye / Tanıdık">Tavsiye / Tanıdık Bildik</option>
+                      <option value="Sosyal Medya / Instagram">Sosyal Medya / Instagram / TikTok</option>
+                      <option value="Google Araması / İnternet">Google Araması / İnternet</option>
+                      <option value="Eski Müşterimiz">Daha Önceki Müşterimiz</option>
+                      <option value="Organizasyon Acentası">Organizasyon Acentası / Düğün Koçu</option>
+                      <option value="Diğer">Diğer Kaynak</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold block mb-1">İkametgah / Sözleşme İletişim Açık Adresi:</label>
+                  <textarea
+                    rows="2"
+                    placeholder="İl, İlçe, Mahalle, Cadde, Sokak, Bina No ve Daire..."
+                    value={invoiceAddress}
+                    onChange={e => setInvoiceAddress(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-xs"
+                  />
                 </div>
               </div>
             )}
