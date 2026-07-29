@@ -2698,6 +2698,8 @@
       const venueCarouselRef = useRef(null);
       const [selectedVenueForDetail, setSelectedVenueForDetail] = useState(null);
       const [isMobileSummaryDrawerOpen, setIsMobileSummaryDrawerOpen] = useState(false);
+      const [validationPopup, setValidationPopup] = useState(false);
+      const [validationPopupTimer, setValidationPopupTimer] = useState(null);
       const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 65000);
       const [startDate, setStartDate] = useState(prefilledDate || '2026-08-25');
@@ -2705,6 +2707,15 @@
       const [endDate, setEndDate] = useState(prefilledDate || '2026-08-25');
       const [endTime, setEndTime] = useState('23:00');
       const [guestCount, setGuestCount] = useState(500);
+
+      const triggerValidationPopup = () => {
+        setValidationPopup(true);
+        if (validationPopupTimer) clearTimeout(validationPopupTimer);
+        const timer = setTimeout(() => {
+          setValidationPopup(false);
+        }, 3000);
+        setValidationPopupTimer(timer);
+      };
 
       const eventDate = startDate;
       const activeSlot = `${startTime} - ${endTime}`;
@@ -2928,29 +2939,20 @@
       const handleSubmit = () => {
         // Customer validation check with smooth scroll & focus
         if (customerMode === 'new') {
-          if (!newCustName.trim() || !newCustPhone.trim()) {
+          if (!newCustName.trim() || !newCustPhone.trim() || !isValidPhoneNumber(newCustPhone)) {
             setCustomerError(true);
-            alert('⚠️ LÜTFEN MÜŞTERİ BİLGİLERİNİ EKSİKSİZ DOLDURUNUZ!\nMüşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur.');
+            triggerValidationPopup();
             const el = document.getElementById('customer-section');
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            const nameInput = document.getElementById('new-cust-name-input');
+            const nameInput = !newCustName.trim() ? document.getElementById('new-cust-name-input') : document.getElementById('new-cust-phone-input');
             if (nameInput) nameInput.focus();
-            return;
-          }
-          if (!isValidPhoneNumber(newCustPhone)) {
-            setCustomerError(true);
-            alert('⚠️ LÜTFEN GEÇERLİ BİR TELEFON NUMARASI GİRİNİZ!\nTelefon numarası 11 hane (05XX XXX XX XX) formatında olmalıdır.');
-            const el = document.getElementById('customer-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            const phoneInput = document.getElementById('new-cust-phone-input');
-            if (phoneInput) phoneInput.focus();
             return;
           }
           const p1 = newCustPhone.replace(/\D/g, '');
           const p2 = newCustSecondaryPhone.replace(/\D/g, '');
           if (p1 && p2 && p1 === p2) {
             setCustomerError(true);
-            alert('⚠️ BİRİNCİL VE İKİNCİL TELEFON NUMARASI AYNI OLAMAZ!\nLütfen ikincil iletişim için farklı bir yakın veya akraba telefon numarası giriniz.');
+            triggerValidationPopup();
             const el = document.getElementById('customer-section');
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             const secInput = document.getElementById('new-cust-sec-phone-input');
@@ -2960,7 +2962,7 @@
         } else if (customerMode === 'existing') {
           if (!selectedCustomerId) {
             setCustomerError(true);
-            alert('⚠️ LÜTFEN SİSTEMDE KAYITLI BİR MÜŞTERİ SEÇİNİZ!');
+            triggerValidationPopup();
             const el = document.getElementById('customer-section');
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
@@ -3039,8 +3041,17 @@
       };
 
       return (
-        <div className="space-y-6 max-w-7xl mx-auto pb-12">
+        <div className="space-y-6 max-w-7xl mx-auto pb-12 relative">
           
+          {/* 3-SECOND FLOATING VALIDATION POPUP */}
+          {validationPopup && (
+            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-fade-in">
+              <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-4 py-2.5 rounded-full border border-red-500/30 animate-pulse shadow-2xl backdrop-blur-md flex items-center space-x-1.5">
+                <span>⚠️ LÜTFEN ZORUNLU ALANLARI DOLDURUNUZ</span>
+              </span>
+            </div>
+          )}
+
           {/* VENUE DETAIL POPUP MODAL */}
           {selectedVenueForDetail && (
             <VenueDetailModalComponent
@@ -3414,7 +3425,7 @@
                     <select
                       value={selectedCustomerId}
                       onChange={e => { setSelectedCustomerId(e.target.value); setCustomerError(false); }}
-                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold ${customerError && !selectedCustomerId ? 'border-red-500 bg-red-500/10' : 'border-slate-200 dark:border-brand-border'}`}
+                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold ${customerError && !selectedCustomerId ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30' : 'border-slate-200 dark:border-brand-border'}`}
                     >
                       {customers
                         .filter(c => {
@@ -3428,6 +3439,12 @@
                           </option>
                         ))}
                     </select>
+                    {customerError && !selectedCustomerId && (
+                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>⚠️ Müşteri seçimi yapılması zorunludur.</span>
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-3 text-xs">
@@ -3444,8 +3461,14 @@
                           placeholder="Örn: Mehmet Yılmaz & Zeynep Can"
                           value={newCustName}
                           onChange={e => { setNewCustName(e.target.value); setCustomerError(false); }}
-                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustName.trim() ? 'border-2 border-red-500 bg-red-500/10 font-bold' : 'border-slate-200 dark:border-brand-border'}`}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustName.trim() ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30 font-bold' : 'border-slate-200 dark:border-brand-border'}`}
                         />
+                        {customerError && !newCustName.trim() && (
+                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>⚠️ Doldurulması zorunludur.</span>
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label className="font-bold block mb-1">E-posta Adresi:</label>
@@ -3463,24 +3486,24 @@
                           onChange={e => { setNewCustPhone(formatPhoneNumber(e.target.value)); setCustomerError(false); }}
                           className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold ${
                             customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone))
-                              ? 'border-2 border-red-500 bg-red-500/10 text-red-600'
+                              ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30 text-red-600'
                               : isValidPhoneNumber(newCustPhone)
                               ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                               : 'border-slate-200 dark:border-brand-border text-slate-800 dark:text-gray-200'
                           }`}
                         />
-                        {newCustPhone && (
+                        {customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone)) && (
+                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>{!newCustPhone.trim() ? '⚠️ Doldurulması zorunludur.' : '⚠️ Geçerli bir telefon numarası giriniz (05XX XXX XX XX).'}</span>
+                          </p>
+                        )}
+                        {newCustPhone && isValidPhoneNumber(newCustPhone) && (
                           <div className="mt-1 text-[10px] font-bold">
-                            {isValidPhoneNumber(newCustPhone) ? (
-                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
-                                <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span>Geçerli Telefon Numarası</span>
-                              </span>
-                            ) : (
-                              <span className="text-amber-600 dark:text-amber-400">
-                                ⏳ Eksik Telefon Numarası (05XX XXX XX XX)
-                              </span>
-                            )}
+                            <span className="text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                              <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                              <span>Geçerli Telefon Numarası</span>
+                            </span>
                           </div>
                         )}
                       </div>
