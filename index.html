@@ -797,10 +797,6 @@
     }
   </style>
 
-  <!-- React 18 & Babel Standalone UMD -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
   <div id="root"></div>
@@ -4903,6 +4899,8 @@
         const dayStr = day < 10 ? `0${day}` : `${day}`;
         const dateStr = `2026-08-${dayStr}`;
         calendarGridCells.push({ isEmpty: false, dayNumber: day, dateStr, key: dateStr });
+      }
+
       // Drag & Drop State
       const [draggedResId, setDraggedResId] = useState(null);
       const [dragOverDate, setDragOverDate] = useState(null);
@@ -5836,7 +5834,7 @@
                           }}
                           className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/40 cursor-grab active:cursor-grabbing hover:bg-amber-500 hover:text-white transition"
                         >
-                          ⋮⋮ {r.customerName.split(' ')[0]} ({r.timeSlot ? r.timeSlot.split('-')[0] : ''})
+                          ⋮⋮ {(r.customerName || 'Etkinlik').split(' ')[0]} ({r.timeSlot ? r.timeSlot.split('-')[0] : ''})
                         </div>
                       ))}
                     </div>
