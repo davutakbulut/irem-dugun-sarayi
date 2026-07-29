@@ -67,7 +67,7 @@ export function CampaignsPage({ campaigns = [], onAddCampaign, onEditCampaign })
 
             <div className="pt-3 border-t border-slate-100 dark:border-brand-border flex justify-between items-center text-xs">
               <div className="font-mono font-extrabold text-amber-700 dark:text-gold-400 text-sm">
-                {c.discountType === 'fixed' ? `₺${c.discountValue.toLocaleString()} İndirim` : `%${c.discountValue} İndirim`}
+                {c.discountType === 'fixed' ? `${c.discountValue.toLocaleString()} ₺ İndirim` : `%${c.discountValue} İndirim`}
               </div>
               <button
                 onClick={() => { setEditingCampaign(c); setIsModalOpen(true); }}

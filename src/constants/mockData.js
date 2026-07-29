@@ -152,7 +152,7 @@ export const INITIAL_RESERVATIONS = [
 ];
 
 export const INITIAL_CAMPAIGNS = [
-  { id: 'cmp1', code: 'YAZ2026', title: 'Erken Yaz Rezervasyon İndirimi', discountType: 'fixed', discountValue: 15000, minGuest: 400, validUntil: '2026-08-31', active: true, description: '400 kişi ve üzeri erken rezervasyonlarda ₺15.000 net indirim.' },
+  { id: 'cmp1', code: 'YAZ2026', title: 'Erken Yaz Rezervasyon İndirimi', discountType: 'fixed', discountValue: 15000, minGuest: 400, validUntil: '2026-08-31', active: true, description: '400 kişi ve üzeri erken rezervasyonlarda 15.000 ₺ net indirim.' },
   { id: 'cmp2', code: 'BUTIK10', title: 'Zümrüt VIP Salon %10 İndirim', discountType: 'percent', discountValue: 10, minGuest: 200, validUntil: '2026-10-15', active: true, description: 'Hafta içi Zümrüt salonda geçerli %10 indirim.' }
 ];
 

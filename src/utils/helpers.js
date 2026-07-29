@@ -1,12 +1,8 @@
 // Helper utilities for İrem Düğün Sarayı & Organizasyon Şirketi
 
 export function formatCurrency(amount) {
-  if (amount === undefined || amount === null) return '₺0';
-  return new Intl.NumberFormat('tr-TR', {
-    style: 'currency',
-    currency: 'TRY',
-    maximumFractionDigits: 0
-  }).format(amount);
+  if (amount === undefined || amount === null || isNaN(amount)) return '0 ₺';
+  return Number(amount).toLocaleString('tr-TR') + ' ₺';
 }
 
 export function formatDate(dateString) {

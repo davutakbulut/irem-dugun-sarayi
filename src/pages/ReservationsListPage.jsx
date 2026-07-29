@@ -119,7 +119,7 @@ export function ReservationsListPage({ reservations = [], venues = [], onNewResC
                         <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
                         <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
                         <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
-                          {res.remainingBalance === 0 ? '₺0 (Ödendi)' : formatCurrency(res.remainingBalance)}
+                          {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
                         </td>
                         <td className="py-3.5 px-3">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${

@@ -108,7 +108,7 @@ export function MobileBottomSummaryBar() {
             }`}>
               <span>Kalan Ödenecek Net Bakiye:</span>
               <span className="font-mono text-base">
-                {isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(remaining)}
+                {isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(remaining)}
               </span>
             </div>
           </div>
@@ -135,7 +135,7 @@ export function MobileBottomSummaryBar() {
               Kalan Toplam:
             </span>
             <span className="font-mono font-extrabold text-base text-gold-400 leading-tight">
-              {isFullyPaid ? '₺0 (Ödendi)' : formatCurrency(remaining)}
+              {isFullyPaid ? '0 ₺ (Ödendi)' : formatCurrency(remaining)}
             </span>
           </div>
         </div>

@@ -1381,8 +1381,8 @@
     };
 
     function formatCurrency(amount) {
-      if (amount === undefined || amount === null) return '₺0';
-      return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(amount);
+      if (amount === undefined || amount === null || isNaN(amount)) return '0 ₺';
+      return Number(amount).toLocaleString('tr-TR') + ' ₺';
     }
     function formatDate(dateString) {
       if (!dateString) return '';
@@ -2445,7 +2445,7 @@
                 <div className={`text-sm sm:text-base font-black font-mono tracking-tight mt-0.5 ${
                   mobileReservationSummary.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                 }`}>
-                  {mobileReservationSummary.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(mobileReservationSummary.remaining)}
+                  {mobileReservationSummary.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(mobileReservationSummary.remaining)}
                 </div>
               </div>
 
@@ -2534,7 +2534,7 @@
                   }`}>
                     <span>Kalan Ödenecek Net Bakiye:</span>
                     <span className="font-mono font-extrabold text-base">
-                      {mobileReservationSummary.calculations.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(mobileReservationSummary.calculations.remaining)}
+                      {mobileReservationSummary.calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(mobileReservationSummary.calculations.remaining)}
                     </span>
                   </div>
                 </div>
@@ -4269,7 +4269,7 @@
                   }`}>
                     <span>Kalan Ödenecek Net Bakiye:</span>
                     <span className="font-mono font-extrabold text-base">
-                      {calculations.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(calculations.remaining)}
+                      {calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(calculations.remaining)}
                     </span>
                   </div>
                 </div>

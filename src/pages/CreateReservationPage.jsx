@@ -701,8 +701,8 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
               >
                 <option value="Bekliyor">Bekliyor (Ödeme Bekleniyor)</option>
                 <option value="Kapora Alındı">Kapora Alındı (Kısmi Kapora Tahsil Edildi)</option>
-                <option value="Ödendi">Ödendi (Tam ödeme yapıldı - Net Bakiye ₺0)</option>
-                <option value="Tamamlandı">Tamamlandı (Tam ödeme yapıldı - Net Bakiye ₺0)</option>
+                <option value="Ödendi">Ödendi (Tam ödeme yapıldı - Net Bakiye 0 ₺)</option>
+                <option value="Tamamlandı">Tamamlandı (Tam ödeme yapıldı - Net Bakiye 0 ₺)</option>
               </select>
             </div>
           </div>
@@ -1056,7 +1056,7 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
               }`}>
                 <span>Kalan Ödenecek Net Bakiye:</span>
                 <span className="font-mono font-extrabold text-base">
-                  {calculations.isFullyPaid ? '₺0 (Ödendi ✓)' : formatCurrency(calculations.remaining)}
+                  {calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(calculations.remaining)}
                 </span>
               </div>
             </div>

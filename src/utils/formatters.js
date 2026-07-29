@@ -4,8 +4,8 @@
  */
 
 export const formatCurrency = (val) => {
-  if (val === undefined || val === null || isNaN(val)) return '₺0';
-  return '₺' + Number(val).toLocaleString('tr-TR');
+  if (val === undefined || val === null || isNaN(val)) return '0 ₺';
+  return Number(val).toLocaleString('tr-TR') + ' ₺';
 };
 
 export const formatDate = (dateStr) => {

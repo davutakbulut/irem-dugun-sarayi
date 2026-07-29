@@ -18,7 +18,7 @@ export function ReportsPage({ reservations = [], venues = [], onConvertToCampaig
     {
       id: 'ai2',
       title: 'Yakut Kır Bahçesi Yüksek Talep Kampanyası',
-      recommendation: 'Kır bahçesine 500+ kişilik rezervasyon talebi yoğunlaşmaktadır. ₺10.000 kapora avantajlı düğün paketi başlatabilirsiniz.',
+      recommendation: 'Kır bahçesine 500+ kişilik rezervasyon talebi yoğunlaşmaktadır. 10.000 ₺ kapora avantajlı düğün paketi başlatabilirsiniz.',
       code: 'KIRBAHCE2026',
       discountType: 'fixed',
       discountValue: 10000
