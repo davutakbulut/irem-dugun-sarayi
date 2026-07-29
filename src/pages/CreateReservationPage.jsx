@@ -823,6 +823,18 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
                       </option>
                     ))}
                 </select>
+
+                {selectedCustomerId && (
+                  <div className="mt-3 p-3 rounded-2xl bg-slate-900 dark:bg-slate-900 border border-slate-700/80 text-white font-extrabold text-xs flex items-center space-x-2.5 shadow-md animate-fade-in">
+                    <div className="w-6 h-6 rounded-full bg-white text-slate-900 flex items-center justify-center font-black text-sm shrink-0 border border-slate-300 shadow-inner">
+                      ✓
+                    </div>
+                    <span className="tracking-wide">Varolan Müşteri Seçildi</span>
+                    <span className="text-[11px] font-medium text-slate-300 ml-auto font-mono truncate max-w-[180px]">
+                      ({customers.find(c => c.id === selectedCustomerId)?.name || 'Kayıtlı Müşteri'})
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-3 text-xs">
