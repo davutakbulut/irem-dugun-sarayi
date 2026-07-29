@@ -3598,6 +3598,25 @@
                 {emailData.type === 'reservation' && emailData.res && (
                   <div className="bg-white dark:bg-brand-card p-4 rounded-xl border border-amber-500/30 space-y-2">
                     <div className="font-bold text-amber-700 dark:text-gold-400">📋 Rezervasyon Fatura ve Ödeme Özeti ({emailData.res.id}):</div>
+                    <table className="w-full text-left text-[11px] border-collapse">
+                      <tbody>
+                        <tr className="border-b"><td className="py-1">Salon:</td><td className="font-bold">{emailData.res.customerName}</td></tr>
+                        <tr className="border-b"><td className="py-1">Tarih &amp; Saat:</td><td className="font-bold">{formatDate(emailData.res.date)} ({emailData.res.timeSlot})</td></tr>
+                        <tr className="border-b"><td className="py-1">Toplam Tutarı:</td><td className="font-bold text-slate-900 dark:text-white">{formatCurrency(emailData.res.totalAmount)}</td></tr>
+                        <tr className="border-b"><td className="py-1">Ödenen Kapora:</td><td className="font-bold text-emerald-600">{formatCurrency(emailData.res.depositPaid)}</td></tr>
+                        <tr><td className="py-1">Kalan Bakiye:</td><td className="font-bold text-red-500">{formatCurrency(emailData.res.remainingBalance)}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-slate-200 dark:border-brand-border text-[11px] text-slate-500 text-center">
+                  Hayallerinizdeki etkinliği unutulmaz kılmak bizim işimiz!<br />
+                  <strong>İREM DÜĞÜN SARAYI</strong> | Sakarya, Sapanca | +90 555 555 55 55 | @iremdugunsarayi
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end">
               <button onClick={onClose} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow">Tamam, Kapat</button>
             </div>
