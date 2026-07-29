@@ -2139,8 +2139,7 @@
                   { id: 'create-reservation', label: 'Yeni Rezervasyon' },
                   { id: 'venues', label: 'Düğün Salonlarım' },
                   { id: 'services', label: 'Ek Hizmetler' },
-                  { id: 'reservations', label: 'Rezervasyonlarım' },
-                  { id: 'calendar', label: 'Takvim Görünümü' },
+                  { id: 'reservations', label: 'Rezervasyonlarım & Takvim' },
                   { id: 'campaigns', label: 'Kampanyalar' },
                   { id: 'finance', label: 'Finans & Fatura' },
                   { id: 'customers', label: 'Müşteri Rehberi' },
@@ -2437,8 +2436,7 @@
               {[
                 { id: 'dashboard', label: 'Anasayfa', icon: '📊' },
                 { id: 'create-reservation', label: 'Ekle', icon: '📝' },
-                { id: 'reservations', label: 'Rezervasyon', icon: '📋' },
-                { id: 'calendar', label: 'Takvim', icon: '📅' }
+                { id: 'reservations', label: 'Rezervasyon & Takvim', icon: '📅' }
               ].map(tab => (
                 <a key={tab.id} href={`#/${TAB_TO_SLUG[tab.id]}`} onClick={(e) => { e.preventDefault(); navigateTo(tab.id); }} className={`flex flex-col items-center py-1 px-3 rounded-xl ${activeTab === tab.id ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10' : 'text-slate-500 dark:text-gray-400'}`} aria-current={activeTab === tab.id ? 'page' : undefined}>
                   <span className="text-lg" aria-hidden="true">{tab.icon}</span>
@@ -2614,8 +2612,7 @@
                       { id: 'create-reservation', label: '➕ Yeni Rezervasyon Oluştur', icon: '📝', roles: ['admin', 'satisci'] },
                       { id: 'venues', label: 'Düğün Salonlarım', icon: '🏛️', roles: ['admin', 'satisci'] },
                       { id: 'services', label: 'Ek Hizmetlerim', icon: '✨', roles: ['admin', 'satisci'] },
-                      { id: 'reservations', label: 'Tüm Rezervasyonlar', icon: '📋', roles: ['admin', 'satisci'] },
-                      { id: 'calendar', label: 'Takvim Görünümü', icon: '📅', roles: ['admin', 'satisci'] },
+                      { id: 'reservations', label: 'Rezervasyonlarım & Takvim', icon: '📅', roles: ['admin', 'satisci'] },
                       { id: 'campaigns', label: 'Kampanyalar', icon: '🎁', roles: ['admin'] },
                       { id: 'finance', label: 'Finans & Fatura Yönetimi', icon: '💰', roles: ['admin'] },
                       { id: 'customers', label: 'Müşteri Rehberi', icon: '👥', roles: ['admin', 'satisci'] },
