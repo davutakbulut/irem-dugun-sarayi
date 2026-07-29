@@ -1148,6 +1148,9 @@
       paint: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm-4-9a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm4-4a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm4 4a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" /></svg>,
       zap: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>,
       alert: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
+      search: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+      refresh: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+      shield: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
       whatsapp: (props) => <svg className={props.className || "w-4 h-4 fill-white text-white inline-block"} fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.969 4.463-9.969 9.969 0 1.758.459 3.473 1.332 4.989l-1.416 5.176 5.297-1.389c1.464.798 3.119 1.218 4.756 1.218 5.506 0 9.969-4.463 9.969-9.969s-4.463-9.994-9.969-9.994zm5.829 14.157c-.247.695-1.436 1.341-1.968 1.386-.532.045-1.214.218-3.957-.919-3.308-1.365-5.422-4.733-5.586-4.952-.164-.218-1.341-1.782-1.341-3.401 0-1.619.845-2.415 1.146-2.742.301-.327.655-.409.873-.409.218 0 .436.009.627.018.2.009.473-.073.746.573.273.646.928 2.264 1.009 2.428.082.164.136.355.027.573-.109.218-.164.355-.327.546-.164.191-.345.427-.491.573-.164.164-.336.345-.145.673.191.327.855 1.401 1.837 2.274 1.264 1.128 2.328 1.482 2.655 1.646.327.164.518.136.709-.082.191-.218.818-.955 1.036-1.282.218-.327.436-.273.736-.164.3.109 1.909.901 2.236 1.064.327.164.545.245.627.382.082.137.082.846-.164 1.541z" /></svg>
     };
 
@@ -1183,14 +1186,12 @@
     function ThemeIcon({ icon, fallbackEmoji, activeTheme, className = "w-4 h-4" }) {
       const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
       const rawTheme = activeTheme || domTheme || (typeof window !== 'undefined' ? (localStorage.getItem('selected_theme') || localStorage.getItem('irem_cache_theme_color')) : 'classic_gold') || 'classic_gold';
-      const isNordic = rawTheme === 'nordic' || rawTheme === 'nordic-light' || rawTheme === 'nordic_light';
 
-      if (isNordic) {
-        const Component = NordicSvgMap[icon];
-        if (Component) {
-          return <Component className={className} />;
-        }
+      const SvgComponent = NordicSvgMap[icon];
+      if (SvgComponent) {
+        return <SvgComponent className={className} />;
       }
+
       if (ThemeConceptEmojis[icon] && ThemeConceptEmojis[icon][rawTheme]) {
         return <span className="inline-block">{ThemeConceptEmojis[icon][rawTheme]}</span>;
       }
