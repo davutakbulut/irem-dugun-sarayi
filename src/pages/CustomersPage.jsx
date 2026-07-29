@@ -1,124 +1,48 @@
-import React, { useState } from 'react';
-import { CustomerFormModal } from '../components/Modals';
-import { ThemeIcon, WhatsAppButton } from '../components/ThemeIcon';
+import React from 'react';
+import { ThemeIcon } from '../components/ThemeIcon';
 
-export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [editingCustomer, setEditingCustomer] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const filteredCustomers = customers.filter(c => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return (c.name || '').toLowerCase().includes(q) ||
-      (c.phone || '').includes(q) ||
-      (c.email || '').toLowerCase().includes(q);
-  });
-
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
-      {/* MODAL */}
-      {isModalOpen && (
-        <CustomerFormModal
-          customer={editingCustomer}
-          onClose={() => { setIsModalOpen(false); setEditingCustomer(null); }}
-          onSave={(custObj) => {
-            if (editingCustomer) {
-              onEditCustomer(custObj);
-            } else {
-              onAddCustomer(custObj);
-            }
-            setIsModalOpen(false);
-            setEditingCustomer(null);
-          }}
-        />
-      )}
-
-      {/* HEADER */}
-      <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
-            <ThemeIcon icon="user" fallbackEmoji="👥" className="w-6 h-6 text-amber-500 shrink-0" />
-            <span>Müşteri Rehberi & Otomatik Üye Kartları</span>
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-gray-400">
-            Rezervasyon oluşturan tüm müşteriler otomatik üye olarak sisteme kaydedilir.
-          </p>
-        </div>
-
-        <button
-          onClick={() => { setEditingCustomer(null); setIsModalOpen(true); }}
-          className="gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center space-x-1"
-        >
-          <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
-          <span>Manuel Müşteri Ekle</span>
-        </button>
-      </div>
-
-      {/* SEARCH BAR */}
-      <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-brand-border text-xs">
-        <input
-          type="text"
-          placeholder="Ad Soyad, Telefon Numarası veya E-posta ile Müşteri Ara..."
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="w-full sm:w-96 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium text-slate-800 dark:text-gray-200"
-        />
-      </div>
-
-      {/* CUSTOMERS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredCustomers.map(c => (
-          <div key={c.id} className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3 shadow-sm flex flex-col justify-between">
-            <div className="space-y-2">
-              <div className="flex justify-between items-start">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 font-extrabold flex items-center justify-center text-lg shrink-0">
-                  <ThemeIcon icon="user" fallbackEmoji="👤" className="w-5 h-5 shrink-0" />
-                </div>
-                <div className="flex items-center space-x-1.5 shrink-0">
-                  <button
-                    onClick={() => { setEditingCustomer(c); setIsModalOpen(true); }}
-                    className="text-[11px] text-amber-700 font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center space-x-1"
-                  >
-                    <span>Düzenle</span>
-                    <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (window.confirm(`${c.name} isimli müşteriyi silmek istediğinize emin misiniz?`)) {
-                        // Delete logic if applicable
-                      }
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group"
-                  >
-                    <span className="group-hover:text-white transition">SİL</span>
-                    <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-heading font-extrabold text-sm text-slate-900 dark:text-white">
-                  {c.name}
-                </h4>
-                <div className="text-xs text-slate-500 font-mono font-bold mt-0.5">{c.phone}</div>
-                <div className="text-xs text-slate-400 mt-0.5">{c.email || 'E-posta Girilmemiş'}</div>
-              </div>
-
-              <div className="pt-2">
-                <WhatsAppButton phone={c.phone} customerName={c.name} className="w-full justify-center" />
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 dark:border-brand-border flex justify-between items-center text-xs text-slate-500 font-bold">
-              <span>Toplam Rezervasyon:</span>
-              <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
-                {c.totalBookings || 1} Etkinlik
-              </span>
-            </div>
+    export export function CustomersPage({ customers, onAddClick, onEditClick, onDeleteClick }) {
+      return (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+              <ThemeIcon icon="user" fallbackEmoji="👥" className="w-6 h-6 text-amber-500 shrink-0" />
+              <span>Müşteri Rehberi</span>
+            </h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1">
+              <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3.5 h-3.5 shrink-0" />
+              <span>Yeni Müşteri Ekle</span>
+            </button>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {customers.map(c => (
+              <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4 shadow-sm">
+                <img src={c.avatar} alt={`${c.name} Avatarı`} className="w-14 h-14 rounded-2xl object-cover border border-amber-500/40" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
+                    <div className="flex space-x-1.5 items-center">
+                      <button onClick={() => onEditClick(c)} className="text-[11px] text-amber-700 font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center space-x-1">
+                        <span>Düzenle</span>
+                        <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                      </button>
+                      <button onClick={() => onDeleteClick(c.id)} className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group">
+                        <span className="group-hover:text-white transition">SİL</span>
+                        <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
+                  <div className="text-[11px] text-slate-600 dark:text-gray-400">{c.taxType === 'corporate' ? `Kurumsal VKN: ${c.vknNo || c.tcNo || '-'}` : `Bireysel TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</div>
+                  <div className="pt-1">
+                    <WhatsAppButton phone={c.phone} customerName={c.name} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- USERS COMPONENT ---
