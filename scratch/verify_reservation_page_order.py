@@ -8,8 +8,7 @@ sections = [
     "4. Müşteri İletişim Bilgileri:",
     "5. Fatura Bilgileri",
     "6. Organizasyon & Etkinlik Akış Planlaması",
-    "7. Operasyonel Ek Notlar & Özel İstekler:",
-    "8. Takvim Canlı Ön İzlemesi"
+    "7. Operasyonel Ek Notlar & Özel İstekler:"
 ]
 
 indices = []
@@ -20,13 +19,20 @@ for sec in sections:
 
 # Verify strictly increasing order
 is_ordered = all(indices[i] < indices[i+1] for i in range(len(indices)-1)) and all(x != -1 for x in indices)
-print(f"\n[ORDER VERIFICATION] Strictly increasing order: {is_ordered}")
+print(f"\n[ORDER VERIFICATION] Strictly increasing order (7 sections): {is_ordered}")
 
-# Verify selectedServices default state is []
-has_empty_services = "const [selectedServices, setSelectedServices] = useState([]);" in content
-print(f"[SERVICES UNCHECKED VERIFICATION] selectedServices default state is []: {has_empty_services}")
+# Verify calendar grid is inside Section 1 (before Section 2)
+sec1_idx = indices[0]
+sec2_idx = indices[1]
+cal_idx = content.find("🗓️ Canlı Takvim & Çakışma Önizlemesi", sec1_idx)
+is_cal_in_sec1 = sec1_idx < cal_idx < sec2_idx
+print(f"[CALENDAR RESTORATION] Calendar grid is inside Section 1: {is_cal_in_sec1} (index: {cal_idx})")
 
-if is_ordered and has_empty_services:
-    print("\n✅ ALL RESERVATION PAGE ORDER CHECKS PASSED 100%!")
+# Verify standardized heading classes
+has_standard_h2 = content.count("font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100") >= 7
+print(f"[TYPOGRAPHY HIERARCHY] Standard H2 classes applied across sections: {has_standard_h2}")
+
+if is_ordered and is_cal_in_sec1 and has_standard_h2:
+    print("\n✅ ALL RESERVATION PAGE & TYPOGRAPHY CHECKS PASSED 100%!")
 else:
     print("\n❌ SOME CHECKS FAILED!")
