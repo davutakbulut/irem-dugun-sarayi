@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { formatCurrency } from '../utils/formatters';
 import { ServiceModalComponent } from '../components/Modals';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function ServicesPage({ services = [], onAddService, onEditService }) {
   const [editingService, setEditingService] = useState(null);
@@ -28,8 +29,9 @@ export function ServicesPage({ services = [], onAddService, onEditService }) {
       {/* HEADER */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex justify-between items-center shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            🎁 Ek Hizmetler & Birim Fiyat Kataloğu
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-6 h-6 text-amber-500 shrink-0" />
+            <span>Ek Hizmetler & Birim Fiyat Kataloğu</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Catering, orkestra, video çekimi ve şov ikram paketlerinin birim fiyatlarını yönetin.
@@ -40,7 +42,8 @@ export function ServicesPage({ services = [], onAddService, onEditService }) {
           onClick={() => { setEditingService(null); setIsModalOpen(true); }}
           className="gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center space-x-1"
         >
-          <span>➕ Yeni Hizmet Ekle</span>
+          <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+          <span>Yeni Hizmet Ekle</span>
         </button>
       </div>
 

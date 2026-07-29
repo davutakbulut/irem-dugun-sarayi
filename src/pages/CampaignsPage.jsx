@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CampaignModalComponent } from '../components/Modals';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function CampaignsPage({ campaigns = [], onAddCampaign, onEditCampaign }) {
   const [editingCampaign, setEditingCampaign] = useState(null);
@@ -27,8 +28,9 @@ export function CampaignsPage({ campaigns = [], onAddCampaign, onEditCampaign })
       {/* HEADER */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            🔥 İndirim Kodu & Akıllı AI Kampanyaları
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="campaign" fallbackEmoji="🏷️" className="w-6 h-6 text-amber-500 shrink-0" />
+            <span>İndirim Kodu & Akıllı AI Kampanyaları</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Erken rezervasyon indirimleri tanımlayın, yapay zeka önerilerini tek tıkla kampanyaya dönüştürün.
@@ -39,7 +41,8 @@ export function CampaignsPage({ campaigns = [], onAddCampaign, onEditCampaign })
           onClick={() => { setEditingCampaign(null); setIsModalOpen(true); }}
           className="gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center space-x-1"
         >
-          <span>➕ Yeni Kampanya Tanımla</span>
+          <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+          <span>Yeni Kampanya Tanımla</span>
         </button>
       </div>
 
@@ -71,9 +74,10 @@ export function CampaignsPage({ campaigns = [], onAddCampaign, onEditCampaign })
               </div>
               <button
                 onClick={() => { setEditingCampaign(c); setIsModalOpen(true); }}
-                className="text-xs font-bold text-slate-600 dark:text-gray-300 hover:underline"
+                className="text-xs font-bold text-slate-600 dark:text-gray-300 hover:underline flex items-center space-x-1"
               >
-                Düzenle ✏️
+                <span>Düzenle</span>
+                <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
               </button>
             </div>
           </div>
