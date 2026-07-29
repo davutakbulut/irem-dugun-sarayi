@@ -7,7 +7,7 @@ export default function ImageDropzoneUploader({ value, onChange, label = 'Görse
   const processFile = (file) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      alert('Lütfen geçerli bir görsel dosyası (JPG, PNG, WebP vb.) seçiniz.');
+      console.warn('Lütfen geçerli bir görsel dosyası (JPG, PNG, WebP vb.) seçiniz.');
       return;
     }
     const reader = new FileReader();
