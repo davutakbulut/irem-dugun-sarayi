@@ -5634,13 +5634,19 @@
                       <div className="text-slate-400 italic">Dahili temel salon paketi dâhildir. Ek paket seçilmedi.</div>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {selectedResForPreview.selectedServices.map((srvId, sIdx) => {
-                          const sObj = services.find(s => s.id === srvId);
+                        {selectedResForPreview.selectedServices.map((srvItem, sIdx) => {
+                          const serviceId = typeof srvItem === 'string' ? srvItem : (srvItem?.serviceId || srvItem?.id);
+                          const sObj = services.find(s => s.id === serviceId);
+                          const displayName = sObj?.name || (typeof srvItem === 'object' ? (srvItem.name || serviceId || 'Ek Hizmet') : String(srvItem));
+                          const displayPrice = (typeof srvItem === 'object' && srvItem.customUnitPrice !== undefined) 
+                            ? srvItem.customUnitPrice 
+                            : (sObj?.price || (typeof srvItem === 'object' ? (srvItem.price || srvItem.unitPrice || 0) : 0));
+
                           return (
                             <span key={sIdx} className="bg-white dark:bg-brand-card border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1 shadow-xs">
                               <span>🎁</span>
-                              <span>{sObj?.name || srvId}</span>
-                              {sObj?.price && <span className="font-mono text-amber-600 text-[10px]">({formatCurrency(sObj.price)})</span>}
+                              <span>{displayName}</span>
+                              {displayPrice ? <span className="font-mono text-amber-600 text-[10px]">({formatCurrency(displayPrice)})</span> : null}
                             </span>
                           );
                         })}
@@ -7211,6 +7217,9 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
           {/* TAB 4: ERROR & REDIRECTION PAGES LIVE SIMULATION PANEL */}
           {settingsTab === 'errors' && (
             <div className="space-y-6">
