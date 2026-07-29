@@ -266,7 +266,7 @@ export const generateSmartAIRecommendations = (reservations = [], venues = [], s
     {
       id: 'ai-1',
       code: 'AĞUSTOS10',
-      title: `🎯 ${kbVenue?.name || 'Kır Bahçesi'} Fiyat Artırım & Fırsat Önerisi (%${kbOccupancy} Doluluk)`,
+      title: `${kbVenue?.name || 'Kır Bahçesi'} Fiyat Artırım & Fırsat Önerisi (%${kbOccupancy} Doluluk)`,
       type: 'percent',
       value: 10,
       venueId: kbVenue?.id || 'v2',
@@ -274,30 +274,30 @@ export const generateSmartAIRecommendations = (reservations = [], venues = [], s
       currentPrice: currentKbPrice,
       suggestedPrice: suggestedKbPrice,
       description: `${kbVenue?.name || 'Kır Bahçesi VİP'} salonunda hafta sonu doluluğu %${kbOccupancy} seviyesine ulaştı. Kiralama bedelini %10 artırarak ${formatCurrency(suggestedKbPrice)} seviyesine çekmek tahmini 140.000 ₺ ek gelir sağlar.`,
-      actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀',
-      priceActionText: 'Fiyatı Güncelle & Uygula 💰',
+      actionText: 'Tek Tıkla Kampanyaya Dönüştür',
+      priceActionText: 'Fiyatı Güncelle & Uygula',
       badge: `%${kbOccupancy} Doluluk Zirvede`,
       canUpdatePrice: true
     },
     {
       id: 'ai-2',
       code: 'DRONE20',
-      title: '💡 Drone Çekimi Çapraz Satış Fırsatı',
+      title: 'Drone Çekimi Çapraz Satış Fırsatı',
       type: 'free_service',
       value: 0,
       description: `Mevcut rezervasyonlarda Drone çekimi tercih oranı %${droneAdoptionRate}. Kır bahçesi kiralamalarında 4K drone çekimini promosyonlu sunarak ek 60.000 ₺ ciro elde edin.`,
-      actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀',
+      actionText: 'Tek Tıkla Kampanyaya Dönüştür',
       badge: 'Çapraz Satış Trendi',
       canUpdatePrice: false
     },
     {
       id: 'ai-3',
       code: 'SONBAHAR26',
-      title: '🍂 Sonbahar Erken Rezervasyon Fırsatı (%20 Net İndirim)',
+      title: 'Sonbahar Erken Rezervasyon Fırsatı (%20 Net İndirim)',
       type: 'percent',
       value: 20,
       description: 'Eylül ve Ekim düğün tarihleri için %20 Erken Rezervasyon Kampanyası başlatarak salon doluluğunu %100 seviyesine çıkarın.',
-      actionText: 'Tek Tıkla Kampanyaya Dönüştür 🚀',
+      actionText: 'Tek Tıkla Kampanyaya Dönüştür',
       badge: 'Sezonluk Fırsat',
       canUpdatePrice: false
     }
