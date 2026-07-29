@@ -1,8 +1,24 @@
 import React from 'react';
 import { ROLE_NAMES, TAB_TO_SLUG } from '../constants';
+import { ThemeIcon } from './ThemeIcon';
 
 export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, tabPermissionsState, navigateTo }) {
   if (!isOpen) return null;
+
+  const drawerItems = [
+    { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '📊' },
+    { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'plus', fallbackEmoji: '➕' },
+    { id: 'venues', label: 'Düğün Salonlarım', icon: 'venue', fallbackEmoji: '🏰' },
+    { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '🎁' },
+    { id: 'reservations', label: 'Rezervasyonlarım', icon: 'calendar', fallbackEmoji: '📋' },
+    { id: 'calendar', label: 'Takvim Görünümü', icon: 'calendar', fallbackEmoji: '📅' },
+    { id: 'campaigns', label: 'Kampanyalar', icon: 'campaign', fallbackEmoji: '🏷️' },
+    { id: 'finance', label: 'Finans & Fatura', icon: 'money', fallbackEmoji: '💰' },
+    { id: 'customers', label: 'Müşteri Rehberi', icon: 'user', fallbackEmoji: '👥' },
+    { id: 'users', label: 'Kullanıcı Yönetimi', icon: 'shield', fallbackEmoji: '🛡️' },
+    { id: 'reports', label: 'Raporlar & AI Öneri', icon: 'chart', fallbackEmoji: '📈' },
+    { id: 'media', label: 'Medya & Foto Yükle', icon: 'preview', fallbackEmoji: '📸' }
+  ];
 
   return (
     <div
@@ -17,7 +33,7 @@ export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, t
           <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border/40 pb-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-xl gold-button flex items-center justify-center font-bold text-xl shadow">
-                👑
+                <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-6 h-6 shrink-0" />
               </div>
               <div>
                 <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100">İrem Düğün Sarayı</h3>
@@ -33,20 +49,7 @@ export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, t
           </div>
 
           <div className="space-y-1 text-xs">
-            {[
-              { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: '📊' },
-              { id: 'create-reservation', label: '➕ Yeni Rezervasyon', icon: '📝' },
-              { id: 'venues', label: 'Düğün Salonlarım', icon: '🏛️' },
-              { id: 'services', label: 'Ek Hizmetler', icon: '✨' },
-              { id: 'reservations', label: 'Rezervasyonlarım', icon: '📋' },
-              { id: 'calendar', label: 'Takvim Görünümü', icon: '📅' },
-              { id: 'campaigns', label: 'Kampanyalar', icon: '🎁' },
-              { id: 'finance', label: 'Finans & Fatura', icon: '💰' },
-              { id: 'customers', label: 'Müşteri Rehberi', icon: '👥' },
-              { id: 'users', label: 'Kullanıcı Yönetimi', icon: '⚙️' },
-              { id: 'reports', label: 'Raporlar & AI Öneri', icon: '📈' },
-              { id: 'media', label: 'Medya & Foto Yükle', icon: '📷' }
-            ]
+            {drawerItems
             .filter(item => (tabPermissionsState[item.id] || []).includes(activeRole))
             .map(item => (
               <button
@@ -56,7 +59,7 @@ export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, t
                   activeTab === item.id ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
                 }`}
               >
-                <span className="text-base">{item.icon}</span>
+                <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-4 h-4 shrink-0" />
                 <span>{item.label}</span>
               </button>
             ))}
@@ -70,7 +73,7 @@ export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, t
                     activeTab === 'settings-appearance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
                   }`}
                 >
-                  <span className="text-base">🎨</span>
+                  <ThemeIcon icon="paint" fallbackEmoji="🎨" className="w-4 h-4 shrink-0" />
                   <span>Görünüm & Tema Ayarları</span>
                 </button>
                 <button
@@ -79,7 +82,7 @@ export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, t
                     activeTab === 'settings-performance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
                   }`}
                 >
-                  <span className="text-base">⚡</span>
+                  <ThemeIcon icon="zap" fallbackEmoji="⚡" className="w-4 h-4 shrink-0" />
                   <span>Önbellek & Performans</span>
                 </button>
                 <button

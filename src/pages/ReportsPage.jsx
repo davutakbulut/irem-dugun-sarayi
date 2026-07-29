@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency } from '../utils/formatters';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function ReportsPage({ reservations = [], venues = [], onConvertToCampaign }) {
   const totalRevenue = reservations.reduce((acc, r) => acc + (Number(r.totalAmount) || 0), 0);
@@ -30,8 +31,9 @@ export function ReportsPage({ reservations = [], venues = [], onConvertToCampaig
       {/* HEADER */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex justify-between items-center shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            📈 Finansal Raporlar & AI Akıllı Analizler
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="chart" fallbackEmoji="📈" className="w-6 h-6 text-amber-500 shrink-0" />
+            <span>Finansal Raporlar & AI Akıllı Analizler</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Aylık gelir dağılımı, net kalan alacaklar ve yapay zeka tarafından üretilen otomasyon önerileri.
@@ -58,7 +60,7 @@ export function ReportsPage({ reservations = [], venues = [], onConvertToCampaig
       {/* AI INSIGHTS & ONE-CLICK CAMPAIGN AUTOMATION */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
         <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-          <span>🤖</span>
+          <ThemeIcon icon="brain" fallbackEmoji="🤖" className="w-5 h-5 text-amber-500 shrink-0" />
           <span>Yapay Zeka (AI) Otomatik Satış & Kampanya Önerileri</span>
         </h3>
 
@@ -72,9 +74,10 @@ export function ReportsPage({ reservations = [], venues = [], onConvertToCampaig
 
               <button
                 onClick={() => onConvertToCampaign(ai)}
-                className="gold-button font-bold text-xs px-4 py-2 rounded-xl shadow w-full text-center"
+                className="gold-button font-bold text-xs px-4 py-2 rounded-xl shadow w-full text-center flex items-center justify-center space-x-1"
               >
-                Tek Tıkla Kampanyaya Dönüştür ({ai.code}) 🚀
+                <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-4 h-4 shrink-0" />
+                <span>Tek Tıkla Kampanyaya Dönüştür ({ai.code})</span>
               </button>
             </div>
           ))}

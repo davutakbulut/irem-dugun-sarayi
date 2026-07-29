@@ -49,21 +49,86 @@ export const INITIAL_TAB_PERMISSIONS = {
   'settings': ['admin']
 };
 
-// 10 KURUMSAL & DİNAMİK TEMA PALETİ VE KESKİN LÜKS JETONLARI
+// 7 KURUMSAL & DİNAMİK TEMA PALETİ, GEOMETRİ VE İKON SETLERİ
 export const THEME_PALETTES = [
-  // MEVCUT SOFT TEMALAR
-  { id: 'gold', name: 'Altın & Şampanya 👑', primaryColor: '#d97706', geometry: 'rounded-2xl', description: 'Lüks balo ve kır düğünü konsepti (Varsayılan)' },
-  { id: 'emerald', name: 'Zümrüt Yeşili 💚', primaryColor: '#059669', geometry: 'rounded-2xl', description: 'Doğa ve açık hava kır bahçesi konsepti' },
-  { id: 'sapphire', name: 'Safir Mavi 💙', primaryColor: '#2563eb', geometry: 'rounded-2xl', description: 'Kraliyet ve kurumsal balo salonu konsepti' },
-  { id: 'rose', name: 'Gül Altını 🌹', primaryColor: '#e11d48', geometry: 'rounded-2xl', description: 'Romantik ve lüks davet konsepti' },
-  { id: 'violet', name: 'Mor Lüks 💜', primaryColor: '#7c3aed', geometry: 'rounded-2xl', description: 'VIP gece ve sahne ışıkları konsepti' },
+  // 1. NORDIC CLARITY & SCANDINAVIAN MINIMAL (ZERO EMOJI DIRECTIVE)
+  {
+    id: 'nordic-clarity',
+    name: 'Nordic Clarity & Scandinavian Minimal ❄️',
+    primaryColor: '#0F172A',
+    secondaryColor: '#F8FAFC',
+    accentColor: '#94A3B8',
+    geometry: 'rounded-md',
+    description: 'SIFIR EMOJİ DIRECTIVE: Saf 1.75px İskandinav SVG ikonları, Gece Mavisi (#0F172A), Kutup Beyazı & İskandinav Gümüşü',
+    isZeroEmoji: true,
+    icons: { crown: 'nordic-crown', venue: 'nordic-building', edit: 'nordic-edit', view: 'nordic-eye', delete: 'nordic-trash' }
+  },
 
-  // YENİ 5 KESKİN & KURUMSAL TEMA
-  { id: 'obsidian-gold', name: 'Obsidian Gold 🖤👑', primaryColor: '#d97706', geometry: 'rounded-none', description: 'Keskin Lüks Siyah & Altın: 0px dik keskin köşeler (rounded-none), metalik altın çeperler' },
-  { id: 'sapphire-clean', name: 'Sapphire Clean 🔷', primaryColor: '#1d4ed8', geometry: 'rounded-md', description: 'Neo-Minimalist Safir: 4px kavisli köşeler (rounded-md), kraliyet mavisi kurumsal kartlar' },
-  { id: 'platinum-silver', name: 'Platinum Silver 🩶', primaryColor: '#475569', geometry: 'rounded-sm', description: 'Premium Platin & Gümüş: 2px micro-keskin köşeler (rounded-sm), metalik gümüş çeperler' },
-  { id: 'emerald-royal', name: 'Emerald Royal 🌿', primaryColor: '#047857', geometry: 'rounded-none', description: 'Kraliyet Zümrüt Kır Bahçesi: 0px keskin köşeler (rounded-none), zümrüt altını çeperler' },
-  { id: 'titanium-tech', name: 'Titanium Tech ⚡', primaryColor: '#6d28d9', geometry: 'rounded-md', description: 'Titanium Tech Modern: 4px teknolojik köşeler (rounded-md), titanyum mor çeperler' }
+  // 2. CLASSIC GOLD (Saray Altını)
+  {
+    id: 'gold',
+    name: 'Classic Gold (Saray Altını) 👑',
+    primaryColor: '#D4AF37',
+    secondaryColor: '#0B0F19',
+    geometry: 'rounded-2xl',
+    description: 'Sıcak Altın (#D4AF37) & Siyah (#0B0F19) lüks balo konsepti',
+    icons: { crown: '👑', venue: '🏰', edit: '✏️', view: '👁️', delete: '🗑️' }
+  },
+
+  // 3. OBSIDIAN GOLD (Derin Siyah)
+  {
+    id: 'obsidian-gold',
+    name: 'Obsidian Gold (Derin Siyah) 🖤',
+    primaryColor: '#090A0F',
+    accentColor: '#F59E0B',
+    geometry: 'rounded-none',
+    description: 'Obsidyen (#090A0F) & Şampanya Altını, 0px dik keskin metalik çeperler',
+    icons: { crown: '🖤', venue: '🏛️', edit: '🖊️', view: '🌟', delete: '💣' }
+  },
+
+  // 4. SAPPHIRE CLEAN (Saf Safir)
+  {
+    id: 'sapphire-clean',
+    name: 'Sapphire Clean (Saf Safir) 🔷',
+    primaryColor: '#1E40AF',
+    accentColor: '#FFFFFF',
+    geometry: 'rounded-md',
+    description: 'Safir Mavi (#1E40AF) & Kristal Beyaz, 4px neo-minimalist kavisler',
+    icons: { crown: '🔷', venue: '🏢', edit: '📝', view: '🔍', delete: '❌' }
+  },
+
+  // 5. PLATINUM SILVER (Platin Gümüş)
+  {
+    id: 'platinum-silver',
+    name: 'Platinum Silver (Platin Gümüş) 🥈',
+    primaryColor: '#E2E8F0',
+    accentColor: '#334155',
+    geometry: 'rounded-sm',
+    description: 'Platin Gümüş (#E2E8F0) & Füme (#334155), 2px micro-keskin çizgiler',
+    icons: { crown: '🥈', venue: '🏛️', edit: '⚙️', view: '🔍', delete: '🗑️' }
+  },
+
+  // 6. EMERALD ROYAL (Zümrüt Balo)
+  {
+    id: 'emerald-royal',
+    name: 'Emerald Royal (Zümrüt Balo) 🌿',
+    primaryColor: '#065F46',
+    accentColor: '#F59E0B',
+    geometry: 'rounded-none',
+    description: 'Zümrüt Yeşili (#065F46) & Altın Vurgu, 0px dik zümrüt çeperler',
+    icons: { crown: '🌿', venue: '🏡', edit: '✍️', view: '👁️', delete: '🍂' }
+  },
+
+  // 7. TITANIUM TECH (Titanyum Gelecek)
+  {
+    id: 'titanium-tech',
+    name: 'Titanium Tech (Titanyum Gelecek) ⚡',
+    primaryColor: '#1E293B',
+    accentColor: '#38BDF8',
+    geometry: 'rounded-md',
+    description: 'Titanyum Grisi (#1E293B) & Neon Mavi, 4px teknolojik kavisler',
+    icons: { crown: '⚡', venue: '🏬', edit: '🛠️', view: '📡', delete: '🚫' }
+  }
 ];
 
 export const formatCurrency = (amount) => {

@@ -1,17 +1,18 @@
 import React from 'react';
+import { ThemeIcon } from './ThemeIcon';
 
 export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleChange }) {
   const menuItems = [
-    { id: 'dashboard', label: 'Genel Bakış', icon: '📊' },
-    { id: 'create-reservation', label: 'Rezervasyon Oluştur', icon: '✨', badge: 'YENİ' },
-    { id: 'reservations', label: 'Rezervasyonlar & Takvim', icon: '📅' },
-    { id: 'venues', label: 'Düğün Salonları', icon: '🏰' },
-    { id: 'services', label: 'Ek Hizmetler', icon: '🎁' },
-    { id: 'customers', label: 'Müşteriler & Üyeler', icon: '👥' },
-    { id: 'campaigns', label: 'Kampanyalar & AI', icon: '🔥' },
-    { id: 'reports', label: 'Raporlar & Analizler', icon: '📈' },
-    { id: 'users', label: 'Yetkili Personel (RBAC)', icon: '🛡️', roleNeeded: 'SuperAdmin' },
-    { id: 'settings', label: 'Ayarlar & Görünüm', icon: '⚙️' }
+    { id: 'dashboard', label: 'Genel Bakış', icon: 'chart', fallbackEmoji: '📊' },
+    { id: 'create-reservation', label: 'Rezervasyon Oluştur', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' },
+    { id: 'reservations', label: 'Rezervasyonlar & Takvim', icon: 'calendar', fallbackEmoji: '📅' },
+    { id: 'venues', label: 'Düğün Salonları', icon: 'venue', fallbackEmoji: '🏰' },
+    { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '🎁' },
+    { id: 'customers', label: 'Müşteriler & Üyeler', icon: 'user', fallbackEmoji: '👥' },
+    { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '🏷️' },
+    { id: 'reports', label: 'Raporlar & Analizler', icon: 'chart', fallbackEmoji: '📈' },
+    { id: 'users', label: 'Yetkili Personel (RBAC)', icon: 'shield', fallbackEmoji: '🛡️', roleNeeded: 'SuperAdmin' },
+    { id: 'settings', label: 'Ayarlar & Görünüm', icon: 'settings', fallbackEmoji: '⚙️' }
   ];
 
   return (
@@ -20,7 +21,7 @@ export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleCha
         {/* LOGO & BRANDING */}
         <div className="p-5 border-b border-slate-200 dark:border-brand-border flex items-center space-x-3">
           <div className="w-10 h-10 rounded-2xl gold-button flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
-            🏰
+            <ThemeIcon icon="crown" fallbackEmoji="🏰" className="w-6 h-6 shrink-0" />
           </div>
           <div>
             <h1 className="font-heading font-extrabold text-base gold-gradient-text leading-tight tracking-tight">
@@ -51,7 +52,7 @@ export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleCha
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <span className="text-base">{item.icon}</span>
+                  <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-4 h-4 shrink-0" />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
@@ -74,9 +75,9 @@ export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleCha
             onChange={(e) => onRoleChange(e.target.value)}
             className="text-[10px] font-bold bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg px-2 py-1 text-slate-800 dark:text-gray-200"
           >
-            <option value="SuperAdmin">👑 SuperAdmin</option>
-            <option value="Manager">💼 Müdür (Manager)</option>
-            <option value="Staff">👤 Personel (Staff)</option>
+            <option value="SuperAdmin">SuperAdmin (Tam Yetki)</option>
+            <option value="Manager">Müdür (Manager)</option>
+            <option value="Staff">Personel (Staff)</option>
           </select>
         </div>
 
@@ -92,17 +93,17 @@ export function HeaderComponent({ activeTab, onTabChange, activeRole, currentUse
   return (
     <header className="h-16 bg-white/80 dark:bg-brand-card/80 backdrop-blur-md border-b border-slate-200 dark:border-brand-border px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
       <div className="flex items-center space-x-3">
-        <h2 className="font-heading font-extrabold text-sm sm:text-base text-slate-800 dark:text-gray-100">
-          {activeTab === 'dashboard' && '📊 Genel Bakış & Performans Özeti'}
-          {activeTab === 'create-reservation' && '✨ Yeni Rezervasyon & Sözleşme Kartı'}
-          {activeTab === 'reservations' && '📅 Rezervasyon Yönetimi & Canlı Takvim'}
-          {activeTab === 'venues' && '🏰 Düğün Salonları & Kapasite Bilgileri'}
-          {activeTab === 'services' && '🎁 Ek Hizmetler & Birim Fiyatlar'}
-          {activeTab === 'customers' && '👥 Müşteri Rehberi & Otomatik Üyelikler'}
-          {activeTab === 'campaigns' && '🔥 Kampanyalar & AI Öneri Motoru'}
-          {activeTab === 'reports' && '📈 Raporlar & Finansal Analizler'}
-          {activeTab === 'users' && '🛡️ Yetkili Personel Listesi (RBAC)'}
-          {activeTab === 'settings' && '⚙️ Sistem Ayarları & 5 Kurumsal Tema'}
+        <h2 className="font-heading font-extrabold text-sm sm:text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+          {activeTab === 'dashboard' && <><ThemeIcon icon="chart" fallbackEmoji="📊" className="w-5 h-5 text-amber-500 shrink-0" /><span>Genel Bakış & Performans Özeti</span></>}
+          {activeTab === 'create-reservation' && <><ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-5 h-5 text-amber-500 shrink-0" /><span>Yeni Rezervasyon & Sözleşme Kartı</span></>}
+          {activeTab === 'reservations' && <><ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-5 h-5 text-amber-500 shrink-0" /><span>Rezervasyon Yönetimi & Canlı Takvim</span></>}
+          {activeTab === 'venues' && <><ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-5 h-5 text-amber-500 shrink-0" /><span>Düğün Salonları & Kapasite Bilgileri</span></>}
+          {activeTab === 'services' && <><ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-5 h-5 text-amber-500 shrink-0" /><span>Ek Hizmetler & Birim Fiyatlar</span></>}
+          {activeTab === 'customers' && <><ThemeIcon icon="user" fallbackEmoji="👥" className="w-5 h-5 text-amber-500 shrink-0" /><span>Müşteri Rehberi & Otomatik Üyelikler</span></>}
+          {activeTab === 'campaigns' && <><ThemeIcon icon="campaign" fallbackEmoji="🏷️" className="w-5 h-5 text-amber-500 shrink-0" /><span>Kampanyalar & AI Öneri Motoru</span></>}
+          {activeTab === 'reports' && <><ThemeIcon icon="chart" fallbackEmoji="📈" className="w-5 h-5 text-amber-500 shrink-0" /><span>Raporlar & Finansal Analizler</span></>}
+          {activeTab === 'users' && <><ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-5 h-5 text-amber-500 shrink-0" /><span>Yetkili Personel Listesi (RBAC)</span></>}
+          {activeTab === 'settings' && <><ThemeIcon icon="settings" fallbackEmoji="⚙️" className="w-5 h-5 text-amber-500 shrink-0" /><span>Sistem Ayarları & Kurumsal Temalar</span></>}
         </h2>
       </div>
 
@@ -112,7 +113,7 @@ export function HeaderComponent({ activeTab, onTabChange, activeRole, currentUse
             onClick={() => onTabChange('create-reservation')}
             className="gold-button font-bold text-xs px-3.5 py-2 rounded-xl shadow flex items-center space-x-1.5 hover:scale-105 transition"
           >
-            <span>➕</span>
+            <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
             <span>Yeni Rezervasyon Oluştur</span>
           </button>
         )}

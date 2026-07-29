@@ -500,7 +500,7 @@ export function ReservationsListPage({
                   onClick={handleGoToday}
                   className="h-10 px-3.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-gold-400 rounded-xl font-bold text-xs border border-amber-300 dark:border-amber-700/60 shadow-xs hover:bg-amber-100 transition cursor-pointer flex items-center space-x-1 shrink-0"
                 >
-                  <span>🎯</span>
+                  <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 shrink-0" />
                   <span className="hidden sm:inline">Bugünkü Ay ({MONTH_NAMES[today.getMonth()]} {today.getFullYear()})</span>
                 </button>
               </div>
@@ -649,7 +649,10 @@ export function ReservationsListPage({
                     return (
                       <div key={r.id} className="space-y-1">
                         <div className="flex justify-between text-[11px] font-bold">
-                          <span className="text-slate-800 dark:text-gray-200">👑 {r.customerName} ({vObj?.name || r.venueId})</span>
+                          <span className="text-slate-800 dark:text-gray-200 flex items-center space-x-1">
+                            <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3.5 h-3.5 shrink-0" />
+                            <span>{r.customerName} ({vObj?.name || r.venueId})</span>
+                          </span>
                           <span className="font-mono text-amber-600 font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
                         </div>
                         <div className="w-full bg-slate-200 dark:bg-brand-card h-4 rounded-full overflow-hidden relative border border-slate-300 dark:border-brand-border">
@@ -682,7 +685,10 @@ export function ReservationsListPage({
                           <span className="text-emerald-600 font-mono font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="font-extrabold text-sm text-slate-900 dark:text-white">👑 {r.customerName} ({r.guestCount} Kişi)</span>
+                          <span className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1">
+                            <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-4 h-4 shrink-0" />
+                            <span>{r.customerName} ({r.guestCount} Kişi)</span>
+                          </span>
                           <span className="font-mono font-bold text-amber-600">{formatCurrency(r.totalAmount)}</span>
                         </div>
                         <div className="flex justify-end space-x-2 pt-1 border-t border-slate-200 dark:border-brand-border/40">
@@ -741,8 +747,9 @@ export function ReservationsListPage({
                     {selectedResForPreview.paymentStatus}
                   </span>
                 </div>
-                <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-1">
-                  👑 {selectedResForPreview.customerName}
+                <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-1 flex items-center space-x-2">
+                  <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 text-amber-500 shrink-0" />
+                  <span>{selectedResForPreview.customerName}</span>
                 </h3>
               </div>
               <button onClick={() => setSelectedResForPreview(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
@@ -1007,9 +1014,10 @@ export function ReservationsListPage({
                     <button
                       type="button"
                       onClick={() => setEditForm({ ...editForm, startTime: '09:00', endTime: '23:30' })}
-                      className="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold rounded-lg text-[10px]"
+                      className="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold rounded-lg text-[10px] flex items-center space-x-1"
                     >
-                      👑 Tüm Gün
+                      <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3 h-3 shrink-0" />
+                      <span>Tüm Gün</span>
                     </button>
                   </div>
                 </div>

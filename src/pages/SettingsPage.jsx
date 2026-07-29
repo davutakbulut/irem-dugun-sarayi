@@ -1,56 +1,18 @@
 import React from 'react';
+import { THEME_PALETTES } from '../constants';
+import { ThemeIcon } from '../components/ThemeIcon';
 
-export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButtonStyleChange }) {
-  const corporateThemes = [
-    {
-      id: 'obsidian-gold',
-      name: 'Obsidian Gold (Varsayılan Lüks)',
-      badge: 'KURUMSAL KONSEPT',
-      accentColor: '#d97706',
-      bgPreview: 'bg-slate-900',
-      description: 'Derin obsidyen siyahı ve 24k altın ışıltılarıyla zenginleştirilmiş VIP balo konsepti.'
-    },
-    {
-      id: 'sapphire-clean',
-      name: 'Sapphire Clean (Modern Safir)',
-      badge: 'KURUMSAL DİJİTAL',
-      accentColor: '#2563eb',
-      bgPreview: 'bg-slate-950',
-      description: 'Safir mavisi ve beyaz tonlarda ultra net, kurumsal ve ferah yönetim arayüzü.'
-    },
-    {
-      id: 'platinum-silver',
-      name: 'Platinum Silver (Aydınlık Platin)',
-      badge: 'LIGHT TEMA',
-      accentColor: '#475569',
-      bgPreview: 'bg-slate-100',
-      description: 'Platin grisi, gümüş vurgular ve göz yormayan aydınlık kurumsal tasarım.'
-    },
-    {
-      id: 'emerald-royal',
-      name: 'Emerald Royal (Kraliyet Zümrütü)',
-      badge: 'VIP KONSEPT',
-      accentColor: '#059669',
-      bgPreview: 'bg-emerald-950',
-      description: 'Zümrüt yeşili ve koyu tonlarla doğa ile lüksü buluşturan premium tema.'
-    },
-    {
-      id: 'titanium-tech',
-      name: 'Titanium Tech (Teknolojik Titanyum)',
-      badge: 'DARK TECH',
-      accentColor: '#64748b',
-      bgPreview: 'bg-zinc-950',
-      description: 'Titanyum grisi ve neon çizgi efektleriyle yüksek teknolojili yönetim deneyimi.'
-    }
-  ];
+export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButtonStyleChange, onNavigate }) {
+  const corporateThemes = THEME_PALETTES;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
       {/* HEADER */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex justify-between items-center shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            ⚙️ Sistem Ayarları & 5 Kurumsal Tema Tercihi
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="settings" fallbackEmoji="⚙️" className="w-6 h-6 text-amber-500 shrink-0" />
+            <span>Sistem Ayarları & Kurumsal Tema Tercihleri</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Arayüz görünümünü kurum kimliğinize göre özelleştirin, buton keskinliklerini ayarlayın.
@@ -61,8 +23,8 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
       {/* THEMES SELECTION CARDS */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
         <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-          <span>🎨</span>
-          <span>5 Kurumsal Arayüz Renk Teması</span>
+          <ThemeIcon icon="paint" fallbackEmoji="🎨" className="w-5 h-5 text-amber-500 shrink-0" />
+          <span>Kurumsal Arayüz Renk Teması</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -79,9 +41,9 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
                 }`}
               >
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center flex-wrap gap-1">
                     <span className="text-[9px] font-extrabold bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                      {theme.badge}
+                      {theme.isZeroEmoji ? '❄️ SIFIR EMOJİ DIRECTIVE' : (theme.geometry || 'KURUMSAL KONSEPT')}
                     </span>
                     {isSelected && (
                       <span className="text-[10px] font-extrabold gold-button px-2.5 py-0.5 rounded-full shadow">
@@ -90,15 +52,20 @@ export function SettingsPage({ currentTheme, onThemeChange, buttonStyle, onButto
                     )}
                   </div>
 
-                  <h4 className="font-heading font-extrabold text-sm text-slate-900 dark:text-white">
-                    {theme.name}
+                  <h4 className="font-heading font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>{theme.name}</span>
                   </h4>
                   <p className="text-xs text-slate-500 dark:text-gray-400">{theme.description}</p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200 dark:border-brand-border flex items-center space-x-2">
-                  <div className="w-5 h-5 rounded-full border border-white/40 shadow-sm" style={{ backgroundColor: theme.accentColor }}></div>
-                  <span className="text-[10px] font-bold text-slate-500">Vurgu Rengi Kodu: {theme.accentColor}</span>
+                <div className="pt-2 border-t border-slate-200 dark:border-brand-border flex items-center justify-between text-[10px] font-bold">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 rounded-full border border-white/40 shadow-sm" style={{ backgroundColor: theme.primaryColor }}></div>
+                    <span className="text-slate-500">{theme.primaryColor}</span>
+                  </div>
+                  <span className="bg-slate-100 dark:bg-brand-card px-2 py-0.5 rounded text-amber-600 dark:text-gold-400">
+                    Geometri: {theme.geometry || 'rounded-md'}
+                  </span>
                 </div>
               </div>
             );

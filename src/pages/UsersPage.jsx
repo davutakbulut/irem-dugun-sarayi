@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserModalComponent } from '../components/Modals';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function UsersPage({ users = [], onAddUser, onEditUser }) {
   const [editingUser, setEditingUser] = useState(null);
@@ -27,8 +28,9 @@ export function UsersPage({ users = [], onAddUser, onEditUser }) {
       {/* HEADER */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex justify-between items-center shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            🛡️ Yetkili Personel Listesi (RBAC Rol Yönetimi)
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-6 h-6 text-amber-500 shrink-0" />
+            <span>Yetkili Personel Listesi (RBAC Rol Yönetimi)</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Sistem kullanıcılarını, SuperAdmin, Manager ve Staff yetkilerini düzenleyin.
@@ -39,7 +41,8 @@ export function UsersPage({ users = [], onAddUser, onEditUser }) {
           onClick={() => { setEditingUser(null); setIsModalOpen(true); }}
           className="gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center space-x-1"
         >
-          <span>➕ Personel Ekle</span>
+          <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+          <span>Personel Ekle</span>
         </button>
       </div>
 
@@ -58,9 +61,10 @@ export function UsersPage({ users = [], onAddUser, onEditUser }) {
 
             <button
               onClick={() => { setEditingUser(u); setIsModalOpen(true); }}
-              className="text-xs font-bold text-slate-600 dark:text-gray-300 hover:underline"
+              className="text-xs font-bold text-slate-600 dark:text-gray-300 hover:underline flex items-center space-x-1"
             >
-              Düzenle ✏️
+              <span>Düzenle</span>
+              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
             </button>
           </div>
         ))}

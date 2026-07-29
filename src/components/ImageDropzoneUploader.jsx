@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { ThemeIcon } from './ThemeIcon';
 
 export default function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '📷' }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -33,8 +34,9 @@ export default function ImageDropzoneUploader({ value, onChange, label = 'Görse
     <div className="space-y-1.5 text-xs">
       <div className="flex justify-between items-center">
         <label className="font-bold text-slate-700 dark:text-gray-300 block">{label}</label>
-        <span className="text-[10px] text-amber-700 dark:text-gold-400 font-mono font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-          📐 Önerilen Boyut: {aspectGuide}
+        <span className="text-[10px] text-amber-700 dark:text-gold-400 font-mono font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 flex items-center space-x-1">
+          <ThemeIcon icon="ruler" fallbackEmoji="📐" className="w-3 h-3 shrink-0" />
+          <span>Önerilen Boyut: {aspectGuide}</span>
         </span>
       </div>
 

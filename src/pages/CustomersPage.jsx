@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CustomerFormModal } from '../components/Modals';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,8 +37,9 @@ export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer })
       {/* HEADER */}
       <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white">
-            👥 Müşteri Rehberi & Otomatik Üye Kartları
+          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+            <ThemeIcon icon="user" fallbackEmoji="👥" className="w-6 h-6 text-amber-500 shrink-0" />
+            <span>Müşteri Rehberi & Otomatik Üye Kartları</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
             Rezervasyon oluşturan tüm müşteriler otomatik üye olarak sisteme kaydedilir.
@@ -48,7 +50,8 @@ export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer })
           onClick={() => { setEditingCustomer(null); setIsModalOpen(true); }}
           className="gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center space-x-1"
         >
-          <span>➕ Manuel Müşteri Ekle</span>
+          <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+          <span>Manuel Müşteri Ekle</span>
         </button>
       </div>
 
@@ -56,7 +59,7 @@ export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer })
       <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-brand-border text-xs">
         <input
           type="text"
-          placeholder="🔍 Ad Soyad, Telefon Numarası veya E-posta ile Müşteri Ara..."
+          placeholder="Ad Soyad, Telefon Numarası veya E-posta ile Müşteri Ara..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           className="w-full sm:w-96 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium text-slate-800 dark:text-gray-200"
@@ -70,13 +73,14 @@ export function CustomersPage({ customers = [], onAddCustomer, onEditCustomer })
             <div className="space-y-2">
               <div className="flex justify-between items-start">
                 <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 font-extrabold flex items-center justify-center text-lg shrink-0">
-                  👤
+                  <ThemeIcon icon="user" fallbackEmoji="👤" className="w-5 h-5 shrink-0" />
                 </div>
                 <button
                   onClick={() => { setEditingCustomer(c); setIsModalOpen(true); }}
-                  className="text-xs font-bold text-amber-700 dark:text-gold-400 hover:underline"
+                  className="text-xs font-bold text-amber-700 dark:text-gold-400 hover:underline flex items-center space-x-1"
                 >
-                  Düzenle ✏️
+                  <span>Düzenle</span>
+                  <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
                 </button>
               </div>
 

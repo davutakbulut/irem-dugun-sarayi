@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -25,8 +25,47 @@
 }
 
 /* ==========================================================================
-   5 YENİ KURUMSAL TEMA PALETİ & GEOMETRİ/ÇEPER EFEKTİ SİSTEMİ
+   KURUMSAL TEMA PALETİ & GEOMETRİ/ÇEPER EFEKTİ SİSTEMİ
    ========================================================================== */
+
+/* 0. NORDIC CLARITY & SCANDINAVIAN MINIMAL (SIFIR EMOJİ DIRECTIVE) */
+html[data-theme="nordic-clarity"], [data-theme="nordic-clarity"] {
+  --color-gold: #0f172a;
+  --color-gold-hover: #1e293b;
+  --color-bg: #f8fafc;
+  --color-card: #ffffff;
+  --color-card-border: #e2e8f0;
+  --color-text-main: #0f172a;
+  --color-text-muted: #94a3b8;
+  --glass-bg: rgba(255, 255, 255, 0.98);
+  --glass-border: #e2e8f0;
+}
+[data-theme="nordic-clarity"] .gold-button,
+[data-theme="nordic-clarity"] button,
+[data-theme="nordic-clarity"] input,
+[data-theme="nordic-clarity"] select {
+  border-radius: 0.375rem !important; /* rounded-md */
+}
+[data-theme="nordic-clarity"] .glass-panel,
+[data-theme="nordic-clarity"] .rounded-2xl,
+[data-theme="nordic-clarity"] .rounded-3xl,
+[data-theme="nordic-clarity"] .rounded-xl {
+  border-radius: 0.5rem !important; /* rounded-lg */
+}
+[data-theme="nordic-clarity"] .glass-panel {
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+}
+[data-theme="nordic-clarity"] .gold-button {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1px solid #334155 !important;
+}
+[data-theme="nordic-clarity"] .gold-gradient-text {
+  color: #0f172a !important;
+  background: none !important;
+  -webkit-text-fill-color: initial !important;
+}
 
 /* 1. OBSIDIAN GOLD (Keskin Lüks Siyah & Altın) - rounded-none */
 html[data-theme="obsidian-gold"], [data-theme="obsidian-gold"] {

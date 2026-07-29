@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { ThemeIcon } from '../components/ThemeIcon';
 
 export function DashboardPage({ activeRole, venues = [], reservations = [], onNewResClick, onTabChange }) {
   const totalRevenue = reservations.reduce((acc, r) => acc + (Number(r.totalAmount) || 0), 0);
@@ -25,7 +26,7 @@ export function DashboardPage({ activeRole, venues = [], reservations = [], onNe
 
         <div className="flex space-x-2 z-10 w-full sm:w-auto">
           <button onClick={onNewResClick} className="w-full sm:w-auto gold-button font-bold text-xs px-4 py-2.5 rounded-xl shadow flex items-center justify-center space-x-2">
-            <span>✨</span>
+            <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-4 h-4 shrink-0" />
             <span>Hızlı Rezervasyon Gir</span>
           </button>
         </div>
@@ -36,7 +37,7 @@ export function DashboardPage({ activeRole, venues = [], reservations = [], onNe
         <div className="glass-panel p-5 rounded-3xl space-y-2 border border-slate-200 dark:border-brand-border shadow-sm">
           <div className="flex justify-between items-center text-slate-500 dark:text-gray-400 text-xs font-bold">
             <span>Toplam Ciro (Sözleşmeli)</span>
-            <span className="text-base">💰</span>
+            <ThemeIcon icon="money" fallbackEmoji="💰" className="w-4 h-4 text-amber-500 shrink-0" />
           </div>
           <div className="text-xl font-extrabold font-mono text-slate-800 dark:text-gray-100">
             {formatCurrency(totalRevenue)}
@@ -49,7 +50,7 @@ export function DashboardPage({ activeRole, venues = [], reservations = [], onNe
         <div className="glass-panel p-5 rounded-3xl space-y-2 border border-slate-200 dark:border-brand-border shadow-sm">
           <div className="flex justify-between items-center text-slate-500 dark:text-gray-400 text-xs font-bold">
             <span>Tahsil Edilen Kaporalar</span>
-            <span className="text-base">💳</span>
+            <ThemeIcon icon="money" fallbackEmoji="💳" className="w-4 h-4 text-emerald-500 shrink-0" />
           </div>
           <div className="text-xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
             {formatCurrency(totalDeposit)}
@@ -62,7 +63,7 @@ export function DashboardPage({ activeRole, venues = [], reservations = [], onNe
         <div className="glass-panel p-5 rounded-3xl space-y-2 border border-slate-200 dark:border-brand-border shadow-sm">
           <div className="flex justify-between items-center text-slate-500 dark:text-gray-400 text-xs font-bold">
             <span>Bekleyen Alacak (Net Bakiye)</span>
-            <span className="text-base">⏳</span>
+            <ThemeIcon icon="clock" fallbackEmoji="⏳" className="w-4 h-4 text-amber-500 shrink-0" />
           </div>
           <div className="text-xl font-extrabold font-mono text-amber-600 dark:text-gold-400">
             {formatCurrency(totalRemaining)}
@@ -75,7 +76,7 @@ export function DashboardPage({ activeRole, venues = [], reservations = [], onNe
         <div className="glass-panel p-5 rounded-3xl space-y-2 border border-slate-200 dark:border-brand-border shadow-sm">
           <div className="flex justify-between items-center text-slate-500 dark:text-gray-400 text-xs font-bold">
             <span>Aktif Rezervasyonlar</span>
-            <span className="text-base">📅</span>
+            <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-4 h-4 text-blue-500 shrink-0" />
           </div>
           <div className="text-xl font-extrabold text-slate-800 dark:text-gray-100">
             {upcomingCount} Adet
