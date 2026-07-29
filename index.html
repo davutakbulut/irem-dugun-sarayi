@@ -3345,6 +3345,7 @@
       // 2. Customer & Auto-Membership (DEFAULT TO NEW MEMBER)
       const [customerMode, setCustomerMode] = useState('new'); // 'new' or 'existing'
       const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || 'cust1');
+      const [isAutoSelectedFromPhone, setIsAutoSelectedFromPhone] = useState(false);
       const [customerSearchQuery, setCustomerSearchQuery] = useState('');
       const [newCustName, setNewCustName] = useState('');
       const [newCustEmail, setNewCustEmail] = useState('');
@@ -4186,14 +4187,14 @@
                   <div className="grid grid-cols-2 gap-2 text-xs font-bold w-full">
                     <button
                       type="button"
-                      onClick={() => { setCustomerMode('new'); setCustomerError(false); }}
+                      onClick={() => { setCustomerMode('new'); setIsAutoSelectedFromPhone(false); setCustomerError(false); }}
                       className={`py-2.5 px-2 rounded-xl border text-center transition flex items-center justify-center space-x-1.5 ${customerMode === 'new' ? 'gold-button shadow font-extrabold' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border-slate-200 dark:border-slate-800'}`}
                     >
                       <span>+ Yeni Müşteri</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => { setCustomerMode('existing'); setCustomerError(false); }}
+                      onClick={() => { setCustomerMode('existing'); setIsAutoSelectedFromPhone(false); setCustomerError(false); }}
                       className={`py-2.5 px-2 rounded-xl border text-center transition flex items-center justify-center space-x-1.5 ${customerMode === 'existing' ? 'gold-button shadow font-extrabold' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border-slate-200 dark:border-slate-800'}`}
                     >
                       <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 inline-block" />
@@ -4215,7 +4216,7 @@
 
                     <select
                       value={selectedCustomerId}
-                      onChange={e => { setSelectedCustomerId(e.target.value); setCustomerError(false); }}
+                      onChange={e => { setSelectedCustomerId(e.target.value); setIsAutoSelectedFromPhone(false); setCustomerError(false); }}
                       className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold ${customerError && !selectedCustomerId ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30' : 'border-slate-200 dark:border-brand-border'}`}
                     >
                       {customers
@@ -4231,7 +4232,7 @@
                         ))}
                     </select>
 
-                    {selectedCustomerId && (
+                    {selectedCustomerId && isAutoSelectedFromPhone && (
                       <div className="mt-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold p-2 rounded-lg text-[10px] flex items-center justify-center space-x-1 border border-emerald-500/20 shadow-sm animate-fade-in">
                         <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>VAROLAN MÜŞTERİ SEÇİLDİ</span>
@@ -4330,6 +4331,7 @@
                                     key={cust.id}
                                     onClick={() => {
                                       setSelectedCustomerId(cust.id);
+                                      setIsAutoSelectedFromPhone(true);
                                       setCustomerSearchQuery('');
                                       setCustomerMode('existing');
                                       setCustomerError(false);
