@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SidebarComponent, HeaderComponent } from './components/Navigation';
 import { MobileBottomSummaryBar } from './components/MobileBottomSummaryBar';
 import { NotificationPopup } from './components/NotificationPopup';
+import { PageErrorBoundary } from './components/PageErrorBoundary';
 
 // Data & Pages
 import {
@@ -185,126 +186,154 @@ export default function App() {
           currentUser={currentUser}
         />
 
-        {/* PAGE CONTENT CONTAINER */}
+        {/* PAGE CONTENT CONTAINER WITH FAULT ISOLATION */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
           {activeTab === 'dashboard' && (
-            <DashboardPage
-              activeRole={activeRole}
-              venues={venues}
-              reservations={reservations}
-              onNewResClick={() => setActiveTab('create-reservation')}
-              onTabChange={setActiveTab}
-            />
+            <PageErrorBoundary pageName="Anasayfa / İstatistikler" onNavigateHome={setActiveTab}>
+              <DashboardPage
+                activeRole={activeRole}
+                venues={venues}
+                reservations={reservations}
+                onNewResClick={() => setActiveTab('create-reservation')}
+                onTabChange={setActiveTab}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'create-reservation' && (
-            <CreateReservationPage
-              venues={venues}
-              services={services}
-              customers={customers}
-              campaigns={campaigns}
-              reservations={reservations}
-              onSaveReservation={handleSaveReservation}
-              onCancel={() => setActiveTab('reservations')}
-            />
+            <PageErrorBoundary pageName="Yeni Rezervasyon Oluştur" onNavigateHome={setActiveTab}>
+              <CreateReservationPage
+                venues={venues}
+                services={services}
+                customers={customers}
+                campaigns={campaigns}
+                reservations={reservations}
+                onSaveReservation={handleSaveReservation}
+                onCancel={() => setActiveTab('reservations')}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'reservations' && (
-            <ReservationsListPage
-              reservations={reservations}
-              venues={venues}
-              services={services}
-              customers={customers}
-              campaigns={campaigns}
-              onNewResClick={() => setActiveTab('create-reservation')}
-              onUpdateReservation={handleUpdateReservation}
-              onDeleteReservation={handleDeleteReservation}
-            />
+            <PageErrorBoundary pageName="Rezervasyonlarım & Takvim" onNavigateHome={setActiveTab}>
+              <ReservationsListPage
+                reservations={reservations}
+                venues={venues}
+                services={services}
+                customers={customers}
+                campaigns={campaigns}
+                onNewResClick={() => setActiveTab('create-reservation')}
+                onUpdateReservation={handleUpdateReservation}
+                onDeleteReservation={handleDeleteReservation}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'venues' && (
-            <VenuesPage
-              venues={venues}
-              onAddVenue={handleAddVenue}
-              onEditVenue={handleEditVenue}
-            />
+            <PageErrorBoundary pageName="Düğün Salonlarım" onNavigateHome={setActiveTab}>
+              <VenuesPage
+                venues={venues}
+                onAddVenue={handleAddVenue}
+                onEditVenue={handleEditVenue}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'services' && (
-            <ServicesPage
-              services={services}
-              onAddService={handleAddService}
-              onEditService={handleEditService}
-            />
+            <PageErrorBoundary pageName="Ek Hizmetlerim" onNavigateHome={setActiveTab}>
+              <ServicesPage
+                services={services}
+                onAddService={handleAddService}
+                onEditService={handleEditService}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'customers' && (
-            <CustomersPage
-              customers={customers}
-              onAddCustomer={handleAddCustomer}
-              onEditCustomer={handleEditCustomer}
-            />
+            <PageErrorBoundary pageName="Müşteri Rehberi" onNavigateHome={setActiveTab}>
+              <CustomersPage
+                customers={customers}
+                onAddCustomer={handleAddCustomer}
+                onEditCustomer={handleEditCustomer}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'campaigns' && (
-            <CampaignsPage
-              campaigns={campaigns}
-              onAddCampaign={handleAddCampaign}
-              onEditCampaign={handleEditCampaign}
-            />
+            <PageErrorBoundary pageName="Kampanyalar" onNavigateHome={setActiveTab}>
+              <CampaignsPage
+                campaigns={campaigns}
+                onAddCampaign={handleAddCampaign}
+                onEditCampaign={handleEditCampaign}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'reports' && (
-            <ReportsPage
-              reservations={reservations}
-              venues={venues}
-              onConvertToCampaign={handleConvertToCampaign}
-            />
+            <PageErrorBoundary pageName="Finans & Raporlar" onNavigateHome={setActiveTab}>
+              <ReportsPage
+                reservations={reservations}
+                venues={venues}
+                onConvertToCampaign={handleConvertToCampaign}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'users' && (
-            <UsersPage
-              users={users}
-              onAddUser={handleAddUser}
-              onEditUser={handleEditUser}
-            />
+            <PageErrorBoundary pageName="Kullanıcı Yönetimi" onNavigateHome={setActiveTab}>
+              <UsersPage
+                users={users}
+                onAddUser={handleAddUser}
+                onEditUser={handleEditUser}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === 'settings' && (
-            <SettingsPage
-              currentTheme={currentTheme}
-              onThemeChange={setCurrentTheme}
-              buttonStyle={buttonStyle}
-              onButtonStyleChange={setButtonStyle}
-              onNavigate={setActiveTab}
-            />
+            <PageErrorBoundary pageName="Ayarlar" onNavigateHome={setActiveTab}>
+              <SettingsPage
+                currentTheme={currentTheme}
+                onThemeChange={setCurrentTheme}
+                buttonStyle={buttonStyle}
+                onButtonStyleChange={setButtonStyle}
+                onNavigate={setActiveTab}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === '301' && (
-            <Page301
-              targetRoute="reservations"
-              targetName="Rezervasyonlar & Canlı Takvim"
-              onNavigate={setActiveTab}
-            />
+            <PageErrorBoundary pageName="Yönlendirme" onNavigateHome={setActiveTab}>
+              <Page301
+                targetRoute="reservations"
+                targetName="Rezervasyonlar & Canlı Takvim"
+                onNavigate={setActiveTab}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === '403' && (
-            <Page403
-              requiredRole="Süper Yönetici (SuperAdmin)"
-              onNavigate={setActiveTab}
-            />
+            <PageErrorBoundary pageName="Erişim Engellendi" onNavigateHome={setActiveTab}>
+              <Page403
+                requiredRole="Süper Yönetici (SuperAdmin)"
+                onNavigate={setActiveTab}
+              />
+            </PageErrorBoundary>
           )}
 
           {activeTab === '500' && (
-            <Page500
-              errorDetails="Veritabanı bağlantı zaman aşımı (ETIMEDOUT)."
-              onNavigate={setActiveTab}
-            />
+            <PageErrorBoundary pageName="Sunucu Hatası" onNavigateHome={setActiveTab}>
+              <Page500
+                errorDetails="Veritabanı bağlantı zaman aşımı (ETIMEDOUT)."
+                onNavigate={setActiveTab}
+              />
+            </PageErrorBoundary>
           )}
 
           {/* FALLBACK 404 ROUTE */}
           {(!['dashboard', 'create-reservation', 'reservations', 'venues', 'services', 'customers', 'campaigns', 'reports', 'users', 'settings', '301', '403', '500'].includes(activeTab) || activeTab === '404') && (
-            <Page404 onNavigate={setActiveTab} />
+            <PageErrorBoundary pageName="Sayfa Bulunamadı" onNavigateHome={setActiveTab}>
+              <Page404 onNavigate={setActiveTab} />
+            </PageErrorBoundary>
           )}
         </main>
       </div>
