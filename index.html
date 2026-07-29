@@ -68,7 +68,7 @@
   </script>
 
   <!-- Lucide Icons (Direct Immutable CDN - Zero 302 Redirect Delay) -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.min.js" defer></script>
 
   <!-- React 18 UMD & Babel Standalone (Direct Immutable CDN - Zero 302 Redirect Delay) -->
   <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" crossorigin></script>
@@ -4183,12 +4183,21 @@
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-2 text-xs font-bold">
-                    <button onClick={() => { setCustomerMode('new'); setCustomerError(false); }} className={`px-3.5 py-2 rounded-xl border transition ${customerMode === 'new' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400'}`}>
-                      ➕ Otomatik Yeni Üyelik Oluştur
+                  <div className="grid grid-cols-2 gap-2 text-xs font-bold w-full">
+                    <button
+                      type="button"
+                      onClick={() => { setCustomerMode('new'); setCustomerError(false); }}
+                      className={`py-2.5 px-2 rounded-xl border text-center transition flex items-center justify-center space-x-1.5 ${customerMode === 'new' ? 'gold-button shadow font-extrabold' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border-slate-200 dark:border-slate-800'}`}
+                    >
+                      <span>+ Yeni Müşteri</span>
                     </button>
-                    <button onClick={() => { setCustomerMode('existing'); setCustomerError(false); }} className={`px-3.5 py-2 rounded-xl border transition ${customerMode === 'existing' ? 'gold-button shadow' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400'}`}>
-                      👥 Müşteri Rehberinden Seç
+                    <button
+                      type="button"
+                      onClick={() => { setCustomerMode('existing'); setCustomerError(false); }}
+                      className={`py-2.5 px-2 rounded-xl border text-center transition flex items-center justify-center space-x-1.5 ${customerMode === 'existing' ? 'gold-button shadow font-extrabold' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border-slate-200 dark:border-slate-800'}`}
+                    >
+                      <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 inline-block" />
+                      <span>Müşteri Listesi</span>
                     </button>
                   </div>
                 </div>
@@ -4270,7 +4279,7 @@
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
+                      <div className="relative">
                         <label className="font-bold block mb-1">Birincil Telefon (+90) <span className="text-red-500">*</span>:</label>
                         <input
                           id="new-cust-phone-input"
@@ -4286,6 +4295,59 @@
                               : 'border-slate-200 dark:border-brand-border text-slate-800 dark:text-gray-200'
                           }`}
                         />
+
+                        {/* MATCHED EXISTING CUSTOMERS FLOATING DROPDOWN */}
+                        {(() => {
+                          if (!newCustPhone || customerMode !== 'new') return null;
+                          const rawDigits = newCustPhone.replace(/\D/g, '');
+                          if (rawDigits.length < 3) return null;
+                          const matches = (customers || []).filter(c => {
+                            const cDigits = (c.phone || '').replace(/\D/g, '');
+                            return cDigits.includes(rawDigits) || (c.name || '').toLowerCase().includes(newCustPhone.toLowerCase());
+                          }).slice(0, 4);
+                          if (matches.length === 0) return null;
+                          return (
+                            <div className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
+                              <div className="bg-amber-500/15 px-3 py-2 border-b border-amber-500/30 text-[11px] font-extrabold text-amber-800 dark:text-gold-400 flex items-center justify-between">
+                                <span className="flex items-center space-x-1">
+                                  <span>⚡ Kayıtlı Müşteri Eşleşti ({matches.length}):</span>
+                                </span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400">Tıklayıp Verileri Doldurun</span>
+                              </div>
+                              <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto">
+                                {matches.map(cust => (
+                                  <div
+                                    key={cust.id}
+                                    onClick={() => {
+                                      setNewCustName(cust.name || '');
+                                      setNewCustPhone(cust.phone || '');
+                                      setNewCustSecondaryPhone(cust.secondaryPhone || cust.phone || '');
+                                      setNewCustEmail(cust.email || '');
+                                      setSelectedCustomerId(cust.id);
+                                      showToast(`👥 "${cust.name}" Bilgileri Form Alanına Aktarıldı!`);
+                                    }}
+                                    className="p-3 hover:bg-amber-500/10 dark:hover:bg-slate-800/80 cursor-pointer transition flex items-center justify-between text-left group"
+                                  >
+                                    <div>
+                                      <div className="font-extrabold text-xs text-slate-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-gold-400">
+                                        {cust.name}
+                                      </div>
+                                      <div className="text-[10px] text-slate-500 dark:text-gray-400 font-mono mt-0.5">
+                                        Tel: {cust.phone} {cust.email ? `| ${cust.email}` : ''}
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="gold-button text-[10px] font-extrabold px-2.5 py-1 rounded-lg shadow shrink-0 active:scale-95"
+                                    >
+                                      Seç & Doldur ✓
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
                         {customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone)) && (
                           <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
                             <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
