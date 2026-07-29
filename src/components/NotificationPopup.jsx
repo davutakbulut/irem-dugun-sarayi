@@ -4,7 +4,7 @@ export function NotificationPopup({ alertModal, onClose }) {
   if (!alertModal || !alertModal.isOpen) return null;
 
   return (
-    <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-down sm:animate-slide-left">
+    <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[999999] max-w-md w-[calc(100vw-2rem)] animate-slide-down sm:animate-slide-left pointer-events-auto">
       <div className="bg-white/95 dark:bg-slate-900/95 border-2 border-red-500/70 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(239,68,68,0.35)] backdrop-blur-xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600">
         
         {/* Red Pulse Warning Icon */}

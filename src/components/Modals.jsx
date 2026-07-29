@@ -42,8 +42,8 @@ export function VenueDetailModalComponent({ venue, onClose, onSelectVenue }) {
   const mapQueryUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((venue.name || '') + ' ' + (venue.location || 'Sapanca Sakarya İrem Düğün Sarayı'))}`;
 
   return (
-    <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
-      <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full max-h-screen sm:h-auto sm:max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-0 sm:my-auto sm:max-h-[88vh]">
+    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
         
         {/* MODAL HEADER */}
         <div className="relative h-44 sm:h-72 overflow-hidden shrink-0 bg-slate-900">
@@ -226,8 +226,8 @@ export function CustomerFormModal({ customer, onClose, onSave }) {
   const [tcNo, setTcNo] = useState(customer?.tcNo || '');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true">
-      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true">
+      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
         <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{customer ? 'Müşteri Kartı Düzenle' : 'Yeni Müşteri Ekle'}</h3>
         
         <div className="space-y-3 text-xs">
@@ -283,8 +283,8 @@ export function VenueModalComponent({ venue, onClose, onSave }) {
   const [description, setDescription] = useState(venue?.description || '');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
         <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{venue ? 'Salon Düzenle' : 'Yeni Salon Ekle'}</h3>
         
         <div className="space-y-3 text-xs">
@@ -353,8 +353,8 @@ export function ServiceModalComponent({ service, onClose, onSave }) {
   const [description, setDescription] = useState(service?.description || '');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
         <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{service ? 'Hizmet Düzenle' : 'Yeni Hizmet Ekle'}</h3>
         
         <div className="space-y-3 text-xs">
@@ -428,8 +428,8 @@ export function CampaignModalComponent({ campaign, onClose, onSave }) {
   const [description, setDescription] = useState(campaign?.description || '');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
         <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{campaign ? 'Kampanya Düzenle' : 'Yeni Kampanya Ekle'}</h3>
         
         <div className="space-y-3 text-xs">
@@ -502,8 +502,8 @@ export function UserModalComponent({ user, onClose, onSave }) {
   const [title, setTitle] = useState(user?.title || 'Etkinlik Sorumlusu');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
         <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{user ? 'Personel Düzenle' : 'Yeni Personel Ekle'}</h3>
         
         <div className="space-y-3 text-xs">

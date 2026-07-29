@@ -2836,8 +2836,8 @@
       const mapQueryUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((venue.name || '') + ' ' + (venue.location || 'Sapanca Sakarya İrem Düğün Sarayı'))}`;
 
       return (
-        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
-          <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full max-h-screen sm:h-auto sm:max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-0 sm:my-auto sm:max-h-[88vh]">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
             
             {/* MODAL HEADER */}
             <div className="relative h-44 sm:h-72 overflow-hidden shrink-0 bg-slate-900">
@@ -4339,8 +4339,8 @@
       const [taxOffice, setTaxOffice] = useState(customer?.taxOffice || '');
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{customer ? 'Müşteri Kartı Düzenle' : 'Yeni Müşteri Ekle'}</h3>
             <div className="space-y-3 text-xs">
               <input type="text" placeholder="Müşteri / Firma Adı" value={name} onChange={e => setName(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
@@ -4504,8 +4504,8 @@
       };
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
               <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{service ? '✨ Ek Hizmeti Düzenle' : '➕ Yeni Ek Hizmet Ekle'}</h3>
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
@@ -4561,8 +4561,8 @@
       };
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
               <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{campaign ? '🎁 Kampanyayı Düzenle' : '➕ Yeni Özel Kampanya Ekle'}</h3>
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
@@ -4611,8 +4611,8 @@
       };
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
               <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{user ? '⚙️ Kullanıcıyı Düzenle' : '➕ Yeni Kullanıcı Ekle'}</h3>
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
@@ -5439,8 +5439,8 @@
 
           {/* HOURLY TIMELINE SCHEDULE FLOW MODAL (GÜNE TIKLAYINCA SAAT AKIŞI GÖRÜNÜMÜ) */}
           {selectedDayInspector && (
-            <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
                   <div>
                     <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Saat Akışı & Doluluk Çizelgesi</span>
@@ -5553,8 +5553,8 @@
 
           {/* 5. RICH DETAILED PREVIEW MODAL */}
           {selectedResForPreview && (
-            <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 
                 {/* PREVIEW HEADER */}
                 <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
@@ -5740,8 +5740,8 @@
 
           {/* DELETE CONFIRMATION MODAL */}
           {deletingRes && (
-            <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center">
+            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center my-auto">
                 <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">🗑️</div>
                 <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
                   Rezervasyon Silinsin Mi?
@@ -5767,8 +5767,8 @@
 
           {/* 7. FULL EDIT RESERVATION MODAL (HER ŞEY YENİDEN DÜZENLENEBİLİR) */}
           {editingRes && editForm && (
-            <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 
                 {/* EDIT HEADER */}
                 <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
@@ -7299,8 +7299,8 @@
       const [status, setStatus] = useState(res.paymentStatus || 'Bekliyor');
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar my-auto shadow-2xl">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
               <div>
                 <span className="font-mono text-amber-700 dark:text-gold-400 font-bold text-xs">{res.id}</span>

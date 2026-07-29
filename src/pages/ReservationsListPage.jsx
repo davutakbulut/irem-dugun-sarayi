@@ -610,8 +610,8 @@ export function ReservationsListPage({
 
       {/* 4. HOURLY TIMELINE SCHEDULE FLOW MODAL */}
       {selectedDayInspector && (
-        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
               <div>
                 <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Saat Akışı & Doluluk Çizelgesi</span>
@@ -721,8 +721,8 @@ export function ReservationsListPage({
 
       {/* 5. RICH DETAILED PREVIEW MODAL (HER ŞEY EKSİKSİZ VE DETAYLI) */}
       {selectedResForPreview && (
-        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             
             {/* PREVIEW HEADER */}
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
@@ -908,8 +908,8 @@ export function ReservationsListPage({
 
       {/* 6. DELETE CONFIRMATION MODAL */}
       {deletingRes && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center my-auto">
             <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">🗑️</div>
             <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
               Rezervasyon Silinsin Mi?
@@ -935,8 +935,8 @@ export function ReservationsListPage({
 
       {/* 7. FULL EDIT RESERVATION MODAL (HER ŞEY YENİDEN DÜZENLENEBİLİR) */}
       {editingRes && editForm && (
-        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             
             {/* EDIT HEADER */}
             <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
