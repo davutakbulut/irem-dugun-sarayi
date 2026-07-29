@@ -1550,6 +1550,28 @@
       const [activeTab, setActiveTabState] = useState(getHashTab);
 
       const [toast, setToast] = useState(null);
+      const [globalAlert, setGlobalAlert] = useState({ isOpen: false, title: '', message: '', targetInputId: null });
+
+      useEffect(() => {
+        window.showGlobalAlert = (title, message, targetInputId = null) => {
+          setGlobalAlert({ isOpen: true, title, message, targetInputId });
+        };
+        return () => {
+          delete window.showGlobalAlert;
+        };
+      }, []);
+
+      const closeGlobalAlert = () => {
+        const targetId = globalAlert.targetInputId;
+        setGlobalAlert({ isOpen: false, title: '', message: '', targetInputId: null });
+        if (targetId) {
+          const el = document.getElementById(targetId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.focus();
+          }
+        }
+      };
 
       // Modals State
       const [selectedResForDetail, setSelectedResForDetail] = useState(null);
@@ -1909,8 +1931,49 @@
       };
 
       return (
-        <div className="min-h-screen flex flex-col font-sans transition-colors duration-300">
+        <div className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative">
           
+          {/* GLOBAL ROOT VIEWPORT STANDALONE FLOATING NOTIFICATION (100% INDEPENDENT OF PAGE BODY & SCROLL) */}
+          {globalAlert.isOpen && (
+            <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[999999] max-w-md w-full animate-slide-left pointer-events-auto">
+              <div className="bg-slate-900/95 dark:bg-slate-900/95 border-2 border-red-500/80 rounded-2xl p-4 sm:p-5 shadow-[0_25px_60px_rgba(239,68,68,0.45)] backdrop-blur-2xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600 text-white">
+                {/* Red Pulse Warning Icon */}
+                <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-xl font-bold shrink-0 border border-red-500/40 animate-pulse mt-0.5">
+                  ⚠️
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 space-y-1 pr-6 text-left">
+                  <h4 className="font-heading font-extrabold text-sm sm:text-base text-white flex items-center space-x-1.5">
+                    <span>{globalAlert.title}</span>
+                  </h4>
+                  <p className="text-xs text-slate-300 leading-relaxed font-semibold">
+                    {globalAlert.message}
+                  </p>
+                  
+                  {/* Action Button */}
+                  <div className="pt-2">
+                    <button
+                      onClick={closeGlobalAlert}
+                      className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1 cursor-pointer"
+                    >
+                      <span>Anladım, Düzelt ✓</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Close X Button */}
+                <button
+                  onClick={closeGlobalAlert}
+                  className="absolute top-3 right-3 text-slate-400 hover:text-white transition p-1 cursor-pointer"
+                  aria-label="Kapat"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* HEADER */}
           <header role="banner" className="sticky top-0 z-40 glass-panel px-3 sm:px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2 shadow-md">
             <div className="flex items-center justify-between w-full sm:w-auto">
@@ -2771,12 +2834,16 @@
       const [guestCount, setGuestCount] = useState(500);
 
       const showAlertModal = (title, message, targetInputId = null) => {
-        setAlertModal({
-          isOpen: true,
-          title: title || '⚠️ LÜTFEN EKSİKSİZ DOLDURUNUZ',
-          message: message || 'Müşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur.',
-          targetInputId
-        });
+        if (window.showGlobalAlert) {
+          window.showGlobalAlert(title, message, targetInputId);
+        } else {
+          setAlertModal({
+            isOpen: true,
+            title: title || '⚠️ LÜTFEN EKSİKSİZ DOLDURUNUZ',
+            message: message || 'Müşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur.',
+            targetInputId
+          });
+        }
       };
 
       const closeAlertModal = () => {

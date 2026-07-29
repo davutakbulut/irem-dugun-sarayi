@@ -2,6 +2,62 @@ import React, { useEffect } from 'react';
 import { formatCurrency, formatDate } from '../utils/helpers';
 
 // ----------------------------------------------------
+// 0. STANDALONE TOP-RIGHT FLOATING NOTIFICATION POPUP MODAL
+// ----------------------------------------------------
+export function StandaloneTopRightAlertModal({ isOpen, title, message, onClose, targetInputId }) {
+  if (!isOpen) return null;
+
+  const handleClose = () => {
+    onClose();
+    if (targetInputId) {
+      const el = document.getElementById(targetInputId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.focus();
+      }
+    }
+  };
+
+  return (
+    <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-down sm:animate-slide-left">
+      <div className="bg-white/95 dark:bg-slate-900/95 border-2 border-red-500/70 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(239,68,68,0.35)] backdrop-blur-xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600">
+        <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-xl font-bold shrink-0 border border-red-500/30 animate-pulse mt-0.5">
+          ⚠️
+        </div>
+
+        <div className="flex-1 space-y-1 pr-6 text-left">
+          <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-1.5">
+            <span>{title}</span>
+          </h4>
+          <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-semibold">
+            {message}
+          </p>
+          
+          <div className="pt-2">
+            <button
+              onClick={handleClose}
+              className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1"
+            >
+              <span>Anladım, Düzelt ✓</span>
+            </button>
+          </div>
+        </div>
+
+        <button
+          onClick={handleClose}
+          className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 dark:hover:text-white transition p-1"
+          aria-label="Kapat"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------
 // 1. IN-APP RED ALERT & CONFIRMATION POPUP MODAL
 // ----------------------------------------------------
 export function RedAlertConfirmModal({ isOpen, title, message, confirmText = 'Evet, Sil', cancelText = 'Vazgeç', onConfirm, onClose, icon = '🚨' }) {
