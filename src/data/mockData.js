@@ -168,6 +168,33 @@ export const INITIAL_CUSTOMERS = [
 
 export const INITIAL_RESERVATIONS = [
   {
+    id: 'RES-2026-000',
+    venueId: 'v1',
+    customerId: 'cust1',
+    customerName: 'Zeynep Yılmaz & Caner Yıldız',
+    customerEmail: 'zeynep.caner@example.com',
+    customerPhone: '+90 532 999 8877',
+    date: '2026-07-29',
+    eventDate: '2026-07-29',
+    startTime: '19:00',
+    endTime: '23:00',
+    timeSlot: '19:00-23:00',
+    guestCount: 600,
+    selectedServices: ['s1', 's2'],
+    venuePrice: 85000,
+    totalAmount: 110000,
+    depositPaid: 50000,
+    remainingBalance: 60000,
+    paymentStatus: 'Kapora Alındı',
+    isInvoiced: true,
+    notes: 'Kına ve Nişan Merasimi organizasyonu.',
+    flowPlan: [
+      { time: '19:00', title: 'Misafir Karşılama' },
+      { time: '20:00', title: 'İlk Dans & Müzik' },
+      { time: '22:00', title: 'Kına Yakma Töreni' }
+    ]
+  },
+  {
     id: 'RES-2026-001',
     venueId: 'v1',
     customerId: 'cust1',

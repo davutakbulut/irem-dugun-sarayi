@@ -87,14 +87,15 @@ export function ReservationsListPage({
     return matchesSearch && matchesVenue && matchesStatus && matchesDate;
   });
 
-  // Dynamic Month & Year Navigation State
+  // Dynamic Month & Year Navigation State (Defaults to real current date)
   const MONTH_NAMES = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
     'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
   ];
 
-  const [currentYear, setCurrentYear] = useState(2026);
-  const [currentMonth, setCurrentMonth] = useState(7); // 0-indexed: 7 = Ağustos 2026 (Sample Data)
+  const today = new Date();
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth()); // Real current month (July = 6)
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
@@ -115,8 +116,9 @@ export function ReservationsListPage({
   };
 
   const handleGoToday = () => {
-    setCurrentYear(2026);
-    setCurrentMonth(7);
+    const now = new Date();
+    setCurrentYear(now.getFullYear());
+    setCurrentMonth(now.getMonth());
   };
 
   // Dynamic Calendar Grid Setup for currentYear & currentMonth (1 to 28..31 Days)
@@ -439,7 +441,7 @@ export function ReservationsListPage({
                   onClick={handleGoToday}
                   className="px-3.5 py-2 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-gold-400 rounded-xl font-bold text-xs border border-amber-300 dark:border-amber-700/60 shadow-xs hover:bg-amber-100 transition cursor-pointer"
                 >
-                  🎯 Ağustos 2026
+                  🎯 Bugünkü Ay ({MONTH_NAMES[today.getMonth()]} {today.getFullYear()})
                 </button>
               </div>
             </div>
