@@ -59,7 +59,11 @@ export function ReservationsListPage({
       paymentStatus: res.paymentStatus || 'Bekliyor',
       isInvoiced: res.isInvoiced || false,
       notes: res.notes || '',
-      flowPlan: res.flowPlan ? JSON.parse(JSON.stringify(res.flowPlan)) : []
+      flowPlan: res.flowPlan && res.flowPlan.length > 0 ? JSON.parse(JSON.stringify(res.flowPlan)) : [
+        { time: '18:00', title: 'Karşılama ve İkram', description: 'Giriş kapısında lokum ve kolonya ikramı', responsible: 'Hoşgeldin Ekibi' },
+        { time: '19:30', title: 'Çiftlerin Sahneye Girişi & İlk Dans', description: 'Sis ve konfeti eşliğinde sahnede ilk dans', responsible: 'Orkestra & Işık Şefi' },
+        { time: '21:00', title: 'Pasta Kesimi & Takı Töreni', description: 'Görsel kutlama pastası ve takı alanı', responsible: 'Salon Müdürü' }
+      ]
     });
     setEditError(false);
   };
@@ -84,7 +88,6 @@ export function ReservationsListPage({
   });
 
   // August 2026 Calendar Grid Setup (1 to 31 Days)
-  // August 1, 2026 is Saturday (Day 6 of week: Pzt=1, Sal=2, Çar=3, Per=4, Cum=5, Cmt=6, Paz=7)
   const augustStartEmptyCount = 5;
   const augustDaysCount = 31;
 
@@ -126,7 +129,7 @@ export function ReservationsListPage({
             📅 Rezervasyonlar & Canlı Takvim Yönetimi
           </h2>
           <p className="text-xs text-slate-500 dark:text-gray-400">
-            Tüm düğün sözleşmelerini filtreleyin, canlı takvimde sürükleyip taşıyın veya düzenleyin.
+            Tüm düğün sözleşmelerini detaylarıyla inceleyin, takvimde sürükleyip taşıyın veya yeniden düzenleyin.
           </p>
         </div>
 
@@ -143,7 +146,7 @@ export function ReservationsListPage({
             <span>➕ Yeni Rezervasyon</span>
           </button>
 
-          {/* VIEW TOGGLE (EN SAĞDA) */}
+          {/* VIEW TOGGLE */}
           <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border">
             <button
               onClick={() => setViewMode('table')}
@@ -289,7 +292,7 @@ export function ReservationsListPage({
                         <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
                         <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
                         <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
-                          {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
+                          {res.remainingBalance === 0 ? '0 ₺ (Ödendi ✓)' : formatCurrency(res.remainingBalance)}
                         </td>
                         <td className="py-3.5 px-3">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -307,7 +310,7 @@ export function ReservationsListPage({
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20 transition font-bold text-xs"
                               title="Detaylı Önizle"
                             >
-                              👁️
+                              👁️ Detay Önizle
                             </button>
                             <button
                               onClick={() => handleOpenEdit(res)}
@@ -332,10 +335,8 @@ export function ReservationsListPage({
           </div>
         </div>
       ) : (
-        /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID WITH DRAG-AND-DROP & HOURLY TIMELINE FLOW) */
+        /* INTERACTIVE MONTHLY CALENDAR VIEW */
         <div className="space-y-4">
-          
-          {/* CALENDAR HEADER & HELP BADGE */}
           <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
             <div>
               <h3 className="font-heading font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">
@@ -348,7 +349,6 @@ export function ReservationsListPage({
             </div>
           </div>
 
-          {/* MONTH TITLE */}
           <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
             <div className="flex items-center space-x-2">
               <span className="text-xl">📅</span>
@@ -357,7 +357,6 @@ export function ReservationsListPage({
               </h4>
             </div>
 
-            {/* 7 DAYS COLUMN HEADERS */}
             <div className="grid grid-cols-7 gap-2 text-center font-bold text-xs text-slate-600 dark:text-gray-300">
               <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Pzt</div>
               <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Sal</div>
@@ -368,7 +367,6 @@ export function ReservationsListPage({
               <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Paz</div>
             </div>
 
-            {/* 31 DAYS MONTHLY GRID WITH DRAG-AND-DROP TARGETS */}
             <div className="grid grid-cols-7 gap-2 text-xs">
               {calendarGridCells.map(cell => {
                 if (cell.isEmpty) {
@@ -377,7 +375,6 @@ export function ReservationsListPage({
                   );
                 }
 
-                // Get reservations for this day sorted chronologically
                 const dayResList = filteredReservations
                   .filter(r => (r.eventDate === cell.dateStr || r.date === cell.dateStr) && r.paymentStatus !== 'İptal')
                   .sort((a, b) => {
@@ -417,7 +414,6 @@ export function ReservationsListPage({
                         : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border hover:border-amber-400'
                     }`}
                   >
-                    {/* DAY NUMBER TOP LEFT & EVENT COUNT BADGE TOP RIGHT */}
                     <div className="flex justify-between items-center text-xs font-extrabold">
                       <span className="text-slate-800 dark:text-gray-200 text-sm group-hover:text-amber-600 transition">
                         {cell.dayNumber}
@@ -429,7 +425,6 @@ export function ReservationsListPage({
                       )}
                     </div>
 
-                    {/* EVENT PILLS :: CustomerName (StartTime) WITH HTML5 DRAGGABLE */}
                     <div className="space-y-1 overflow-y-auto max-h-20 custom-scrollbar">
                       {dayResList.map(r => {
                         const firstName = (r.customerName || 'Etkinlik').split(' ')[0];
@@ -467,7 +462,7 @@ export function ReservationsListPage({
         </div>
       )}
 
-      {/* 4. HOURLY TIMELINE SCHEDULE FLOW MODAL (GÜNE TIKLAYINCA SAAT AKIŞI GÖRÜNÜMÜ) */}
+      {/* 4. HOURLY TIMELINE SCHEDULE FLOW MODAL */}
       {selectedDayInspector && (
         <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
@@ -481,13 +476,11 @@ export function ReservationsListPage({
               <button onClick={() => setSelectedDayInspector(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
             </div>
 
-            {/* HOURLY TIMELINE SCHEDULE FLOW (08:00 - 24:00) */}
             <div className="space-y-4 text-xs">
               <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-300 font-medium">
                 💡 <strong>Saat Akış Çizelgesi:</strong> Gün içindeki düğün ve etkinliklerin başlangıç-bitiş saatlerine göre kronolojik zaman çizelgesidir.
               </div>
 
-              {/* VISUAL HOURLY TIME BARS */}
               <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border space-y-3">
                 <span className="font-bold block text-slate-700 dark:text-gray-200">⏱️ Günlük Zaman Çizelgesi (08:00 - 24:00):</span>
                 <div className="flex justify-between text-[10px] font-mono font-bold text-slate-400 border-b pb-1">
@@ -524,7 +517,6 @@ export function ReservationsListPage({
                 )}
               </div>
 
-              {/* DETAILED RESERVATION LIST FOR THE DAY */}
               <div className="space-y-3">
                 <span className="font-bold block text-slate-700 dark:text-gray-200">📋 Günlük Etkinlik Kartları ({selectedDayInspector.reservations.length}):</span>
                 {selectedDayInspector.reservations.length === 0 ? (
@@ -581,42 +573,159 @@ export function ReservationsListPage({
         </div>
       )}
 
-      {/* 5. PREVIEW MODAL */}
+      {/* 5. RICH DETAILED PREVIEW MODAL (HER ŞEY EKSİKSİZ VE DETAYLI) */}
       {selectedResForPreview && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+            
+            {/* PREVIEW HEADER */}
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
               <div>
-                <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Sözleşme Kodu: {selectedResForPreview.id}</span>
-                <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+                <div className="flex items-center space-x-2">
+                  <span className="bg-amber-500/20 text-amber-800 dark:text-gold-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border border-amber-500/30 uppercase font-mono">
+                    Sözleşme No: {selectedResForPreview.id}
+                  </span>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-md ${
+                    selectedResForPreview.paymentStatus === 'Ödendi' || selectedResForPreview.paymentStatus === 'Tamamlandı' ? 'bg-emerald-500/20 text-emerald-600' :
+                    selectedResForPreview.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-600' : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {selectedResForPreview.paymentStatus}
+                  </span>
+                </div>
+                <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-1">
                   👑 {selectedResForPreview.customerName}
                 </h3>
               </div>
               <button onClick={() => setSelectedResForPreview(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border space-y-1">
-                <span className="text-slate-400 font-bold block">İletişim Bilgileri:</span>
-                <div className="font-bold">{selectedResForPreview.customerPhone}</div>
-                <div className="text-slate-500">{selectedResForPreview.customerEmail || 'E-posta girilmedi'}</div>
-              </div>
-              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border space-y-1">
-                <span className="text-slate-400 font-bold block">Etkinlik Zamanı:</span>
-                <div className="font-bold font-mono">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</div>
-                <div className="text-amber-600 font-bold">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'} ({selectedResForPreview.guestCount} Davetli)</div>
-              </div>
-            </div>
+            <div className="space-y-4 text-xs">
+              
+              {/* SECTION A: MÜŞTERİ İLETİŞİM & SALON ZAMAN BİLGİLERİ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                  <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 Müşteri İletişim Bilgileri:</span>
+                  <div className="font-extrabold text-sm text-slate-900 dark:text-white">{selectedResForPreview.customerName}</div>
+                  <div>📞 Birincil Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerPhone}</strong></div>
+                  <div>📱 İkinci Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerSecondaryPhone || 'İkinci Tel Belirtilmedi'}</strong></div>
+                  <div>✉️ E-Posta: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.customerEmail || 'E-Posta Girilmedi'}</strong></div>
+                </div>
 
-            <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border space-y-2 text-xs">
-              <span className="text-slate-400 font-bold block">Finansal Döküm & Bakiye:</span>
-              <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-mono font-bold">{formatCurrency(selectedResForPreview.venuePrice)}</span></div>
-              <div className="flex justify-between"><span>Genel Toplam:</span><span className="font-mono font-bold">{formatCurrency(selectedResForPreview.totalAmount)}</span></div>
-              <div className="flex justify-between"><span>Ödenen Kapora:</span><span className="font-mono font-bold text-emerald-600">{formatCurrency(selectedResForPreview.depositPaid)}</span></div>
-              <div className="flex justify-between border-t pt-1 font-extrabold text-sm text-red-600 dark:text-red-400">
-                <span>Kalan Net Bakiye:</span>
-                <span>{selectedResForPreview.remainingBalance === 0 ? '0 ₺ (Ödendi ✓)' : formatCurrency(selectedResForPreview.remainingBalance)}</span>
+                <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                  <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏰 Etkinlik & Salon Detayı:</span>
+                  <div className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    {(venues.find(v => v.id === selectedResForPreview.venueId))?.name || selectedResForPreview.venueId}
+                  </div>
+                  <div>📅 Tarih: <strong className="font-mono text-slate-800 dark:text-gray-200">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</strong></div>
+                  <div>⏰ Saat Aralığı: <strong className="font-mono text-emerald-600">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'}</strong></div>
+                  <div>👥 Davetli Sayısı: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.guestCount} Davetli Kişi</strong></div>
+                </div>
               </div>
+
+              {/* SECTION B: DÜĞÜN AKIŞ PLANLAMASI (HANGİ BİLGİLER / AKIŞ VERİLDİ) */}
+              <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 Organizasyon & Zaman Akış Programı:</span>
+                {(!selectedResForPreview.flowPlan || selectedResForPreview.flowPlan.length === 0) ? (
+                  <div className="text-slate-400 italic">Standart akış programı uygulanacaktır. Özel akış bilgisi eklenmedi.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedResForPreview.flowPlan.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-2.5 bg-white dark:bg-brand-card rounded-xl border border-slate-200 dark:border-brand-border">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-mono font-bold text-amber-600 text-xs px-2 py-0.5 bg-amber-500/10 rounded">{item.time}</span>
+                          <div>
+                            <div className="font-bold text-slate-900 dark:text-white">{item.title}</div>
+                            {item.description && <div className="text-[10px] text-slate-500">{item.description}</div>}
+                          </div>
+                        </div>
+                        {item.responsible && (
+                          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-brand-dark px-2 py-0.5 rounded">
+                            Sorumlu: {item.responsible}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION C: VERİLEN PAKETLER & EK HİZMETLER */}
+              <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 Verilen Hizmetler & Dahili Paketler:</span>
+                {(!selectedResForPreview.selectedServices || selectedResForPreview.selectedServices.length === 0) ? (
+                  <div className="text-slate-400 italic">Dahili temel salon paketi dâhildir. Ek paket seçilmedi.</div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedResForPreview.selectedServices.map((srvId, sIdx) => {
+                      const sObj = services.find(s => s.id === srvId);
+                      return (
+                        <span key={sIdx} className="bg-white dark:bg-brand-card border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1 shadow-xs">
+                          <span>🎁</span>
+                          <span>{sObj?.name || srvId}</span>
+                          {sObj?.price && <span className="font-mono text-amber-600 text-[10px]">({formatCurrency(sObj.price)})</span>}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION D: ÖDEMELER NE DURUMDA & HANGİLERİNİN ÖDEMELERİ YAPILDI */}
+              <div className="bg-amber-50/60 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-300 dark:border-amber-700/50 space-y-3">
+                <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 Detaylı Ödeme Durumları & Finansal Döküm:</span>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                  <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                    <span className="text-[10px] text-slate-400 block font-bold">Salon Bedeli:</span>
+                    <span className="font-mono font-bold text-slate-800 dark:text-gray-100">{formatCurrency(selectedResForPreview.venuePrice || 85000)}</span>
+                  </div>
+                  <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                    <span className="text-[10px] text-slate-400 block font-bold">Genel Toplam:</span>
+                    <span className="font-mono font-bold text-amber-600">{formatCurrency(selectedResForPreview.totalAmount)}</span>
+                  </div>
+                  <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                    <span className="text-[10px] text-emerald-600 block font-bold">Ödenen Kapora:</span>
+                    <span className="font-mono font-extrabold text-emerald-600">{formatCurrency(selectedResForPreview.depositPaid)}</span>
+                  </div>
+                  <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                    <span className="text-[10px] text-red-500 block font-bold">Kalan Net Bakiye:</span>
+                    <span className="font-mono font-extrabold text-red-500">
+                      {selectedResForPreview.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(selectedResForPreview.remainingBalance)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* HANGİ ÖDEMELER YAPILDI DÖKÜMÜ */}
+                <div className="p-3 bg-white dark:bg-brand-card rounded-xl border space-y-2">
+                  <span className="font-bold block text-slate-800 dark:text-gray-200">💳 Gerçekleşen Ödemeler Geçmişi:</span>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between items-center text-emerald-600 font-bold">
+                      <span>✓ 1. Ödeme (Kapora Tahsilatı):</span>
+                      <span className="font-mono">{formatCurrency(selectedResForPreview.depositPaid)} (Tahsil Edildi)</span>
+                    </div>
+                    {selectedResForPreview.remainingBalance === 0 ? (
+                      <div className="flex justify-between items-center text-emerald-600 font-bold">
+                        <span>✓ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+                        <span className="font-mono">Tamamı Ödendi (Hesap Kapatıldı)</span>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center text-amber-600 font-bold">
+                        <span>⏳ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+                        <span className="font-mono">{formatCurrency(selectedResForPreview.remainingBalance)} (Etkinlik Günü Ödenecek)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION E: OPERASYONEL NOTLAR */}
+              {selectedResForPreview.notes && (
+                <div className="bg-slate-50 dark:bg-brand-dark p-3.5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1">
+                  <span className="text-slate-400 font-bold block">📝 Operasyonel Notlar & Özel İstekler:</span>
+                  <p className="text-slate-700 dark:text-gray-300 italic">{selectedResForPreview.notes}</p>
+                </div>
+              )}
+
             </div>
 
             {/* PREVIEW ACTIONS */}
@@ -640,6 +749,7 @@ export function ReservationsListPage({
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       )}
@@ -671,73 +781,94 @@ export function ReservationsListPage({
         </div>
       )}
 
-      {/* 7. FULL EDIT RESERVATION MODAL */}
+      {/* 7. FULL EDIT RESERVATION MODAL (HER ŞEY YENİDEN DÜZENLENEBİLİR) */}
       {editingRes && editForm && (
         <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-3xl max-w-3xl w-full p-6 space-y-4 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b pb-3">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+            
+            {/* EDIT HEADER */}
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
               <div>
-                <span className="text-[10px] font-bold text-amber-600 uppercase">Düzenlenen Sözleşme: {editForm.id}</span>
+                <span className="text-[10px] font-bold text-amber-600 uppercase font-mono">Düzenlenen Sözleşme: {editForm.id}</span>
                 <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">✏️ Rezervasyon Bilgilerini Düzenle</h3>
               </div>
-              <button onClick={() => setEditingRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark font-bold text-xs">✕</button>
+              <button onClick={() => setEditingRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold text-xs">✕</button>
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Düğün Salonu:</label>
-                  <select
-                    value={editForm.venueId}
-                    onChange={e => setEditForm({ ...editForm, venueId: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold"
-                  >
-                    {(venues || []).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Davetli Sayısı (Kişi):</label>
-                  <input
-                    type="number"
-                    value={editForm.guestCount}
-                    onChange={e => setEditForm({ ...editForm, guestCount: Number(e.target.value) })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Etkinlik Tarihi:</label>
-                  <input
-                    type="date"
-                    value={editForm.startDate}
-                    onChange={e => setEditForm({ ...editForm, startDate: e.target.value, eventDate: e.target.value, date: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Başlangıç Saati:</label>
-                  <input
-                    type="time"
-                    value={editForm.startTime}
-                    onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Bitiş Saati:</label>
-                  <input
-                    type="time"
-                    value={editForm.endTime}
-                    onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold"
-                  />
-                </div>
-              </div>
-
+              
+              {/* SECTION 1: SALON VE DAVETLİ DÜZENLEME */}
               <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border space-y-3">
-                <span className="font-bold block text-slate-700 dark:text-gray-200">Müşteri İletişim Bilgileri (Zorunlu):</span>
+                <span className="font-bold block text-slate-700 dark:text-gray-200">1. Salon & Kapasite Bilgileri:</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold block mb-1">Düğün Salonu:</label>
+                    <select
+                      value={editForm.venueId}
+                      onChange={e => setEditForm({ ...editForm, venueId: e.target.value })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    >
+                      {(venues || []).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Salon Bedeli (TL):</label>
+                    <input
+                      type="number"
+                      value={editForm.venuePrice}
+                      onChange={e => setEditForm({ ...editForm, venuePrice: Number(e.target.value) })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Davetli Sayısı (Kişi):</label>
+                    <input
+                      type="number"
+                      value={editForm.guestCount}
+                      onChange={e => setEditForm({ ...editForm, guestCount: Number(e.target.value) })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2: TARİH VE SAAT DÜZENLEME */}
+              <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border space-y-3">
+                <span className="font-bold block text-slate-700 dark:text-gray-200">2. Etkinlik Tarihi & Saat Dilimi:</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold block mb-1">Etkinlik Tarihi:</label>
+                    <input
+                      type="date"
+                      value={editForm.startDate}
+                      onChange={e => setEditForm({ ...editForm, startDate: e.target.value, eventDate: e.target.value, date: e.target.value })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Başlangıç Saati:</label>
+                    <input
+                      type="time"
+                      value={editForm.startTime}
+                      onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Bitiş Saati:</label>
+                    <input
+                      type="time"
+                      value={editForm.endTime}
+                      onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: MÜŞTERİ İLETİŞİM BİLGİLERİ DÜZENLEME (HER ŞEY ZORUNLU) */}
+              <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border space-y-3">
+                <span className="font-bold block text-slate-700 dark:text-gray-200">3. Müşteri İletişim Bilgileri:</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="font-bold block mb-1">Müşteri Adı Soyadı <span className="text-red-500">*</span>:</label>
@@ -780,46 +911,150 @@ export function ReservationsListPage({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Tahsil Edilen Kapora (TL):</label>
-                  <input
-                    type="number"
-                    value={editForm.depositPaid}
-                    onChange={e => setEditForm({ ...editForm, depositPaid: Number(e.target.value) })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold text-emerald-600"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Ödeme Durumu:</label>
-                  <select
-                    value={editForm.paymentStatus}
-                    onChange={e => setEditForm({ ...editForm, paymentStatus: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold"
-                  >
-                    <option value="Bekliyor">Bekliyor (Ödeme Bekleniyor)</option>
-                    <option value="Kapora Alındı">Kapora Alındı</option>
-                    <option value="Ödendi">Ödendi / Tamamlandı</option>
-                  </select>
+              {/* SECTION 4: ÖDEME & KAPORA DÜZENLEME */}
+              <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border space-y-3">
+                <span className="font-bold block text-slate-700 dark:text-gray-200">4. Finans, Kapora & Fatura Statüsü:</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold block mb-1">Tahsil Edilen Kapora (TL):</label>
+                    <input
+                      type="number"
+                      value={editForm.depositPaid}
+                      onChange={e => {
+                        const dep = Number(e.target.value);
+                        const tot = editForm.totalAmount || (editForm.venuePrice + 15000);
+                        const rem = Math.max(0, tot - dep);
+                        setEditForm({
+                          ...editForm,
+                          depositPaid: dep,
+                          remainingBalance: rem,
+                          paymentStatus: rem === 0 ? 'Ödendi' : dep > 0 ? 'Kapora Alındı' : 'Bekliyor'
+                        });
+                      }}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold text-emerald-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Ödeme Durumu:</label>
+                    <select
+                      value={editForm.paymentStatus}
+                      onChange={e => setEditForm({ ...editForm, paymentStatus: e.target.value })}
+                      className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5 font-bold"
+                    >
+                      <option value="Bekliyor">Bekliyor (Ödeme Bekleniyor)</option>
+                      <option value="Kapora Alındı">Kapora Alındı</option>
+                      <option value="Ödendi">Ödendi / Tamamlandı</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center pt-5">
+                    <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                      <input
+                        type="checkbox"
+                        checked={editForm.isInvoiced}
+                        onChange={e => setEditForm({ ...editForm, isInvoiced: e.target.checked })}
+                        className="w-4 h-4 rounded text-amber-600"
+                      />
+                      <span>📄 Faturası Kesildi mi?</span>
+                    </label>
+                  </div>
                 </div>
               </div>
+
+              {/* SECTION 5: ORGANİZASYON AKIŞ DÜZENLEME */}
+              <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold block text-slate-700 dark:text-gray-200">5. Düğün & Etkinlik Akış Planlaması:</span>
+                  <button
+                    onClick={() => {
+                      const newPlan = [...(editForm.flowPlan || [])];
+                      newPlan.push({ time: '20:00', title: 'Yeni Akış Maddesi', description: 'Açıklama giriniz', responsible: 'Müdür' });
+                      setEditForm({ ...editForm, flowPlan: newPlan });
+                    }}
+                    className="px-2.5 py-1 bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[11px]"
+                  >
+                    ➕ Yeni Akış Maddesi Ekle
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {(editForm.flowPlan || []).map((step, idx) => (
+                    <div key={idx} className="flex gap-2 items-center bg-white dark:bg-brand-card p-2 rounded-xl border">
+                      <input
+                        type="time"
+                        value={step.time}
+                        onChange={e => {
+                          const updated = [...editForm.flowPlan];
+                          updated[idx].time = e.target.value;
+                          setEditForm({ ...editForm, flowPlan: updated });
+                        }}
+                        className="w-24 bg-slate-50 dark:bg-brand-dark p-1 rounded font-mono font-bold text-[11px]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Akış Başlığı"
+                        value={step.title}
+                        onChange={e => {
+                          const updated = [...editForm.flowPlan];
+                          updated[idx].title = e.target.value;
+                          setEditForm({ ...editForm, flowPlan: updated });
+                        }}
+                        className="flex-1 bg-slate-50 dark:bg-brand-dark p-1 rounded font-bold text-[11px]"
+                      />
+                      <button
+                        onClick={() => {
+                          const updated = editForm.flowPlan.filter((_, i) => i !== idx);
+                          setEditForm({ ...editForm, flowPlan: updated });
+                        }}
+                        className="text-red-500 font-bold px-2 py-1 hover:bg-red-50 rounded text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION 6: OPERASYONEL NOTLAR */}
+              <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border space-y-2">
+                <span className="font-bold block text-slate-700 dark:text-gray-200">6. Operasyonel Ek Notlar & Özel İstekler:</span>
+                <textarea
+                  rows="3"
+                  value={editForm.notes}
+                  onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                  placeholder="Müşterinin özel istekleri, organizasyon detayları..."
+                  className="w-full bg-white dark:bg-brand-card border rounded-xl p-2.5"
+                />
+              </div>
+
             </div>
 
-            <div className="pt-3 border-t flex justify-end space-x-3 text-xs font-bold">
-              <button onClick={() => setEditingRes(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark rounded-xl">İptal</button>
-              <button
-                onClick={() => {
-                  if (!editForm.customerName || !editForm.customerPhone) {
-                    setEditError(true);
-                    return;
-                  }
-                  if (onUpdateReservation) onUpdateReservation(editForm);
-                  setEditingRes(null);
-                }}
-                className="gold-button px-6 py-2.5 rounded-xl shadow"
-              >
-                💾 Değişiklikleri Kaydet
-              </button>
+            {/* EDIT MODAL FOOTER */}
+            <div className="pt-3 border-t flex justify-between items-center text-xs font-bold">
+              {editError && <span className="text-red-500 font-bold">⚠️ Müşteri adı ve telefonu zorunludur!</span>}
+              <div className="flex space-x-3 ml-auto">
+                <button onClick={() => setEditingRes(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark rounded-xl">İptal</button>
+                <button
+                  onClick={() => {
+                    if (!editForm.customerName || !editForm.customerPhone) {
+                      setEditError(true);
+                      return;
+                    }
+                    const tot = (editForm.venuePrice || 85000) + (editForm.selectedServices ? editForm.selectedServices.length * 5000 : 0);
+                    const rem = Math.max(0, tot - (editForm.depositPaid || 0));
+                    const finalObj = {
+                      ...editForm,
+                      totalAmount: tot,
+                      remainingBalance: rem,
+                      paymentStatus: rem === 0 ? 'Ödendi' : (editForm.depositPaid > 0 ? 'Kapora Alındı' : 'Bekliyor')
+                    };
+                    if (onUpdateReservation) onUpdateReservation(finalObj);
+                    setEditingRes(null);
+                  }}
+                  className="gold-button px-6 py-2.5 rounded-xl shadow"
+                >
+                  💾 Değişiklikleri Kaydet
+                </button>
+              </div>
             </div>
           </div>
         </div>
