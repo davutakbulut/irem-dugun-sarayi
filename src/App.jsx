@@ -1,516 +1,272 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import { SidebarComponent, HeaderComponent } from './components/Navigation';
+import { MobileBottomSummaryBar } from './components/MobileBottomSummaryBar';
+import { NotificationPopup } from './components/NotificationPopup';
+
+// Data & Pages
 import {
-  ROLE_NAMES,
-  TAB_TO_SLUG,
-  SLUG_TO_TAB,
-  INITIAL_TAB_PERMISSIONS,
   INITIAL_VENUES,
   INITIAL_SERVICES,
+  INITIAL_CUSTOMERS,
+  INITIAL_RESERVATIONS,
   INITIAL_CAMPAIGNS,
   INITIAL_USERS,
-  INITIAL_RESERVATIONS,
-  INITIAL_CUSTOMERS,
-  AI_RECOMMENDATIONS
-} from './constants';
+  INITIAL_SYSTEM_LOGS
+} from './constants/mockData';
 
-import { HeaderComponent, SidebarComponent } from './components/Navigation';
-import MobileDrawer from './components/MobileDrawer';
-import { ToastNotification } from './components/CommonUI';
-
-import DashboardPageComponent from './pages/DashboardPage';
-import CreateReservationPageComponent from './pages/CreateReservationPage';
-import VenuesPageComponent from './pages/VenuesPage';
-import ServicesPageComponent from './pages/ServicesPage';
-import ReservationsPageComponent from './pages/ReservationsPage';
-import CalendarPageComponent from './pages/CalendarPage';
-import CampaignsPageComponent from './pages/CampaignsPage';
-import FinancePageComponent from './pages/FinancePage';
-import CustomersPageComponent from './pages/CustomersPage';
-import UsersPageComponent from './pages/UsersPage';
-import ReportsPageComponent from './pages/ReportsPage';
-import MediaPageComponent from './pages/MediaPage';
-import ProfilePageComponent from './pages/ProfilePage';
-import SettingsPageComponent from './pages/SettingsPage';
-
-import {
-  VenueModalComponent,
-  ServiceModalComponent,
-  CampaignModalComponent,
-  UserModalComponent,
-  CustomerFormModal,
-  ReservationDetailModal,
-  EmailNotificationModal,
-  RedAlertConfirmModal,
-  InvoiceNotificationModal
-} from './components/Modals';
+import { DashboardPage } from './pages/DashboardPage';
+import { CreateReservationPage } from './pages/CreateReservationPage';
+import { ReservationsListPage } from './pages/ReservationsListPage';
+import { CustomersPage } from './pages/CustomersPage';
+import { CampaignsPage } from './pages/CampaignsPage';
+import { ReportsPage } from './pages/ReportsPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { VenuesPage } from './pages/VenuesPage';
+import { ServicesPage } from './pages/ServicesPage';
+import { UsersPage } from './pages/UsersPage';
 
 export default function App() {
-  const [theme, setTheme] = useState('light');
-  const [activePalette, setActivePalette] = useState(() => localStorage.getItem('irem_active_palette') || 'gold');
-  const [activeRole, setActiveRole] = useState('admin');
-  const [rolesState, setRolesState] = useState(ROLE_NAMES);
-  const [tabPermissionsState, setTabPermissionsState] = useState(INITIAL_TAB_PERMISSIONS);
-  const [isCacheEnabled, setIsCacheEnabled] = useState(true);
-  const [toastMessage, setToastMessage] = useState('');
-  const [isToastVisible, setIsToastVisible] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('irem_active_palette', activePalette);
-    document.documentElement.setAttribute('data-theme', activePalette);
-  }, [activePalette]);
-
-  const [activeTab, setActiveTab] = useState('dashboard');
+  // Global State
+  const [activeTab, setActiveTab] = useState('create-reservation');
+  const [activeRole, setActiveRole] = useState('SuperAdmin');
+  const [currentTheme, setCurrentTheme] = useState('obsidian-gold');
+  const [buttonStyle, setButtonStyle] = useState('rounded-xl');
 
   const [venues, setVenues] = useState(INITIAL_VENUES);
   const [services, setServices] = useState(INITIAL_SERVICES);
+  const [customers, setCustomers] = useState(INITIAL_CUSTOMERS);
+  const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
   const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
   const [users, setUsers] = useState(INITIAL_USERS);
-  const [reservations, setReservations] = useState(INITIAL_RESERVATIONS);
-  const [customers, setCustomers] = useState(INITIAL_CUSTOMERS);
+  const [systemLogs, setSystemLogs] = useState(INITIAL_SYSTEM_LOGS);
 
-  const [venueModalData, setVenueModalData] = useState(null);
-  const [serviceModalData, setServiceModalData] = useState(null);
-  const [campaignModalData, setCampaignModalData] = useState(null);
-  const [userModalData, setUserModalData] = useState(null);
-  const [customerModalData, setCustomerModalData] = useState(null);
-  const [emailModalData, setEmailModalData] = useState(null);
-  const [selectedResForDetail, setSelectedResForDetail] = useState(null);
-  const [redAlertModalData, setRedAlertModalData] = useState(null);
-  const [invoiceModalData, setInvoiceModalData] = useState(null);
+  // Standalone Top-Right Floating Notification Modal State
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: ''
+  });
 
-  const [resSearchQuery, setResSearchQuery] = useState('');
-  const [resStatusFilter, setResStatusFilter] = useState('ALL');
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setIsToastVisible(true);
-    setTimeout(() => setIsToastVisible(false), 3000);
+  const showAlert = (title, message) => {
+    setAlertModal({ isOpen: true, title, message });
   };
 
+  const closeAlert = () => {
+    setAlertModal({ isOpen: false, title: '', message: '' });
+  };
+
+  // Sync Theme Attributes
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#/', '');
-      if (hash && SLUG_TO_TAB[hash]) {
-        setActiveTab(SLUG_TO_TAB[hash]);
-      } else if (!hash) {
-        setActiveTab('dashboard');
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange();
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const navigateTo = (tabId) => {
-    setActiveTab(tabId);
-    if (TAB_TO_SLUG[tabId]) {
-      window.location.hash = `#/${TAB_TO_SLUG[tabId]}`;
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    if (currentTheme === 'platinum-silver') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
     }
+  }, [currentTheme]);
+
+  // Reservation Handlers
+  const handleSaveReservation = (newRes, newCustObj) => {
+    if (newCustObj) {
+      setCustomers(prev => [newCustObj, ...prev]);
+    }
+    setReservations(prev => [newRes, ...prev]);
+    showAlert('🎉 REZERVASYON VE SÖZLEŞME OLUŞTURULDU!', `${newRes.customerName} için ${newRes.id} sözleşme koduyla rezervasyon başarıyla kaydedildi.`);
+    setActiveTab('reservations');
   };
 
-  const handleSaveVenue = (venue) => {
-    setVenues(prev => venue.id ? prev.map(v => v.id === venue.id ? venue : v) : [...prev, venue]);
-    showToast('🏛️ Düğün Salonu Başarıyla Kaydedildi!');
-    setVenueModalData(null);
+  // Venue Handlers
+  const handleAddVenue = (vObj) => {
+    setVenues(prev => [vObj, ...prev]);
+    showAlert('🏰 Düğün Salonu Eklendi', `${vObj.name} başarıyla sisteme kaydedildi.`);
   };
 
-  const handleDeleteVenue = (venueOrId) => {
-    const vId = typeof venueOrId === 'object' ? venueOrId.id : venueOrId;
-    const vName = typeof venueOrId === 'object' ? venueOrId.name : 'Düğün Salonu';
-    setRedAlertModalData({
-      title: '🚨 DÜĞÜN SALONU SİLİNECEK',
-      message: `"${vName}" salonunu sistemden tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
-      confirmText: 'Evet, Salonu Sil',
-      onConfirm: () => {
-        setVenues(prev => prev.filter(v => v.id !== vId));
-        showToast('🗑️ Düğün Salonu Silindi.');
-      }
-    });
+  const handleEditVenue = (vObj) => {
+    setVenues(prev => prev.map(x => x.id === vObj.id ? vObj : x));
+    showAlert('✏️ Salon Düzenlendi', `${vObj.name} güncellendi.`);
   };
 
-  const handleSaveService = (service) => {
-    setServices(prev => service.id ? prev.map(s => s.id === service.id ? service : s) : [...prev, service]);
-    showToast('✨ Ek Hizmet Başarıyla Kaydedildi!');
-    setServiceModalData(null);
+  // Service Handlers
+  const handleAddService = (sObj) => {
+    setServices(prev => [sObj, ...prev]);
+    showAlert('🎁 Hizmet Eklendi', `${sObj.name} eklendi.`);
   };
 
-  const handleDeleteService = (serviceOrId) => {
-    const sId = typeof serviceOrId === 'object' ? serviceOrId.id : serviceOrId;
-    const sName = typeof serviceOrId === 'object' ? serviceOrId.name : 'Ek Hizmet';
-    setRedAlertModalData({
-      title: '🚨 EK HİZMET SİLİNECEK',
-      message: `"${sName}" ek hizmet kartını silmek istediğinize emin misiniz?`,
-      confirmText: 'Evet, Hizmeti Sil',
-      onConfirm: () => {
-        setServices(prev => prev.filter(s => s.id !== sId));
-        showToast('🗑️ Ek Hizmet Silindi.');
-      }
-    });
+  const handleEditService = (sObj) => {
+    setServices(prev => prev.map(x => x.id === sObj.id ? sObj : x));
+    showAlert('✏️ Hizmet Güncellendi', `${sObj.name} güncellendi.`);
   };
 
-  const handleSaveCampaign = (campaign) => {
-    setCampaigns(prev => campaign.id ? prev.map(c => c.id === campaign.id ? campaign : c) : [...prev, campaign]);
-    showToast('🎁 Kampanya Başarıyla Kaydedildi!');
-    setCampaignModalData(null);
+  // Customer Handlers
+  const handleAddCustomer = (cObj) => {
+    setCustomers(prev => [cObj, ...prev]);
+    showAlert('👥 Müşteri Eklendi', `${cObj.name} eklendi.`);
   };
 
-  const handleDeleteCampaign = (campaignOrId) => {
-    const cId = typeof campaignOrId === 'object' ? campaignOrId.id : campaignOrId;
-    const cTitle = typeof campaignOrId === 'object' ? campaignOrId.title : 'Özel Kampanya';
-    setRedAlertModalData({
-      title: '🚨 ÖZEL KAMPANYA SİLİNECEK',
-      message: `"${cTitle}" kampanyasını sistemden kaldırmak istediğinize emin misiniz?`,
-      confirmText: 'Evet, Kampanyayı Sil',
-      onConfirm: () => {
-        setCampaigns(prev => prev.filter(c => c.id !== cId));
-        showToast('🗑️ Kampanya Silindi.');
-      }
-    });
+  const handleEditCustomer = (cObj) => {
+    setCustomers(prev => prev.map(x => x.id === cObj.id ? cObj : x));
+    showAlert('✏️ Müşteri Güncellendi', `${cObj.name} güncellendi.`);
   };
 
-  const handleAddCampaignFromAI = (aiCampaign) => {
-    setCampaigns(prev => [aiCampaign, ...prev]);
+  // Campaign Handlers
+  const handleAddCampaign = (cObj) => {
+    setCampaigns(prev => [cObj, ...prev]);
+    showAlert('🔥 Kampanya Eklendi', `${cObj.title} (${cObj.code}) tanımlandı.`);
   };
 
-  const handleUpdateVenuePriceFromAI = (venueId, newPrice) => {
-    setVenues(prev => prev.map(v => v.id === venueId ? { ...v, price: newPrice } : v));
+  const handleEditCampaign = (cObj) => {
+    setCampaigns(prev => prev.map(x => x.id === cObj.id ? cObj : x));
+    showAlert('✏️ Kampanya Güncellendi', `${cObj.title} güncellendi.`);
   };
 
-
-  const handleSaveUser = (user) => {
-    setUsers(prev => user.id ? prev.map(u => u.id === user.id ? user : u) : [...prev, user]);
-    showToast('⚙️ Kullanıcı Hesabı Başarıyla Kaydedildi!');
-    setUserModalData(null);
+  const handleConvertToCampaign = (aiObj) => {
+    const newCmp = {
+      id: 'cmp-' + Date.now(),
+      code: aiObj.code,
+      title: aiObj.title,
+      discountType: aiObj.discountType,
+      discountValue: aiObj.discountValue,
+      minGuest: 300,
+      validUntil: '2026-12-31',
+      active: true,
+      description: aiObj.recommendation
+    };
+    setCampaigns(prev => [newCmp, ...prev]);
+    showAlert('🚀 AI Kampanyası Oluşturuldu!', `${aiObj.code} koduyla kampanya tanımlandı.`);
+    setActiveTab('campaigns');
   };
 
-  const handleDeleteUser = (userOrId) => {
-    const uId = typeof userOrId === 'object' ? userOrId.id : userOrId;
-    const uName = typeof userOrId === 'object' ? userOrId.name : 'Kullanıcı';
-    setRedAlertModalData({
-      title: '🚨 KULLANICI HESABI SİLİNECEK',
-      message: `"${uName}" kullanıcısının erişim yetkilerini iptal edip silmek istediğinize emin misiniz?`,
-      confirmText: 'Evet, Kullanıcıyı Sil',
-      onConfirm: () => {
-        setUsers(prev => prev.filter(u => u.id !== uId));
-        showToast('🗑️ Kullanıcı Silindi.');
-      }
-    });
+  // User Handlers
+  const handleAddUser = (uObj) => {
+    setUsers(prev => [uObj, ...prev]);
+    showAlert('🛡️ Personel Eklendi', `${uObj.name} sisteme eklendi.`);
   };
 
-  const handleDeleteCustomer = (customerOrId) => {
-    const cId = typeof customerOrId === 'object' ? customerOrId.id : customerOrId;
-    const cName = typeof customerOrId === 'object' ? customerOrId.name : 'Müşteri';
-    setRedAlertModalData({
-      title: '🚨 MÜŞTERİ KARTI SİLİNECEK',
-      message: `"${cName}" müşteri kaydını rehberden silmek istediğinize emin misiniz?`,
-      confirmText: 'Evet, Müşteriyi Sil',
-      onConfirm: () => {
-        setCustomers(prev => prev.filter(c => c.id !== cId));
-        showToast('🗑️ Müşteri Kartı Silindi.');
-      }
-    });
+  const handleEditUser = (uObj) => {
+    setUsers(prev => prev.map(x => x.id === uObj.id ? uObj : x));
+    showAlert('✏️ Personel Güncellendi', `${uObj.name} güncellendi.`);
   };
 
-  const handleRescheduleReservation = (resId, newDate) => {
-    setReservations(prev => prev.map(r => r.id === resId ? { ...r, date: newDate } : r));
-    showToast(`📅 Rezervasyon Tarihi Güncellendi: ${newDate}`);
-  };
-
-  const handlePrintInvoice = (res) => {
-    setInvoiceModalData(res);
-  };
-
-  const financialStats = useMemo(() => {
-    const totalRev = reservations.reduce((sum, r) => sum + r.totalAmount, 0);
-    const totalDep = reservations.reduce((sum, r) => sum + r.depositPaid, 0);
-    const remaining = Math.max(0, totalRev - totalDep);
-    return { totalRevenue: totalRev, totalDeposit: totalDep, remainingBalance: remaining, activeReservationsCount: reservations.length };
-  }, [reservations]);
-
-  const filteredReservations = useMemo(() => {
-    return reservations.filter(r => {
-      const matchSearch = r.customerName.toLowerCase().includes(resSearchQuery.toLowerCase()) || r.id.toLowerCase().includes(resSearchQuery.toLowerCase());
-      const matchStatus = resStatusFilter === 'ALL' || r.paymentStatus === resStatusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [reservations, resSearchQuery, resStatusFilter]);
-
-  const isTabAllowed = useMemo(() => {
-    const allowedRoles = tabPermissionsState[activeTab.split('-')[0]] || [];
-    return allowedRoles.includes(activeRole);
-  }, [activeTab, tabPermissionsState, activeRole]);
+  const currentUser = users[0] || { name: 'Davut Akbulut', role: 'SuperAdmin' };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'dark bg-brand-dark text-gray-100' : 'bg-slate-50 text-slate-900'}`}>
+    <div className="flex h-screen bg-slate-900 dark:bg-brand-dark text-slate-100 font-sans overflow-hidden">
       
-      <HeaderComponent
+      {/* FLOATING ALERT POPUP */}
+      <NotificationPopup alertModal={alertModal} onClose={closeAlert} />
+
+      {/* SIDEBAR NAVIGATION */}
+      <SidebarComponent
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
         activeRole={activeRole}
-        rolesState={rolesState}
         onRoleChange={setActiveRole}
-        theme={theme}
-        onToggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
-        activePalette={activePalette}
-        onSelectPalette={setActivePalette}
-        isMobileMenuOpen={isMobileMenuOpen}
-        setIsMobileMenuOpen={setIsMobileMenuOpen}
-        navigateTo={navigateTo}
       />
 
-      <div className="max-w-7xl mx-auto flex pt-4 px-4 pb-24 lg:pb-8">
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200">
         
-        <SidebarComponent
+        {/* TOP HEADER */}
+        <HeaderComponent
           activeTab={activeTab}
+          onTabChange={setActiveTab}
           activeRole={activeRole}
-          tabPermissionsState={tabPermissionsState}
-          navigateTo={navigateTo}
+          currentUser={currentUser}
         />
 
-        <main className="flex-1 lg:pl-6">
-          {!isTabAllowed ? (
-            <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-4 border border-red-500/40 shadow-2xl">
-              <div className="text-5xl">🚫</div>
-              <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">Bu Sayfaya Erişim Yetkiniz Bulunmamaktadır</h2>
-              <p className="text-xs text-slate-500 dark:text-gray-400">Mevcut rolünüz ({ROLE_NAMES[activeRole]}) bu modüle erişim sağlama yetkisine sahip değildir.</p>
-              <button onClick={() => navigateTo('dashboard')} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs">Anasayfaya Dön</button>
-            </div>
-          ) : (
-            <>
-              {activeTab === 'dashboard' && (
-                <DashboardPageComponent
-                  stats={financialStats}
-                  reservations={reservations}
-                  venues={venues}
-                  services={services}
-                  onNewResClick={() => navigateTo('create-reservation')}
-                  onDetailClick={setSelectedResForDetail}
-                  navigateTo={navigateTo}
-                />
-              )}
+        {/* PAGE CONTENT CONTAINER */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+          {activeTab === 'dashboard' && (
+            <DashboardPage
+              activeRole={activeRole}
+              venues={venues}
+              reservations={reservations}
+              onNewResClick={() => setActiveTab('create-reservation')}
+              onTabChange={setActiveTab}
+            />
+          )}
 
-              {activeTab === 'create-reservation' && (
-                <CreateReservationPageComponent
-                  venues={venues}
-                  services={services}
-                  campaigns={campaigns}
-                  customers={customers}
-                  onSaveReservation={r => setReservations(prev => [...prev, r])}
-                  showToast={showToast}
-                  navigateTo={navigateTo}
-                />
-              )}
+          {activeTab === 'create-reservation' && (
+            <CreateReservationPage
+              venues={venues}
+              services={services}
+              customers={customers}
+              campaigns={campaigns}
+              reservations={reservations}
+              onSaveReservation={handleSaveReservation}
+              onCancel={() => setActiveTab('reservations')}
+            />
+          )}
 
-              {activeTab === 'venues' && (
-                <VenuesPageComponent
-                  venues={venues}
-                  onAddClick={() => setVenueModalData('new')}
-                  onEditClick={v => setVenueModalData(v)}
-                  onDeleteClick={handleDeleteVenue}
-                />
-              )}
+          {activeTab === 'reservations' && (
+            <ReservationsListPage
+              reservations={reservations}
+              venues={venues}
+              onNewResClick={() => setActiveTab('create-reservation')}
+            />
+          )}
 
-              {activeTab === 'services' && (
-                <ServicesPageComponent
-                  services={services}
-                  onAddClick={() => setServiceModalData('new')}
-                  onEditClick={s => setServiceModalData(s)}
-                  onDeleteClick={handleDeleteService}
-                />
-              )}
+          {activeTab === 'venues' && (
+            <VenuesPage
+              venues={venues}
+              onAddVenue={handleAddVenue}
+              onEditVenue={handleEditVenue}
+            />
+          )}
 
-              {activeTab === 'reservations' && (
-                <ReservationsPageComponent
-                  reservations={filteredReservations}
-                  venues={venues}
-                  searchQuery={resSearchQuery}
-                  setSearchQuery={setResSearchQuery}
-                  statusFilter={resStatusFilter}
-                  setStatusFilter={setResStatusFilter}
-                  onNewResClick={() => navigateTo('create-reservation')}
-                  onDetailClick={setSelectedResForDetail}
-                />
-              )}
+          {activeTab === 'services' && (
+            <ServicesPage
+              services={services}
+              onAddService={handleAddService}
+              onEditService={handleEditService}
+            />
+          )}
 
-              {activeTab === 'calendar' && (
-                <CalendarPageComponent
-                  reservations={reservations}
-                  venues={venues}
-                  onResClick={setSelectedResForDetail}
-                  onReschedule={handleRescheduleReservation}
-                />
-              )}
+          {activeTab === 'customers' && (
+            <CustomersPage
+              customers={customers}
+              onAddCustomer={handleAddCustomer}
+              onEditCustomer={handleEditCustomer}
+            />
+          )}
 
-              {activeTab === 'campaigns' && (
-                <CampaignsPageComponent
-                  campaigns={campaigns}
-                  venues={venues}
-                  services={services}
-                  reservations={reservations}
-                  onAddClick={() => setCampaignModalData('new')}
-                  onEditClick={c => setCampaignModalData(c)}
-                  onDeleteClick={handleDeleteCampaign}
-                  onAddCampaignFromAI={handleAddCampaignFromAI}
-                  onUpdateVenuePriceFromAI={handleUpdateVenuePriceFromAI}
-                  showToast={showToast}
-                />
-              )}
+          {activeTab === 'campaigns' && (
+            <CampaignsPage
+              campaigns={campaigns}
+              onAddCampaign={handleAddCampaign}
+              onEditCampaign={handleEditCampaign}
+            />
+          )}
 
-              {activeTab === 'finance' && (
-                <FinancePageComponent
-                  financialStats={financialStats}
-                  reservations={reservations}
-                />
-              )}
+          {activeTab === 'reports' && (
+            <ReportsPage
+              reservations={reservations}
+              venues={venues}
+              onConvertToCampaign={handleConvertToCampaign}
+            />
+          )}
 
-              {activeTab === 'customers' && (
-                <CustomersPageComponent
-                  customers={customers}
-                  onAddClick={() => setCustomerModalData('new')}
-                  onEditClick={c => setCustomerModalData(c)}
-                  onDeleteClick={handleDeleteCustomer}
-                />
-              )}
+          {activeTab === 'users' && (
+            <UsersPage
+              users={users}
+              onAddUser={handleAddUser}
+              onEditUser={handleEditUser}
+            />
+          )}
 
-              {activeTab === 'users' && (
-                <UsersPageComponent
-                  users={users}
-                  onAddClick={() => setUserModalData('new')}
-                  onEditClick={u => setUserModalData(u)}
-                  onDeleteClick={handleDeleteUser}
-                />
-              )}
-
-              {activeTab === 'reports' && (
-                <ReportsPageComponent
-                  reservations={reservations}
-                  venues={venues}
-                  services={services}
-                  onAddCampaignFromAI={handleAddCampaignFromAI}
-                  onUpdateVenuePriceFromAI={handleUpdateVenuePriceFromAI}
-                  showToast={showToast}
-                  navigateTo={navigateTo}
-                />
-              )}
-
-
-              {activeTab === 'media' && (
-                <MediaPageComponent
-                  reservations={reservations}
-                  showToast={showToast}
-                />
-              )}
-
-              {activeTab === 'profile' && (
-                <ProfilePageComponent
-                  currentUser={{ name: 'İrem Yılmaz', email: 'admin@iremdugunsarayi.com', phone: '+90 532 000 0000', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' }}
-                  activeRole={activeRole}
-                  onSaveProfile={() => showToast('👤 Profil Bilgileri Başarıyla Güncellendi!')}
-                  showToast={showToast}
-                  onRoleChange={setActiveRole}
-                />
-              )}
-
-              {activeTab.startsWith('settings') && (
-                <SettingsPageComponent
-                  activeRole={activeRole}
-                  rolesState={rolesState}
-                  tabPermissionsState={tabPermissionsState}
-                  onTogglePermission={(tab, role) => {
-                    setTabPermissionsState(prev => {
-                      const current = prev[tab] || [];
-                      const updated = current.includes(role) ? current.filter(r => r !== role) : [...current, role];
-                      return { ...prev, [tab]: updated };
-                    });
-                    showToast('🛡️ Rol Erişimi Güncellendi');
-                  }}
-                  isCacheEnabled={isCacheEnabled}
-                  onToggleCache={setIsCacheEnabled}
-                  showToast={showToast}
-                  activePalette={activePalette}
-                  onSelectPalette={setActivePalette}
-                  initialSubTab={activeTab === 'settings-appearance' ? 'appearance' : activeTab === 'settings-performance' ? 'performance' : activeTab === 'settings-rbac' ? 'rbac' : 'appearance'}
-                />
-              )}
-            </>
+          {activeTab === 'settings' && (
+            <SettingsPage
+              currentTheme={currentTheme}
+              onThemeChange={setCurrentTheme}
+              buttonStyle={buttonStyle}
+              onButtonStyleChange={setButtonStyle}
+            />
           )}
         </main>
       </div>
 
-      <MobileDrawer
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        activeTab={activeTab}
-        activeRole={activeRole}
-        tabPermissionsState={tabPermissionsState}
-        navigateTo={navigateTo}
-      />
-
-      {venueModalData && <VenueModalComponent venue={venueModalData === 'new' ? null : venueModalData} onClose={() => setVenueModalData(null)} onSave={handleSaveVenue} />}
-      {serviceModalData && <ServiceModalComponent service={serviceModalData === 'new' ? null : serviceModalData} onClose={() => setServiceModalData(null)} onSave={handleSaveService} />}
-      {campaignModalData && <CampaignModalComponent campaign={campaignModalData === 'new' ? null : campaignModalData} onClose={() => setCampaignModalData(null)} onSave={handleSaveCampaign} />}
-      {userModalData && <UserModalComponent user={userModalData === 'new' ? null : userModalData} onClose={() => setUserModalData(null)} onSave={handleSaveUser} />}
-      {customerModalData && <CustomerFormModal customer={customerModalData === 'new' ? null : customerModalData} onClose={() => setCustomerModalData(null)} onSave={c => { setCustomers(prev => [...prev, c]); setCustomerModalData(null); showToast('👤 Müşteri Kaydedildi!'); }} />}
-      {selectedResForDetail && (
-        <ReservationDetailModal
-          res={selectedResForDetail}
-          venues={venues}
-          services={services}
-          onClose={() => setSelectedResForDetail(null)}
-          onPrintInvoice={() => handlePrintInvoice(selectedResForDetail)}
-          onShowEmail={(r) => setEmailModalData({ to: r.customerEmail || 'musteri@example.com', name: r.customerName, subject: 'Rezervasyonunuz Oluşturuldu!', type: 'reservation', res: r })}
-          onUpdatePayment={(id, dep, stat) => {
-            setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
-            showToast('💳 Ödeme & Sözleşme Güncellendi!');
-            setSelectedResForDetail(null);
-          }}
-        />
-      )}
-      {emailModalData && <EmailNotificationModal emailData={emailModalData} onClose={() => setEmailModalData(null)} />}
-      {redAlertModalData && (
-        <RedAlertConfirmModal
-          isOpen={true}
-          title={redAlertModalData.title}
-          message={redAlertModalData.message}
-          confirmText={redAlertModalData.confirmText}
-          onConfirm={redAlertModalData.onConfirm}
-          onClose={() => setRedAlertModalData(null)}
-        />
-      )}
-      {invoiceModalData && (
-        <InvoiceNotificationModal
-          res={invoiceModalData}
-          onClose={() => setInvoiceModalData(null)}
-          onPrint={(res) => {
-            const printWin = window.open('', '_blank', 'width=900,height=700');
-            if (printWin) {
-              printWin.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                  <title>İrem Düğün Sarayı - Fatura (${res.id})</title>
-                  <style>
-                    body { font-family: sans-serif; padding: 30px; }
-                    .header { font-size: 20px; font-weight: bold; border-bottom: 2px solid #d97706; padding-bottom: 10px; margin-bottom: 20px; }
-                  </style>
-                </head>
-                <body>
-                  <div className="header">İREM DÜĞÜN SARAYI & ORGANİZASYON - RESMİ SÖZLEŞME FATURASI</div>
-                  <p><strong>Sözleşme No:</strong> ${res.id}</p>
-                  <p><strong>Müşteri:</strong> ${res.customerName}</p>
-                  <p><strong>Toplam Tutar:</strong> ${res.totalAmount} ₺</p>
-                  <p><strong>Tahsil Edilen Kaparo:</strong> ${res.depositPaid} ₺</p>
-                  <p><strong>Kalan Bakiye:</strong> ${Math.max(0, res.totalAmount - res.depositPaid)} ₺</p>
-                  <script>window.print();</script>
-                </body>
-                </html>
-              `);
-            }
-          }}
-        />
-      )}
-
-      <ToastNotification message={toastMessage} isVisible={isToastVisible} onClose={() => setIsToastVisible(false)} />
+      {/* MOBILE FIXED BOTTOM SUMMARY BAR */}
+      <MobileBottomSummaryBar />
     </div>
   );
 }
