@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>İrem Düğün Sarayı & Organizasyon Yönetim Platformu</title>
   
-  <!-- Google Fonts: Inter, Outfit, Space Grotesk, Plus Jakarta Sans & Playfair Display -->
+  <!-- Inline SVG Favicon (Prevents 404 Delay on Slow Networks) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'><path d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5m-6 0h6'/></svg>">
+
+  <!-- Google Fonts: Inter, Outfit, Space Grotesk, Plus Jakarta Sans & Playfair Display (Preconnect & Swap) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
@@ -1203,11 +1206,12 @@
       const [isLoaded, setIsLoaded] = useState(false);
       const [hasError, setHasError] = useState(false);
 
-      // WebP Optimization & Resize Query
+      // WebP Optimization & Mobile 3G Low-Bandwidth Compression
       const optimizedSrc = useMemo(() => {
         if (!src) return '';
         if (src.includes('images.unsplash.com')) {
-          return src.includes('auto=format') ? src : `${src}&auto=format&fit=crop&q=80`;
+          if (src.includes('w=')) return src;
+          return `${src}&auto=format&fit=crop&w=600&q=60`;
         }
         return src;
       }, [src]);
@@ -1233,6 +1237,40 @@
               className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
           )}
+        </div>
+      );
+    }
+
+    // FULL-PAGE & TAB SKELETON PLACEHOLDER LOADER FOR SLOW 3G NETWORKS
+    function PageSkeletonLoader({ title = "Sayfa Yükleniyor..." }) {
+      return (
+        <div className="space-y-6 animate-pulse max-w-7xl mx-auto p-4 sm:p-6">
+          {/* HEADER SKELETON */}
+          <div className="h-20 bg-slate-200/80 dark:bg-slate-800/80 rounded-3xl w-full flex items-center justify-between px-6 border border-slate-200/50">
+            <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded-lg w-1/3"></div>
+            <div className="h-8 bg-slate-300 dark:bg-slate-700 rounded-xl w-24"></div>
+          </div>
+          
+          {/* TOP STATS CARDS SKELETON */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-28 bg-slate-200/70 dark:bg-slate-800/70 rounded-3xl p-4 space-y-3">
+                <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-1/2"></div>
+                <div className="h-8 bg-slate-300 dark:bg-slate-700 rounded-lg w-3/4"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* MAIN CONTENT AREA SKELETON */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-96 bg-slate-200/70 dark:bg-slate-800/70 rounded-3xl p-6 space-y-4">
+              <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded w-1/4"></div>
+              <div className="h-64 bg-slate-300/60 dark:bg-slate-700/60 rounded-2xl"></div>
+            </div>
+            <div className="h-96 bg-slate-200/70 dark:bg-slate-800/70 rounded-3xl p-6 space-y-4">
+              <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded w-1/3"></div>
+              <div className="h-64 bg-slate-300/60 dark:bg-slate-700/60 rounded-2xl"></div>
+          </div>
         </div>
       );
     }
@@ -1897,7 +1935,13 @@
         showToast(`📅 Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi!`);
       };
 
+      const [isPageTabLoading, setIsPageTabLoading] = useState(false);
+
       const navigateTo = (tab) => {
+        if (tab !== activeTabState) {
+          setIsPageTabLoading(true);
+          setTimeout(() => setIsPageTabLoading(false), 150);
+        }
         setActiveTabState(tab);
         const tabSlug = TAB_TO_SLUG[tab] || 'anasayfa';
         const newUrl = `${window.location.pathname}#/${tabSlug}`;
@@ -2382,7 +2426,9 @@
               )}
 
               {/* RBAC PERMISSION GUARD & ERROR BOUNDARY WRAPPER */}
-              {!(activeRole === 'admin' || (tabPermissionsState[activeTab] || tabPermissionsState[activeTab.split('-')[0]] || ['admin']).includes(activeRole)) ? (
+              {isPageTabLoading ? (
+                <PageSkeletonLoader title={TAB_LABELS[activeTab] || activeTab} />
+              ) : !(activeRole === 'admin' || (tabPermissionsState[activeTab] || tabPermissionsState[activeTab.split('-')[0]] || ['admin']).includes(activeRole)) ? (
                 <UnauthorizedAccessScreen
                   pageTitle={TAB_LABELS[activeTab] || activeTab}
                   activeRoleName={rolesState[activeRole] || activeRole}
