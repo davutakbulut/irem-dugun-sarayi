@@ -766,14 +766,31 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
                       placeholder="Örn: Mehmet Yılmaz & Zeynep Can"
                       value={newCustName}
                       onChange={e => { setNewCustName(e.target.value); setCustomerError(false); }}
-                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustName.trim() ? 'border-2 border-red-500 bg-red-500/10 font-bold' : 'border-slate-200 dark:border-brand-border'}`}
+                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustName.trim() ? 'border-2 border-red-500 bg-red-500/10 font-bold ring-2 ring-red-500/30' : 'border-slate-200 dark:border-brand-border'}`}
                     />
+                    {customerError && !newCustName.trim() && (
+                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                        <span>⚠️ Adı Soyadı alanı zorunludur.</span>
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <label className="font-bold block mb-1">E-posta Adresi:</label>
-                    <input type="email" placeholder="ornek@domain.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5" />
+                    <label className="font-bold block mb-1">E-posta Adresi <span className="text-red-500">*</span>:</label>
+                    <input
+                      type="email"
+                      placeholder="ornek@domain.com"
+                      value={newCustEmail}
+                      onChange={e => { setNewCustEmail(e.target.value); setCustomerError(false); }}
+                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && (!newCustEmail.trim() || !newCustEmail.includes('@')) ? 'border-2 border-red-500 bg-red-500/10 font-bold ring-2 ring-red-500/30' : 'border-slate-200 dark:border-brand-border'}`}
+                    />
+                    {customerError && (!newCustEmail.trim() || !newCustEmail.includes('@')) && (
+                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                        <span>⚠️ Geçerli bir e-posta adresi zorunludur.</span>
+                      </p>
+                    )}
                   </div>
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="font-bold block mb-1">Birincil Telefon (+90) <span className="text-red-500">*</span>:</label>
@@ -784,22 +801,38 @@ export function CreateReservationPage({ venues = [], services = [], customers = 
                       onChange={e => { setNewCustPhone(formatPhoneNumber(e.target.value)); setCustomerError(false); }}
                       className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold ${
                         customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone))
-                          ? 'border-2 border-red-500 bg-red-500/10 text-red-600'
+                          ? 'border-2 border-red-500 bg-red-500/10 text-red-600 ring-2 ring-red-500/30'
                           : isValidPhoneNumber(newCustPhone)
                           ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                           : 'border-slate-200 dark:border-brand-border'
                       }`}
                     />
+                    {customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone)) && (
+                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                        <span>⚠️ Birincil telefon (05XX) zorunludur.</span>
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu:</label>
+                    <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu <span className="text-red-500">*</span>:</label>
                     <input
                       type="text"
                       placeholder="0 (5XX) XXX XX XX"
                       value={newCustSecondaryPhone}
-                      onChange={e => setNewCustSecondaryPhone(formatPhoneNumber(e.target.value))}
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                      onChange={e => { setNewCustSecondaryPhone(formatPhoneNumber(e.target.value)); setCustomerError(false); }}
+                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold ${
+                        customerError && (!newCustSecondaryPhone.trim() || !isValidPhoneNumber(newCustSecondaryPhone))
+                          ? 'border-2 border-red-500 bg-red-500/10 text-red-600 ring-2 ring-red-500/30'
+                          : isValidPhoneNumber(newCustSecondaryPhone)
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                          : 'border-slate-200 dark:border-brand-border'
+                      }`}
                     />
+                    {customerError && (!newCustSecondaryPhone.trim() || !isValidPhoneNumber(newCustSecondaryPhone)) && (
+                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                        <span>⚠️ İkinci iletişim telefonu (05XX) zorunludur.</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
