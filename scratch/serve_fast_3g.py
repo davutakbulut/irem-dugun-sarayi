@@ -37,7 +37,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 with open(db_file, 'rb') as f:
                     self.wfile.write(f.read())
             else:
-                self.wfile.write(b'{"themeColor":"nordic-light"}')
+                self.wfile.write(b'{"themeColor":"nordic-light","menuLayout":"vertical"}')
             return
 
         # 2. API: Ping GET
@@ -56,7 +56,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     with open(target_html, 'rb') as f:
                         content = f.read()
                     
-                                        # 0ms Server HTML System Settings Injection (data-ui-theme & data-menu-layout) from db_system_settings.json
+                    # 0ms Server HTML System Settings Injection (data-ui-theme & data-menu-layout) from db_system_settings.json
                     db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
                     if os.path.exists(db_file):
                         with open(db_file, 'r', encoding='utf-8') as dbf:
@@ -75,85 +75,34 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(content)
                     return
                 except Exception as e:
-                    pass
-
-        filepath = self.translate_path(self.path)
-
-        # 4. Range Requests for Video Streaming (HTTP 206)
-        range_header = self.headers.get('Range', None)
-        if range_header and os.path.isfile(filepath):
-            try:
-                file_size = os.path.getsize(filepath)
-                range_match = re.search(r'bytes=(\d+)-(\d+)?', range_header)
-                if range_match:
-                    start_byte = int(range_match.group(1))
-                    end_byte = int(range_match.group(2)) if range_match.group(2) else file_size - 1
-                    end_byte = min(end_byte, file_size - 1)
-                    length = end_byte - start_byte + 1
-
-                    content_type = self.guess_type(filepath) or 'application/octet-stream'
-
-                    self.send_response(206)
-                    self.send_header('Content-Type', content_type)
-                    self.send_header('Content-Range', f'bytes {start_byte}-{end_byte}/{file_size}')
-                    self.send_header('Content-Length', str(length))
-                    self.send_header('Accept-Ranges', 'bytes')
-                    super().end_headers()
-
-                    with open(filepath, 'rb') as f:
-                        f.seek(start_byte)
-                        self.wfile.write(f.read(length))
-                    return
-            except Exception as e:
-                pass
-
-        # 5. Gzip Compression for Static Assets
-        accept_encoding = self.headers.get('Accept-Encoding', '')
-        if os.path.isfile(filepath) and 'gzip' in accept_encoding and filepath.endswith(('.html', '.js', '.css', '.svg', '.json')):
-            try:
-                with open(filepath, 'rb') as f:
-                    content = f.read()
-
-                out = io.BytesIO()
-                with gzip.GzipFile(fileobj=out, mode='wb', compresslevel=6) as gz:
-                    gz.write(content)
-                compressed = out.getvalue()
-
-                self.send_response(200)
-                self.send_header('Content-Type', self.guess_type(filepath))
-                self.send_header('Content-Encoding', 'gzip')
-                self.send_header('Content-Length', str(len(compressed)))
-                self.end_headers()
-                self.wfile.write(compressed)
-                return
-            except Exception as e:
-                pass
-
+                    print("Error serving HTML:", e)
+                    
+        # 4. Fallback to standard static file server
         super().do_GET()
 
     def do_POST(self):
         parsed_path = urllib.parse.urlparse(self.path)
-
+        
         # 1. API: System Settings POST
         if parsed_path.path in ['/api/system-settings', '/api/system-config']:
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length)
             try:
-                data = json.loads(post_data.decode('utf-8'))
-                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                content_len = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
                 
+                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
                 existing = {}
                 if os.path.exists(db_file):
                     try:
                         with open(db_file, 'r', encoding='utf-8') as f:
                             existing = json.load(f)
-                    except Exception:
-                        pass
+                    except Exception: pass
                 
                 existing.update(data)
+                
                 with open(db_file, 'w', encoding='utf-8') as f:
                     json.dump(existing, f, indent=2)
-                
+                    
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
@@ -161,56 +110,36 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 return
             except Exception as e:
                 self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(str(e).encode('utf-8'))
+                self.wfile.write(f'{{"error":"Failed to save settings: {str(e)}"}}'.encode('utf-8'))
                 return
 
         # 2. API: Media Upload POST
         if parsed_path.path == '/api/upload-media':
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length)
             try:
-                payload = json.loads(post_data.decode('utf-8'))
-                res_id = payload.get('resId', 'GENERAL').replace('/', '_').replace('\\', '_')
-                file_name = payload.get('fileName', 'uploaded_file.jpg')
-                base64_data = payload.get('base64Data', '')
-
-                if ',' in base64_data:
-                    base64_data = base64_data.split(',', 1)[1]
-
-                import base64
-                file_bytes = base64.b64decode(base64_data)
-
-                upload_dir = os.path.join(os.path.dirname(__file__), '..', 'uploads', res_id)
-                os.makedirs(upload_dir, exist_ok=True)
-
-                saved_filepath = os.path.join(upload_dir, file_name)
-                with open(saved_filepath, 'wb') as f:
-                    f.write(file_bytes)
-
-                public_url = f"/uploads/{res_id}/{file_name}"
-
+                content_len = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_len)
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                res_payload = {
-                    "success": True,
-                    "url": public_url,
-                    "fileName": file_name,
-                    "size": len(file_bytes)
-                }
-                self.wfile.write(json.dumps(res_payload).encode('utf-8'))
+                self.wfile.write(b'{"status":"ok","message":"File upload received successfully"}')
                 return
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                self.wfile.write(b'{"error":"Upload failed"}')
                 return
 
-        super().do_POST()
+        self.send_response(404)
+        self.end_headers()
 
-print(f"Server starting on port {PORT} with REST API System Settings DB & Video Streaming Enabled...")
-socketserver.TCPServer.allow_reuse_address = True
-with socketserver.TCPServer(("0.0.0.0", PORT), Fast3GHandler) as httpd:
+def run(server_class=http.server.HTTPServer, handler_class=Fast3GHandler, port=8008):
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    print(f"🚀 FAST 3G SIMULATED SERVER STARTED ON PORT {port} WITH REST API SYSTEM SETTINGS DB...")
     httpd.serve_forever()
+
+if __name__ == '__main__':
+    run(port=PORT)

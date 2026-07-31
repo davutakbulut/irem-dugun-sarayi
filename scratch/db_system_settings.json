@@ -1,5 +1,5 @@
 {
-  "themeColor": "nordic-light",
+  "themeColor": "apple",
   "appName": "\u0130rem D\u00fc\u011f\u00fcn Saray\u0131 & Organizasyon",
   "cacheEnabled": true,
   "duplicateImagePrevention": true,
@@ -12,7 +12,7 @@
     "video/mp4",
     "video/quicktime"
   ],
-  "updatedAt": "2026-07-31T22:59:27.212Z",
+  "updatedAt": "2026-07-31T23:03:43.773Z",
   "updatedBy": "admin",
-  "menuLayout": "vertical"
+  "menuLayout": "horizontal"
 }

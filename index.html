@@ -5224,15 +5224,24 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [activeTab]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
+        const domMenu = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-menu-layout') : null;
         try {
-          return localStorage.getItem('irem_menu_layout') || 'vertical';
-        } catch(e) { return 'vertical'; }
+          return domMenu || localStorage.getItem('irem_menu_layout') || 'vertical';
+        } catch(e) { return domMenu || 'vertical'; }
       });
 
       const handleMenuLayoutChange = (newLayout) => {
         setMenuLayout(newLayout);
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-menu-layout', newLayout);
+        }
         try {
           localStorage.setItem('irem_menu_layout', newLayout);
+          fetch('/api/system-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ themeColor, menuLayout: newLayout, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
+          }).catch(() => {});
         } catch(e) {}
         showToast(`Menü Düzeni Değiştirildi: ${newLayout === 'horizontal' ? 'Yatay Üst Menü ══' : 'Dikey Sol Menü 📌'}`);
       };
