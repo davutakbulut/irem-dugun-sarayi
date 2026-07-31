@@ -1,4 +1,9 @@
-import http.server
+import sys
+import os
+import re
+
+# 1. Update serve_fast_3g.py to support HTTP 206 Partial Content Range Requests for instant video streaming
+server_code = """import http.server
 import socketserver
 import gzip
 import io
@@ -139,3 +144,39 @@ print(f"Server starting on port {PORT} with HTTP 206 Video Range Streaming Enabl
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("0.0.0.0", PORT), Fast3GHandler) as httpd:
     httpd.serve_forever()
+"""
+
+with open('scratch/serve_fast_3g.py', 'w', encoding='utf-8') as f:
+    f.write(server_code)
+
+print("Updated serve_fast_3g.py with HTTP 206 Partial Content Video Range Streaming!")
+
+# 2. Update index.html video element attributes to include preload="auto" and playsInline
+with open('index.html', 'r', encoding='utf-8') as f:
+    html = f.read()
+
+old_lightbox_v = """                <video
+                  src={mediaList[lightboxIndex].url}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="max-w-full max-h-[70vh] rounded-2xl border-2 border-amber-500/40 shadow-2xl bg-black"
+                />"""
+
+new_lightbox_v = """                <video
+                  src={mediaList[lightboxIndex].url}
+                  controls
+                  autoPlay
+                  preload="auto"
+                  playsInline
+                  className="max-w-full max-h-[70vh] rounded-2xl border-2 border-amber-500/40 shadow-2xl bg-black"
+                />"""
+
+if old_lightbox_v in html:
+    html = html.replace(old_lightbox_v, new_lightbox_v)
+    print("Updated index.html video tag preload attribute!")
+
+with open('index.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print("Updated index.html instant video streaming attributes successfully!")
