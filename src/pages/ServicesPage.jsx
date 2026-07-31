@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-
-export function ServicesPage({ services, onAddClick, onEditClick, onDeleteClick }) {
+export function ServicesComponent({ services, onAddClick, onEditClick, onDeleteClick }) {
       const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
       const [searchTerm, setSearchTerm] = useState('');
       const [categoryFilter, setCategoryFilter] = useState('ALL');
@@ -30,7 +30,7 @@ export function ServicesPage({ services, onAddClick, onEditClick, onDeleteClick 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-brand-border/40">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
-                <ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-6 h-6" />
+                <ThemeIcon icon="gift" fallbackEmoji="" className="w-6 h-6" />
               </div>
               <div>
                 <h2 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-gray-100 gold-gradient-text">
@@ -43,7 +43,7 @@ export function ServicesPage({ services, onAddClick, onEditClick, onDeleteClick 
             </div>
 
             <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-1.5 self-start sm:self-auto">
-              <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+              <ThemeIcon icon="plus" fallbackEmoji="" className="w-4 h-4 shrink-0" />
               <span>Yeni Ek Hizmet Ekle</span>
             </button>
           </div>
@@ -226,3 +226,5 @@ export function ServicesPage({ services, onAddClick, onEditClick, onDeleteClick 
         </div>
       );
     }
+
+    // --- UNIFIED RESERVATIONS & MASTER CALENDAR COMPONENT ---

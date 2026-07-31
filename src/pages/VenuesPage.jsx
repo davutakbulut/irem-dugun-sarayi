@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
-import { VenueDetailModalComponent } from '../components/Modals';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-export function VenuesPage({ venues, services = [], onAddClick, onEditClick, onDeleteClick }) {
+export function VenuesComponent({ venues, services = [], onAddClick, onEditClick, onDeleteClick }) {
       const [selectedVenueDetail, setSelectedVenueDetail] = useState(null);
       const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
       const [searchTerm, setSearchTerm] = useState('');
@@ -57,7 +57,7 @@ export function VenuesPage({ venues, services = [], onAddClick, onEditClick, onD
             </div>
 
             <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-1.5 self-start sm:self-auto">
-              <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+              <ThemeIcon icon="plus" fallbackEmoji="" className="w-4 h-4 shrink-0" />
               <span>Yeni Mekan Ekle</span>
             </button>
           </div>
@@ -268,3 +268,5 @@ export function VenuesPage({ venues, services = [], onAddClick, onEditClick, onD
         </div>
       );
     }
+
+    // --- SERVICES COMPONENT ---

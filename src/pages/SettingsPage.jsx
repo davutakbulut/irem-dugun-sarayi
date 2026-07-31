@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
-import { TAB_PERMISSIONS } from '../constants/initialData';
-import { Page404Component, Page301Component, Page403Component, Page500Component } from './ErrorPages';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-export function SettingsPage({
+export function SettingsComponent({
       activeRole,
       roles,
       tabPermissions,
       onAddRole,
+      onEditRole,
+      onDeleteRole,
       onToggleTabPermission,
       themeColor,
       onThemeColorChange,
@@ -22,7 +23,16 @@ export function SettingsPage({
       initialSubTab = 'appearance'
     }) {
       const [settingsTab, setSettingsTab] = useState(initialSubTab);
-      const [draftTheme, setDraftTheme] = useState(themeColor || 'gold');
+      const [draftTheme, setDraftTheme] = useState(() => {
+        const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
+        return themeColor || domTheme || '';
+      });
+
+      useEffect(() => {
+        if (themeColor) {
+          setDraftTheme(themeColor);
+        }
+      }, [themeColor]);
 
       useEffect(() => {
         if (initialSubTab) setSettingsTab(initialSubTab);
@@ -124,9 +134,18 @@ export function SettingsPage({
                 </h2>
               </div>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 font-medium">
-                Tema tercihlerini, Rol & İzin matrisini, önbellek ve hata simülasyonlarını tam ekranda yönetin.
+                Tema tercihlerini, görünüm mimarisini, önbellek ve hata simülasyonlarını tam ekranda yönetin.
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('roles')}
+              className="px-4 py-2 bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500 hover:text-slate-900 transition flex items-center space-x-1.5 shrink-0"
+            >
+              <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-4 h-4 shrink-0" />
+              <ThemeIcon icon="shield" fallbackEmoji="" className="w-4 h-4 text-amber-500 inline-block mr-1.5" /><span>Rol Yönetimi Sayfasına Git →</span>
+            </button>
           </div>
 
           {/* TOP TAB NAVIGATION BAR */}
@@ -141,15 +160,7 @@ export function SettingsPage({
               <span>Görünüm & Temalar</span>
             </button>
 
-            <button
-              onClick={() => setSettingsTab('rbac')}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
-                settingsTab === 'rbac' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
-              }`}
-            >
-              <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-4 h-4 shrink-0" />
-              <span>Rol & İzin Matrisi (RBAC)</span>
-            </button>
+
 
             <button
               onClick={() => setSettingsTab('error-sim')}
@@ -477,20 +488,24 @@ export function SettingsPage({
                     type="button"
                     onClick={() => {
                       onThemeColorChange(draftTheme);
-                      if (draftTheme === 'elite-luxury' || draftTheme === 'obsidian') {
-                        document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
-                      } else if (draftTheme === 'nordic-light') {
-                        document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
-                      } else if (draftTheme === 'apple' || draftTheme === 'apple-light') {
-                        document.documentElement.setAttribute('data-ui-theme', 'apple');
-                      } else if (draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean' || draftTheme === 'sapphire') {
-                        document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
-                      } else if (draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal' || draftTheme === 'emerald') {
-                        document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
+                      if (draftTheme && draftTheme !== 'gold' && draftTheme !== 'classic_gold') {
+                        document.documentElement.setAttribute('data-ui-theme', draftTheme);
                       } else {
                         document.documentElement.removeAttribute('data-ui-theme');
                       }
-                      showToast(`🎨 Tasarım Konsepti Başarıyla Değiştirildi ve Uygulandı! (${draftTheme})`);
+                      
+                      // CRITICAL: PERMANENTLY POST TO BACKEND SERVER DATABASE
+                      try {
+                        window.fetchWithRetry('/api/system-settings', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ themeColor: draftTheme, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
+                        }).then(r => r.json()).then(res => {
+                          console.log('✅ System theme saved to backend DB:', res);
+                        }).catch(err => console.error('❌ Failed to save theme to backend DB:', err));
+                      } catch(e) {}
+
+                      showToast(`🎨 Tasarım Konsepti Başarıyla Veritabanına Kaydedildi! (${draftTheme})`);
                     }}
                     className="gold-button font-bold text-xs py-3 px-8 rounded-2xl shadow-xl hover:scale-105 transition flex items-center space-x-2"
                   >
@@ -634,8 +649,38 @@ export function SettingsPage({
                     <tr className="border-b border-slate-200 dark:border-brand-border/40 bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300">
                       <th className="p-3 font-extrabold rounded-l-xl">Sistem Paneli / Sayfa</th>
                       {Object.keys(roles).map(roleId => (
-                        <th key={roleId} className="p-3 font-extrabold text-center whitespace-nowrap">
-                          {roles[roleId]}
+                        <th key={roleId} className="p-3 font-extrabold text-center whitespace-nowrap border-l border-slate-200 dark:border-brand-border/40">
+                          <div className="flex flex-col items-center space-y-1">
+                            <span className="text-xs">{roles[roleId]}</span>
+                            <span className="text-[9px] font-mono text-slate-400">({roleId})</span>
+                            <div className="flex items-center space-x-1 pt-1">
+                              <button
+                                type="button"
+                                title="Rol Adını Düzenle"
+                                onClick={() => {
+                                  const name = prompt(`"${roles[roleId]}" rolü için yeni unvan yazınız:`, roles[roleId]);
+                                  if (name && onEditRole) onEditRole(roleId, name);
+                                }}
+                                className="p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-500/10 rounded transition"
+                              >
+                                ✏️
+                              </button>
+                              {roleId !== 'admin' && (
+                                <button
+                                  type="button"
+                                  title="Rolü Sil"
+                                  onClick={() => {
+                                    if (confirm(`"${roles[roleId]}" (${roleId}) rolünü ve tüm izinlerini silmek istediğinize emin misiniz?`)) {
+                                      if (onDeleteRole) onDeleteRole(roleId);
+                                    }
+                                  }}
+                                  className="p-1 text-red-500 hover:text-red-700 hover:bg-red-500/10 rounded transition"
+                                >
+                                  🗑️
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </th>
                       ))}
                     </tr>

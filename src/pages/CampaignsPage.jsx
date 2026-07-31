@@ -1,8 +1,8 @@
-import React from 'react';
-import { formatCurrency } from '../utils/formatters';
-import { ThemeIcon } from '../components/ThemeIcon';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-    export function CampaignsPage({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice }) {
+export function CampaignsComponent({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice }) {
       const aiRecs = React.useMemo(() => {
         return generateSmartAIRecommendations(reservations, venues, services);
       }, [reservations, venues, services]);
@@ -86,7 +86,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
           <div>
             <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 mb-3 flex items-center space-x-2">
-              <ThemeIcon icon="campaign" fallbackEmoji="🎁" className="w-5 h-5 text-amber-500 shrink-0" />
+              <ThemeIcon icon="campaign" fallbackEmoji="" className="w-5 h-5 text-amber-500 shrink-0" />
               <span>Aktif Promosyon ve Kampanyalar ({campaigns.length})</span>
             </h3>
 

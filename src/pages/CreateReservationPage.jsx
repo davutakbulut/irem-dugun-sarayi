@@ -1,8 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
-import { formatCurrency } from '../utils/formatters';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-export function CreateReservationPage({ venues, services, customers, campaigns, reservations = [], draftReservations = [], setDraftReservations, currentUser, prefilledDate, onSaveReservation, onCancel, showToast, navigateTo }) {
+export function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations = [], draftReservations = [], setDraftReservations, currentUser, prefilledDate, onSaveReservation, onCancel, showToast, navigateTo }) {
+      const todayDateStr = useMemo(() => {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }, []);
       // 1. Venue, Start/End Date & Time
       const venueCarouselRef = useRef(null);
       const [selectedVenueForDetail, setSelectedVenueForDetail] = useState(null);
@@ -532,7 +539,9 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
           return { serviceId: s.id, quantity: qty, unitPrice, isPaid: item.isPaid, cost };
         }).filter(Boolean);
 
-        const sub = vPrice + servTotal;
+        const vPriceClean = Math.max(0, vPrice);
+        const servTotalClean = Math.max(0, servTotal);
+        const sub = vPriceClean + servTotalClean;
         let disc = 0;
         const activeCampaign = (campaigns || []).find(c =>
           (c.code || '').toUpperCase() === campaignCode.trim().toUpperCase() && c.status === 'Aktif'
@@ -552,6 +561,7 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
           disc = 5000;
         }
 
+        disc = Math.max(0, Math.min(sub, disc));
         const afterDisc = Math.max(0, sub - disc);
         const vat = isInvoiced ? afterDisc * 0.20 : 0;
         const grandTotal = afterDisc + vat;
@@ -572,6 +582,23 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
       };
 
       const handleSubmit = () => {
+        // Prevent Past Date Reservation
+        if (startDate && startDate < todayDateStr) {
+          showAlertModal('⚠️ GEÇMİŞ TARİH SEÇİLDİ', `Geçmiş bir tarihe (${startDate}) rezervasyon oluşturulamaz! Lütfen bugün (${todayDateStr}) veya gelecekte bir tarih seçiniz.`, 'start-date-input');
+          return;
+        }
+
+        // Prevent Negative or Zero Guest Count
+        if (Number(guestCount) < 1) {
+          showAlertModal('⚠️ KATILIMCI SIKINTISI', 'Kişi sayısı en az 1 olmalıdır! Negatif veya sıfır kişi sayısı girilemez.', 'guest-count-input');
+          return;
+        }
+
+        // Prevent Negative Deposit
+        if (Number(depositPaid) < 0) {
+          showAlertModal('⚠️ GEÇERSİZ KAPORA', 'Kapora miktarı negatif olamaz! Lütfen 0 veya pozitif bir tutar giriniz.', 'deposit-paid-input');
+          return;
+        }
         // Customer validation check with smooth scroll & focus
         if (customerMode === 'new') {
           if (!newCustName.trim() || !newCustPhone.trim()) {
@@ -845,40 +872,63 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
             />
           )}
 
-          {/* PAGE HEADER */}
-          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
-            <div className="flex flex-col items-start gap-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border">
+          {/* PAGE HEADER (STRICTLY CONTAINER BOUNDED WITH NO OVERFLOW) */}
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm overflow-hidden w-full max-w-full">
+            <div className="flex flex-col items-start gap-2 min-w-0 flex-1 max-w-full">
+              
+              {/* BADGES ROW WITH FLEX-WRAP TO PREVENT HORIZONTAL OVERFLOW */}
+              <div className="flex flex-wrap items-center gap-2 max-w-full">
+                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border shrink-0">
                   <svg className="w-3.5 h-3.5 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   <span>Rezervasyon Oluşturma & Kiralama</span>
                 </span>
 
-                {/* DRAFT REF KEY & LIVE SAVE BADGES */}
-                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-mono font-bold inline-flex items-center space-x-1">
+                {/* DRAFT REF KEY BADGE WITH CLICK TO COPY */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activeRefKey && navigator.clipboard) {
+                      navigator.clipboard.writeText(activeRefKey);
+                      if (showToast) showToast('Sözleşme referans kodu kopyalandı! 🔑', 'success');
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30 text-xs font-mono font-bold inline-flex items-center space-x-1 shrink-0 cursor-pointer transition"
+                  title="Referans kodunu kopyalamak için tıklayın"
+                >
                   <span>🔑 Ref:</span>
                   <span className="tracking-wider">{activeRefKey}</span>
-                </span>
+                  <span className="text-[10px] text-amber-500">📋</span>
+                </button>
+
                 {lastSavedTime ? (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold inline-flex items-center space-x-1">
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold inline-flex items-center space-x-1 shrink-0">
                     <span>💾 Taslak Kaydedildi</span>
                     <span className="text-[10px] font-mono">({lastSavedTime})</span>
                   </span>
                 ) : (
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1">
-                    <span>⏱️ Canlı Otomatik Kayıt Aktif</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1 shrink-0">
+                    <span>⏱️ Canlı Otomatik Kayıt</span>
                   </span>
                 )}
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-1">
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-0.5 break-words max-w-full">
                 Hayalinizdeki Düğünü Birlikte Planlayalım!
               </h2>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-gray-400">Salon kiralama, hizmet adetleri, müşteri üyelik kaydı, fatura ve etkinlik akışını tek ekranda yönetin.</p>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-gray-400 leading-relaxed break-words max-w-2xl">
+                Salon kiralama, hizmet adetleri, müşteri üyelik kaydı, fatura ve etkinlik akışını tek ekranda yönetin.
+              </p>
             </div>
-            <button onClick={onCancel} className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-200 text-center whitespace-nowrap shrink-0">
-              ← Rezervasyon Listesine Dön
-            </button>
+
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto shrink-0">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold transition text-center whitespace-nowrap cursor-pointer shadow-xs border border-slate-200 dark:border-brand-border"
+              >
+                ← Rezervasyon Listesine Dön
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1087,7 +1137,7 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
                       <span>Etkinlik Başlangıç Tarihi & Saati:</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                      <input type="date" min={todayDateStr} value={startDate} id="start-date-input" onChange={e => setStartDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
                       <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
                     </div>
                   </div>
@@ -1098,7 +1148,7 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
                       <span>Etkinlik Bitiş Tarihi & Saati:</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                      <input type="date" min={startDate || todayDateStr} onChange={e => setEndDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
                       <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
                     </div>
                   </div>
@@ -1407,7 +1457,7 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
                   {hasDeposit && (
                     <div>
                       <label className="font-bold block mb-1">Ödenen Kapora Tutarı (TL):</label>
-                      <input type="number" value={depositPaid} onChange={e => setDepositPaid(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold text-emerald-600" />
+                      <input type="number" min="0" id="deposit-paid-input" value={depositPaid} onChange={e => setDepositPaid(Math.max(0, parseFloat(e.target.value) || 0))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold text-emerald-600" />
                     </div>
                   )}
                 </div>
@@ -1937,3 +1987,5 @@ export function CreateReservationPage({ venues, services, customers, campaigns, 
         </div>
       );
     }
+
+    // --- CUSTOMER FORM MODAL ---

@@ -1,7 +1,8 @@
-import React from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-    export export function UsersPage({ users, onAddClick, onEditClick, onDeleteClick }) {
+export function UsersComponent({ users, onAddClick, onEditClick, onDeleteClick }) {
       return (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -10,7 +11,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
               <span>Kullanıcı Yönetimi</span>
             </h2>
             <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1">
-              <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+              <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
               <span>Yeni Kullanıcı Tanımla</span>
             </button>
           </div>
@@ -45,3 +46,5 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
 
     // --- MEDIA COMPONENT ---
+
+// --- MEDIA COMPONENT ---

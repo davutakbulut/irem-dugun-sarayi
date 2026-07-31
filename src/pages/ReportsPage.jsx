@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-
-export function ReportsPage({ reservations = [], venues = [], services = [], onConvertToCampaign, onUpdateVenuePrice }) {
+export function ReportsComponent({ reservations = [], venues = [], services = [], onConvertToCampaign, onUpdateVenuePrice }) {
       const totalRevenue = useMemo(() => {
         return reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
       }, [reservations]);
@@ -238,3 +238,5 @@ export function ReportsPage({ reservations = [], venues = [], services = [], onC
         </div>
       );
     }
+
+    // --- FINANCE COMPONENT ---

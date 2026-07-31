@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ThemeIcon } from '../components/ThemeIcon';
-import { formatCurrency } from '../utils/formatters';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-export function FinancePage({ financialStats, reservations }) {
+export function FinanceComponent({ financialStats, reservations }) {
       const [expenses, setExpenses] = useState([
         { id: 'exp-1', title: 'Orkestra & Ses Sistemi Ödemesi', category: 'Personel & Sanatçı', type: 'gider', amount: 18000, date: '2026-08-01', status: 'Ödendi' },
         { id: 'exp-2', title: 'Salon Garson ve Mutfak Yevmiyeleri', category: 'Personel & Sanatçı', type: 'gider', amount: 24500, date: '2026-08-05', status: 'Ödendi' },
@@ -334,3 +334,6 @@ export function FinancePage({ financialStats, reservations }) {
         </div>
       );
     }
+
+    // --- CUSTOMERS COMPONENT ---
+    // --- CUSTOMERS COMPONENT ---

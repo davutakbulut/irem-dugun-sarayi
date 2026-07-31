@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { formatCurrency, formatDate, formatPhoneNumber } from '../utils/formatters';
-import { ThemeIcon } from '../components/ThemeIcon';
+import { ThemeIcon } from '../components/ThemeIcon.jsx';
 
-    export function ReservationsListPage({
+export function ReservationsListComponent({
       reservations = [],
       draftReservations = [],
       setDraftReservations,
@@ -176,7 +175,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                 className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer"
                 title="Yeni Rezervasyon Oluştur"
               >
-                <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+                <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden sm:inline">Yeni Rezervasyon</span>
               </button>
 
@@ -272,7 +271,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                       onClick={() => navigateTo && navigateTo('create-reservation')}
                       className="gold-button font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-sm inline-flex items-center space-x-1 cursor-pointer"
                     >
-                      <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 mr-1" />
+                      <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 mr-1" />
                       <span>Yeni Rezervasyon Başlat</span>
                     </button>
                   </div>
@@ -792,7 +791,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     {selectedDayInspector.reservations.length === 0 ? (
                       <div className="py-4 text-center text-slate-400 font-bold">Bu saat aralıklarında kayıtlı organizasyon yok.</div>
                     ) : (
-                      selectedDayInspector.reservations.map(r => {
+                      selectedDayInspector.userReservations.map(r => {
                         const vObj = (venues || []).find(v => v.id === r.venueId);
                         const startH = parseInt((r.startTime || '18:00').split(':')[0]) || 18;
                         const endH = parseInt((r.endTime || '23:00').split(':')[0]) || 23;
@@ -830,7 +829,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                         Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
                       </div>
                     ) : (
-                      selectedDayInspector.reservations.map(r => {
+                      selectedDayInspector.userReservations.map(r => {
                         const vObj = (venues || []).find(v => v.id === r.venueId);
                         return (
                           <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
@@ -876,7 +875,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     }}
                     className="gold-button px-4 py-2 rounded-xl shadow"
                   >
-                    <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 inline mr-1.5" /> Bu Tarihe Yeni Rezervasyon Ekle
+                    <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 inline mr-1.5" /> Bu Tarihe Yeni Rezervasyon Ekle
                   </button>
                   <button onClick={() => setSelectedDayInspector(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">Kapat</button>
                 </div>
@@ -964,7 +963,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
                   {/* SECTION C: VERİLEN PAKETLER & EK HİZMETLER */}
                   <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
-                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-3 h-3 inline mr-1" /> Verilen Hizmetler & Dahili Paketler:</span>
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="gift" fallbackEmoji="" className="w-3 h-3 inline mr-1" /> Verilen Hizmetler & Dahili Paketler:</span>
                     {(!selectedResForPreview.selectedServices || selectedResForPreview.selectedServices.length === 0) ? (
                       <div className="text-slate-400 italic">Dahili temel salon paketi dâhildir. Ek paket seçilmedi.</div>
                     ) : (
@@ -1475,7 +1474,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                         }}
                         className="px-2.5 py-1 bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[11px] hover:bg-amber-500/30 transition flex items-center space-x-1"
                       >
-                        <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3 h-3 shrink-0" />
+                        <ThemeIcon icon="plus" fallbackEmoji="" className="w-3 h-3 shrink-0" />
                         <span>Yeni Akış Maddesi Ekle</span>
                       </button>
                     </div>
@@ -1582,3 +1581,5 @@ import { ThemeIcon } from '../components/ThemeIcon';
         </div>
       );
     }
+
+// --- USERS COMPONENT ---
