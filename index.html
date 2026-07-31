@@ -887,14 +887,27 @@
 
 
     /* ------------------------------------------------------------------- */
-    /* NORDIC LIGHT THEME: DARK OVERLAY & LIGHTBOX HIGH-CONTRAST PROTECTION */
+    /* NORDIC LIGHT THEME: PURE MONOCHROME SLATE & WHITE (NO ORANGE / AMBER) */
     /* ------------------------------------------------------------------- */
     html[data-ui-theme="nordic-light"] [class*="z-[999"] .text-amber-400,
     html[data-ui-theme="nordic-light"] [class*="z-[1000"] .text-amber-400,
     html[data-ui-theme="nordic-light"] .bg-slate-900 .text-amber-400,
     html[data-ui-theme="nordic-light"] .bg-slate-950 .text-amber-400,
     html[data-ui-theme="nordic-light"] .bg-black .text-amber-400 {
-      color: #F59E0B !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-gradient-text {
+      background: linear-gradient(135deg, #0F172A 0%, #334155 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .gold-gradient-text,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .gold-gradient-text {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #FFFFFF !important;
     }
 
     html[data-ui-theme="nordic-light"] [class*="z-[999"] .text-slate-300,
