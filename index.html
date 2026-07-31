@@ -3758,11 +3758,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const urlKey = getUrlKey();
   
-  // STRICT GUEST MODE: Whenever key= or mode=guest is in URL hash, enforce Guest View
+  // STRICT GUEST MODE: Active ONLY on standalone guest links (#/medya/:key or ?mode=guest)
   const isPublicGuestMode = useMemo(() => {
     if (typeof window === 'undefined') return false;
     const hash = window.location.hash || '';
-    return hash.includes('key=') || hash.includes('mode=guest');
+    return /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
   }, []);
 
   // Active selected reservation key (Preserved in URL Hash on click & refresh)
@@ -4883,10 +4883,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return match ? match[1] : null;
       }, [activeTab]);
 
+      // STRICT PUBLIC GUEST ROUTE DETECTOR:
+      // Public guest mode is enforced ONLY for standalone guest URLs (#/medya/:key or #/m/:key or ?mode=guest).
+      // Internal staff navigation (#/medya-yukle?key=...) preserves full Admin/Customer layout on page refresh!
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
         const hash = window.location.hash || '';
-        return hash.includes('medya/') || hash.includes('m/') || hash.includes('key=') || hash.includes('mode=guest');
+        const isStandaloneGuestUrl = /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
+        return isStandaloneGuestUrl;
       }, [activeTab]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
