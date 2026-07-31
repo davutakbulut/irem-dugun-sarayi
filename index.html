@@ -2036,7 +2036,7 @@
       let targetTab = 'simulasyon-404';
       if (slug === 'anasayfa') {
         targetTab = 'dashboard';
-      } else if (cleanHash.startsWith('medya/') || cleanHash.startsWith('m/')) {
+      } else if (slug.startsWith('medya/') || slug.startsWith('m/')) {
         targetTab = 'media';
       } else {
         targetTab = SLUG_TO_TAB[slug] || 'simulasyon-404';
