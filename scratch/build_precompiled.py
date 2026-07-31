@@ -9,7 +9,7 @@ if not scripts:
     print("No Babel script found in index.html")
     exit()
 
-raw_jsx = scripts[0]
+raw_jsx = '\n\n'.join(scripts)
 
 js_code = f"""
 if (typeof console === 'undefined') {{ var console = {{ error: function(){{}}, log: function(){{}} }}; }}
@@ -54,7 +54,7 @@ prod_html = prod_html.replace('<script src="https://cdn.jsdelivr.net/npm/@babel/
 
 # Replace <script type="text/babel">...</script> with <script src="src/app.compiled.js" defer></script>
 old_tag_pattern = r'<script type="text/babel">.*?</script>'
-new_script_tag = '<script src="src/app.compiled.js" defer></script>'
+new_script_tag = '<script src="src/app.compiled.js?v=1785539384" defer></script>'
 
 prod_html = re.sub(old_tag_pattern, new_script_tag, prod_html, flags=re.DOTALL)
 
