@@ -5111,7 +5111,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     <span>🛠️ Üretim Derleme Mimarisi & Önbellek Kırma (Cache-Busting)</span>
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
-                    Uygulamamızdaki tüm JSX bileşenleri <code className="bg-slate-100 dark:bg-brand-dark px-2 py-1 rounded font-mono">scratch/build_precompiled.py</code> betiği ile Babel standalone kullanılarak önceden derlenir ve <code className="bg-slate-100 dark:bg-brand-dark px-2 py-1 rounded font-mono">src/app.compiled.js?v=1785541295</code> dosyasına kaydedilir. Yükleme scripti <code className="bg-slate-100 dark:bg-brand-dark px-2 py-1 rounded font-mono">src/app.compiled.js?v=1785541295?v=timestamp</code> parametresiyle çağrılarak tarayıcının her zaman taze JavaScript çalıştırması garanti altına alınır.
+                    Uygulamamızdaki tüm JSX bileşenleri <code className="bg-slate-100 dark:bg-brand-dark px-2 py-1 rounded font-mono">scratch/build_precompiled.py</code> betiği ile Babel standalone kullanılarak önceden derlenir ve <code className="bg-slate-100 dark:bg-brand-dark px-2 py-1 rounded font-mono">src/app.compiled.js?v=1785541432?v=1785541295</code> dosyasına kaydedilir. Yükleme scripti <code className="bg-slate-100 dark:bg-brand-dark px-2 py-1 rounded font-mono">src/app.compiled.js?v=1785541432?v=1785541295?v=timestamp</code> parametresiyle çağrılarak tarayıcının her zaman taze JavaScript çalıştırması garanti altına alınır.
                   </p>
                 </div>
               </div>
@@ -6184,7 +6184,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         { id: 'mind-map', label: 'Zihin Haritası (MindMap)', icon: 'sparkles', fallbackEmoji: '🧠', badge: 'YENİ' },
                         { id: 'roles', label: 'Rol Yönetimi & İzinler', icon: 'shield', fallbackEmoji: '🛡️', badge: 'YENİ' },
                         { id: 'users', label: 'Kullanıcı Yönetimi', icon: 'user', fallbackEmoji: '👥' },
-                        { id: 'settings', label: 'Sistem Ayarları', icon: 'settings', fallbackEmoji: '⚙️' }
+                        { id: 'settings', label: 'Sistem Ayarları', icon: 'settings', fallbackEmoji: '⚙️' },
+                        { id: 'system-guide', label: 'Sistem Kılavuzu & Mimarisi', icon: 'sparkles', fallbackEmoji: '📖', badge: 'V1.4 MASTER' }
                       ]
                     }
                   ].map(group => {
@@ -15176,7 +15177,8 @@ function MindMapPageComponent({ navigateTo }) {
             { id: 'settings-errors', label: 'Hata & Simülasyon', desc: '404, 500 ve yönlendirme testi simülatörü', icon: 'warning', fallbackEmoji: '🚨', badge: 'TEST' },
             { id: 'settings-performance', label: 'Önbellek & Performans', desc: 'Sistem belleği, önbellek temizleme ve hızlandırma', icon: 'chart', fallbackEmoji: '⚡' },
             { id: 'profile', label: 'Profilim & Güvenlik', desc: 'Kişisel hesap bilgileri, e-posta ve güvenlik', icon: 'user', fallbackEmoji: '👤' },
-            { id: 'settings', label: 'Tüm Sistem Ayarları', desc: 'Genel yapılandırma ve gelişmiş tercihler', icon: 'settings', fallbackEmoji: '⚙️' }
+            { id: 'settings', label: 'Tüm Sistem Ayarları', desc: 'Genel yapılandırma ve gelişmiş tercihler', icon: 'settings', fallbackEmoji: '⚙️' },
+            { id: 'system-guide', label: 'Sistem Kılavuzu & Mimarisi', desc: 'Tüm 16 sayfa, 11 tema, veritabanı mimarisi ve 10 Vercel Ajan Yeteneği', icon: 'sparkles', fallbackEmoji: '📖', badge: 'V1.4 MASTER' }
           ]
         }
       ];
