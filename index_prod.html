@@ -44,26 +44,23 @@
     }
   </script>
   
-  <!-- INSTANT THEME RESTORE SCRIPT (0ms INSTANT PAINT) -->
+    <!-- INSTANT THEME RESTORE SCRIPT (0ms INSTANT PAINT - ALL 8 THEMES SUPPORTED) -->
   <script>
     (function() {
       try {
-        var raw = localStorage.getItem('irem_cache_theme_color');
-        if (raw) {
-          var theme = JSON.parse(raw);
-          if (theme === 'elite-luxury' || theme === 'obsidian') {
-            document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
-          } else if (theme === 'nordic-light') {
-            document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
-          } else if (theme === 'apple' || theme === 'apple-light') {
-            document.documentElement.setAttribute('data-ui-theme', 'apple');
-          } else if (theme === 'sapphire-minimal' || theme === 'sapphire_clean' || theme === 'sapphire') {
-            document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
-          } else if (theme === 'emerald-royal' || theme === 'emerald_royal' || theme === 'emerald') {
-            document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
-          } else {
-            document.documentElement.removeAttribute('data-ui-theme');
-          }
+        var getVal = function(k) {
+          try {
+            var v = localStorage.getItem(k);
+            if (!v) return null;
+            if (v.startsWith('"') || v.startsWith('{') || v.startsWith('[')) return JSON.parse(v);
+            return v;
+          } catch(e) { return localStorage.getItem(k); }
+        };
+        var theme = getVal('irem_cache_theme_color') || getVal('irem_cache_selected_theme') || getVal('theme_color') || getVal('selected_theme');
+        if (theme && theme !== 'gold' && theme !== 'classic_gold') {
+          document.documentElement.setAttribute('data-ui-theme', theme);
+        } else {
+          document.documentElement.removeAttribute('data-ui-theme');
         }
       } catch(e) {}
     })();
