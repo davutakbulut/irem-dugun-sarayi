@@ -2897,7 +2897,7 @@
                     {selectedDayInspector.reservations.length === 0 ? (
                       <div className="py-4 text-center text-slate-400 font-bold">Bu saat aralıklarında kayıtlı organizasyon yok.</div>
                     ) : (
-                      selectedDayInspector.reservations.map(r => {
+                      selectedDayInspector.userReservations.map(r => {
                         const vObj = (venues || []).find(v => v.id === r.venueId);
                         const startH = parseInt((r.startTime || '18:00').split(':')[0]) || 18;
                         const endH = parseInt((r.endTime || '23:00').split(':')[0]) || 23;
@@ -2935,7 +2935,7 @@
                         Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
                       </div>
                     ) : (
-                      selectedDayInspector.reservations.map(r => {
+                      selectedDayInspector.userReservations.map(r => {
                         const vObj = (venues || []).find(v => v.id === r.venueId);
                         return (
                           <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
@@ -3737,7 +3737,7 @@
 
 // --- MEDIA COMPONENT ---
 
-function MediaComponent({ reservations = [], setReservations = () => {}, activeRole = 'admin', showToast = () => {} }) {
+function MediaComponent({ reservations = [], setReservations = () => {}, activeRole = 'admin', currentUserState = null, showToast = () => {} }) {
   const getUrlKey = () => {
     if (typeof window === 'undefined') return '';
     const hash = window.location.hash || '';
@@ -3749,6 +3749,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
   const isPublicGuestMode = !!publicGuestKey;
 
   // Selected reservation key state (null means overview grid view)
+  const userReservations = useMemo(() => {
+    if (activeRole === 'customer') {
+      return reservations.filter(r => {
+        const matchesEmail = currentUserState?.email && r.customerEmail && r.customerEmail.toLowerCase() === currentUserState.email.toLowerCase();
+        const matchesId = currentUserState?.id && r.customerId === currentUserState.id;
+        return matchesEmail || matchesId;
+      });
+    }
+    return reservations;
+  }, [reservations, activeRole, currentUserState]);
+
   const [selectedResKey, setSelectedResKey] = useState(() => {
     if (publicGuestKey) return publicGuestKey;
     return null; // Show event cards grid first on main Media page
@@ -4000,7 +4011,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           <div className="flex justify-between items-center px-1">
             <h3 className="font-heading font-extrabold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
               <ThemeIcon icon="venue" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>Kayıtlı Düğün ve Balo Albümleri ({reservations.length})</span>
+              <span>Kayıtlı Düğün ve Balo Albümleri ({userReservations.length})</span>
             </h3>
             <span className="text-xs text-slate-500 dark:text-gray-400 font-medium">
               Albüme girmek için kart üzerine tıklayın
@@ -4008,7 +4019,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {reservations.map(r => {
+            {userReservations.map(r => {
               const fileCount = (r.mediaFiles || []).length;
               const photoCount = (r.mediaFiles || []).filter(f => f.type === 'image').length;
               const videoCount = (r.mediaFiles || []).filter(f => f.type === 'video').length;
@@ -5596,7 +5607,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   )}
 
                   {activeTab === 'media' && (
-                    <MediaComponent reservations={reservations} setReservations={setReservations} activeRole={activeRole} showToast={showToast} />
+                    <MediaComponent reservations={reservations} setReservations={setReservations} activeRole={activeRole} currentUserState={currentUserState} showToast={showToast} />
                   )}
 
                   {activeTab === 'profile' && (
@@ -10725,7 +10736,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     {selectedDayInspector.reservations.length === 0 ? (
                       <div className="py-4 text-center text-slate-400 font-bold">Bu saat aralıklarında kayıtlı organizasyon yok.</div>
                     ) : (
-                      selectedDayInspector.reservations.map(r => {
+                      selectedDayInspector.userReservations.map(r => {
                         const vObj = (venues || []).find(v => v.id === r.venueId);
                         const startH = parseInt((r.startTime || '18:00').split(':')[0]) || 18;
                         const endH = parseInt((r.endTime || '23:00').split(':')[0]) || 23;
@@ -10763,7 +10774,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
                       </div>
                     ) : (
-                      selectedDayInspector.reservations.map(r => {
+                      selectedDayInspector.userReservations.map(r => {
                         const vObj = (venues || []).find(v => v.id === r.venueId);
                         return (
                           <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
