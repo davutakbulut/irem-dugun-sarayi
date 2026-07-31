@@ -4077,15 +4077,40 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         clearInterval(interval);
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const fileDataUrl = e.target.result;
+          const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
+
+          let finalMediaUrl = fileDataUrl;
+
+          // PHYSICAL DISK STORAGE API INTEGRATION: Save physical file to uploads/<res_id>/<file_name> on server disk
+          try {
+            const apiRes = await fetch('/api/upload-media', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                resId: targetResKey,
+                fileName: pendingItem.name,
+                fileData: fileDataUrl
+              })
+            });
+            if (apiRes.ok) {
+              const apiData = await apiRes.json();
+              if (apiData.success && apiData.url) {
+                finalMediaUrl = apiData.url;
+              }
+            }
+          } catch(err) {
+            console.warn('Physical disk upload API fallback:', err);
+          }
+
           const newMediaId = 'mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
 
           const newMediaObj = {
             id: newMediaId,
             type: pendingItem.type,
-            url: fileDataUrl,
-            thumbnail: fileDataUrl,
+            url: finalMediaUrl,
+            thumbnail: finalMediaUrl,
             fileName: pendingItem.name,
             fileSize: pendingItem.rawSize,
             fingerprint: pendingItem.fingerprint,
