@@ -4097,7 +4097,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   // GUARANTEED SHAREABLE LINK COPY FUNCTION
   const handleCopyLink = () => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}#/medya-yukle?mode=guest&key=${activeMediaKey}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/medya/${activeMediaKey}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
       showToast('🔗 Davetli Yükleme Bağlantısı Panoya Kopyalandı!');
@@ -4865,11 +4865,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       // STRICT SIDEBAR HIDING GUARD: Whenever key= or mode=guest is present in URL hash,
       // Sidebar, Admin Topbar, Role Switcher and Admin Header are 100% HIDDEN AND INACCESSIBLE!
+      // 1. DEDICATED PUBLIC GUEST ROUTE PARSER (#/medya/:key or #/m/:key)
+      const guestMediaKeyMatch = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        const hash = window.location.hash || '';
+        const match = hash.match(/^#\/(?:medya|m)\/([A-Za-z0-9_-]+)/);
+        return match ? match[1] : null;
+      }, [activeTab]);
+
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
         const hash = window.location.hash || '';
-        return hash.includes('key=') || hash.includes('mode=guest');
-      }, [activeTab]);
+        return !!guestMediaKeyMatch || hash.includes('mode=guest') || hash.includes('key=');
+      }, [activeTab, guestMediaKeyMatch]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
         try {
