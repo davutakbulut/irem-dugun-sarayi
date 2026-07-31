@@ -1,0 +1,13583 @@
+
+    const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+    const INITIAL_VENUES = [
+      {
+        id: 'v1',
+        name: 'Kraliyet Balo Salonu',
+        category: 'Kapalı Salon',
+        capacity: 750,
+        price: 65000,
+        deposit: 15000,
+        location: 'Sapanca Merkez, Sakarya',
+        occupancyRate: 85,
+        description: 'Yüksek tavanlı, kristal avizeli, iklimlendirme sistemli ve lüks sahne düzenine sahip ana balo salonumuz.',
+        features: ['Kristal Avizeler', 'Gelişmiş Ses & Işık', 'Gelin Odası VİP', 'Jeneratör', 'Otopark (300 Araç)'],
+        image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80'],
+        eventTypes: ['Düğün', 'Nişan', 'Kurumsal Kokteyl', 'Mezuniyet'],
+        availableServices: ['s1', 's2', 's3', 's4', 's5', 's6', 's7']
+      },
+      {
+        id: 'v2',
+        name: 'Kır Bahçesi VİP',
+        category: 'Açık Hava / Kır Bahçesi',
+        capacity: 1000,
+        price: 85000,
+        deposit: 20000,
+        location: 'Göl Kenarı, Sapanca, Sakarya',
+        occupancyRate: 92,
+        description: 'Sapanca Gölü manzaralı, asırlık çınar ağaçları altında büyüleyici açık hava kır düğünü alanı.',
+        features: ['Göl Manzarası', 'Açılır-Kapanır Tente', 'Peyzaj Işıklandırma', 'Çocuk Oyun Alanı'],
+        image: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80'],
+        eventTypes: ['Kır Düğünü', 'Sünnet Düğünü', 'Açık Hava Kokteyl'],
+        availableServices: ['s1', 's2', 's3', 's5', 's6', 's8']
+      },
+      {
+        id: 'v3',
+        name: 'Bosphorus Teras & Kına Salonu',
+        category: 'Butik / Teras',
+        capacity: 400,
+        price: 45000,
+        deposit: 10000,
+        location: 'Sapanca Panoramik Teras',
+        occupancyRate: 70,
+        description: 'Özel konsept Kına geceleri ve butik nişan organizasyonları için tasarlanmış otantik ve şık teras alanı.',
+        features: ['Kına Tahtı Konsepti', 'Otantik Dekoru', 'Panoramik Manzara', 'DJ Performansı'],
+        image: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80'],
+        eventTypes: ['Kına Gecesi', 'Butik Nişan', 'Bekarlığa Veda'],
+        availableServices: ['s2', 's3', 's4', 's5']
+      },
+      {
+        id: 'v4',
+        name: 'Kehribar Havuz Başı',
+        category: 'Havuz Başı',
+        capacity: 600,
+        price: 55000,
+        deposit: 12000,
+        location: 'Sapanca Palmiye Bahçesi',
+        occupancyRate: 78,
+        description: 'Palmiye ağaçlarıyla çevrili, tropikal aydınlatmalı havuz başı düğün ve resepsiyon alanı.',
+        features: ['Işıklandırılmış Havuz', 'Tropikal Peyzaj', 'VIP Bar', 'Canlı Müzik Sahnesi'],
+        image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80'],
+        eventTypes: ['Havuz Başı Düğün', 'Resepsiyon', 'Parti'],
+        availableServices: ['s1', 's2', 's3', 's5', 's6']
+      },
+      {
+        id: 'v5',
+        name: 'Kehribar VİP Salon',
+        category: 'VİP Salon',
+        capacity: 500,
+        price: 70000,
+        deposit: 15000,
+        location: 'Sapanca Kehribar Kompleksi',
+        occupancyRate: 80,
+        description: 'Özel VİP konsepti, ses geçirmeyen akustik duvar kaplamaları ve özel vale hizmeti ile premium salonumuz.',
+        features: ['Akustik Ses Yalıtımı', 'Özel Vale', 'VİP İkram Salonu', 'LED Ekran Sahne'],
+        image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80'],
+        eventTypes: ['VİP Düğün', 'Kurumsal Gala', 'Ödül Töreni'],
+        availableServices: ['s1', 's2', 's3', 's4', 's6', 's7']
+      }
+    ];
+
+    const INITIAL_SERVICES = [
+      { id: 's1', name: 'Gurme Yemek Servisi (Et Menü)', category: 'Catering', price: 350, pricingType: 'per_person', description: 'Ordövr, Dana Biftek, düğün pastası.', image: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=600&q=80' },
+      { id: 's2', name: 'Fotoğraf & 4K Video Paketi', category: 'Medya', price: 18000, pricingType: 'fixed', description: 'Dış çekim, 4K sinematik albüm.', image: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=600&q=80' },
+      { id: 's3', name: 'Canlı Müzik Orkestrası & DJ', category: 'Eğlence', price: 25000, pricingType: 'fixed', description: '6 kişilik orkestra ve DJ.', image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80' },
+      { id: 's4', name: 'Masa & Sahne Süsleme', category: 'Dekorasyon', price: 15000, pricingType: 'fixed', description: 'Canlı çiçekler ve şamdanlar.', image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80' },
+      { id: 's5', name: 'Volkan, Konfeti & Işık Şovu', category: 'Efekt', price: 8000, pricingType: 'fixed', description: 'Soğuk volkan ve konfeti.', image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80' },
+      { id: 's6', name: 'VİP Karşılama Kokteyli & İkram Barı', category: 'Catering', price: 150, pricingType: 'per_person', description: 'Karşılama şampanyası, kanapeler ve taze meyve barları.', image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80' },
+      { id: 's7', name: 'Profesyonel Garson & Servis Ekibi', category: 'Servis', price: 12000, pricingType: 'fixed', description: '10 kişilik eğitimli üniformalı servis ekibi.', image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=600&q=80' },
+      { id: 's8', name: 'Çocuk Oyun Alanı & Palyaço', category: 'Eğlence', price: 6000, pricingType: 'fixed', description: 'Çocuk animatörü, yüz boyama ve eğlenceli oyun alanı.', image: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=600&q=80' }
+    ];
+
+    const INITIAL_CAMPAIGNS = [
+      { id: 'c1', code: 'IREM2026', title: 'Erken Rezervasyon %10 İndirim', type: 'percentage', value: 10, description: 'Tüm rezervasyonlarda %10 indirim!', startDate: '2026-01-01', endDate: '2026-12-31', active: true },
+      { id: 'c2', code: 'HEDIYE-FOTO', title: 'Fotoğraf Çekimi Hediye!', type: 'free_service', serviceId: 's2', description: 'Kır Bahçesi kiralayana Fotoğraf Paketi HEDİYE!', startDate: '2026-05-01', endDate: '2026-09-30', active: true },
+      { id: 'c3', code: 'VIP5000', title: '5.000 TL Nakit İndirim', type: 'flat_discount', value: 5000, description: 'Doğrudan 5.000 TL kiralama indirimi.', startDate: '2026-03-01', endDate: '2026-11-30', active: true },
+      { id: 'c4', code: 'BAHAR2026', title: 'Bahar Düğünlerine %15 İndirim', type: 'percentage', value: 15, description: 'Nisan - Mayıs ayı rezervasyonlarına özel %15 fırsat.', startDate: '2026-04-01', endDate: '2026-05-31', active: true }
+    ];
+
+    const INITIAL_CUSTOMERS = [
+      { id: 'cust1', name: 'Ahmet Yılmaz & Ayşe Kaya', email: 'ahmet.yilmaz@example.com', phone: '+90 532 111 2233', secondaryPhone: '+90 535 999 8877', address: 'Atatürk Mah. Sapanca / Sakarya', taxType: 'individual', tcNo: '12345678901', taxOffice: 'Sapanca VD', followUp: true, followUpNote: 'Sünnet düğünü için 2 yıl sonra görüşülecek.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
+      { id: 'cust2', name: 'Mehmet Demir (Demir İnşaat)', email: 'mehmet@demiras.com', phone: '+90 533 444 5566', secondaryPhone: '+90 216 333 2211', address: 'Bağdat Cad. Kadıköy / İstanbul', taxType: 'corporate', vknNo: '9876543210', taxOffice: 'Kadıköy VD', followUp: false, followUpNote: '', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
+      { id: 'cust3', name: 'Zeynep Çelik & Burak Şahin', email: 'zeynep.celik@example.com', phone: '+90 542 777 8899', secondaryPhone: '+90 544 111 3344', address: 'Serdivan Mah. Adapazarı / Sakarya', taxType: 'individual', tcNo: '23456789012', taxOffice: 'Adapazarı VD', followUp: true, followUpNote: 'Kına gecesi için ek masa talebi olabilir.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80' },
+      { id: 'cust4', name: 'Elif Aydın (Aydın Holding)', email: 'elif@aydinholding.com', phone: '+90 530 555 6677', secondaryPhone: '+90 212 444 0011', address: 'Levent Mah. Beşiktaş / İstanbul', taxType: 'corporate', vknNo: '1122334455', taxOffice: 'Zincirlikuyu VD', followUp: false, followUpNote: '', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' }
+    ];
+
+    const INITIAL_RESERVATIONS = [
+      {
+        id: 'RES-2026-001',
+        venueId: 'v1',
+        customerId: 'cust1',
+        customerName: 'Ahmet Yılmaz & Ayşe Kaya',
+        customerEmail: 'ahmet.yilmaz@example.com',
+        customerPhone: '+90 532 111 2233',
+        secondaryPhone: '+90 535 999 8877',
+        date: '2026-08-15',
+        timeSlot: '19:00-23:00',
+        guestCount: 500,
+        selectedServices: [
+          { serviceId: 's1', quantity: 500, unitPrice: 350, isPaid: true },
+          { serviceId: 's2', quantity: 1, unitPrice: 18000, isPaid: true },
+          { serviceId: 's3', quantity: 1, unitPrice: 25000, isPaid: false }
+        ],
+        venuePrice: 65000,
+        subtotal: 283000,
+        campaignCode: 'IREM2026',
+        discountAmount: 28300,
+        vatAmount: 50940,
+        totalAmount: 305640,
+        depositPaid: 50000,
+        remainingBalance: 255640,
+        paymentStatus: 'Kapora Alındı',
+        isInvoiced: true,
+        invoiceType: 'individual',
+        taxOffice: 'Sapanca VD',
+        tcNo: '12345678901',
+        invoiceAddress: 'Atatürk Mah. Sapanca / Sakarya',
+        notes: 'Gelin odasına taze meyve sepeti ve ikram hazırlanacak.',
+        flowPlan: [
+          { time: '19:00', title: 'Misafir Karşılama & Kokteyl' },
+          { time: '19:30', title: 'Gelin Damat Giriş & İlk Dans' },
+          { time: '20:15', title: 'Yemek Servisi' },
+          { time: '21:30', title: 'Pasta Kesimi & Şov' },
+          { time: '22:00', title: 'Takı & Eğlence' }
+        ],
+        mediaGallery: [
+          { id: 'm1', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80', uploadedBy: 'Sosyal Medya Ekibi' }
+        ]
+      },
+      {
+        id: 'RES-2026-002',
+        venueId: 'v2',
+        customerId: 'cust2',
+        customerName: 'Mehmet Demir (Demir İnşaat)',
+        customerEmail: 'mehmet@demiras.com',
+        customerPhone: '+90 533 444 5566',
+        date: '2026-09-05',
+        timeSlot: '13:00-17:00',
+        guestCount: 800,
+        selectedServices: [
+          { serviceId: 's1', quantity: 800, unitPrice: 350, isPaid: true },
+          { serviceId: 's4', quantity: 1, unitPrice: 15000, isPaid: true }
+        ],
+        venuePrice: 85000,
+        subtotal: 380000,
+        campaignCode: 'VIP5000',
+        discountAmount: 5000,
+        vatAmount: 75000,
+        totalAmount: 450000,
+        depositPaid: 450000,
+        remainingBalance: 0,
+        paymentStatus: 'Ödendi',
+        isInvoiced: true,
+        invoiceType: 'corporate',
+        taxOffice: 'Kadıköy VD',
+        vknNo: '9876543210',
+        invoiceAddress: 'Bağdat Cad. Kadıköy / İstanbul',
+        notes: 'Kurumsal bayii toplantısı ve gala yemeği.',
+        flowPlan: [
+          { time: '13:00', title: 'Açılış Konuşması' },
+          { time: '14:00', title: 'Gala Yemeği' }
+        ],
+        mediaGallery: []
+      },
+      {
+        id: 'RES-2026-003',
+        venueId: 'v3',
+        customerId: 'cust3',
+        customerName: 'Zeynep Çelik & Burak Şahin',
+        customerEmail: 'zeynep.celik@example.com',
+        customerPhone: '+90 542 777 8899',
+        date: '2026-08-28',
+        timeSlot: '18:00-22:00',
+        guestCount: 350,
+        selectedServices: [
+          { serviceId: 's2', quantity: 1, unitPrice: 18000, isPaid: true },
+          { serviceId: 's4', quantity: 1, unitPrice: 15000, isPaid: true }
+        ],
+        venuePrice: 45000,
+        subtotal: 78000,
+        campaignCode: 'IREM2026',
+        discountAmount: 7800,
+        vatAmount: 14040,
+        totalAmount: 84240,
+        depositPaid: 20000,
+        remainingBalance: 64240,
+        paymentStatus: 'Kapora Alındı',
+        isInvoiced: false,
+        invoiceType: 'individual',
+        taxOffice: 'Adapazarı VD',
+        tcNo: '23456789012',
+        invoiceAddress: 'Serdivan Mah. Adapazarı / Sakarya',
+        notes: 'Kına tahtı kırmızı kadife kumaş ile kaplanacak.',
+        flowPlan: [
+          { time: '18:00', title: 'Kına Karşılama' },
+          { time: '19:30', title: 'Kına Yakma Seremonisi' }
+        ],
+        mediaGallery: []
+      },
+      {
+        id: 'RES-2026-004',
+        venueId: 'v5',
+        customerId: 'cust4',
+        customerName: 'Elif Aydın (Aydın Holding)',
+        customerEmail: 'elif@aydinholding.com',
+        customerPhone: '+90 530 555 6677',
+        date: '2026-10-12',
+        timeSlot: '19:00-23:00',
+        guestCount: 450,
+        selectedServices: [
+          { serviceId: 's1', quantity: 450, unitPrice: 350, isPaid: true },
+          { serviceId: 's6', quantity: 450, unitPrice: 150, isPaid: true },
+          { serviceId: 's7', quantity: 1, unitPrice: 12000, isPaid: true }
+        ],
+        venuePrice: 70000,
+        subtotal: 307000,
+        campaignCode: 'VIP5000',
+        discountAmount: 5000,
+        vatAmount: 60400,
+        totalAmount: 362400,
+        depositPaid: 100000,
+        remainingBalance: 262400,
+        paymentStatus: 'Kapora Alındı',
+        isInvoiced: true,
+        invoiceType: 'corporate',
+        taxOffice: 'Zincirlikuyu VD',
+        vknNo: '1122334455',
+        invoiceAddress: 'Levent Mah. Beşiktaş / İstanbul',
+        notes: 'Ödül töreni öncesi VİP kokteyl düzenlenecek.',
+        flowPlan: [
+          { time: '19:00', title: 'VİP Karşılama Kokteyli' },
+          { time: '20:00', title: 'Ödül Töreni & Sunum' }
+        ],
+        mediaGallery: []
+      }
+    ];
+
+    const INITIAL_USERS = [
+      { id: 'u1', name: 'İrem Yılmaz (Admin)', email: 'admin@iremdugunsarayi.com', role: 'admin', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' },
+      { id: 'u2', name: 'Canan Güneş (Satış Müdürü)', email: 'satis@iremdugunsarayi.com', role: 'satisci', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80' },
+      { id: 'u3', name: 'Murat Arslan (Sosyal Medya)', email: 'sosyal@iremdugunsarayi.com', role: 'sosyal_medyaci', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80' },
+      { id: 'u4', name: 'Ahmet Yılmaz (Müşteri)', email: 'ahmet.yilmaz@example.com', role: 'musteri', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' }
+    ];
+
+    const generateSmartAIRecommendations = (reservations = [], venues = [], services = []) => {
+      const kbVenue = venues.find(v => v.id === 'v2' || (v.name && v.name.includes('Kır Bahçesi'))) || venues[0];
+      const kbOccupancy = kbVenue ? (kbVenue.occupancyRate || 92) : 92;
+      const currentKbPrice = kbVenue ? kbVenue.price : 85000;
+      const suggestedKbPrice = kbVenue ? Math.round(currentKbPrice * 1.10) : 93500;
+
+      const droneService = services.find(s => s.id === 's3' || (s.name && s.name.toLowerCase().includes('drone'))) || services[2];
+      const resCountWithDrone = reservations.filter(r => (r.selectedServices || []).some(s => s.serviceId === (droneService?.id || 's3'))).length;
+      const totalRes = Math.max(1, reservations.length);
+      const droneAdoptionRate = Math.round((resCountWithDrone / totalRes) * 100);
+
+      return [
+        {
+          id: 'ai-1',
+          code: 'AĞUSTOS10',
+          title: `${kbVenue?.name || 'Kır Bahçesi'} Fiyat Artırım & Fırsat Önerisi (%${kbOccupancy} Doluluk)`,
+          type: 'percent',
+          value: 10,
+          venueId: kbVenue?.id || 'v2',
+          venueName: kbVenue?.name || 'Kır Bahçesi VİP',
+          currentPrice: currentKbPrice,
+          suggestedPrice: suggestedKbPrice,
+          description: `${kbVenue?.name || 'Kır Bahçesi VİP'} salonunda hafta sonu doluluğu %${kbOccupancy} seviyesine ulaştı. Kiralama bedelini %10 artırarak ${formatCurrency(suggestedKbPrice)} seviyesine çekmek tahmini 140.000 ₺ ek gelir sağlar.`,
+          actionText: 'Tek Tıkla Kampanyaya Dönüştür',
+          priceActionText: 'Fiyatı Güncelle & Uygula',
+          badge: `%${kbOccupancy} Doluluk Zirvede`,
+          canUpdatePrice: true
+        },
+        {
+          id: 'ai-2',
+          code: 'DRONE20',
+          title: 'Drone Çekimi Çapraz Satış Fırsatı',
+          type: 'free_service',
+          value: 0,
+          description: `Mevcut rezervasyonlarda Drone çekimi tercih oranı %${droneAdoptionRate}. Kır bahçesi kiralamalarında 4K drone çekimini promosyonlu sunarak ek 60.000 ₺ ciro elde edin.`,
+          actionText: 'Tek Tıkla Kampanyaya Dönüştür',
+          badge: 'Çapraz Satış Trendi',
+          canUpdatePrice: false
+        },
+        {
+          id: 'ai-3',
+          code: 'SONBAHAR26',
+          title: 'Sonbahar Erken Rezervasyon Fırsatı (%20 Net İndirim)',
+          type: 'percent',
+          value: 20,
+          description: 'Eylül ve Ekim düğün tarihleri için %20 Erken Rezervasyon Kampanyası başlatarak salon doluluğunu %100 seviyesine çıkarın.',
+          actionText: 'Tek Tıkla Kampanyaya Dönüştür',
+          badge: 'Sezonluk Fırsat',
+          canUpdatePrice: false
+        }
+      ];
+    };
+
+    const AI_RECOMMENDATIONS = generateSmartAIRecommendations(INITIAL_RESERVATIONS, INITIAL_VENUES, INITIAL_SERVICES);
+
+
+    const TAB_TO_SLUG = {
+      'dashboard': 'anasayfa',
+      'create-reservation': 'yeni-rezervasyon',
+      'venues': 'dugun-salonlari',
+      'services': 'ek-hizmetler',
+      'reservations': 'rezervasyonlar',
+      'calendar': 'takvim',
+      'campaigns': 'kampanyalar',
+      'finance': 'finans',
+      'customers': 'musteri-rehberi',
+      'users': 'kullanici-yonetimi',
+      'reports': 'raporlar-ai',
+      'media': 'medya-yukle',
+      'profile': 'profil',
+      'mind-map': 'zihin-haritasi',
+      'settings': 'ayarlar',
+      'settings-appearance': 'ayarlar/gorunum',
+      'settings-performance': 'ayarlar/onbellek',
+      'settings-rbac': 'ayarlar/rol-izinleri',
+      'settings-errors': 'ayarlar/hata-simulasyonu',
+      'simulasyon-404': 'simulasyon-404',
+      'simulasyon-301': 'simulasyon-301',
+      'simulasyon-403': 'simulasyon-403',
+      'simulasyon-500': 'simulasyon-500'
+    };
+
+    const SLUG_TO_TAB = {
+      'anasayfa': 'dashboard',
+      'yeni-rezervasyon': 'create-reservation',
+      'rezervasyon-olustur': 'create-reservation',
+      'dugun-salonlari': 'venues',
+      'ek-hizmetler': 'services',
+      'rezervasyonlar': 'reservations',
+      'takvim': 'calendar',
+      'kampanyalar': 'campaigns',
+      'finans': 'finance',
+      'musteri-rehberi': 'customers',
+      'kullanici-yonetimi': 'users',
+      'raporlar-ai': 'reports',
+      'medya-yukle': 'media',
+      'profil': 'profile',
+      'zihin-haritasi': 'mind-map',
+      'zihinharitasi': 'mind-map',
+      'mind-map': 'mind-map',
+      'mindmap': 'mind-map',
+      'ayarlar': 'settings',
+      'ayarlar/gorunum': 'settings-appearance',
+      'ayarlar/onbellek': 'settings-performance',
+      'ayarlar/rol-izinleri': 'settings-rbac',
+      'ayarlar/hata-simulasyonu': 'settings-errors',
+      'simulasyon-404': 'simulasyon-404',
+      'simulasyon-301': 'simulasyon-301',
+      'simulasyon-403': 'simulasyon-403',
+      'simulasyon-500': 'simulasyon-500',
+      '404': 'simulasyon-404',
+      '301': 'simulasyon-301',
+      '403': 'simulasyon-403',
+      '500': 'simulasyon-500'
+    };
+
+    // ==========================================
+    // SYSTEM-WIDE PERFORMANCE FRAMEWORK (5 LAYERS)
+    // ==========================================
+
+    // LAYER 3: LOCALSTORAGE CACHE ENGINE
+    const CacheService = {
+      get: (key, fallback) => {
+        try {
+          const isEnabled = localStorage.getItem('irem_cache_cache_enabled');
+          const isSystemPref = key === 'cache_enabled' || key === 'theme_color' || key === 'selected_theme' || key === 'current_user' || key === 'roles' || key === 'tab_permissions';
+          if (isEnabled === 'false' && !isSystemPref) return fallback;
+          const item = localStorage.getItem(`irem_cache_${key}`);
+          if (!item) {
+            if (fallback) {
+              try { localStorage.setItem(`irem_cache_${key}`, JSON.stringify(fallback)); } catch(e){}
+            }
+            return fallback;
+          }
+          const parsed = JSON.parse(item);
+          if (Array.isArray(parsed) && parsed.length === 0 && Array.isArray(fallback) && fallback.length > 0) {
+            try { localStorage.setItem(`irem_cache_${key}`, JSON.stringify(fallback)); } catch(e){}
+            return fallback;
+          }
+          return parsed;
+        } catch (e) {
+          return fallback;
+        }
+      },
+      set: (key, value) => {
+        try {
+          const isEnabled = localStorage.getItem('irem_cache_cache_enabled');
+          const isSystemPref = key === 'cache_enabled' || key === 'theme_color' || key === 'selected_theme' || key === 'current_user' || key === 'roles' || key === 'tab_permissions';
+          if (isEnabled === 'false' && !isSystemPref) return;
+          localStorage.setItem(`irem_cache_${key}`, JSON.stringify(value));
+          if (key === 'theme_color') {
+            localStorage.setItem('selected_theme', value);
+          }
+        } catch (e) {
+          console.warn('Cache write failed:', e);
+        }
+      },
+      clearAll: () => {
+        try {
+          const sysKeys = ['theme_color', 'selected_theme', 'cache_enabled', 'current_user', 'roles', 'tab_permissions'];
+          Object.keys(localStorage).forEach(k => {
+            const subKey = k.replace('irem_cache_', '');
+            if ((k.startsWith('irem_cache_') || k === 'selected_theme') && !sysKeys.includes(subKey) && k !== 'selected_theme') {
+              localStorage.removeItem(k);
+            }
+          });
+        } catch (e) {}
+      }
+    };
+
+    // TEMA UYUMLU İKON RENDERER (NORDIC TEMASI İÇİN SIFIR EMOJİ KURALI)
+    const NordicSvgMap = {
+      crown: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M3 18h18L19 7l-5 4-2-6-2 6-5-4-2 11zM3 18v2h18v-2" /></svg>,
+      user: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+      calendar: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
+      venue: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5m-6 0h6" /></svg>,
+      gift: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>,
+      money: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path strokeLinecap="round" d="M6 12h.01M18 12h.01" /></svg>,
+      edit: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+      preview: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
+      delete: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polyline points="3 6 5 6 21 6" /><path strokeLinecap="round" strokeLinejoin="round" d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>,
+      plus: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
+      check: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>,
+      close: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
+      clock: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+      document: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></svg>,
+      email: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+      notes: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+      flow: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><line x1="10" y1="6" x2="21" y2="6" /><line x1="10" y1="12" x2="21" y2="12" /><line x1="10" y1="18" x2="21" y2="18" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h1v4H4zM4 12h1v4H4z" /></svg>,
+      warning: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
+      campaign: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>,
+      phone: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>,
+      location: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+      filter: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>,
+      list: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>,
+      chart: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>,
+      sparkles: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z" /></svg>,
+      shield: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
+      settings: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><circle cx="12" cy="12" r="3" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" /></svg>,
+      brain: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M9.5 2A2.5 2.5 0 007 4.5v.18A3.001 3.001 0 005 7.5a3 3 0 00.5 1.65A3.001 3.001 0 004 12a3 3 0 001.5 2.6A3.001 3.001 0 005 16.5a3 3 0 002 2.82V19.5A2.5 2.5 0 009.5 22h.5V2h-.5zM14.5 2A2.5 2.5 0 0117 4.5v.18A3.001 3.001 0 0119 7.5a3 3 0 01-.5 1.65A3.001 3.001 0 0120 12a3 3 0 01-1.5 2.6A3.001 3.001 0 0119 16.5a3 3 0 01-2 2.82V19.5A2.5 2.5 0 0114.5 22h-.5V2h.5z" /></svg>,
+      target: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>,
+      chat: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>,
+      leaf: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M11 20A9 9 0 012 11C2 6 6 2 11 2a9 9 0 019 9c0 5-4 9-9 9zM2 21l9-9" /></svg>,
+      ruler: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M21 3L3 21M9 3l12 12M14 3l7 7M4 8l12 12M3 14l7 7" /></svg>,
+      paint: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm-4-9a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm4-4a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm4 4a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" /></svg>,
+      zap: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>,
+      alert: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
+      search: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+      refresh: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+      shield: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
+      whatsapp: (props) => <svg className={props.className || "w-4 h-4 fill-white text-white inline-block"} fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.969 4.463-9.969 9.969 0 1.758.459 3.473 1.332 4.989l-1.416 5.176 5.297-1.389c1.464.798 3.119 1.218 4.756 1.218 5.506 0 9.969-4.463 9.969-9.969s-4.463-9.994-9.969-9.994zm5.829 14.157c-.247.695-1.436 1.341-1.968 1.386-.532.045-1.214.218-3.957-.919-3.308-1.365-5.422-4.733-5.586-4.952-.164-.218-1.341-1.782-1.341-3.401 0-1.619.845-2.415 1.146-2.742.301-.327.655-.409.873-.409.218 0 .436.009.627.018.2.009.473-.073.746.573.273.646.928 2.264 1.009 2.428.082.164.136.355.027.573-.109.218-.164.355-.327.546-.164.191-.345.427-.491.573-.164.164-.336.345-.145.673.191.327.855 1.401 1.837 2.274 1.264 1.128 2.328 1.482 2.655 1.646.327.164.518.136.709-.082.191-.218.818-.955 1.036-1.282.218-.327.436-.273.736-.164.3.109 1.909.901 2.236 1.064.327.164.545.245.627.382.082.137.082.846-.164 1.541z" /></svg>,
+      camera: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><circle cx="12" cy="13" r="3" /></svg>,
+      media: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><circle cx="12" cy="13" r="3" /></svg>,
+      heart: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
+      card: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>,
+      rocket: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.58-5.84l4.14-4.14" /></svg>,
+      bell: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>,
+      print: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polyline points="6 9 6 2 18 2 18 9" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>,
+      key: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><circle cx="7.5" cy="15.5" r="4.5" /><path d="M21 2l-9.6 9.6M15.5 7.5l3 3M18.5 4.5l3 3" /></svg>,
+      celebrate: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3l14 9-9 5L5 3zM12 17l-3 4M17 12l4 3M19 5l2-2M14 2l1 3" /></svg>,
+      sun: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>,
+      moon: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>,
+      diamond: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3" /></svg>,
+      idea: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3a7 7 0 00-7 7c0 2.38 1.157 4.49 2.92 5.8 1.07.8 1.08 1.2 1.08 2.2h6c0-1-.01-1.4 1.08-2.2C17.843 14.49 19 12.38 19 10a7 7 0 00-7-7z" /></svg>,
+      door: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M13 3h-6a2 2 0 00-2 2v14a2 2 0 002 2h6M13 3v18M13 3l6 2v14l-6 2M16 11h.01" /></svg>,
+      map: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>,
+      grid: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>,
+      briefcase: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>,
+      trash: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><polyline points="3 6 5 6 21 6" /><path strokeLinecap="round" strokeLinejoin="round" d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>,
+      building: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5m-6 0h6" /></svg>,
+      'check-circle': (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      'x-circle': (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    };
+
+    function WhatsAppButton({ phone, customerName = '', text = 'WhatsApp İle Mesaj At', className = '' }) {
+      const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+      const encodedText = encodeURIComponent(`Merhabalar ${customerName ? customerName + ' ' : ''}İrem Düğün Sarayı'ndan sizlere ulaşıyorum.`);
+      const href = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+
+      return (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`bg-[#25D366] hover:bg-[#20BA5A] text-white font-extrabold px-3.5 py-2 rounded-xl text-xs inline-flex items-center space-x-2 shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-200 transform hover:-translate-y-0.5 border border-emerald-400/30 active:scale-95 ${className}`}
+        >
+          <svg className="w-4 h-4 fill-white text-white shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.012 2c-5.506 0-9.969 4.463-9.969 9.969 0 1.758.459 3.473 1.332 4.989l-1.416 5.176 5.297-1.389c1.464.798 3.119 1.218 4.756 1.218 5.506 0 9.969-4.463 9.969-9.969s-4.463-9.994-9.969-9.994zm5.829 14.157c-.247.695-1.436 1.341-1.968 1.386-.532.045-1.214.218-3.957-.919-3.308-1.365-5.422-4.733-5.586-4.952-.164-.218-1.341-1.782-1.341-3.401 0-1.619.845-2.415 1.146-2.742.301-.327.655-.409.873-.409.218 0 .436.009.627.018.2.009.473-.073.746.573.273.646.928 2.264 1.009 2.428.082.164.136.355.027.573-.109.218-.164.355-.327.546-.164.191-.345.427-.491.573-.164.164-.336.345-.145.673.191.327.855 1.401 1.837 2.274 1.264 1.128 2.328 1.482 2.655 1.646.327.164.518.136.709-.082.191-.218.818-.955 1.036-1.282.218-.327.436-.273.736-.164.3.109 1.909.901 2.236 1.064.327.164.545.245.627.382.082.137.082.846-.164 1.541z" />
+          </svg>
+          <span>{text}</span>
+        </a>
+      );
+    }
+
+    const ThemeConceptEmojis = {
+      crown:            { 'classic_gold': '👑', 'obsidian_gold': '🖤', 'sapphire_clean': '🔷', 'platinum_silver': '🥈', 'emerald_royal': '🌿', 'titanium_tech': '⚡' },
+      venue:            { 'classic_gold': '🏰', 'obsidian_gold': '🏛️', 'sapphire_clean': '🏢', 'platinum_silver': '🏛️', 'emerald_royal': '🏡', 'titanium_tech': '🏬' },
+      edit:             { 'classic_gold': '✏️', 'obsidian_gold': '🖊️', 'sapphire_clean': '📝', 'platinum_silver': '⚙️', 'emerald_royal': '✍️', 'titanium_tech': '🛠️' },
+      preview:          { 'classic_gold': '👁️', 'obsidian_gold': '🌟', 'sapphire_clean': '🔍', 'platinum_silver': '🔍', 'emerald_royal': '👁️', 'titanium_tech': '📡' },
+      delete:           { 'classic_gold': '🗑️', 'obsidian_gold': '🗑️', 'sapphire_clean': '🗑️', 'platinum_silver': '🗑️', 'emerald_royal': '🗑️', 'titanium_tech': '🗑️' },
+      trash:            { 'classic_gold': '🗑️', 'obsidian_gold': '🗑️', 'sapphire_clean': '🗑️', 'platinum_silver': '🗑️', 'emerald_royal': '🗑️', 'titanium_tech': '🗑️' },
+      plus:             { 'classic_gold': '➕', 'obsidian_gold': '✨', 'sapphire_clean': '🔹', 'platinum_silver': '▫️', 'emerald_royal': '🌱', 'titanium_tech': '⚡' },
+      sparkles:         { 'classic_gold': '✨', 'obsidian_gold': '🌟', 'sapphire_clean': '💎', 'platinum_silver': '⚡', 'emerald_royal': '🍃', 'titanium_tech': '🚀' },
+      clock:            { 'classic_gold': '⏳', 'obsidian_gold': '⏰', 'sapphire_clean': '🕒', 'platinum_silver': '⏱️', 'emerald_royal': '🕰️', 'titanium_tech': '⏲️' },
+      'check-circle':   { 'classic_gold': '✅', 'obsidian_gold': '✔️', 'sapphire_clean': '☑️', 'platinum_silver': '✅', 'emerald_royal': '🟢', 'titanium_tech': '🔘' },
+      'x-circle':       { 'classic_gold': '❌', 'obsidian_gold': '✖️', 'sapphire_clean': '🚫', 'platinum_silver': '❌', 'emerald_royal': '🔴', 'titanium_tech': '🛑' },
+      building:         { 'classic_gold': '🏛️', 'obsidian_gold': '🏢', 'sapphire_clean': '🏙️', 'platinum_silver': '🏛️', 'emerald_royal': '🏡', 'titanium_tech': '🏭' },
+      briefcase:        { 'classic_gold': '💼', 'obsidian_gold': '🧳', 'sapphire_clean': '📁', 'platinum_silver': '📂', 'emerald_royal': '🎒', 'titanium_tech': '📦' },
+      user:             { 'classic_gold': '👥', 'obsidian_gold': '👤', 'sapphire_clean': '👤', 'platinum_silver': '👤', 'emerald_royal': '👥', 'titanium_tech': '🤖' },
+      users:            { 'classic_gold': '👥', 'obsidian_gold': '👥', 'sapphire_clean': '👥', 'platinum_silver': '👥', 'emerald_royal': '👥', 'titanium_tech': '👥' },
+      calendar:         { 'classic_gold': '📅', 'obsidian_gold': '🗓️', 'sapphire_clean': '📆', 'platinum_silver': '📅', 'emerald_royal': '📅', 'titanium_tech': '🗓️' },
+      chart:            { 'classic_gold': '📊', 'obsidian_gold': '📈', 'sapphire_clean': '📉', 'platinum_silver': '📊', 'emerald_royal': '🌿', 'titanium_tech': '⚡' },
+      settings:         { 'classic_gold': '⚙️', 'obsidian_gold': '🛠️', 'sapphire_clean': '🔧', 'platinum_silver': '⚙️', 'emerald_royal': '🌳', 'titanium_tech': '🔬' },
+      filter:           { 'classic_gold': '🎯', 'obsidian_gold': '🔍', 'sapphire_clean': '🔷', 'platinum_silver': '🔘', 'emerald_royal': '🍃', 'titanium_tech': '📡' },
+      lock:             { 'classic_gold': '🔐', 'obsidian_gold': '🔒', 'sapphire_clean': '🔑', 'platinum_silver': '🔒', 'emerald_royal': '🛡️', 'titanium_tech': '🛡️' },
+      location:         { 'classic_gold': '📍', 'obsidian_gold': '🗺️', 'sapphire_clean': '📌', 'platinum_silver': '📍', 'emerald_royal': '🌲', 'titanium_tech': '🛰️' }
+    };
+
+    function ThemeIcon({ icon, fallbackEmoji, activeTheme, className = "w-4 h-4" }) {
+      const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
+      const rawTheme = activeTheme || domTheme || (typeof window !== 'undefined' ? (localStorage.getItem('selected_theme') || localStorage.getItem('irem_cache_theme_color')) : 'classic_gold') || 'classic_gold';
+
+      const isVectorTheme = domTheme === 'nordic-light' || rawTheme === 'nordic-light' || domTheme === 'apple' || rawTheme === 'apple';
+
+      const SvgComponent = NordicSvgMap[icon];
+      if (SvgComponent) {
+        return <SvgComponent className={className} />;
+      }
+
+      if (isVectorTheme) {
+        return (
+          <svg className={className || "w-4 h-4 inline-block shrink-0"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <circle cx="12" cy="12" r="4" fill="currentColor" />
+          </svg>
+        );
+      }
+
+      if (ThemeConceptEmojis[icon] && ThemeConceptEmojis[icon][rawTheme]) {
+        return <span className="inline-block emoji-fallback">{ThemeConceptEmojis[icon][rawTheme]}</span>;
+      }
+      return <span className="inline-block emoji-fallback">{fallbackEmoji}</span>;
+    }
+
+    // LAYER 2: OPTIMIZED IMAGE COMPONENT (LAZY LOADING, WEBP & PLACEHOLDER)
+    function OptimizedImage({ src, alt, className = '', priority = false, onClick }) {
+      const [isLoaded, setIsLoaded] = useState(false);
+      const [hasError, setHasError] = useState(false);
+
+      // WebP Optimization & Mobile 3G Low-Bandwidth Compression
+      const optimizedSrc = useMemo(() => {
+        if (!src) return '';
+        if (src.includes('images.unsplash.com')) {
+          if (src.includes('w=')) return src;
+          return `${src}&auto=format&fit=crop&w=600&q=60`;
+        }
+        return src;
+      }, [src]);
+
+      return (
+        <div className={`relative overflow-hidden bg-slate-200 dark:bg-brand-dark ${className}`} onClick={onClick}>
+          {!isLoaded && !hasError && (
+            <div className="absolute inset-0 skeleton-shimmer z-10" />
+          )}
+          {hasError ? (
+            <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-brand-card text-slate-400 text-xs font-bold">
+              🖼️ Görsel
+            </div>
+          ) : (
+            <img
+              src={optimizedSrc}
+              alt={alt || 'Görsel'}
+              loading={priority ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={priority ? 'high' : 'auto'}
+              onLoad={() => setIsLoaded(true)}
+              onError={() => setHasError(true)}
+              className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // FULL-PAGE & TAB SKELETON PLACEHOLDER LOADER FOR SLOW 3G NETWORKS
+    function PageSkeletonLoader({ title = "Sayfa Yükleniyor..." }) {
+      return (
+        <div className="space-y-6 animate-pulse max-w-7xl mx-auto p-4 sm:p-6">
+          {/* HEADER SKELETON */}
+          <div className="h-20 bg-slate-200/80 dark:bg-slate-800/80 rounded-3xl w-full flex items-center justify-between px-6 border border-slate-200/50">
+            <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded-lg w-1/3"></div>
+            <div className="h-8 bg-slate-300 dark:bg-slate-700 rounded-xl w-24"></div>
+          </div>
+          
+          {/* TOP STATS CARDS SKELETON */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-28 bg-slate-200/70 dark:bg-slate-800/70 rounded-3xl p-4 space-y-3">
+                <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-1/2"></div>
+                <div className="h-8 bg-slate-300 dark:bg-slate-700 rounded-lg w-3/4"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* MAIN CONTENT AREA SKELETON */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-96 bg-slate-200/70 dark:bg-slate-800/70 rounded-3xl p-6 space-y-4">
+              <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded w-1/4"></div>
+              <div className="h-64 bg-slate-300/60 dark:bg-slate-700/60 rounded-2xl"></div>
+            </div>
+            <div className="h-96 bg-slate-200/70 dark:bg-slate-800/70 rounded-3xl p-6 space-y-4">
+              <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded w-1/3"></div>
+              <div className="h-64 bg-slate-300/60 dark:bg-slate-700/60 rounded-2xl"></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // RE-USABLE INTERACTIVE IMAGE DROPZONE & FILE UPLOADER COMPONENT
+    function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '📷' }) {
+      const [isDragging, setIsDragging] = useState(false);
+      const fileInputRef = useRef(null);
+
+      const processFile = (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          console.warn('Lütfen geçerli bir görsel dosyası (JPG, PNG, WebP vb.) seçiniz.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          onChange(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      };
+
+      const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        processFile(file);
+      };
+
+      const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        processFile(file);
+      };
+
+      return (
+        <div className="space-y-1.5 text-xs">
+          <div className="flex justify-between items-center">
+            <label className="font-bold text-slate-700 dark:text-gray-300 block">{label}</label>
+            <span className="text-[10px] text-amber-700 dark:text-gold-400 font-mono font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 flex items-center space-x-1">
+              <ThemeIcon icon="ruler" fallbackEmoji="📐" className="w-3 h-3 shrink-0" />
+              <span>Önerilen Boyut: {aspectGuide}</span>
+            </span>
+          </div>
+
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`relative border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center space-y-2 ${
+              isDragging
+                ? 'border-amber-500 bg-amber-500/10 scale-[1.01]'
+                : 'border-slate-300 dark:border-brand-border/60 bg-slate-50 dark:bg-brand-dark/50 hover:border-amber-500/70 hover:bg-slate-100 dark:hover:bg-brand-card'
+            }`}
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+
+            {value ? (
+              <div className="relative w-full h-36 rounded-xl overflow-hidden group border border-slate-200 dark:border-brand-border">
+                <img src={value} alt="Yüklenen Görsel" className="w-full h-full object-cover rounded-xl" />
+                <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white font-bold text-xs space-y-1 p-2">
+                  <ThemeIcon icon="edit" fallbackEmoji="🔄" className="w-5 h-5 shrink-0" />
+                  <span>Görseli Değiştir</span>
+                  <span className="text-[10px] text-gray-300 font-normal">Tıklayın veya yeni görseli buraya bırakın</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1 py-3 flex flex-col items-center justify-center">
+                <ThemeIcon icon="preview" fallbackEmoji="📸" className="w-8 h-8 text-amber-500 shrink-0 mb-1" />
+                <div className="font-bold text-slate-800 dark:text-gray-100 text-xs">
+                  Görsel Yüklemek İçin Tıklayın veya Dosyayı Sürükleyip Bırakın
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-gray-400">
+                  PNG, JPG, WebP, GIF desteklenir (Maksimum 5MB)
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-1">
+            <input
+              type="text"
+              placeholder="veya doğrudan Görsel URL adresi yapıştırın..."
+              value={value || ''}
+              onChange={e => onChange(e.target.value)}
+              className="w-full bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-[11px] text-slate-600 dark:text-gray-400 font-mono"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // LAYER 1: SKELETON LOADER COMPONENTS
+    function SkeletonCard() {
+      return (
+        <div className="glass-panel p-4 rounded-3xl space-y-3 border border-slate-200 dark:border-brand-border">
+          <div className="h-36 rounded-2xl skeleton-shimmer" />
+          <div className="h-4 w-3/4 rounded-lg skeleton-shimmer" />
+          <div className="h-3 w-1/2 rounded-lg skeleton-shimmer" />
+          <div className="flex justify-between items-center pt-2">
+            <div className="h-4 w-20 rounded-lg skeleton-shimmer" />
+            <div className="h-6 w-16 rounded-full skeleton-shimmer" />
+          </div>
+        </div>
+      );
+    }
+
+    function SkeletonTable({ rows = 4 }) {
+      return (
+        <div className="space-y-2">
+          {[...Array(rows)].map((_, i) => (
+            <div key={i} className="h-12 w-full rounded-xl skeleton-shimmer border border-slate-200/40" />
+          ))}
+        </div>
+      );
+    }
+
+    function SkeletonHeader() {
+      return (
+        <div className="glass-panel p-6 rounded-3xl space-y-3 border border-amber-500/30">
+          <div className="h-4 w-32 rounded-full skeleton-shimmer" />
+          <div className="h-8 w-64 rounded-xl skeleton-shimmer" />
+          <div className="h-3 w-96 rounded-lg skeleton-shimmer" />
+        </div>
+      );
+    }
+
+    // ARCHITECTURAL ULTRA-THIN SVG ICON COMPONENT
+    function SvgIcon({ name, className = "w-4 h-4" }) {
+      switch (name) {
+        case 'dashboard':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>;
+        case 'create-reservation':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 5v14M5 12h14"/></svg>;
+        case 'venues':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1M14 10h1M9 14h1M14 14h1"/></svg>;
+        case 'services':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>;
+        case 'reservations':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>;
+        case 'calendar':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="4" width="18" height="18"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+        case 'campaigns':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>;
+        case 'finance':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="1" y="4" width="22" height="16"/><line x1="1" y1="10" x2="23" y2="10"/></svg>;
+        case 'customers':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>;
+        case 'users':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+        case 'reports':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
+        case 'media':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="3" width="18" height="18"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
+        case 'profile':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        case 'settings':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>;
+        case 'appearance':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>;
+        case 'performance':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        case 'rbac':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="11" width="18" height="11"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
+        case 'save':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><polyline points="20 6 9 17 4 12"/></svg>;
+        case 'trash':
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>;
+        default:
+          return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.4"><circle cx="12" cy="12" r="10"/></svg>;
+      }
+    }
+
+    const CLASSIC_EMOJIS = {
+      'dashboard': '📊',
+      'create-reservation': '➕',
+      'venues': '🏛️',
+      'services': '✨',
+      'reservations': '📋',
+      'calendar': '📅',
+      'campaigns': '🎁',
+      'finance': '💰',
+      'customers': '👥',
+      'users': '⚙️',
+      'reports': '📈',
+      'media': '📷',
+      'mind-map': '🧠',
+      'settings': '⚙️',
+      'settings-appearance': '🎨',
+      'settings-performance': '⚡',
+      'settings-rbac': '🛡️',
+      'settings-errors': '🚨',
+      'simulasyon-404': '🔍',
+      'simulasyon-301': '🔄',
+      'simulasyon-403': '🚫',
+      'simulasyon-500': '💥'
+    };
+
+    const TAB_LABELS = {
+      'dashboard': 'Anasayfa / İstatistikler',
+      'create-reservation': 'Yeni Rezervasyon Oluştur',
+      'venues': 'Etkinlik Mekanları',
+      'services': 'Ek Hizmetlerim',
+      'reservations': 'Rezervasyonlar',
+      'calendar': 'Takvim Görünümü',
+      'campaigns': 'Kampanyalar',
+      'finance': 'Finans & Fatura Yönetimi',
+      'customers': 'Müşteri Rehberi',
+      'users': 'Kullanıcı Yönetimi',
+      'reports': 'Raporlar & AI Önerileri',
+      'media': 'Medya & Foto Yükleme',
+      'profile': 'Profilim & Hesap Ayarları',
+      'mind-map': 'Zihin Haritası (MindMap)',
+      'settings': 'Genel Ayarlar & Rol Yönetimi',
+      'settings-appearance': 'Görünüm & Tema Ayarları',
+      'settings-performance': 'Önbellek & Performans',
+      'settings-rbac': 'Rol & İzin Yönetimi',
+      'settings-errors': 'Hata & Yönlendirme Simülasyonu',
+      'simulasyon-404': 'HTTP 404 - Sayfa Bulunamadı Simülasyonu',
+      'simulasyon-301': 'HTTP 301 - Kalıcı Yönlendirme Simülasyonu',
+      'simulasyon-403': 'HTTP 403 - Yetkisiz Erişim Uyarısı Simülasyonu',
+      'simulasyon-500': 'HTTP 500 - Sunucu Hatası Simülasyonu'
+    };
+
+    const TAB_PERMISSIONS = {
+      'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'create-reservation': ['admin', 'satisci'],
+      'venues': ['admin', 'satisci'],
+      'services': ['admin', 'satisci'],
+      'reservations': ['admin', 'satisci'],
+      'calendar': ['admin', 'satisci'],
+      'campaigns': ['admin'],
+      'finance': ['admin'],
+      'customers': ['admin', 'satisci'],
+      'users': ['admin'],
+      'reports': ['admin'],
+      'media': ['admin', 'sosyal_medyaci', 'musteri'],
+      'profile': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'mind-map': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'settings': ['admin'],
+      'settings-appearance': ['admin'],
+      'settings-performance': ['admin'],
+      'settings-rbac': ['admin'],
+      'settings-errors': ['admin'],
+      'simulasyon-404': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'simulasyon-301': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'simulasyon-403': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'simulasyon-500': ['admin', 'satisci', 'sosyal_medyaci', 'musteri']
+    };
+
+    const ROLE_NAMES = {
+      'admin': 'Admin',
+      'satisci': 'Satış Temsilcisi',
+      'sosyal_medyaci': 'Sosyal Medya',
+      'musteri': 'Müşteri'
+    };
+
+    function formatCurrency(amount) {
+      if (amount === undefined || amount === null || isNaN(amount)) return '0 ₺';
+      return Number(amount).toLocaleString('tr-TR') + ' ₺';
+    }
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(dateString));
+    }
+
+    function formatPhoneNumber(value) {
+      if (!value) return '';
+      let digits = value.replace(/\D/g, '');
+      if (digits.startsWith('90') && digits.length > 10) {
+        digits = digits.substring(2);
+      }
+      if (digits.length > 0 && !digits.startsWith('0')) {
+        digits = '0' + digits;
+      }
+      digits = digits.substring(0, 11);
+      if (digits.length <= 1) return digits;
+      if (digits.length <= 4) return `${digits.substring(0, 1)} (${digits.substring(1)}`;
+      if (digits.length <= 7) return `${digits.substring(0, 1)} (${digits.substring(1, 4)}) ${digits.substring(4)}`;
+      if (digits.length <= 9) return `${digits.substring(0, 1)} (${digits.substring(1, 4)}) ${digits.substring(4, 7)} ${digits.substring(7)}`;
+      return `${digits.substring(0, 1)} (${digits.substring(1, 4)}) ${digits.substring(4, 7)} ${digits.substring(7, 9)} ${digits.substring(9, 11)}`;
+    }
+
+    function isValidPhoneNumber(phone) {
+      if (!phone) return false;
+      const digits = phone.replace(/\D/g, '');
+      return digits.length === 11 && digits.startsWith('05');
+    }
+
+    function generateWhatsAppLink(phone, customerName = '', date = '', remaining = '') {
+      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+      const text = `Merhabalar Sayın ${customerName}, İrem Düğün Sarayı & Organizasyon Şirketi ${date ? date + ' tarihli ' : ''}rezervasyonunuz hakkında bilgilendirmedir. Kalan Bakiyeniz: ${remaining ? formatCurrency(remaining) : 'Detaylar için iletişime geçiniz.'}`;
+      return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+    }
+
+    function generateDraftRefKey() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 12; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    function parseHashRoute() {
+      const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+      const [routePart, queryPart] = rawHash.split('?');
+      const slug = routePart || 'dashboard';
+      const tab = (slug === 'anasayfa' ? 'dashboard' : (SLUG_TO_TAB[slug] || 'simulasyon-404'));
+      
+      const params = new URLSearchParams(queryPart || '');
+      const refKey = params.get('ref') || null;
+      const editId = params.get('editId') || params.get('edit') || null;
+      return { tab, slug, refKey, editId, params };
+    }
+
+    function getHashTab() {
+      return parseHashRoute().tab;
+    }
+
+    // --- GLOBAL REACT ERROR BOUNDARY COMPONENT ---
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error("React ErrorBoundary caught an exception:", error, errorInfo);
+        this.setState({ errorInfo });
+      }
+
+      handleReset = () => {
+        this.setState({ hasError: false, error: null, errorInfo: null });
+        if (this.props.onReset) {
+          this.props.onReset();
+        }
+      };
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="p-8 max-w-xl mx-auto my-12 glass-panel rounded-3xl border border-red-500/40 shadow-2xl text-center space-y-4 animate-fade-in">
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 shadow-inner">
+                <ThemeIcon icon="alert" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+              </div>
+              <span className="bg-red-500/10 text-red-500 font-extrabold text-xs px-3.5 py-1 rounded-full border border-red-500/30 uppercase tracking-wider inline-block">
+                Bileşen / Sayfa Yükleme Uyarısı
+              </span>
+              <h3 className="text-xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+                {this.props.fallbackTitle || "Bu Bölümde Beklenmeyen Bir İşlem Oluştu"}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                Sisteminizin diğer tüm bölümleri, navigasyon menünüz ve üst kontrol barınız kesintisiz çalışmaya devam etmektedir. Sol menüden başka bir sayfaya geçebilir veya bu bölümü yenileyebilirsiniz.
+              </p>
+              {this.state.error && (
+                <div className="bg-slate-950/80 text-red-400 font-mono text-[10px] p-3 rounded-xl text-left overflow-x-auto border border-red-500/20 max-h-28">
+                  {this.state.error.toString()}
+                </div>
+              )}
+              <div className="pt-2 flex justify-center space-x-3">
+                <button
+                  type="button"
+                  onClick={this.handleReset}
+                  className="gold-button font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg inline-flex items-center space-x-1.5"
+                >
+                  <ThemeIcon icon="refresh" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                  <span>Yeniden Dene & Bölümü Kurtar</span>
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        return this.props.children;
+      }
+    }
+
+    
+// --- RESERVATIONS LIST COMPONENT ---
+
+    function ReservationsListComponent({
+      reservations = [],
+      draftReservations = [],
+      setDraftReservations,
+      currentUser,
+      venues = [],
+      services = [],
+      customers = [],
+      campaigns = [],
+      navigateTo,
+      onNewResClick,
+      onUpdateReservation,
+      onDeleteReservation,
+      onPrintInvoice,
+      onShowEmail
+    }) {
+      const [viewMode, setViewMode] = useState('table');
+      const [isFilterOpen, setIsFilterOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+      const [isDraftPanelOpen, setIsDraftPanelOpen] = useState(true);
+
+      const [searchQuery, setSearchQuery] = useState('');
+      const [venueFilter, setVenueFilter] = useState('ALL');
+      const [statusFilter, setStatusFilter] = useState('ALL');
+      const [startDateFilter, setStartDateFilter] = useState('');
+      const [endDateFilter, setEndDateFilter] = useState('');
+
+      const [selectedResForPreview, setSelectedResForPreview] = useState(null);
+      const [selectedDayInspector, setSelectedDayInspector] = useState(null);
+      const [editingRes, setEditingRes] = useState(null);
+      const [deletingRes, setDeletingRes] = useState(null);
+
+      const [editForm, setEditForm] = useState(null);
+      const [editError, setEditError] = useState(false);
+
+      const handleOpenEdit = (res) => {
+        setSelectedResForPreview(null);
+        setSelectedDayInspector(null);
+        if (res && res.id) {
+          window.location.hash = `#/rezervasyon-olustur?editId=${res.id}`;
+        }
+      };
+
+      const filteredReservations = (reservations || []).filter(r => {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch = !q ||
+          (r.customerName || '').toLowerCase().includes(q) ||
+          (r.id || '').toLowerCase().includes(q) ||
+          (r.customerPhone || '').includes(q);
+
+        const matchesVenue = venueFilter === 'ALL' || r.venueId === venueFilter;
+        const matchesStatus = statusFilter === 'ALL' || r.paymentStatus === statusFilter;
+
+        let matchesDate = true;
+        const rDate = r.eventDate || r.date;
+        if (startDateFilter && rDate < startDateFilter) matchesDate = false;
+        if (endDateFilter && rDate > endDateFilter) matchesDate = false;
+
+        return matchesSearch && matchesVenue && matchesStatus && matchesDate;
+      });
+
+      // Dynamic Month & Year Navigation State (Defaults to real current date)
+      const MONTH_NAMES = [
+        'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+      ];
+
+      const today = new Date();
+      const [currentYear, setCurrentYear] = useState(today.getFullYear());
+      const [currentMonth, setCurrentMonth] = useState(today.getMonth()); // Real current month (July = 6)
+
+      const handlePrevMonth = () => {
+        if (currentMonth === 0) {
+          setCurrentMonth(11);
+          setCurrentYear(prev => prev - 1);
+        } else {
+          setCurrentMonth(prev => prev - 1);
+        }
+      };
+
+      const handleNextMonth = () => {
+        if (currentMonth === 11) {
+          setCurrentMonth(0);
+          setCurrentYear(prev => prev + 1);
+        } else {
+          setCurrentMonth(prev => prev + 1);
+        }
+      };
+
+      const handleGoToday = () => {
+        const now = new Date();
+        setCurrentYear(now.getFullYear());
+        setCurrentMonth(now.getMonth());
+      };
+
+      // Dynamic Calendar Grid Setup for currentYear & currentMonth (1 to 28..31 Days)
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const jsFirstDay = new Date(currentYear, currentMonth, 1).getDay(); // Sunday=0, Monday=1, ..., Saturday=6
+      const monthStartEmptyCount = jsFirstDay === 0 ? 6 : jsFirstDay - 1; // Monday-first calendar index
+
+      const calendarGridCells = [];
+      for (let i = 0; i < monthStartEmptyCount; i++) {
+        calendarGridCells.push({ isEmpty: true, key: `empty-${i}` });
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayStr = day < 10 ? `0${day}` : `${day}`;
+        const monthStr = (currentMonth + 1) < 10 ? `0${currentMonth + 1}` : `${currentMonth + 1}`;
+        const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
+        calendarGridCells.push({ isEmpty: false, dayNumber: day, dateStr, key: dateStr });
+      }
+
+      // Drag & Drop State
+      const [draggedResId, setDraggedResId] = useState(null);
+      const [dragOverDate, setDragOverDate] = useState(null);
+
+      // Handle Drag & Drop Date Change
+      const handleDropReschedule = (resId, newDateStr) => {
+        const targetRes = (reservations || []).find(r => r.id === resId);
+        if (targetRes && targetRes.eventDate !== newDateStr && targetRes.date !== newDateStr) {
+          if (onUpdateReservation) {
+            onUpdateReservation({
+              ...targetRes,
+              eventDate: newDateStr,
+              date: newDateStr,
+              startDate: newDateStr,
+              endDate: newDateStr
+            });
+          }
+        }
+        setDraggedResId(null);
+        setDragOverDate(null);
+      };
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto animate-fade-in pb-20">
+          
+          {/* HEADER & TOP CONTROLS (Görünüm Değiştirici En Sağda) */}
+          <div className="glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-sm">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+                <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-6 h-6 text-amber-500 shrink-0" />
+                <span>Rezervasyonlar & Canlı Takvim Yönetimi</span>
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                Tüm düğün sözleşmelerini filtreleyin, canlı takvimde inceleyin veya düzenleyin.
+              </p>
+            </div>
+
+            {/* HARMONIOUS ACTION TOOLBAR (FORCED SINGLE ROW ON MOBILE, ICONIC WHEN TEXT DOESNT FIT) */}
+            <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0 flex-nowrap w-full sm:w-auto justify-between sm:justify-end">
+              
+              {/* 1. FILTER TOGGLE BUTTON */}
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`h-10 px-2.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-1.5 sm:space-x-2 shadow-xs cursor-pointer shrink-0 ${
+                  isFilterOpen 
+                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-gold-400' 
+                    : 'bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:bg-slate-200 dark:hover:bg-slate-800'
+                }`}
+                title="Detaylı Filtreleri Aç / Kapat"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="hidden sm:inline">Filtreler</span>
+                <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
+              </button>
+
+              {/* 2. YENİ REZERVASYON PRIMARY BUTTON */}
+              <button 
+                onClick={onNewResClick} 
+                className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer"
+                title="Yeni Rezervasyon Oluştur"
+              >
+                <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Yeni Rezervasyon</span>
+              </button>
+
+              {/* 3. SEGMENTED VIEW SWITCHER (LIST VS CALENDAR) */}
+              <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border h-10 items-center shrink-0">
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
+                    viewMode === 'table' 
+                      ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Liste Görünümü"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                  </svg>
+                  <span className="hidden md:inline">Liste</span>
+                </button>
+
+                <button
+                  onClick={() => setViewMode('calendar')}
+                  className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
+                    viewMode === 'calendar' 
+                      ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Takvim Görünümü"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="8" y1="14" x2="8.01" y2="14"/>
+                    <line x1="12" y1="14" x2="12.01" y2="14"/>
+                    <line x1="16" y1="14" x2="16.01" y2="14"/>
+                    <line x1="8" y1="18" x2="8.01" y2="18"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                    <line x1="16" y1="18" x2="16.01" y2="18"/>
+                  </svg>
+                  <span className="hidden md:inline">Takvim</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          
+          {/* DRAFT / UNCOMPLETED RESERVATIONS DEDICATED PANEL (TOP OF PAGE) */}
+          <div className="glass-panel p-5 sm:p-6 rounded-3xl border-2 border-amber-500/40 bg-amber-500/5 dark:bg-amber-950/20 space-y-4 shadow-lg animate-fade-in">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-amber-500/20 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-lg shrink-0">
+                  <ThemeIcon icon="sparkles" fallbackEmoji="⏳" className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>Tamamlanmamış Taslak Rezervasyonlar</span>
+                    <span className="bg-amber-500 text-white font-mono text-xs px-2.5 py-0.5 rounded-full font-bold">
+                      {(draftReservations || []).length} Adet
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+                    Form doldurulurken otomatik kaydedilmiş, yarım kalmış veya onay bekleyen taslaklar.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDraftPanelOpen(!isDraftPanelOpen)}
+                className="text-xs font-bold text-amber-700 dark:text-gold-400 hover:underline inline-flex items-center space-x-1 shrink-0 cursor-pointer"
+              >
+                <span>{isDraftPanelOpen ? 'Taslak Paneli Gizle ▲' : 'Taslak Paneli Göster ▼'}</span>
+              </button>
+            </div>
+
+            {isDraftPanelOpen && (
+              <>
+                {(!draftReservations || draftReservations.length === 0) ? (
+                  <div className="bg-white/60 dark:bg-brand-dark/40 p-4 rounded-2xl border border-dashed border-amber-500/30 text-center space-y-2">
+                    <p className="text-xs text-slate-600 dark:text-gray-300 font-semibold">
+                      Henüz yarım kalmış bir taslak rezervasyonunuz bulunmuyor.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => navigateTo && navigateTo('create-reservation')}
+                      className="gold-button font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-sm inline-flex items-center space-x-1 cursor-pointer"
+                    >
+                      <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 mr-1" />
+                      <span>Yeni Rezervasyon Başlat</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+                    {draftReservations.map((draft, idx) => {
+                      const custName = draft.customerInfo?.name || draft.formData?.newCustName || 'İsimsiz Müşteri';
+                      const custPhone = draft.customerInfo?.phone || draft.formData?.newCustPhone || '-';
+                      const venueName = draft.customerInfo?.venueName || (venues.find(v => v.id === draft.formData?.venueId)?.name) || 'Salon Seçilmedi';
+                      const eventDate = draft.customerInfo?.date || draft.formData?.startDate || 'Tarih Belirtilmedi';
+                      const percentage = draft.completionPercentage || 0;
+                      const updatedAtFormatted = draft.updatedAt ? new Date(draft.updatedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-';
+                      const lastLogger = draft.accessLogs && draft.accessLogs.length > 0 ? draft.accessLogs[draft.accessLogs.length - 1].userName : 'Sistem';
+
+                      return (
+                        <div key={draft.refKey || idx} className="bg-white dark:bg-brand-card border border-amber-500/30 rounded-2xl p-4 space-y-3 shadow-md hover:shadow-lg transition flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono text-xs font-extrabold bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/30 px-2.5 py-1 rounded-lg inline-flex items-center">
+                                <ThemeIcon icon="shield" fallbackEmoji="🔑" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                                <span>{draft.refKey}</span>
+                              </span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-gold-400">
+                                TASLAK (%{percentage})
+                              </span>
+                            </div>
+
+                            <div>
+                              <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                                <ThemeIcon icon="user" fallbackEmoji="👤" className="w-4 h-4 text-amber-700 dark:text-gold-400 shrink-0" />
+                                <span>{custName}</span>
+                              </h4>
+                              <p className="text-xs text-slate-500 dark:text-gray-400 font-mono mt-0.5 flex items-center space-x-1">
+                                <ThemeIcon icon="phone" fallbackEmoji="📞" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{custPhone}</span>
+                              </p>
+                            </div>
+
+                            <div className="text-xs text-slate-600 dark:text-gray-300 space-y-1 bg-slate-50 dark:bg-brand-dark p-2.5 rounded-xl border border-slate-200 dark:border-brand-border">
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400">Salon:</span>
+                                <span className="font-semibold">{venueName}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400">Tarih:</span>
+                                <span className="font-semibold">{eventDate}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-[11px] pt-1 border-t border-slate-200/50 dark:border-brand-border">
+                                <span className="text-slate-400">Son İşlem:</span>
+                                <span className="font-mono">{updatedAtFormatted} ({lastLogger})</span>
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                                <span>Form Doluluğu</span>
+                                <span>%{percentage}</span>
+                              </div>
+                              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                                <div
+                                  className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 flex items-center gap-2 border-t border-slate-100 dark:border-brand-border">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                window.location.hash = `#/rezervasyon-olustur?ref=${draft.refKey}`;
+                                if (navigateTo) navigateTo('create-reservation', { ref: draft.refKey });
+                              }}
+                              className="flex-1 gold-button font-bold py-2.5 px-3 rounded-xl text-xs shadow text-center flex items-center justify-center space-x-1.5 cursor-pointer"
+                            >
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                              <span>Devam Et & Tamamla</span>
+                            </button>
+                            
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`${draft.refKey} referanslı taslağı silmek istediğinize emin misiniz?`)) {
+                                  if (setDraftReservations) {
+                                    setDraftReservations(prev => prev.filter(d => d.refKey !== draft.refKey));
+                                  }
+                                }
+                              }}
+                              className="p-2.5 bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-200 rounded-xl text-xs transition flex items-center justify-center cursor-pointer"
+                              title="Taslağı Sil"
+                            >
+                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+
+          {/* COLLAPSIBLE FILTER PANEL */}
+          {isFilterOpen && (
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 animate-fade-in shadow-md">
+              <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-2 text-xs font-bold text-slate-700 dark:text-gray-300">
+                <span>🔍 Detaylı Filtreleme & Arama Kriterleri</span>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setVenueFilter('ALL');
+                    setStatusFilter('ALL');
+                    setStartDateFilter('');
+                    setEndDateFilter('');
+                  }}
+                  className="text-amber-700 dark:text-gold-400 hover:underline text-[11px]"
+                >
+                  Filtreleri Temizle ↺
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div>
+                  <label className="font-bold block mb-1">Arama Kriteri:</label>
+                  <input
+                    type="text"
+                    placeholder="🔍 Müşteri Adı, Tel veya Sözleşme Kodu..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold block mb-1">Düğün Salonu Filtresi:</label>
+                  <select
+                    value={venueFilter}
+                    onChange={e => setVenueFilter(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                  >
+                    <option value="ALL">Tüm Salonlar ({(venues || []).length})</option>
+                    {(venues || []).map(v => (
+                      <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold block mb-1">Ödeme Durumu Filtresi:</label>
+                  <select
+                    value={statusFilter}
+                    onChange={e => setStatusFilter(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                  >
+                    <option value="ALL">Tüm Durumlar ({(reservations || []).length})</option>
+                    <option value="Kapora Alındı">Kapora Alındı</option>
+                    <option value="Ödendi">Ödendi / Tamamlandı</option>
+                    <option value="Bekliyor">Bekliyor</option>
+                    <option value="İptal">İptal Edilenler</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold block mb-1">Başlangıç Tarihi:</label>
+                    <input
+                      type="date"
+                      value={startDateFilter}
+                      onChange={e => setStartDateFilter(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Bitiş Tarihi:</label>
+                    <input
+                      type="date"
+                      value={endDateFilter}
+                      onChange={e => setEndDateFilter(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW SWITCHER: TABLE OR MASTER CALENDAR */}
+          {viewMode === 'table' ? (
+            /* TABLE LIST VIEW WITH EDIT & DELETE BUTTONS */
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border text-slate-500 dark:text-gray-400 font-bold">
+                      <th className="py-3 px-3">Sözleşme Kodu</th>
+                      <th className="py-3 px-3">Müşteri / Çift</th>
+                      <th className="py-3 px-3">Düğün Salonu</th>
+                      <th className="py-3 px-3">Tarih & Saat</th>
+                      <th className="py-3 px-3">Davetli</th>
+                      <th className="py-3 px-3">Toplam Tutar</th>
+                      <th className="py-3 px-3">Kalan Bakiye</th>
+                      <th className="py-3 px-3">Ödeme Durumu</th>
+                      <th className="py-3 px-3 text-right">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
+                    {filteredReservations.length === 0 ? (
+                      <tr>
+                        <td colSpan="9" className="py-8 text-center text-slate-400 font-bold">
+                          Kriterlere uygun kayıtlı rezervasyon bulunamadı.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredReservations.map(res => {
+                        const vObj = (venues || []).find(v => v.id === res.venueId);
+                        return (
+                          <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
+                            <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{res.id}</td>
+                            <td className="py-3.5 px-3">
+                              <div className="font-bold">{res.customerName}</div>
+                              <div className="text-[10px] text-slate-400">{res.customerPhone}</div>
+                            </td>
+                            <td className="py-3.5 px-3 font-bold">{vObj?.name || res.venueId}</td>
+                            <td className="py-3.5 px-3 font-mono">
+                              <div>{formatDate(res.eventDate || res.date)}</div>
+                              <div className="text-[10px] text-slate-500">{res.startTime || '18:00'} - {res.endTime || '23:00'}</div>
+                            </td>
+                            <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
+                            <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
+                            <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
+                              {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
+                            </td>
+                            <td className="py-3.5 px-3">
+                              {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
+                                  <ThemeIcon icon="check-circle" fallbackEmoji="✅" className="w-3.5 h-3.5 mr-1 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                  <span>Ödeme Tamamlandı</span>
+                                </span>
+                              ) : res.paymentStatus === 'Kapora Alındı' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-gold-400 border border-amber-500/40 shadow-xs">
+                                  <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                                  <span>Kapora Alındı</span>
+                                </span>
+                              ) : res.paymentStatus === 'İptal' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shadow-xs">
+                                  <ThemeIcon icon="x-circle" fallbackEmoji="❌" className="w-3.5 h-3.5 mr-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                                  <span>İptal Edildi</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 shadow-xs">
+                                  <ThemeIcon icon="clock" fallbackEmoji="🕒" className="w-3.5 h-3.5 mr-1 shrink-0 text-blue-600 dark:text-blue-400" />
+                                  <span>{res.paymentStatus || 'Ödeme Bekliyor'}</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-3 text-right">
+                              <div className="flex items-center justify-end space-x-1.5">
+                                <button
+                                  onClick={() => setSelectedResForPreview(res)}
+                                  className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20 transition font-bold text-xs flex items-center space-x-1"
+                                  title="Detaylı Önizle"
+                                >
+                                  <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                                </button>
+                                <button
+                                  onClick={() => handleOpenEdit(res)}
+                                  className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold text-xs hover:bg-amber-500/30 transition flex items-center space-x-1"
+                                >
+                                  <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                                  <span>Düzenle</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeletingRes(res)}
+                                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 font-bold text-xs transition flex items-center space-x-1 border border-red-500/20"
+                                  title="Rezervasyonu Sil"
+                                >
+                                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400" />
+                                  <span>Sil</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID MATCHING USER SCREENSHOT) */
+            <div className="space-y-4">
+              
+              {/* CALENDAR HEADER & HELP BADGE */}
+              <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
+                <div>
+                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">
+                    İnteraktif Takvim & Saat Çakışma Denetleyicisi
+                  </h3>
+                </div>
+                <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
+                  <span>💡</span>
+                  <span>Günün üzerine tıklayarak tüm salon doluluklarını inceleyebilir veya kartı sürükleyerek başka güne taşıyabilirsiniz.</span>
+                </div>
+              </div>
+
+              {/* MONTH TITLE & NAVIGATION TOOLBAR */}
+              <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
+                
+                {/* DYNAMIC MONTH NAVIGATION TOOLBAR (PERFECTLY ALIGNED H-10) */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-brand-border">
+                  
+                  {/* PREV / MONTH TITLE / NEXT GROUP */}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handlePrevMonth}
+                      className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/20 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center transition cursor-pointer shrink-0 shadow-xs"
+                      title="Önceki Ay"
+                      aria-label="Önceki Ay"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+                      </svg>
+                    </button>
+
+                    <div className="h-10 flex items-center space-x-2 bg-amber-500/10 px-4 rounded-xl border border-amber-500/30">
+                      <span className="text-base sm:text-lg">📅</span>
+                      <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white whitespace-nowrap">
+                        {MONTH_NAMES[currentMonth]} {currentYear}
+                      </h4>
+                    </div>
+
+                    <button
+                      onClick={handleNextMonth}
+                      className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/20 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center transition cursor-pointer shrink-0 shadow-xs"
+                      title="Sonraki Ay"
+                      aria-label="Sonraki Ay"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* DROPDOWNS & SHORTCUT GROUP */}
+                  <div className="flex items-center space-x-2">
+                    <select
+                      value={currentMonth}
+                      onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                      className="h-10 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer shadow-xs"
+                    >
+                      {MONTH_NAMES.map((name, idx) => (
+                        <option key={idx} value={idx}>{name}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={currentYear}
+                      onChange={(e) => setCurrentYear(Number(e.target.value))}
+                      className="h-10 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer shadow-xs"
+                    >
+                      {[2024, 2025, 2026, 2027, 2028].map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+
+                    <button
+                      onClick={handleGoToday}
+                      className="h-10 px-3.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-gold-400 rounded-xl font-bold text-xs border border-amber-300 dark:border-amber-700/60 shadow-xs hover:bg-amber-100 transition cursor-pointer flex items-center space-x-1 shrink-0"
+                    >
+                      <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Bugünkü Ay ({MONTH_NAMES[today.getMonth()]} {today.getFullYear()})</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 7 DAYS COLUMN HEADERS */}
+                <div className="grid grid-cols-7 gap-2 text-center font-bold text-xs text-slate-600 dark:text-gray-300">
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Pzt</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Sal</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Çar</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Per</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Cum</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Cmt</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Paz</div>
+                </div>
+
+                {/* 31 DAYS MONTHLY GRID WITH DRAG-AND-DROP TARGETS */}
+                <div className="grid grid-cols-7 gap-2 text-xs">
+                  {calendarGridCells.map(cell => {
+                    if (cell.isEmpty) {
+                      return (
+                        <div key={cell.key} className="min-h-[110px] bg-slate-50/50 dark:bg-brand-dark/40 rounded-2xl border border-slate-100 dark:border-brand-border/40" />
+                      );
+                    }
+
+                    // Get reservations for this day sorted chronologically
+                    const dayResList = filteredReservations
+                      .filter(r => (r.eventDate === cell.dateStr || r.date === cell.dateStr) && r.paymentStatus !== 'İptal')
+                      .sort((a, b) => {
+                        const timeA = a.startTime || a.timeSlot || '00:00';
+                        const timeB = b.startTime || b.timeSlot || '00:00';
+                        return timeA.localeCompare(timeB);
+                      });
+
+                    const hasEvents = dayResList.length > 0;
+                    const isDragOver = dragOverDate === cell.dateStr;
+
+                    return (
+                      <div
+                        key={cell.key}
+                        onClick={() => setSelectedDayInspector({ dateStr: cell.dateStr, dayNumber: cell.dayNumber, reservations: dayResList })}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'move';
+                        }}
+                        onDragEnter={(e) => {
+                          e.preventDefault();
+                          setDragOverDate(cell.dateStr);
+                        }}
+                        onDragLeave={() => setDragOverDate(null)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const resId = e.dataTransfer.getData('text/plain') || draggedResId;
+                          if (resId) {
+                            handleDropReschedule(resId, cell.dateStr);
+                          }
+                        }}
+                        className={`min-h-[110px] p-2.5 rounded-2xl border transition flex flex-col justify-between cursor-pointer space-y-1.5 group ${
+                          isDragOver
+                            ? 'bg-amber-100/90 dark:bg-amber-900/50 border-2 border-amber-500 scale-[1.03] shadow-lg ring-2 ring-amber-400'
+                            : hasEvents
+                            ? 'bg-amber-50/80 dark:bg-amber-950/20 border-amber-300 dark:border-amber-700/60 shadow-sm hover:border-amber-500'
+                            : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border hover:border-amber-400'
+                        }`}
+                      >
+                        {/* DAY NUMBER TOP LEFT & EVENT COUNT BADGE TOP RIGHT */}
+                        <div className="flex justify-between items-center text-xs font-extrabold">
+                          <span className="text-slate-800 dark:text-gray-200 text-sm group-hover:text-amber-600 transition">
+                            {cell.dayNumber}
+                          </span>
+                          {hasEvents && (
+                            <span className="bg-slate-200 dark:bg-brand-dark text-slate-800 dark:text-gray-200 font-extrabold text-[9px] px-1.5 py-0.5 rounded-md border border-slate-300 dark:border-brand-border shadow-xs">
+                              {dayResList.length} Etkinlik
+                            </span>
+                          )}
+                        </div>
+
+                        {/* EVENT PILLS :: CustomerName (StartTime) WITH HTML5 DRAGGABLE */}
+                        <div className="space-y-1 overflow-y-auto max-h-20 custom-scrollbar">
+                          {dayResList.map(r => {
+                            const firstName = (r.customerName || 'Etkinlik').split(' ')[0];
+                            return (
+                              <div
+                                key={r.id}
+                                draggable={true}
+                                onDragStart={(e) => {
+                                  e.stopPropagation();
+                                  e.dataTransfer.setData('text/plain', r.id);
+                                  setDraggedResId(r.id);
+                                }}
+                                onDragEnd={() => {
+                                  setDraggedResId(null);
+                                  setDragOverDate(null);
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedResForPreview(r);
+                                }}
+                                className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border hover:border-amber-500/60 p-1.5 rounded-xl text-[10px] font-bold text-slate-700 dark:text-gray-300 shadow-xs hover:scale-[1.02] transition flex items-center justify-between cursor-grab active:cursor-grabbing"
+                                title="Sürükleyip başka bir güne bırakabilirsiniz. Tıklayarak Detay Önizleyin."
+                              >
+                                <span className="truncate">:: {firstName}</span>
+                                <span className="text-[9px] font-mono text-amber-700 dark:text-gold-400 font-extrabold ml-1">({r.startTime || '18:00'})</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+          )}
+
+          {/* HOURLY TIMELINE SCHEDULE FLOW MODAL (GÜNE TIKLAYINCA SAAT AKIŞI GÖRÜNÜMÜ) */}
+          {selectedDayInspector && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div>
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Saat Akışı & Doluluk Çizelgesi</span>
+                    <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+                      🕒 {formatDate(selectedDayInspector.dateStr)} ({selectedDayInspector.reservations.length} Etkinlik)
+                    </h3>
+                  </div>
+                  <button onClick={() => setSelectedDayInspector(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+                </div>
+
+                {/* HOURLY TIMELINE SCHEDULE FLOW (08:00 - 24:00) */}
+                <div className="space-y-4 text-xs">
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-300 font-medium">
+                    💡 <strong>Saat Akış Çizelgesi:</strong> Gün içindeki düğün ve etkinliklerin başlangıç-bitiş saatlerine göre kronolojik zaman çizelgesidir.
+                  </div>
+
+                  {/* VISUAL HOURLY TIME BARS */}
+                  <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border space-y-3">
+                    <span className="font-bold block text-slate-700 dark:text-gray-200">⏱️ Günlük Zaman Çizelgesi (08:00 - 24:00):</span>
+                    <div className="flex justify-between text-[10px] font-mono font-bold text-slate-400 border-b pb-1">
+                      <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span><span>20:00</span><span>22:00</span><span>24:00</span>
+                    </div>
+
+                    {selectedDayInspector.reservations.length === 0 ? (
+                      <div className="py-4 text-center text-slate-400 font-bold">Bu saat aralıklarında kayıtlı organizasyon yok.</div>
+                    ) : (
+                      selectedDayInspector.reservations.map(r => {
+                        const vObj = (venues || []).find(v => v.id === r.venueId);
+                        const startH = parseInt((r.startTime || '18:00').split(':')[0]) || 18;
+                        const endH = parseInt((r.endTime || '23:00').split(':')[0]) || 23;
+                        const leftPct = Math.max(0, ((startH - 8) / 16) * 100);
+                        const widthPct = Math.min(100 - leftPct, Math.max(10, ((endH - startH) / 16) * 100));
+
+                        return (
+                          <div key={r.id} className="space-y-1">
+                            <div className="flex justify-between text-[11px] font-bold">
+                              <span className="text-slate-800 dark:text-gray-200 flex items-center space-x-1">
+                                <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3.5 h-3.5 shrink-0" />
+                                <span>{r.customerName} ({vObj?.name || r.venueId})</span>
+                              </span>
+                              <span className="font-mono text-amber-600 font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+                            </div>
+                            <div className="w-full bg-slate-200 dark:bg-brand-card h-4 rounded-full overflow-hidden relative border border-slate-300 dark:border-brand-border">
+                              <div
+                                className="bg-amber-500 h-full rounded-full flex items-center justify-center text-[9px] text-slate-900 font-extrabold truncate px-2 shadow-sm"
+                                style={{ marginLeft: `${leftPct}%`, width: `${widthPct}%` }}
+                              >
+                                {r.startTime || '18:00'} - {r.customerName}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* DETAILED RESERVATION LIST FOR THE DAY */}
+                  <div className="space-y-3">
+                    <span className="font-bold block text-slate-700 dark:text-gray-200">📋 Günlük Etkinlik Kartları ({selectedDayInspector.reservations.length}):</span>
+                    {selectedDayInspector.reservations.length === 0 ? (
+                      <div className="p-6 text-center text-slate-400 font-bold bg-slate-50 dark:bg-brand-dark rounded-2xl border border-dashed">
+                        Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
+                      </div>
+                    ) : (
+                      selectedDayInspector.reservations.map(r => {
+                        const vObj = (venues || []).find(v => v.id === r.venueId);
+                        return (
+                          <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                            <div className="flex justify-between items-center font-bold">
+                              <span className="text-amber-700 dark:text-gold-400 font-mono">{r.id} - {vObj?.name || r.venueId}</span>
+                              <span className="text-emerald-600 font-mono font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1">
+                                <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-4 h-4 shrink-0" />
+                                <span>{r.customerName} ({r.guestCount} Kişi)</span>
+                              </span>
+                              <span className="font-mono font-bold text-amber-600">{formatCurrency(r.totalAmount)}</span>
+                            </div>
+                            <div className="flex justify-end space-x-2 pt-1 border-t border-slate-200 dark:border-brand-border/40">
+                              <button
+                                onClick={() => setSelectedResForPreview(r)}
+                                className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-200 rounded-xl font-bold text-xs inline-flex items-center space-x-1"
+                              >
+                                <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                                <span>Detay Önizle</span>
+                              </button>
+                              <button
+                                onClick={() => handleOpenEdit(r)}
+                                className="gold-button px-4 py-1.5 rounded-xl font-bold text-xs shadow inline-flex items-center space-x-1"
+                              >
+                                <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                                <span>Rezervasyonu Düzenle</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t flex justify-between items-center text-xs font-bold">
+                  <button
+                    onClick={() => {
+                      setSelectedDayInspector(null);
+                      onNewResClick();
+                    }}
+                    className="gold-button px-4 py-2 rounded-xl shadow"
+                  >
+                    <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 inline mr-1.5" /> Bu Tarihe Yeni Rezervasyon Ekle
+                  </button>
+                  <button onClick={() => setSelectedDayInspector(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">Kapat</button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {/* 5. RICH DETAILED PREVIEW MODAL */}
+          {selectedResForPreview && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+                
+                {/* PREVIEW HEADER */}
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-amber-500/20 text-amber-800 dark:text-gold-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border border-amber-500/30 uppercase font-mono">
+                        Sözleşme No: {selectedResForPreview.id}
+                      </span>
+                      <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-md ${
+                        selectedResForPreview.paymentStatus === 'Ödendi' || selectedResForPreview.paymentStatus === 'Tamamlandı' ? 'bg-emerald-500/20 text-emerald-600' :
+                        selectedResForPreview.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-600' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {selectedResForPreview.paymentStatus}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-1 flex items-center space-x-2">
+                      <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>{selectedResForPreview.customerName}</span>
+                    </h3>
+                  </div>
+                  <button onClick={() => setSelectedResForPreview(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+                </div>
+
+                <div className="space-y-4 text-xs">
+                  
+                  {/* SECTION A: MÜŞTERİ İLETİŞİM & SALON ZAMAN BİLGİLERİ */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="user" fallbackEmoji="👤" className="w-3 h-3 inline mr-1" /> Müşteri İletişim Bilgileri:</span>
+                      <div className="font-extrabold text-sm text-slate-900 dark:text-white">{selectedResForPreview.customerName}</div>
+                      <div><ThemeIcon icon="phone" fallbackEmoji="📞" className="w-3 h-3 inline mr-1" /> Birincil Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerPhone}</strong></div>
+                      <div><ThemeIcon icon="mobile" fallbackEmoji="📱" className="w-3 h-3 inline mr-1" /> İkinci Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerSecondaryPhone || 'İkinci Tel Belirtilmedi'}</strong></div>
+                      <div><ThemeIcon icon="email" fallbackEmoji="✉️" className="w-3 h-3 inline mr-1" /> E-Posta: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.customerEmail || 'E-Posta Girilmedi'}</strong></div>
+                    </div>
+
+                    <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-3 h-3 inline mr-1" /> Etkinlik & Salon Detayı:</span>
+                      <div className="font-extrabold text-sm text-slate-900 dark:text-white">
+                        {(venues.find(v => v.id === selectedResForPreview.venueId))?.name || selectedResForPreview.venueId}
+                      </div>
+                      <div><ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-3 h-3 inline mr-1" /> Tarih: <strong className="font-mono text-slate-800 dark:text-gray-200">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</strong></div>
+                      <div><ThemeIcon icon="clock" fallbackEmoji="⏰" className="w-3 h-3 inline mr-1" /> Saat Aralığı: <strong className="font-mono text-emerald-600">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'}</strong></div>
+                      <div><ThemeIcon icon="users" fallbackEmoji="👥" className="w-3 h-3 inline mr-1" /> Davetli Sayısı: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.guestCount} Davetli Kişi</strong></div>
+                    </div>
+                  </div>
+
+                  {/* SECTION B: DÜĞÜN AKIŞ PLANLAMASI (HANGİ BİLGİLER / AKIŞ VERİLDİ) */}
+                  <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="document" fallbackEmoji="📜" className="w-3 h-3 inline mr-1" /> Organizasyon & Zaman Akış Programı:</span>
+                    {(!selectedResForPreview.flowPlan || selectedResForPreview.flowPlan.length === 0) ? (
+                      <div className="text-slate-400 italic">Standart akış programı uygulanacaktır. Özel akış bilgisi eklenmedi.</div>
+                    ) : (
+                      <div className="space-y-2">
+                        {selectedResForPreview.flowPlan.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-2.5 bg-white dark:bg-brand-card rounded-xl border border-slate-200 dark:border-brand-border">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono font-bold text-amber-600 text-xs px-2 py-0.5 bg-amber-500/10 rounded">{item.time}</span>
+                              <div>
+                                <div className="font-bold text-slate-900 dark:text-white">{item.title}</div>
+                                {item.description && <div className="text-[10px] text-slate-500">{item.description}</div>}
+                              </div>
+                            </div>
+                            {item.responsible && (
+                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-brand-dark px-2 py-0.5 rounded">
+                                Sorumlu: {item.responsible}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SECTION C: VERİLEN PAKETLER & EK HİZMETLER */}
+                  <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-3 h-3 inline mr-1" /> Verilen Hizmetler & Dahili Paketler:</span>
+                    {(!selectedResForPreview.selectedServices || selectedResForPreview.selectedServices.length === 0) ? (
+                      <div className="text-slate-400 italic">Dahili temel salon paketi dâhildir. Ek paket seçilmedi.</div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedResForPreview.selectedServices.map((srvItem, sIdx) => {
+                          const serviceId = typeof srvItem === 'string' ? srvItem : (srvItem?.serviceId || srvItem?.id);
+                          const sObj = services.find(s => s.id === serviceId);
+                          const displayName = sObj?.name || (typeof srvItem === 'object' ? (srvItem.name || serviceId || 'Ek Hizmet') : String(srvItem));
+                          const displayPrice = (typeof srvItem === 'object' && srvItem.customUnitPrice !== undefined) 
+                            ? srvItem.customUnitPrice 
+                            : (sObj?.price || (typeof srvItem === 'object' ? (srvItem.price || srvItem.unitPrice || 0) : 0));
+
+                          return (
+                            <span key={sIdx} className="bg-white dark:bg-brand-card border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1 shadow-xs">
+                              <span>🎁</span>
+                              <span>{displayName}</span>
+                              {displayPrice ? <span className="font-mono text-amber-600 text-[10px]">({formatCurrency(displayPrice)})</span> : null}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SECTION D: ÖDEMELER NE DURUMDA & HANGİLERİNİN ÖDEMELERİ YAPILDI */}
+                  <div className="bg-amber-50/60 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-300 dark:border-amber-700/50 space-y-3">
+                    <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="money" fallbackEmoji="💰" className="w-3 h-3 inline mr-1" /> Detaylı Ödeme Durumları & Finansal Döküm:</span>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-slate-400 block font-bold">Salon Bedeli:</span>
+                        <span className="font-mono font-bold text-slate-800 dark:text-gray-100">{formatCurrency(selectedResForPreview.venuePrice || 85000)}</span>
+                      </div>
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-slate-400 block font-bold">Genel Toplam:</span>
+                        <span className="font-mono font-bold text-amber-600">{formatCurrency(selectedResForPreview.totalAmount)}</span>
+                      </div>
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-emerald-600 block font-bold">Ödenen Kapora:</span>
+                        <span className="font-mono font-extrabold text-emerald-600">{formatCurrency(selectedResForPreview.depositPaid)}</span>
+                      </div>
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-red-500 block font-bold">Kalan Net Bakiye:</span>
+                        <span className="font-mono font-extrabold text-red-500">
+                          {selectedResForPreview.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(selectedResForPreview.remainingBalance)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* HANGİ ÖDEMELER YAPILDI DÖKÜMÜ */}
+                    <div className="p-3 bg-white dark:bg-brand-card rounded-xl border space-y-2">
+                      <span className="font-bold block text-slate-800 dark:text-gray-200"><ThemeIcon icon="card" fallbackEmoji="💳" className="w-3 h-3 inline mr-1" /> Gerçekleşen Ödemeler Geçmişi:</span>
+                      <div className="space-y-1 text-[11px]">
+                        <div className="flex justify-between items-center text-emerald-600 font-bold">
+                          <span>✓ 1. Ödeme (Kapora Tahsilatı):</span>
+                          <span className="font-mono">{formatCurrency(selectedResForPreview.depositPaid)} (Tahsil Edildi)</span>
+                        </div>
+                        {selectedResForPreview.remainingBalance === 0 ? (
+                          <div className="flex justify-between items-center text-emerald-600 font-bold">
+                            <span>✓ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+                            <span className="font-mono">Tamamı Ödendi (Hesap Kapatıldı)</span>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-center text-amber-600 font-bold">
+                            <span>⏳ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+                            <span className="font-mono">{formatCurrency(selectedResForPreview.remainingBalance)} (Etkinlik Günü Ödenecek)</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION E: OPERASYONEL NOTLAR */}
+                  {selectedResForPreview.notes && (
+                    <div className="bg-slate-50 dark:bg-brand-dark p-3.5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1">
+                      <span className="text-slate-400 font-bold block"><ThemeIcon icon="note" fallbackEmoji="📝" className="w-3 h-3 inline mr-1" /> Operasyonel Notlar & Özel İstekler:</span>
+                      <p className="text-slate-700 dark:text-gray-300 italic">{selectedResForPreview.notes}</p>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* PREVIEW ACTIONS */}
+                <div className="pt-2 border-t border-slate-200 dark:border-brand-border flex justify-between items-center gap-2">
+                  <div className="flex space-x-2">
+                    {onPrintInvoice && (
+                      <button onClick={() => onPrintInvoice(selectedResForPreview)} className="bg-slate-800 text-white px-3 py-2 rounded-xl font-bold text-xs inline-flex items-center space-x-1">
+                        <ThemeIcon icon="document" fallbackEmoji="📄" className="w-3.5 h-3.5 shrink-0" />
+                        <span>Fatura Yazdır</span>
+                      </button>
+                    )}
+                    {onShowEmail && (
+                      <button onClick={() => onShowEmail(selectedResForPreview)} className="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-xs inline-flex items-center space-x-1">
+                        <ThemeIcon icon="email" fallbackEmoji="✉️" className="w-3.5 h-3.5 shrink-0" />
+                        <span>E-Posta Önizle</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <button onClick={() => setSelectedResForPreview(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl text-xs font-bold">Kapat</button>
+                    <button
+                      onClick={() => { handleOpenEdit(selectedResForPreview); setSelectedResForPreview(null); }}
+                      className="gold-button font-bold px-5 py-2 rounded-xl text-xs shadow inline-flex items-center space-x-1"
+                    >
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Rezervasyonu Düzenle</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {/* DELETE CONFIRMATION MODAL */}
+          {deletingRes && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center my-auto">
+                <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">
+                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-6 h-6 shrink-0 text-red-600 dark:text-red-400" />
+                </div>
+                <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+                  Rezervasyon Silinsin Mi?
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-medium">
+                  <strong>{deletingRes.id}</strong> sözleşme kodlu <strong>{deletingRes.customerName}</strong> kaydı kalıcı olarak silinecektir. Bu işlem geri alınamaz.
+                </p>
+                <div className="pt-2 flex justify-center space-x-3 text-xs font-bold">
+                  <button onClick={() => setDeletingRes(null)} className="px-4 py-2.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">İptal</button>
+                  <button
+                    onClick={() => {
+                      if (onDeleteReservation) onDeleteReservation(deletingRes.id);
+                      setDeletingRes(null);
+                    }}
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl shadow"
+                  >
+                    Evet, Kalıcı Olarak Sil
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {/* 7. FULL EDIT RESERVATION MODAL (REZERVASYON OLUŞTURURKEN YAPILABİLEN HER ŞEYİ DÜZENLEME) */}
+          {editingRes && editForm && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+                
+                {/* EDIT HEADER */}
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <div>
+                    <span className="text-[10px] font-bold text-amber-600 uppercase font-mono">Sözleşme Düzenleme Modu — ID: {editForm.id}</span>
+                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-0.5 flex items-center space-x-1.5">
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Rezervasyon Tüm Bilgilerini Düzenle</span>
+                    </h3>
+                  </div>
+                  <button onClick={() => setEditingRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold text-xs hover:bg-red-500 hover:text-white transition">✕</button>
+                </div>
+
+                <div className="space-y-5 text-xs">
+                  
+                  {/* SECTION 1: SALON & KAPASİTE BİLGİLERİ */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                      <ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-3.5 h-3.5 shrink-0" />
+                      <span>1. Salon & Kapasite Seçimi:</span>
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Düğün Salonu:</label>
+                        <select
+                          value={editForm.venueId}
+                          onChange={e => {
+                            const vId = e.target.value;
+                            const vObj = (venues || []).find(v => v.id === vId);
+                            setEditForm({
+                              ...editForm,
+                              venueId: vId,
+                              venuePrice: vObj?.price || editForm.venuePrice || 85000
+                            });
+                          }}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          {(venues || []).map(v => <option key={v.id} value={v.id}>{v.name} ({formatCurrency(v.price || 0)})</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Özel Salon Bedeli (TL):</label>
+                        <input
+                          type="number"
+                          value={editForm.venuePrice || 0}
+                          onChange={e => setEditForm({ ...editForm, venuePrice: Number(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-amber-600 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Davetli Sayısı (Kişi):</label>
+                        <input
+                          type="number"
+                          value={editForm.guestCount || 0}
+                          onChange={e => setEditForm({ ...editForm, guestCount: Number(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 2: TARİH, SEANS & SAAT DÜZENLEME */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                        <ThemeIcon icon="clock" fallbackEmoji="⏰" className="w-3.5 h-3.5 shrink-0" />
+                        <span>2. Etkinlik Tarihi & Hızlı Seans Seçimi:</span>
+                      </span>
+                      
+                      {/* HIZLI SEANS BUTONLARI */}
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, startTime: '12:00', endTime: '17:00' })}
+                          className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[10px]"
+                        >
+                          ☀️ Gündüz (12-17)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, startTime: '18:00', endTime: '23:00' })}
+                          className="px-2 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold rounded-lg text-[10px]"
+                        >
+                          🌙 Gece (18-23)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, startTime: '09:00', endTime: '23:30' })}
+                          className="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold rounded-lg text-[10px] flex items-center space-x-1"
+                        >
+                          <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3 h-3 shrink-0" />
+                          <span>Tüm Gün</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Etkinlik Tarihi:</label>
+                        <input
+                          type="date"
+                          value={editForm.startDate || editForm.eventDate || editForm.date || ''}
+                          onChange={e => setEditForm({ ...editForm, startDate: e.target.value, eventDate: e.target.value, date: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Başlangıç Saati:</label>
+                        <input
+                          type="time"
+                          value={editForm.startTime || '18:00'}
+                          onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Bitiş Saati:</label>
+                        <input
+                          type="time"
+                          value={editForm.endTime || '23:00'}
+                          onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 3: EK HİZMETLER & DAHİLİ PAKET DÜZENLEYİCİ */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 3. Ek Hizmetler & Dahili Paket Seçimi:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {(services || []).map(srv => {
+                        const isSelected = (editForm.selectedServices || []).some(s => (typeof s === 'string' ? s === srv.id : s.serviceId === srv.id || s.id === srv.id));
+                        return (
+                          <label
+                            key={srv.id}
+                            className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                              isSelected 
+                                ? 'bg-amber-500/10 border-amber-500/50 dark:bg-amber-950/30' 
+                                : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2.5">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={e => {
+                                  let current = [...(editForm.selectedServices || [])];
+                                  if (e.target.checked) {
+                                    current.push({ serviceId: srv.id, name: srv.name, customUnitPrice: srv.price, quantity: 1 });
+                                  } else {
+                                    current = current.filter(s => (typeof s === 'string' ? s !== srv.id : (s.serviceId || s.id) !== srv.id));
+                                  }
+                                  setEditForm({ ...editForm, selectedServices: current });
+                                }}
+                                className="w-4 h-4 rounded text-amber-600"
+                              />
+                              <div>
+                                <div className="font-bold text-slate-800 dark:text-gray-100 text-xs">{srv.name}</div>
+                                <div className="text-[10px] text-slate-400">{srv.category || 'Ek Paket'}</div>
+                              </div>
+                            </div>
+                            <span className="font-mono font-bold text-amber-600 text-xs">{formatCurrency(srv.price || 0)}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* SECTION 4: KAMPANYA & İNDİRİM KODU */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏷️ 4. Özel Kampanya & İndirim Kodu:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Aktif Kampanya Uygula:</label>
+                        <select
+                          value={editForm.campaignCode || ''}
+                          onChange={e => {
+                            const code = e.target.value;
+                            const cmp = (campaigns || []).find(c => c.code === code);
+                            setEditForm({
+                              ...editForm,
+                              campaignCode: code,
+                              discountAmount: cmp ? cmp.discountValue : editForm.discountAmount || 0
+                            });
+                          }}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          <option value="">Kampanya Seçilmedi (İndirimsiz)</option>
+                          {(campaigns || []).map(c => (
+                            <option key={c.id || c.code} value={c.code}>
+                              {c.code} - {c.title} ({formatCurrency(c.discountValue)})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Özel İndirim Tutarı (TL):</label>
+                        <input
+                          type="number"
+                          value={editForm.discountAmount || 0}
+                          onChange={e => setEditForm({ ...editForm, discountAmount: Number(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-red-500 font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 5: MÜŞTERİ İLETİŞİM, ADRES & FATURA BİLGİLERİ */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 5. Müşteri İletişim, Adres & Fatura Bilgileri:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Müşteri / Çift Adı Soyadı <span className="text-red-500">*</span>:</label>
+                        <input
+                          type="text"
+                          value={editForm.customerName || ''}
+                          onChange={e => setEditForm({ ...editForm, customerName: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">E-posta Adresi:</label>
+                        <input
+                          type="email"
+                          value={editForm.customerEmail || ''}
+                          onChange={e => setEditForm({ ...editForm, customerEmail: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Birincil Telefon <span className="text-red-500">*</span>:</label>
+                        <input
+                          type="text"
+                          value={editForm.customerPhone || ''}
+                          onChange={e => setEditForm({ ...editForm, customerPhone: formatPhoneNumber(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">İkinci İletişim Telefonu:</label>
+                        <input
+                          type="text"
+                          value={editForm.customerSecondaryPhone || ''}
+                          onChange={e => setEditForm({ ...editForm, customerSecondaryPhone: formatPhoneNumber(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Fatura Türü:</label>
+                        <select
+                          value={editForm.taxType || 'Bireysel'}
+                          onChange={e => setEditForm({ ...editForm, taxType: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          <option value="Bireysel">Bireysel (TC Kimlik)</option>
+                          <option value="Kurumsal">Kurumsal (Şirket VKN)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">TC No / VKN No:</label>
+                        <input
+                          type="text"
+                          value={editForm.tcNo || editForm.vknNo || ''}
+                          onChange={e => setEditForm({ ...editForm, tcNo: e.target.value, vknNo: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-mono font-bold"
+                          placeholder="11 haneli TC veya VKN"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Vergi Dairesi:</label>
+                        <input
+                          type="text"
+                          value={editForm.taxOffice || ''}
+                          onChange={e => setEditForm({ ...editForm, taxOffice: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                          placeholder="Örn: Sakarya VD"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 6: FİNANS, KAPORA & FATURA KESİLDİ BİLGİSİ */}
+                  <div className="p-4 bg-amber-50/60 dark:bg-amber-950/20 rounded-2xl border border-amber-300 dark:border-amber-700/50 space-y-3">
+                    <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 6. Finans, Kapora, Ödeme Statüsü & Fatura Kesildi Bilgisi:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Tahsil Edilen Kapora (TL):</label>
+                        <input
+                          type="number"
+                          value={editForm.depositPaid || 0}
+                          onChange={e => {
+                            const dep = Number(e.target.value);
+                            const venueCost = Number(editForm.venuePrice || 85000);
+                            const srvCost = (editForm.selectedServices || []).reduce((sum, s) => {
+                              const p = typeof s === 'object' ? (s.customUnitPrice || s.price || 5000) : 5000;
+                              return sum + p;
+                            }, 0);
+                            const disc = Number(editForm.discountAmount || 0);
+                            const tot = Math.max(0, venueCost + srvCost - disc);
+                            const rem = Math.max(0, tot - dep);
+                            setEditForm({
+                              ...editForm,
+                              depositPaid: dep,
+                              totalAmount: tot,
+                              remainingBalance: rem,
+                              paymentStatus: rem === 0 ? 'Ödendi' : dep > 0 ? 'Kapora Alındı' : 'Bekliyor'
+                            });
+                          }}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-emerald-600 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Ödeme Durumu:</label>
+                        <select
+                          value={editForm.paymentStatus || 'Bekliyor'}
+                          onChange={e => setEditForm({ ...editForm, paymentStatus: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          <option value="Bekliyor">Bekliyor (Ödeme Bekleniyor)</option>
+                          <option value="Kapora Alındı">Kapora Alındı</option>
+                          <option value="Ödendi">Ödendi / Tamamlandı</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center pt-5">
+                        <label className="flex items-center space-x-2 cursor-pointer font-bold bg-white dark:bg-brand-card p-2.5 rounded-xl border border-slate-200 dark:border-brand-border w-full">
+                          <input
+                            type="checkbox"
+                            checked={editForm.isInvoiced || false}
+                            onChange={e => setEditForm({ ...editForm, isInvoiced: e.target.checked })}
+                            className="w-4 h-4 rounded text-amber-600"
+                          />
+                          <span className="text-slate-800 dark:text-gray-200">📄 Faturası Kesildi mi?</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 7: DÜĞÜN & ETKİNLİK AKIŞ PLANLAMASI */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                        <ThemeIcon icon="flow" fallbackEmoji="📜" className="w-3.5 h-3.5 shrink-0" />
+                        <span>7. Düğün & Etkinlik Akış Planlaması:</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPlan = [...(editForm.flowPlan || [])];
+                          newPlan.push({ time: '20:00', title: 'Yeni Akış Maddesi', description: 'Açıklama giriniz', responsible: 'Müdür' });
+                          setEditForm({ ...editForm, flowPlan: newPlan });
+                        }}
+                        className="px-2.5 py-1 bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[11px] hover:bg-amber-500/30 transition flex items-center space-x-1"
+                      >
+                        <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3 h-3 shrink-0" />
+                        <span>Yeni Akış Maddesi Ekle</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {(!editForm.flowPlan || editForm.flowPlan.length === 0) ? (
+                        <div className="text-slate-400 italic text-[11px]">Akış planı eklenmedi. Yukarıdaki butonla yeni saat maddesi ekleyebilirsiniz.</div>
+                      ) : (
+                        editForm.flowPlan.map((step, idx) => (
+                          <div key={idx} className="flex gap-2 items-center bg-white dark:bg-brand-card p-2 rounded-xl border border-slate-200 dark:border-brand-border">
+                            <input
+                              type="time"
+                              value={step.time || '18:00'}
+                              onChange={e => {
+                                const updated = [...editForm.flowPlan];
+                                updated[idx].time = e.target.value;
+                                setEditForm({ ...editForm, flowPlan: updated });
+                              }}
+                              className="w-24 bg-slate-50 dark:bg-brand-dark p-1 rounded font-mono font-bold text-[11px] border"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Akış Başlığı"
+                              value={step.title || ''}
+                              onChange={e => {
+                                const updated = [...editForm.flowPlan];
+                                updated[idx].title = e.target.value;
+                                setEditForm({ ...editForm, flowPlan: updated });
+                              }}
+                              className="flex-1 bg-slate-50 dark:bg-brand-dark p-1 rounded font-bold text-[11px] border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = editForm.flowPlan.filter((_, i) => i !== idx);
+                                setEditForm({ ...editForm, flowPlan: updated });
+                              }}
+                              className="text-red-500 font-bold px-2 py-1 hover:bg-red-50 rounded text-xs"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* SECTION 8: OPERASYONEL NOTLAR */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                      <ThemeIcon icon="notes" fallbackEmoji="📝" className="w-3.5 h-3.5 shrink-0" />
+                      <span>8. Operasyonel Ek Notlar & Özel İstekler:</span>
+                    </span>
+                    <textarea
+                      rows="3"
+                      value={editForm.notes || ''}
+                      onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                      placeholder="Müşterinin özel istekleri, organizasyon detayları..."
+                      className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium"
+                    />
+                  </div>
+
+                </div>
+
+                {/* EDIT MODAL FOOTER */}
+                <div className="pt-3 border-t flex justify-between items-center text-xs font-bold">
+                  {editError && (
+                    <span className="text-red-500 font-bold flex items-center space-x-1">
+                      <ThemeIcon icon="warning" fallbackEmoji="⚠️" className="w-3.5 h-3.5 shrink-0 text-red-500" />
+                      <span>Müşteri adı ve telefonu zorunludur!</span>
+                    </span>
+                  )}
+                  <div className="flex space-x-3 ml-auto">
+                    <button onClick={() => setEditingRes(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark rounded-xl">İptal</button>
+                    <button
+                      onClick={() => {
+                        if (!editForm.customerName || !editForm.customerPhone) {
+                          setEditError(true);
+                          return;
+                        }
+                        const tot = (editForm.venuePrice || 85000) + (editForm.selectedServices ? editForm.selectedServices.length * 5000 : 0);
+                        const rem = Math.max(0, tot - (editForm.depositPaid || 0));
+                        const finalObj = {
+                          ...editForm,
+                          totalAmount: tot,
+                          remainingBalance: rem,
+                          paymentStatus: rem === 0 ? 'Ödendi' : (editForm.depositPaid > 0 ? 'Kapora Alındı' : 'Bekliyor')
+                        };
+                        if (onUpdateReservation) onUpdateReservation(finalObj);
+                        setEditingRes(null);
+                      }}
+                      className="gold-button px-6 py-2.5 rounded-xl shadow inline-flex items-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="check" fallbackEmoji="💾" className="w-4 h-4 shrink-0" />
+                      <span>Değişiklikleri Kaydet</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+        </div>
+      );
+    }
+
+// --- USERS COMPONENT ---
+
+    function UsersComponent({ users, onAddClick, onEditClick, onDeleteClick }) {
+      return (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+              <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-6 h-6 text-amber-500 shrink-0" />
+              <span>Kullanıcı Yönetimi</span>
+            </h2>
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1">
+              <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+              <span>Yeni Kullanıcı Tanımla</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {users.map(u => (
+              <div key={u.id} className="glass-panel p-5 rounded-2xl text-center space-y-3 shadow-sm flex flex-col justify-between">
+                <div>
+                  <img src={u.avatar} alt={`${u.name} Profil Resmi`} className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-amber-500/50" />
+                  <div className="mt-2">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{u.name}</h3>
+                    <div className="text-xs text-slate-500 dark:text-gray-400 truncate">{u.email}</div>
+                  </div>
+                  <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border border-amber-500/20 inline-block mt-2">{u.role}</span>
+                </div>
+
+                <div className="flex space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40">
+                  <button onClick={() => onEditClick(u)} className="flex-1 py-1.5 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30 flex items-center justify-center space-x-1">
+                    <span>Düzenle</span>
+                    <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                  </button>
+                  <button onClick={() => onDeleteClick(u.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold text-xs border border-red-500/20 flex items-center space-x-1">
+                    <span>Sil</span>
+                    <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+
+    // --- MEDIA COMPONENT ---
+
+// --- MEDIA COMPONENT ---
+
+function MediaComponent({ reservations = [], showToast = () => {} }) {
+  const [mediaUrl, setMediaUrl] = useState('');
+
+  return (
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="text-center">
+        <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Medya & Fotoğraf Galerisi Yükleyici</h2>
+        <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Düğün salonları, organizasyon galerileri veya müşteri albümleri için yüksek çözünürlüklü görsel yükleyin.</p>
+      </div>
+
+      <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+        <ImageDropzoneUploader
+          label="Galeri Fotoğrafı Yükle"
+          value={mediaUrl}
+          onChange={(url) => {
+            setMediaUrl(url);
+            showToast('📸 Medya Görseli Başarıyla Yüklendi ve Önizlemeye Alındı!');
+          }}
+          aspectGuide="1920x1080 px (Full HD Galeri Görseli)"
+          placeholderIcon="📸"
+        />
+      </div>
+    </div>
+  );
+}
+
+
+// --- MAIN APP COMPONENT ---
+    function App() {
+      // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
+      const [venues, setVenues] = useState(() => CacheService.get('venues', INITIAL_VENUES));
+      const [services, setServices] = useState(() => CacheService.get('services', INITIAL_SERVICES));
+      const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', INITIAL_CAMPAIGNS));
+      const [customers, setCustomers] = useState(() => CacheService.get('customers', INITIAL_CUSTOMERS));
+      const [reservations, setReservations] = useState(() => CacheService.get('reservations', INITIAL_RESERVATIONS));
+      const [draftReservations, setDraftReservations] = useState(() => CacheService.get('draft_reservations', []));
+      const [users, setUsers] = useState(() => CacheService.get('users', INITIAL_USERS));
+
+      useEffect(() => { CacheService.set('venues', venues); }, [venues]);
+      useEffect(() => { CacheService.set('services', services); }, [services]);
+      useEffect(() => { CacheService.set('campaigns', campaigns); }, [campaigns]);
+      useEffect(() => { CacheService.set('customers', customers); }, [customers]);
+      useEffect(() => { CacheService.set('reservations', reservations); }, [reservations]);
+      useEffect(() => { CacheService.set('draft_reservations', draftReservations); }, [draftReservations]);
+      useEffect(() => { CacheService.set('users', users); }, [users]);
+
+      // CURRENT USER PROFILE STATE
+      const [currentUserState, setCurrentUserState] = useState(() => CacheService.get('current_user', {
+        id: 'u-admin',
+        name: 'Davut Akbulut',
+        email: 'davut@iremdugunsarayi.com',
+        phone: '+90 532 123 4567',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+      }));
+
+      useEffect(() => { CacheService.set('current_user', currentUserState); }, [currentUserState]);
+
+      // SETTINGS & RBAC STATES
+      const [rolesState, setRolesState] = useState(() => CacheService.get('roles', ROLE_NAMES));
+      const [tabPermissionsState, setTabPermissionsState] = useState(() => CacheService.get('tab_permissions', TAB_PERMISSIONS));
+      const [themeColor, setThemeColor] = useState(() => CacheService.get('theme_color', 'gold'));
+      const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+      const [isCacheEnabledState, setIsCacheEnabledState] = useState(() => CacheService.get('cache_enabled', true));
+
+      useEffect(() => { CacheService.set('roles', rolesState); }, [rolesState]);
+      useEffect(() => { CacheService.set('tab_permissions', tabPermissionsState); }, [tabPermissionsState]);
+      useEffect(() => {
+        CacheService.set('theme_color', themeColor);
+        if (themeColor === 'elite-luxury' || themeColor === 'obsidian') {
+          document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
+        } else if (themeColor === 'nordic-light') {
+          document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+        } else if (themeColor === 'sapphire-minimal' || themeColor === 'sapphire_clean' || themeColor === 'sapphire') {
+          document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
+        } else if (themeColor === 'emerald-royal' || themeColor === 'emerald_royal' || themeColor === 'emerald') {
+          document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
+        } else {
+          document.documentElement.removeAttribute('data-ui-theme');
+        }
+      }, [themeColor]);
+      useEffect(() => { CacheService.set('cache_enabled', isCacheEnabledState); }, [isCacheEnabledState]);
+
+      const handleAddRole = (roleId, roleName) => {
+        setRolesState(prev => ({ ...prev, [roleId]: roleName }));
+        setTabPermissionsState(prev => ({
+          ...prev,
+          dashboard: [...(prev['dashboard'] || []), roleId],
+          profile: [...(prev['profile'] || []), roleId]
+        }));
+      };
+
+      const handleToggleTabPermission = (tabId, roleId) => {
+        setTabPermissionsState(prev => {
+          const current = prev[tabId] || [];
+          const updated = current.includes(roleId)
+            ? current.filter(r => r !== roleId)
+            : [...current, roleId];
+          return { ...prev, [tabId]: updated };
+        });
+      };
+
+      const handleClearCache = () => {
+        try {
+          const sysKeys = ['theme_color', 'selected_theme', 'cache_enabled', 'current_user', 'roles', 'tab_permissions'];
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('irem_cache_')) {
+              const subKey = key.replace('irem_cache_', '');
+              if (!sysKeys.includes(subKey)) {
+                localStorage.removeItem(key);
+              }
+            }
+          });
+          // Ensure active theme remains active on HTML root attribute
+          CacheService.set('theme_color', themeColor);
+        } catch (e) {}
+      };
+
+      const handleSeedDatabase = () => {
+        setVenues(INITIAL_VENUES);
+        setServices(INITIAL_SERVICES);
+        setCampaigns(INITIAL_CAMPAIGNS);
+        setCustomers(INITIAL_CUSTOMERS);
+        setReservations(INITIAL_RESERVATIONS);
+        setUsers(INITIAL_USERS);
+        CacheService.set('venues', INITIAL_VENUES);
+        CacheService.set('services', INITIAL_SERVICES);
+        CacheService.set('campaigns', INITIAL_CAMPAIGNS);
+        CacheService.set('customers', INITIAL_CUSTOMERS);
+        CacheService.set('reservations', INITIAL_RESERVATIONS);
+        CacheService.set('users', INITIAL_USERS);
+        showToast("🏰 Veritabanı Tüm Varsayılan Salonlar ve Ek Hizmetler ile Tohumlandı!");
+      };
+
+      const [activeRole, setActiveRole] = useState('admin');
+      const [activeTab, setActiveTabState] = useState(getHashTab);
+      const isErrorPage = activeTab.startsWith('simulasyon-') || ['404', '301', '403', '500'].includes(activeTab);
+
+      const [toast, setToast] = useState(null);
+      const [globalAlerts, setGlobalAlerts] = useState([]);
+      const [mobileReservationSummary, setMobileReservationSummary] = useState(null);
+      const [isMobileSummaryDrawerOpen, setIsMobileSummaryDrawerOpen] = useState(false);
+
+      useEffect(() => {
+        window.updateMobileReservationSummary = (summaryData) => {
+          setMobileReservationSummary(summaryData);
+        };
+        return () => {
+          delete window.updateMobileReservationSummary;
+        };
+      }, []);
+
+      const removeGlobalAlert = useCallback((id) => {
+        setGlobalAlerts(prev => prev.filter(alert => alert.id !== id));
+      }, []);
+
+      const closeGlobalAlert = (alert) => {
+        if (alert && alert.id) {
+          removeGlobalAlert(alert.id);
+        }
+        if (alert && alert.targetInputId) {
+          const el = document.getElementById(alert.targetInputId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.focus();
+          }
+        }
+      };
+
+      useEffect(() => {
+        window.showGlobalAlert = (title, message, targetInputId = null) => {
+          const id = Date.now() + Math.random();
+          const newAlert = { id, title, message, targetInputId };
+          setGlobalAlerts(prev => [...prev, newAlert].slice(-4));
+
+          setTimeout(() => {
+            removeGlobalAlert(id);
+          }, 3500);
+        };
+        return () => {
+          delete window.showGlobalAlert;
+        };
+      }, [removeGlobalAlert]);
+
+      // Modals State
+      const [selectedResForDetail, setSelectedResForDetail] = useState(null);
+      const [customerModalData, setCustomerModalData] = useState(null);
+      const [venueModalData, setVenueModalData] = useState(null);
+      const [serviceModalData, setServiceModalData] = useState(null);
+      const [campaignModalData, setCampaignModalData] = useState(null);
+      const [userModalData, setUserModalData] = useState(null);
+      const [emailModalData, setEmailModalData] = useState(null);
+      const [redAlertModalData, setRedAlertModalData] = useState(null);
+      const [prefilledCreateDate, setPrefilledCreateDate] = useState(null);
+      const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+      const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+      const [menuLayout, setMenuLayout] = useState(() => {
+        try {
+          return localStorage.getItem('irem_menu_layout') || 'vertical';
+        } catch(e) { return 'vertical'; }
+      });
+
+      const handleMenuLayoutChange = (newLayout) => {
+        setMenuLayout(newLayout);
+        try {
+          localStorage.setItem('irem_menu_layout', newLayout);
+        } catch(e) {}
+        showToast(`Menü Düzeni Değiştirildi: ${newLayout === 'horizontal' ? 'Yatay Üst Menü ══' : 'Dikey Sol Menü 📌'}`);
+      };
+
+      const [collapsedNavGroups, setCollapsedNavGroups] = useState({
+        'MÜŞTERİ & ANALİZ': true,
+        'YÖNETİM & AYARLAR': true,
+        'Sistem Ayarları': true
+      });
+
+      const toggleNavGroup = (groupTitle) => {
+        setCollapsedNavGroups(prev => ({
+          ...prev,
+          [groupTitle]: !prev[groupTitle]
+        }));
+      };
+
+      const [resSearchQuery, setResSearchQuery] = useState('');
+      const [resStatusFilter, setResStatusFilter] = useState('all');
+
+      // CRUD HANDLERS
+      const handleSaveVenue = (vObj) => {
+        setVenues(prev => {
+          const idx = prev.findIndex(x => x.id === vObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = vObj;
+            return updated;
+          }
+          return [...prev, vObj];
+        });
+        setVenueModalData(null);
+        showToast('🏰 Düğün Salonu Başarıyla Kaydedildi!');
+      };
+
+      const handleDeleteVenue = (vIdOrObj) => {
+        const vId = typeof vIdOrObj === 'object' ? vIdOrObj.id : vIdOrObj;
+        const venue = venues.find(x => x.id === vId);
+        const vName = venue ? venue.name : 'Düğün Salonu';
+        setRedAlertModalData({
+          title: '🚨 DÜĞÜN SALONU SİLİNECEK',
+          message: `"${vName}" salonunu sistemden tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
+          confirmText: 'Evet, Salonu Sil',
+          onConfirm: () => {
+            setVenues(prev => prev.filter(x => x.id !== vId));
+            showToast('🗑️ Düğün Salonu Sistemden Silindi.');
+          }
+        });
+      };
+
+      const handleSaveService = (sObj) => {
+        setServices(prev => {
+          const idx = prev.findIndex(x => x.id === sObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = sObj;
+            return updated;
+          }
+          return [...prev, sObj];
+        });
+        setServiceModalData(null);
+        showToast('✨ Ek Hizmet Başarıyla Kaydedildi!');
+      };
+
+      const handleDeleteService = (sIdOrObj) => {
+        const sId = typeof sIdOrObj === 'object' ? sIdOrObj.id : sIdOrObj;
+        const service = services.find(x => x.id === sId);
+        const sName = service ? service.name : 'Ek Hizmet';
+        setRedAlertModalData({
+          title: '🚨 EK HİZMET SİLİNECEK',
+          message: `"${sName}" ek hizmet kartını silmek istediğinize emin misiniz?`,
+          confirmText: 'Evet, Hizmeti Sil',
+          onConfirm: () => {
+            setServices(prev => prev.filter(x => x.id !== sId));
+            showToast('🗑️ Ek Hizmet Silindi.');
+          }
+        });
+      };
+
+      const handleSaveCampaign = (cObj) => {
+        setCampaigns(prev => {
+          const idx = prev.findIndex(x => x.id === cObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = cObj;
+            return updated;
+          }
+          return [...prev, cObj];
+        });
+        setCampaignModalData(null);
+        showToast('🎁 Özel Kampanya Başarıyla Oluşturuldu!');
+      };
+
+      const handleConvertAiToCampaign = (rec) => {
+        const newCamp = {
+          id: 'c_' + Date.now(),
+          code: rec.code || ('AI_' + Math.floor(Math.random() * 8999 + 1000)),
+          title: (rec.title || '').replace(/^[🎯💡🍂⚡]\s*/, ''),
+          type: rec.type || 'percent',
+          value: rec.value || 15,
+          description: rec.description,
+          isAiGenerated: true,
+          badge: '✨ AI Üretimi',
+          active: true
+        };
+        setCampaigns(prev => [newCamp, ...prev]);
+        showToast(`🚀 AI Önerisi Canlı Kampanyalar Sayfasına Enjekte Edildi! Kod: ${newCamp.code}`);
+        navigateTo('campaigns');
+      };
+
+      const handleUpdateVenuePriceFromAI = (venueId, newPrice) => {
+        setVenues(prev => prev.map(v => v.id === venueId ? { ...v, price: newPrice } : v));
+        showToast(`💰 Salon Fiyatı AI Tarafından Güncellendi: ${formatCurrency(newPrice)}`);
+      };
+
+
+      const handleDeleteCampaign = (cIdOrObj) => {
+        const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
+        const campaign = campaigns.find(x => x.id === cId);
+        const cTitle = campaign ? campaign.title : 'Özel Kampanya';
+        setRedAlertModalData({
+          title: '🚨 ÖZEL KAMPANYA SİLİNECEK',
+          message: `"${cTitle}" kampanyasını sistemden kaldırmak istediğinize emin misiniz?`,
+          confirmText: 'Evet, Kampanyayı Sil',
+          onConfirm: () => {
+            setCampaigns(prev => prev.filter(x => x.id !== cId));
+            showToast('🗑️ Kampanya Kaldırıldı.');
+          }
+        });
+      };
+
+      const handleSaveUser = (uObj) => {
+        setUsers(prev => {
+          const idx = prev.findIndex(x => x.id === uObj.id);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = uObj;
+            return updated;
+          }
+          return [...prev, uObj];
+        });
+        setUserModalData(null);
+        showToast('⚙️ Kullanıcı Bilgileri Başarıyla Güncellendi!');
+      };
+
+      const handleDeleteUser = (uIdOrObj) => {
+        const uId = typeof uIdOrObj === 'object' ? uIdOrObj.id : uIdOrObj;
+        const user = users.find(x => x.id === uId);
+        const uName = user ? user.name : 'Kullanıcı';
+        setRedAlertModalData({
+          title: '🚨 KULLANICI HESABI SİLİNECEK',
+          message: `"${uName}" kullanıcısının yetkilerini iptal edip sistemden silmek istediğinize emin misiniz?`,
+          confirmText: 'Evet, Kullanıcıyı Sil',
+          onConfirm: () => {
+            setUsers(prev => prev.filter(x => x.id !== uId));
+            showToast('🗑️ Kullanıcı Sistemden Silindi.');
+          }
+        });
+      };
+
+      const handleDeleteCustomer = (cIdOrObj) => {
+        const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
+        const customer = customers.find(x => x.id === cId);
+        const cName = customer ? customer.name : 'Müşteri';
+        setRedAlertModalData({
+          title: '🚨 MÜŞTERİ KARTI SİLİNECEK',
+          message: `"${cName}" müşteri kaydını rehberden silmek istediğinize emin misiniz?`,
+          confirmText: 'Evet, Müşteriyi Sil',
+          onConfirm: () => {
+            setCustomers(prev => prev.filter(x => x.id !== cId));
+            showToast('🗑️ Müşteri Rehberden Silindi.');
+          }
+        });
+      };
+
+      const handleRescheduleReservation = (resId, newDate) => {
+        setReservations(prev => prev.map(r => r.id === resId ? { ...r, date: newDate, dateFormatted: newDate } : r));
+        setSelectedResForDetail(prev => (prev && prev.id === resId ? { ...prev, date: newDate, dateFormatted: newDate } : prev));
+        showToast(`📅 Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi!`);
+      };
+
+      const [isPageTabLoading, setIsPageTabLoading] = useState(false);
+
+      const navigateTo = (tab, queryParams = null) => {
+        if (tab !== activeTab) {
+          setIsPageTabLoading(true);
+          setTimeout(() => setIsPageTabLoading(false), 150);
+        }
+        setActiveTabState(tab);
+        const tabSlug = TAB_TO_SLUG[tab] || 'anasayfa';
+        let queryStr = '';
+        if (queryParams && typeof queryParams === 'object') {
+          const qp = new URLSearchParams(queryParams).toString();
+          if (qp) queryStr = '?' + qp;
+        } else if (typeof queryParams === 'string' && queryParams) {
+          queryStr = queryParams.startsWith('?') ? queryParams : '?' + queryParams;
+        }
+        const newUrl = `${window.location.pathname}#/${tabSlug}${queryStr}`;
+        window.history.pushState({ tab, queryParams }, '', newUrl);
+      };
+
+      useEffect(() => {
+        const handlePopState = () => {
+          setActiveTabState(getHashTab());
+        };
+        window.addEventListener('popstate', handlePopState);
+        window.addEventListener('hashchange', handlePopState);
+        return () => {
+          window.removeEventListener('popstate', handlePopState);
+          window.removeEventListener('hashchange', handlePopState);
+        };
+      }, []);
+
+      const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 4000);
+      };
+
+      const handleUpdateReservation = (updatedRes) => {
+        setReservations(prev => prev.map(r => r.id === updatedRes.id ? updatedRes : r));
+        showToast(`✏️ ${updatedRes.customerName} rezervasyon bilgileri güncellendi.`);
+      };
+
+      const handleDeleteReservation = (resId) => {
+        setReservations(prev => prev.filter(r => r.id !== resId));
+        showToast(`🗑️ ${resId} sözleşme kodlu rezervasyon silindi.`);
+      };
+
+      const financialStats = useMemo(() => {
+        const totalRev = reservations.reduce((acc, r) => acc + r.totalAmount, 0);
+        const totalDeposit = reservations.reduce((acc, r) => acc + r.depositPaid, 0);
+        const totalPending = reservations.reduce((acc, r) => acc + r.remainingBalance, 0);
+        return { totalRev, totalDeposit, totalPending };
+      }, [reservations]);
+
+      const filteredReservations = useMemo(() => {
+        return reservations.filter(r => {
+          const matchSearch = r.id.toLowerCase().includes(resSearchQuery.toLowerCase()) || r.customerName.toLowerCase().includes(resSearchQuery.toLowerCase());
+          const matchStatus = resStatusFilter === 'all' || r.paymentStatus === resStatusFilter;
+          return matchSearch && matchStatus;
+        });
+      }, [reservations, resSearchQuery, resStatusFilter]);
+
+      const isAuthorized = useMemo(() => {
+        const allowedRoles = TAB_PERMISSIONS[activeTab] || ['admin'];
+        return allowedRoles.includes(activeRole);
+      }, [activeTab, activeRole]);
+
+      // Print Invoice Helper
+      const handlePrintInvoice = (res) => {
+        const venue = venues.find(v => v.id === res.venueId);
+        const printWin = window.open('', '_blank', 'width=900,height=700');
+        printWin.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>İrem Düğün Sarayı - Resmi Sözleşme & Fatura (${res.id})</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+              .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 20px; }
+              .logo { font-size: 24px; font-weight: bold; color: #b45309; }
+              .title { font-size: 18px; font-weight: bold; text-align: center; margin: 30px 0 10px 0; color: #0f172a; text-transform: uppercase; }
+              .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+              .card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; font-size: 13px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+              th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+              th { background: #f1f5f9; font-weight: bold; }
+              .totals { margin-top: 20px; text-align: right; font-size: 14px; }
+              .totals div { margin-bottom: 5px; }
+              .grand-total { font-size: 18px; font-weight: bold; color: #b45309; }
+              .signatures { display: flex; justify-content: space-between; margin-top: 50px; font-size: 13px; }
+              .sig-box { border-top: 1px solid #94a3b8; width: 200px; text-align: center; padding-top: 8px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <div class="logo">👑 İREM DÜĞÜN SARAYI</div>
+                <div style="font-size: 12px; color: #64748b;">Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 16px; font-weight: bold;">SÖZLEŞME & FATURA</div>
+                <div style="font-size: 12px; color: #64748b;">Belge No: <strong>${res.id}</strong></div>
+                <div style="font-size: 12px; color: #64748b;">Tarih: ${new Date().toLocaleDateString('tr-TR')}</div>
+              </div>
+            </div>
+
+            <div class="title">DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ</div>
+
+            <div class="grid">
+              <div class="card">
+                <strong>ŞİRKET BİLGİLERİ (Hizmet Veren):</strong><br>
+                İrem Düğün Sarayı Ltd. Şti.<br>
+                Sapanca Göl Kenarı No: 45, Sakarya<br>
+                Sapanca Vergi Dairesi | VKN: 4820192837<br>
+                Tel: +90 532 111 2233
+              </div>
+              <div class="card">
+                <strong>MÜŞTERİ BİLGİLERİ (Hizmet Alan):</strong><br>
+                ${res.customerName}<br>
+                Tel: ${res.customerPhone}<br>
+                E-posta: ${res.customerEmail}<br>
+                Fatura Tipi: ${res.invoiceType === 'corporate' ? 'Kurumsal (VKN)' : 'Bireysel (TC No)'}
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 20px;">
+              <strong>ETKİNLİK DETAYLARI:</strong><br>
+              Salon: <strong>${venue?.name || 'Kraliyet Balo Salonu'}</strong> | Etkinlik Tarihi: <strong>${formatDate(res.date)}</strong> | Saat Dilimi: <strong>${res.timeSlot}</strong> | Davetli Sayısı: <strong>${res.guestCount} Kişi</strong>
+            </div>
+
+            ${(res.flowPlan && res.flowPlan.length > 0) ? (
+              '<div style="margin-bottom: 20px;">' +
+                '<h4 style="margin: 0 0 8px 0; font-size: 14px; color: #b45309; text-transform: uppercase;">6. ORGANİZASYON & ETKİNLİK AKIŞ PLANLAMASI:</h4>' +
+                '<table style="margin-top: 5px;">' +
+                  '<thead>' +
+                    '<tr>' +
+                      '<th style="width: 100px;">Saat</th>' +
+                      '<th>Program / Etkinlik Adımı</th>' +
+                    '</tr>' +
+                  '</thead>' +
+                  '<tbody>' +
+                    res.flowPlan.map(function(fp) {
+                      return '<tr><td style="font-weight: bold; color: #b45309; font-family: monospace;">' + fp.time + '</td><td>' + fp.title + '</td></tr>';
+                    }).join('') +
+                  '</tbody>' +
+                '</table>' +
+              '</div>'
+            ) : ''}
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Hizmet / Kalem Açıklaması</th>
+                  <th>Miktar / Kişi</th>
+                  <th>Birim Fiyat</th>
+                  <th>Toplam Tutarı</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${venue?.name || 'Salon Kiralama Bedeli'}</td>
+                  <td>1 Paket</td>
+                  <td>${formatCurrency(res.venuePrice)}</td>
+                  <td>${formatCurrency(res.venuePrice)}</td>
+                </tr>
+                ${res.selectedServices.map(s => {
+                  const serv = services.find(x => x.id === s.serviceId);
+                  return `
+                    <tr>
+                      <td>${serv?.name || 'Ek Hizmet'} ${s.isPaid ? '(Ödendi ✓)' : ''}</td>
+                      <td>${s.quantity} ${serv?.pricingType === 'per_person' ? 'Kişi' : 'Adet'}</td>
+                      <td>${formatCurrency(s.unitPrice)}</td>
+                      <td>${formatCurrency(s.quantity * s.unitPrice)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+
+            <div class="totals">
+              <div>Ara Toplam: <strong>${formatCurrency(res.subtotal)}</strong></div>
+              ${res.discountAmount > 0 ? `<div>Kampanya İndirimi (${res.campaignCode || 'İndirim'}): <strong style="color:#dc2626;">-${formatCurrency(res.discountAmount)}</strong></div>` : ''}
+              <div>Hesaplanan KDV (%20): <strong>${formatCurrency(res.vatAmount)}</strong></div>
+              <div class="grand-total">Genel Toplam Tutar: ${formatCurrency(res.totalAmount)}</div>
+              <div style="margin-top:8px;">Tahsil Edilen Kapora: <strong style="color:#16a34a;">${formatCurrency(res.depositPaid)}</strong></div>
+              <div>Kalan Ödenecek Bakiye: <strong style="color:#dc2626;">${formatCurrency(res.remainingBalance)}</strong></div>
+            </div>
+
+            <div class="signatures">
+              <div class="sig-box">İrem Düğün Sarayı Yetkilisi<br>(İmza & Kaşe)</div>
+              <div class="sig-box">Müşteri / Kiracı<br>(İmza)</div>
+            </div>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+        printWin.focus();
+        setTimeout(() => printWin.print(), 500);
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative w-full max-w-full overflow-x-hidden">
+          
+          {/* GLOBAL ROOT STACKED VIEWPORT NOTIFICATIONS QUEUE (3.5s AUTO-DISMISS & VERTICAL STACK) */}
+          {globalAlerts.length > 0 && (
+            <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[999999] max-w-md w-full flex flex-col space-y-3 pointer-events-none">
+              {globalAlerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className="bg-slate-900/95 dark:bg-slate-900/95 border-2 border-red-500/80 rounded-2xl p-3.5 sm:p-4 shadow-[0_20px_50px_rgba(239,68,68,0.4)] backdrop-blur-2xl flex items-start space-x-3 relative border-l-8 border-l-red-600 text-white animate-slide-left pointer-events-auto"
+                >
+                  {/* Red Pulse Warning Icon */}
+                  <div className="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg font-bold shrink-0 border border-red-500/40 animate-pulse mt-0.5">
+                    ⚠️
+                  </div>
+
+                  {/* Content Area */}
+                  <div className="flex-1 space-y-1 pr-6 text-left">
+                    <h4 className="font-heading font-extrabold text-xs sm:text-sm text-white flex items-center space-x-1.5">
+                      <span>{alert.title}</span>
+                    </h4>
+                    <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-semibold">
+                      {alert.message}
+                    </p>
+                    
+                    {/* Action Button */}
+                    <div className="pt-1.5">
+                      <button
+                        onClick={() => closeGlobalAlert(alert)}
+                        className="px-3 py-1 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] shadow transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1 cursor-pointer"
+                      >
+                        <span>Anladım, Düzelt ✓</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Close X Button */}
+                  <button
+                    onClick={() => removeGlobalAlert(alert.id)}
+                    className="absolute top-3 right-3 text-slate-400 hover:text-white transition p-1 cursor-pointer"
+                    aria-label="Kapat"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* HEADER */}
+          {!isErrorPage && (
+            <header role="banner" className="sticky top-0 z-30 bg-white dark:bg-brand-card border-b border-slate-200 dark:border-brand-border/40 shadow-md flex flex-col">
+              {/* ROW 1: TOP MAIN HEADER BAR */}
+              <div className="h-16 px-4 sm:px-6 flex items-center justify-between">
+                {/* LEFT: MENU TOGGLE BUTTON + LOGO & BRAND */}
+                <div className="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(prev => !prev)}
+                    className="w-10 h-10 rounded-xl gold-button flex items-center justify-center font-extrabold text-lg shadow-md shrink-0 cursor-pointer hover:scale-105 transition lg:hidden"
+                    title="Yan Menüyü Aç/Kapat"
+                    aria-label="Menüyü Aç/Kapat"
+                  >
+                    ☰
+                  </button>
+
+                  <div className="flex items-center space-x-2.5 cursor-pointer group" onClick={() => navigateTo('dashboard')} role="button" tabIndex={0} aria-label="İrem Düğün Sarayı Ana Sayfa">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gold-button flex items-center justify-center font-bold text-lg sm:text-xl shadow-lg shrink-0 group-hover:scale-105 transition" aria-hidden="true">
+                      <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 text-amber-900 dark:text-gold-400" />
+                    </div>
+                    <div>
+                      <h1 className="font-heading font-extrabold text-base sm:text-lg lg:text-xl gold-gradient-text tracking-wide whitespace-nowrap leading-tight">
+                        İREM DÜĞÜN SARAYI
+                      </h1>
+                      <p className="text-[9px] sm:text-[10px] text-amber-600 dark:text-gold-400 font-medium hidden sm:block">Kurumsal Organizasyon Portalı</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT: QUICK ACTION & CLICKABLE PROFILE AVATAR */}
+                <div className="flex items-center space-x-3">
+                  {activeTab !== 'create-reservation' && (
+                    <button
+                      onClick={() => navigateTo('create-reservation')}
+                      className="gold-button font-bold text-xs px-3.5 py-2 rounded-xl shadow flex items-center space-x-1.5 hover:scale-105 transition cursor-pointer"
+                    >
+                      <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Yeni Rezervasyon</span>
+                    </button>
+                  )}
+
+                  {/* PROFILE AVATAR DROPDOWN */}
+                  <div className="relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsProfileDropdownOpen(prev => !prev)}
+                      className="flex items-center space-x-2 p-1 rounded-full hover:bg-amber-500/10 transition border border-amber-500/30 bg-white/50 dark:bg-brand-card/50 shadow-sm cursor-pointer"
+                      title="Profil Menüsünü Aç"
+                    >
+                      <img src={currentUserState?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"} alt="Kullanıcı Profil Resmi" className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-amber-500/60 object-cover shrink-0" />
+                      <div className="hidden md:block text-left pr-1">
+                        <div className="text-xs font-bold text-slate-800 dark:text-gray-200 leading-tight">{currentUserState?.name || 'Davut Akbulut'}</div>
+                        <div className="text-[9px] text-amber-600 dark:text-gold-400 font-bold">{rolesState[activeRole] || activeRole}</div>
+                      </div>
+                      <span className="text-[10px] opacity-60">▼</span>
+                    </button>
+
+                    {/* DROPDOWN MENU (HIGHER Z-INDEX THAN MEGA MENU DRAWER) */}
+                    {isProfileDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-brand-card rounded-2xl p-2 shadow-2xl border-2 border-amber-500/50 z-[9999999] animate-fade-in text-xs space-y-1">
+                        <div className="p-2 border-b border-slate-200 dark:border-brand-border/40">
+                          <div className="font-bold text-slate-800 dark:text-gray-100">{currentUserState?.name || 'Davut Akbulut'}</div>
+                          <div className="text-[10px] text-amber-700 dark:text-gold-400 font-bold">{rolesState[activeRole] || activeRole}</div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            navigateTo('profile');
+                            setIsProfileDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left"
+                        >
+                          <span>👤</span>
+                          <span>Profilimi Düzenle</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            navigateTo('settings');
+                            setIsProfileDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left"
+                        >
+                          <span>⚙️</span>
+                          <span>Sistem Ayarları</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            showToast('🚪 Hesabınızdan Güvenle Çıkış Yapıldı');
+                            setIsProfileDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-500/10 font-bold transition text-left"
+                        >
+                          <span>🚪</span>
+                          <span>Çıkış Yap</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ROW 2: DEDICATED SUB-HEADER BAR (ALWAYS PRESENT BETWEEN MAIN HEADER & NAVIGATION MENU) */}
+              {!isErrorPage && (
+                <div className="bg-slate-50/90 dark:bg-brand-dark/90 border-t border-b border-slate-200/80 dark:border-brand-border/60 px-4 sm:px-6 py-1.5 flex items-center justify-between text-xs font-bold z-30">
+                  {/* LEFT: ROLE SWITCHER BUTTONS */}
+                  <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar">
+                    <span className="text-[10px] uppercase font-extrabold text-slate-400 dark:text-gray-400 flex items-center space-x-1 shrink-0">
+                      <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Hızlı Rol Değiştir:</span>
+                    </span>
+                    <div className="flex items-center space-x-1 shrink-0">
+                      {Object.keys(rolesState).map(rId => {
+                        const roleNameOnly = (rolesState[rId] || rId).replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+                        return (
+                          <button
+                            key={rId}
+                            onClick={() => {
+                              setActiveRole(rId);
+                              showToast(`Rol Değiştirildi: ${roleNameOnly}`);
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                              activeRole === rId
+                                ? 'bg-amber-500 text-white shadow-xs'
+                                : 'bg-white dark:bg-brand-card text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:bg-slate-100'
+                            }`}
+                          >
+                            {roleNameOnly}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* RIGHT: SYSTEM ACTIVE STATUS & DYNAMIC SEMANTIC VERSIONING BADGE */}
+                  <div className="hidden sm:flex items-center space-x-2 text-[10px] shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsVersionModalOpen(true)}
+                      className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-extrabold px-3 py-1 rounded-full border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer flex items-center space-x-1.5 shadow-xs"
+                      title="Sistem Sürüm Geçmişini Göster"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Canlı Sistem (v1.3.0)</span>
+                      <span className="text-[9px] opacity-70">📋</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ROW 3: HORIZONTAL NAVIGATION MENU BAR (DESKTOP MEGA MENU MODE ONLY) */}
+              {!isErrorPage && menuLayout === 'horizontal' && (
+                <HorizontalNavbarComponent
+                  activeTab={activeTab}
+                  onTabChange={navigateTo}
+                  activeRole={activeRole}
+                  tabPermissionsState={tabPermissionsState}
+                />
+              )}
+            </header>
+          )}
+
+          {/* LAYOUT BODY SCROLL AREA (CONTAINS SIDEBAR + MAIN CONTENT ROW, AND FULL-WIDTH FOOTER BELOW THEM) */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-x-hidden w-full max-w-full">
+            
+            {/* ROW: SIDEBAR & MAIN CONTENT */}
+            <div className="flex-1 flex min-h-0 w-full max-w-full overflow-x-hidden">
+            
+            {/* SIDEBAR (VERTICAL MODE ONLY) */}
+            {!isErrorPage && menuLayout === 'vertical' && (
+              <aside aria-label="Ana Gezinti Menüsü" className="w-64 glass-panel p-4 hidden lg:flex flex-col justify-between border-r border-slate-200 dark:border-brand-border/40 shrink-0 sticky top-0 h-[calc(100vh-105px)] overflow-hidden">
+                <nav className="space-y-3 custom-scrollbar overflow-y-auto flex-1 min-h-0 pr-1">
+                  {[
+                    {
+                      title: 'ANA PANOLAR',
+                      icon: 'chart',
+                      fallbackEmoji: '📌',
+                      items: [
+                        { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '📊' },
+                        { id: 'mind-map', label: 'Zihin Haritası (MindMap)', icon: 'sparkles', fallbackEmoji: '🧠', badge: 'YENİ' },
+                        { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' }
+                      ]
+                    },
+                    {
+                      title: 'REZERVASYON & TAKVİM',
+                      icon: 'calendar',
+                      fallbackEmoji: '📅',
+                      items: [
+                        { id: 'reservations', label: 'Rezervasyon Listesi', icon: 'list', fallbackEmoji: '📋' },
+                        { id: 'calendar', label: 'İnteraktif Takvim', icon: 'calendar', fallbackEmoji: '📅' }
+                      ]
+                    },
+                    {
+                      title: 'MEKAN & HİZMETLER',
+                      icon: 'money',
+                      fallbackEmoji: '🏛️',
+                      items: [
+                        { id: 'finance', label: 'Finans Kasa & Gider', icon: 'money', fallbackEmoji: '💰', badge: 'CANLI' },
+                        { id: 'venues', label: 'Etkinlik Mekanları', icon: 'venue', fallbackEmoji: '🏰' },
+                        { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '🎁' },
+                        { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '🏷️' }
+                      ]
+                    },
+                    {
+                      title: 'MÜŞTERİ & ANALİZ',
+                      icon: 'user',
+                      fallbackEmoji: '👥',
+                      items: [
+                        { id: 'customers', label: 'Müşteri Rehberi (CRM)', icon: 'user', fallbackEmoji: '👥' },
+                        { id: 'reports', label: 'Raporlar & Grafikler', icon: 'chart', fallbackEmoji: '📈' },
+                        { id: 'media', label: 'Medya & Foto Yükle', icon: 'camera', fallbackEmoji: '📸' }
+                      ]
+                    },
+                    {
+                      title: 'YÖNETİM & AYARLAR',
+                      icon: 'settings',
+                      fallbackEmoji: '⚙️',
+                      items: [
+                        { id: 'mind-map', label: 'Zihin Haritası (MindMap)', icon: 'sparkles', fallbackEmoji: '🧠', badge: 'YENİ' },
+                        { id: 'users', label: 'Kullanıcı Yönetimi', icon: 'shield', fallbackEmoji: '🛡️' },
+                        { id: 'settings', label: 'Sistem Ayarları', icon: 'settings', fallbackEmoji: '⚙️' }
+                      ]
+                    }
+                  ].map(group => {
+                    const validItems = group.items.filter(item => (tabPermissionsState[item.id] || []).includes(activeRole));
+                    if (validItems.length === 0) return null;
+
+                    const isGroupCollapsed = !!collapsedNavGroups[group.title];
+
+                    return (
+                      <div key={group.title} className="space-y-1 border-b border-slate-100 dark:border-brand-border/20 pb-2 last:border-0">
+                        <button
+                          type="button"
+                          onClick={() => toggleNavGroup(group.title)}
+                          className="w-full text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-widest px-2.5 py-1.5 flex items-center justify-between hover:text-amber-500 transition cursor-pointer select-none rounded-lg hover:bg-slate-100 dark:hover:bg-brand-card/60"
+                        >
+                          <div className="flex items-center space-x-1.5">
+                            <ThemeIcon icon={group.icon} fallbackEmoji={group.fallbackEmoji} className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                            <span>{group.title}</span>
+                          </div>
+                          <span className={`text-[10px] text-amber-500 transition duration-200 transform ${isGroupCollapsed ? '-rotate-90' : 'rotate-0'}`}>
+                            ▼
+                          </span>
+                        </button>
+
+                        {!isGroupCollapsed && validItems.map(item => {
+                          const isSettingsSubCollapsed = !!collapsedNavGroups['Sistem Ayarları'];
+
+                          return (
+                            <React.Fragment key={item.id}>
+                              <a
+                                href={`#/${TAB_TO_SLUG[item.id]}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  navigateTo(item.id);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold text-xs transition ${
+                                  activeTab === item.id || (item.id === 'settings' && activeTab.startsWith('settings-'))
+                                    ? 'bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 font-bold shadow-sm'
+                                    : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-brand-card hover:text-slate-900'
+                                }`}
+                                aria-current={activeTab === item.id ? 'page' : undefined}
+                              >
+                                <div className="flex items-center space-x-2.5">
+                                  <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-4 h-4 shrink-0" />
+                                  <span>{item.label}</span>
+                                </div>
+                                {item.id === 'settings' ? (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      toggleNavGroup('Sistem Ayarları');
+                                    }}
+                                    className="p-1 hover:bg-amber-500/20 rounded-md text-[10px] text-amber-600 transition"
+                                    title="Sistem Ayarları Alt Menüsünü Aç/Kapat"
+                                  >
+                                    {isSettingsSubCollapsed ? '►' : '▼'}
+                                  </button>
+                                ) : item.badge && (
+                                  <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow ${item.badge === 'CANLI' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </a>
+
+                              {/* SUB-MENU ITEMS DIRECTLY UNDER SISTEM AYARLARI */}
+                              {item.id === 'settings' && !isSettingsSubCollapsed && (
+                                <div className="pl-6 space-y-1 my-1 border-l-2 border-amber-500/30 ml-3">
+                                  <a
+                                    href="#/ayarlar/gorunum"
+                                    onClick={(e) => { e.preventDefault(); navigateTo('settings-appearance'); }}
+                                    className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                                      activeTab === 'settings-appearance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                    }`}
+                                  >
+                                    <ThemeIcon icon="sparkles" fallbackEmoji="🎨" className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Görünüm & Tema</span>
+                                  </a>
+                                  <a
+                                    href="#/ayarlar/rol-izinleri"
+                                    onClick={(e) => { e.preventDefault(); navigateTo('settings-rbac'); }}
+                                    className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                                      activeTab === 'settings-rbac' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                    }`}
+                                  >
+                                    <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Rol & İzin Matrisi</span>
+                                  </a>
+                                  <a
+                                    href="#/ayarlar/simulasyon"
+                                    onClick={(e) => { e.preventDefault(); navigateTo('settings-errors'); }}
+                                    className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                                      activeTab === 'settings-errors' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                    }`}
+                                  >
+                                    <ThemeIcon icon="warning" fallbackEmoji="🚨" className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Hata Simülasyonu</span>
+                                  </a>
+                                  <a
+                                    href="#/ayarlar/onbellek"
+                                    onClick={(e) => { e.preventDefault(); navigateTo('settings-performance'); }}
+                                    className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                                      activeTab === 'settings-performance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                    }`}
+                                  >
+                                    <ThemeIcon icon="chart" fallbackEmoji="⚡" className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Önbellek & Performans</span>
+                                  </a>
+                                </div>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </nav>
+
+                <div className="bg-white dark:bg-brand-card p-3 rounded-2xl border border-amber-500/20 text-center space-y-1 shadow-sm shrink-0 mt-2">
+                  <ThemeIcon icon="crown" fallbackEmoji="🏰" className="w-5 h-5 shrink-0 inline-block text-amber-500" />
+                  <div className="text-xs font-bold text-amber-700 dark:text-gold-400">İrem Düğün Sarayı</div>
+                  <div className="text-[10px] text-slate-500 dark:text-gray-400">Sapanca / Sakarya</div>
+                </div>
+              </aside>
+            )}
+
+            {/* PAGE MAIN CONTENT */}
+            <main role="main" className="flex-1 p-3 pb-4 sm:p-6 sm:pb-6 lg:p-8 lg:pb-6 min-w-0 w-full max-w-full overflow-x-hidden">
+              
+              {toast && (
+                <div role="status" aria-live="polite" className="fixed top-4 left-4 right-4 sm:top-20 sm:left-auto sm:right-6 z-[99999] px-5 py-3 rounded-2xl sm:rounded-xl bg-slate-900/95 dark:bg-slate-900/95 text-slate-100 border border-amber-500/50 shadow-2xl font-bold text-xs flex items-center justify-between sm:justify-start space-x-2 animate-slide-down sm:animate-fade-in">
+                  <span>{toast.msg}</span>
+                </div>
+              )}
+
+              {/* RBAC PERMISSION GUARD & ERROR BOUNDARY WRAPPER */}
+              {isPageTabLoading ? (
+                <PageSkeletonLoader title={TAB_LABELS[activeTab] || activeTab} />
+              ) : !(activeRole === 'admin' || (tabPermissionsState[activeTab] || tabPermissionsState[activeTab.split('-')[0]] || ['admin']).includes(activeRole)) ? (
+                <UnauthorizedAccessScreen
+                  pageTitle={TAB_LABELS[activeTab] || activeTab}
+                  activeRoleName={rolesState[activeRole] || activeRole}
+                  onGoHome={() => navigateTo('dashboard')}
+                />
+              ) : (
+                <ErrorBoundary key={activeTab} fallbackTitle={`"${TAB_LABELS[activeTab] || 'Sayfa'}" Yüklenirken Bir İşlem Uyarısı Oluştu`}>
+                  {activeTab === 'dashboard' && (
+                    <DashboardComponent
+                      activeRole={activeRole}
+                      venues={venues}
+                      reservations={reservations}
+                      financialStats={financialStats}
+                      onNewResClick={() => navigateTo('create-reservation')}
+                      onTabChange={navigateTo}
+                      onConvertToCampaign={handleConvertAiToCampaign}
+                      onUpdateVenuePrice={handleUpdateVenuePriceFromAI}
+                    />
+                  )}
+
+                  {activeTab === 'create-reservation' && (
+                    <CreateReservationPageComponent
+                      venues={venues}
+                      services={services}
+                      customers={customers}
+                      campaigns={campaigns}
+                      reservations={reservations}
+                      draftReservations={draftReservations}
+                      setDraftReservations={setDraftReservations}
+                      currentUser={currentUserState}
+                      prefilledDate={prefilledCreateDate}
+                      showToast={showToast}
+                      navigateTo={navigateTo}
+                      onSaveReservation={(newRes, newCust, refKeyToRemove, isEdit) => {
+                        if (newCust) setCustomers(prev => [...prev, newCust]);
+                        if (isEdit) {
+                          setReservations(prev => prev.map(r => r.id === newRes.id ? { ...r, ...newRes } : r));
+                          showToast('✅ Rezervasyon ve Sözleşme Bilgileri Başarıyla Güncellendi!');
+                        } else {
+                          setReservations(prev => [newRes, ...prev]);
+                          showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
+                        }
+                        if (refKeyToRemove) {
+                          setDraftReservations(prev => prev.filter(d => d.refKey !== refKeyToRemove));
+                        }
+                        setPrefilledCreateDate(null);
+                        navigateTo('reservations');
+                      }}
+                      onCancel={() => {
+                        setPrefilledCreateDate(null);
+                        navigateTo('reservations');
+                      }}
+                    />
+                  )}
+
+                  {activeTab === 'venues' && (
+                    <VenuesComponent
+                      venues={venues}
+                      services={services}
+                      onAddClick={() => setVenueModalData('new')}
+                      onEditClick={v => setVenueModalData(v)}
+                      onDeleteClick={handleDeleteVenue}
+                    />
+                  )}
+
+                  {activeTab === 'services' && (
+                    <ServicesComponent
+                      services={services}
+                      onAddClick={() => setServiceModalData('new')}
+                      onEditClick={s => setServiceModalData(s)}
+                      onDeleteClick={handleDeleteService}
+                    />
+                  )}
+
+                  {activeTab === 'reservations' && (
+                    <ReservationsComponent
+                      reservations={reservations}
+                      draftReservations={draftReservations}
+                      setDraftReservations={setDraftReservations}
+                      currentUser={currentUserState}
+                      venues={venues}
+                      services={services}
+                      customers={customers}
+                      campaigns={campaigns}
+                      navigateTo={navigateTo}
+                      onNewResClick={() => navigateTo('create-reservation')}
+                      onUpdateReservation={handleUpdateReservation}
+                      onDeleteReservation={handleDeleteReservation}
+                      onPrintInvoice={handlePrintInvoice}
+                      onShowEmail={setEmailModalData}
+                    />
+                  )}
+
+                  {activeTab === 'calendar' && (
+                    <CalendarComponent
+                      reservations={reservations}
+                      draftReservations={draftReservations}
+                      venues={venues}
+                      navigateTo={navigateTo}
+                      onResClick={setSelectedResForDetail}
+                      onReschedule={handleRescheduleReservation}
+                      onCreateNewForDate={(dateStr) => {
+                        setPrefilledCreateDate(dateStr);
+                        navigateTo('create-reservation');
+                      }}
+                    />
+                  )}
+
+                  {activeTab === 'campaigns' && (
+                    <CampaignsComponent
+                      campaigns={campaigns}
+                      venues={venues}
+                      services={services}
+                      reservations={reservations}
+                      onAddClick={() => setCampaignModalData('new')}
+                      onEditClick={c => setCampaignModalData(c)}
+                      onDeleteClick={handleDeleteCampaign}
+                      onConvertToCampaign={handleConvertAiToCampaign}
+                      onUpdateVenuePrice={handleUpdateVenuePriceFromAI}
+                    />
+                  )}
+
+                  {activeTab === 'finance' && (
+                    <FinanceComponent financialStats={financialStats} reservations={reservations} />
+                  )}
+
+                  {activeTab === 'customers' && (
+                    <CustomersComponent
+                      customers={customers}
+                      onAddClick={() => setCustomerModalData('new')}
+                      onEditClick={c => setCustomerModalData(c)}
+                      onDeleteClick={handleDeleteCustomer}
+                    />
+                  )}
+
+                  {activeTab === 'users' && (
+                    <UsersComponent
+                      users={users}
+                      onAddClick={() => setUserModalData('new')}
+                      onEditClick={u => setUserModalData(u)}
+                      onDeleteClick={handleDeleteUser}
+                    />
+                  )}
+
+                  {activeTab === 'reports' && (
+                    <ReportsComponent
+                      reservations={reservations}
+                      venues={venues}
+                      services={services}
+                      onConvertToCampaign={handleConvertAiToCampaign}
+                      onUpdateVenuePrice={handleUpdateVenuePriceFromAI}
+                    />
+                  )}
+
+
+                  {activeTab === 'mind-map' && (
+                    <MindMapPageComponent navigateTo={navigateTo} />
+                  )}
+
+                  {activeTab === 'media' && (
+                    <MediaComponent reservations={reservations} showToast={showToast} />
+                  )}
+
+                  {activeTab === 'profile' && (
+                    <ProfileComponent
+                      currentUser={currentUserState}
+                      activeRole={activeRole}
+                      onSaveProfile={(updated) => {
+                        setCurrentUserState(prev => ({ ...prev, ...updated }));
+                        showToast(`👤 Profil Bilgileri (${updated.name}) Başarıyla Güncellendi!`);
+                      }}
+                      showToast={showToast}
+                      onRoleChange={(newRole) => {
+                        setActiveRole(newRole);
+                        showToast(`Rol Değiştirildi: ${rolesState[newRole] || newRole}`);
+                      }}
+                    />
+                  )}
+
+                  {activeTab.startsWith('settings') && (
+                    <SettingsComponent
+                      activeRole={activeRole}
+                      roles={rolesState}
+                      tabPermissions={tabPermissionsState}
+                      onAddRole={handleAddRole}
+                      onToggleTabPermission={handleToggleTabPermission}
+                      themeColor={themeColor}
+                      onThemeColorChange={setThemeColor}
+                      menuLayout={menuLayout}
+                      onMenuLayoutChange={handleMenuLayoutChange}
+                      isCacheEnabled={isCacheEnabledState}
+                      onToggleCache={setIsCacheEnabledState}
+                      onClearCache={handleClearCache}
+                      onSeedDatabase={handleSeedDatabase}
+                      showToast={showToast}
+                      onNavigate={navigateTo}
+                      initialSubTab={
+                        activeTab === 'settings-appearance' ? 'appearance' :
+                        activeTab === 'settings-performance' ? 'performance' :
+                        activeTab === 'settings-rbac' ? 'rbac' :
+                        activeTab === 'settings-errors' ? 'errors' : 'appearance'
+                      }
+                    />
+                  )}
+
+                  {activeTab === 'simulasyon-404' && (
+                    <NotFoundScreen onGoHome={() => navigateTo('dashboard')} onSearch={(q) => showToast(`Arama yapılıyor: ${q}`)} />
+                  )}
+
+                  {activeTab === 'simulasyon-301' && (
+                    <PermanentRedirectScreen targetPath="#/rezervasyonlar" targetName="Rezervasyonlarım & Takvim" onRedirect={() => navigateTo('reservations')} />
+                  )}
+
+                  {activeTab === 'simulasyon-403' && (
+                    <UnauthorizedAccessScreen pageTitle="Simülasyon Paneli" activeRoleName={rolesState[activeRole] || activeRole} onGoHome={() => navigateTo('dashboard')} onRequestPermission={() => showToast('📩 Yöneticiye yetki talebi iletildi!')} />
+                  )}
+
+                  {activeTab === 'simulasyon-500' && (
+                    <ServerErrorScreen errorMessage="Internal Exception: Database Connection Timeout at ReservationPool" onRestart={() => window.location.reload()} />
+                  )}
+                </ErrorBoundary>
+              )}
+
+            </main>
+          </div>
+
+          {/* SYSTEM GLOBAL FOOTER COMPONENT (FLUSH TO EDGES - 0 MARGIN & 0 PADDING WRAPPER) */}
+          <div className="w-full m-0 p-0">
+            <GlobalFooterComponent
+              onNavigate={navigateTo}
+              activeRole={activeRole}
+              campaigns={campaigns}
+              showToast={showToast}
+              onOpenVersionModal={() => setIsVersionModalOpen(true)}
+            />
+          </div>
+        </div>
+
+          {/* MOBILE BOTTOM NAVIGATION BAR REMOVED PER USER DIRECTIVE - DEDICATED REZERVASYON OLUŞTUR SUMMARY BAR REMAINS INTACT */}
+
+          {/* SYSTEM VERSION HISTORY MODAL */}
+          <VersionHistoryModalComponent
+            isOpen={isVersionModalOpen}
+            onClose={() => setIsVersionModalOpen(false)}
+          />
+
+          {/* MOBILE ONLY STICKY VIEWPORT ACTION BAR FOR REZERVASYON OLUŞTUR (OUTSIDE MAIN SCROLL CONTAINER) */}
+          {activeTab === 'create-reservation' && mobileReservationSummary && (
+            <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-3 shadow-[0_-10px_30px_rgba(0,0,0,0.18)] flex items-center justify-between gap-2.5 pointer-events-auto">
+              
+              {/* CHEVRON BUTTON (TOGGLE DETAILS DRAWER) */}
+              <button
+                type="button"
+                onClick={() => setIsMobileSummaryDrawerOpen(true)}
+                className="w-7 h-7 shrink-0 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition cursor-pointer shadow-xs active:scale-95"
+                title="Hesaplama Detaylarını Göster"
+                aria-label="Hesaplama Detaylarını Göster"
+              >
+                <svg className="w-3.5 h-3.5 text-slate-800 dark:text-slate-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+
+              {/* KALAN TOPLAM CARD BOX */}
+              <div
+                onClick={() => setIsMobileSummaryDrawerOpen(true)}
+                className="shrink-0 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-1.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition flex flex-col justify-center min-w-[125px]"
+                title="Hesaplama Detaylarını Göster"
+              >
+                <span className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 tracking-tight leading-tight">Kalan Toplam:</span>
+                <span className={`text-lg sm:text-xl font-black tracking-tight mt-0.5 leading-tight ${
+                  mobileReservationSummary.isFullyPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-500'
+                }`}>
+                  {mobileReservationSummary.isFullyPaid ? '0 ₺' : formatCurrency(mobileReservationSummary.remaining)}
+                </span>
+              </div>
+
+              {/* REZERVASYONU OLUŞTUR PRIMARY BUTTON */}
+              <button
+                disabled={mobileReservationSummary.hasConflict}
+                onClick={() => mobileReservationSummary.onSubmit && mobileReservationSummary.onSubmit()}
+                className={`flex-1 bg-[#0F172A] hover:bg-[#1E293B] text-white font-heading font-extrabold text-xs sm:text-sm py-3 px-3 rounded-xl shadow-md transition-all duration-200 flex items-center justify-center tracking-wider uppercase whitespace-nowrap ${
+                  mobileReservationSummary.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.01] active:scale-95'
+                }`}
+              >
+                <span className="text-white font-extrabold">REZERVASYONU OLUŞTUR</span>
+              </button>
+            </div>
+          )}
+
+          {/* MOBILE ONLY SLIDE-UP SUMMARY DRAWER FOR REZERVASYON OLUŞTUR (OUTSIDE MAIN SCROLL CONTAINER) */}
+          {activeTab === 'create-reservation' && isMobileSummaryDrawerOpen && mobileReservationSummary && (
+            <div className="fixed inset-0 z-[99999] bg-slate-950/35 backdrop-blur-xs flex flex-col justify-end sm:hidden animate-fade-in pointer-events-auto">
+              <div className="flex-1 w-full" onClick={() => setIsMobileSummaryDrawerOpen(false)}></div>
+              <div className="bg-white dark:bg-slate-900 rounded-t-3xl border-t-2 border-amber-500/40 p-5 space-y-4 shadow-[0_-15px_40px_rgba(0,0,0,0.3)] w-full max-h-[85vh] overflow-y-auto animate-slide-up">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-amber-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    <span>Canlı Hesaplama & Sözleşme Detayı</span>
+                  </h3>
+                  <button
+                    onClick={() => setIsMobileSummaryDrawerOpen(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center border border-slate-200 dark:border-brand-border text-sm hover:scale-105 active:scale-95 transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.vPrice)}</span></div>
+                  <div className="flex justify-between"><span>Seçilen Ek Hizmetler:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.servTotal)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1.5"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.sub)}</span></div>
+                  {mobileReservationSummary.calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans / İndirim:</span><span className="font-bold">-{formatCurrency(mobileReservationSummary.calculations.disc)}</span></div>}
+                  {mobileReservationSummary.isInvoiced && <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.vat)}</span></div>}
+                  
+                  <div className="flex justify-between text-sm font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-2">
+                    <span>Genel Toplam Tutar:</span>
+                    <span>{formatCurrency(mobileReservationSummary.calculations.grandTotal)}</span>
+                  </div>
+
+                  {mobileReservationSummary.calculations.paidServicesList && mobileReservationSummary.calculations.paidServicesList.length > 0 && (
+                    <div className="space-y-1 pt-1">
+                      <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Ödendi İşaretlenen ve Düşülen Hizmetler:</span>
+                      </div>
+                      {mobileReservationSummary.calculations.paidServicesList.map(ps => (
+                        <div key={ps.id} className="flex justify-between items-center text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20">
+                          <span className="flex items-center space-x-1">
+                            <svg className="w-3 h-3 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>{ps.name} (Tahsil Edildi)</span>
+                          </span>
+                          <span className="font-mono">-{formatCurrency(ps.cost)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {mobileReservationSummary.calculations.isFullyPaid ? (
+                    <div className="flex justify-between items-center text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/30 mt-2">
+                      <span className="flex items-center space-x-1.5">
+                        <svg className="w-4 h-4 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Genel Ödeme ({mobileReservationSummary.paymentStatus}):</span>
+                      </span>
+                      <span className="font-mono text-sm">-{formatCurrency(mobileReservationSummary.calculations.grandTotal)}</span>
+                    </div>
+                  ) : (
+                    mobileReservationSummary.hasDeposit && (
+                      <div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 font-bold">
+                        <span>Tahsil Edilen Kapora:</span>
+                        <span className="font-mono">-{formatCurrency(mobileReservationSummary.calculations.dep)}</span>
+                      </div>
+                    )
+                  )}
+
+                  <div className={`flex justify-between font-bold text-sm p-3 rounded-xl border mt-2 ${
+                    mobileReservationSummary.calculations.isFullyPaid
+                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+                  }`}>
+                    <span>Kalan Ödenecek Net Bakiye:</span>
+                    <span className="font-mono font-extrabold text-base">
+                      {mobileReservationSummary.calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(mobileReservationSummary.calculations.remaining)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    disabled={mobileReservationSummary.hasConflict}
+                    onClick={() => {
+                      setIsMobileSummaryDrawerOpen(false);
+                      if (mobileReservationSummary.onSubmit) mobileReservationSummary.onSubmit();
+                    }}
+                    className={`w-full gold-button font-bold py-3.5 rounded-2xl text-xs shadow-xl flex items-center justify-center space-x-2 ${
+                      mobileReservationSummary.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'
+                    }`}
+                  >
+                    <svg className="w-4 h-4 text-slate-900 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Rezervasyonu Oluştur</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 90% SCREEN WIDTH NAVIGATION DRAWER MODAL (MOBILE ONLY) */}
+          {isMobileMenuOpen && (
+            <div
+              className="fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-md flex justify-start transition-opacity duration-300 lg:hidden"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                className="bg-white dark:bg-brand-card border-r-2 border-amber-500/50 w-[90vw] sm:w-[80vw] max-w-md h-full p-6 space-y-5 overflow-y-auto shadow-2xl flex flex-col justify-between animate-slide-in-left"
+              >
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border/40 pb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl gold-button flex items-center justify-center font-bold text-xl shadow shrink-0">
+                        <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-6 h-6 shrink-0" />
+                      </div>
+                      <div>
+                        <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100">İrem Düğün Sarayı</h3>
+                        <p className="text-[10px] text-amber-600 dark:text-gold-400 font-bold">Tüm Gezinti Panelleri</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-10 h-10 rounded-full bg-slate-100 dark:bg-brand-dark hover:bg-red-500 hover:text-white font-bold flex items-center justify-center transition border cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 text-xs font-bold pt-1">
+                    {[
+                      { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '📊', roles: ['admin', 'satisci', 'sosyal_medyaci', 'musteri'] },
+                      { id: 'create-reservation', label: 'Yeni Rezervasyon Oluştur', icon: 'sparkles', fallbackEmoji: '✨', roles: ['admin', 'satisci'] },
+                      { id: 'venues', label: 'Düğün Salonlarım', icon: 'venue', fallbackEmoji: '🏰', roles: ['admin', 'satisci'] },
+                      { id: 'services', label: 'Ek Hizmetlerim', icon: 'gift', fallbackEmoji: '🎁', roles: ['admin', 'satisci'] },
+                      { id: 'reservations', label: 'Rezervasyon Listesi', icon: 'list', fallbackEmoji: '📋', roles: ['admin', 'satisci'] },
+                      { id: 'calendar', label: 'İnteraktif Takvim', icon: 'calendar', fallbackEmoji: '📅', roles: ['admin', 'satisci'] },
+                      { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '🏷️', roles: ['admin'] },
+                      { id: 'finance', label: 'Finans & Fatura Yönetimi', icon: 'money', fallbackEmoji: '💰', roles: ['admin'] },
+                      { id: 'customers', label: 'Müşteri Rehberi (CRM)', icon: 'user', fallbackEmoji: '👥', roles: ['admin', 'satisci'] },
+                      { id: 'users', label: 'Kullanıcı Yönetimi (RBAC)', icon: 'shield', fallbackEmoji: '🛡️', roles: ['admin'] },
+                      { id: 'reports', label: 'Raporlar & Grafikler', icon: 'chart', fallbackEmoji: '📈', roles: ['admin'] },
+                      { id: 'media', label: 'Medya & Foto Yükleme', icon: 'camera', fallbackEmoji: '📸', roles: ['sosyal_medyaci', 'admin', 'musteri'] }
+                    ]
+                    .filter(item => item.roles.includes(activeRole))
+                    .map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          navigateTo(item.id);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`p-3 rounded-2xl border flex items-center space-x-3 transition text-left cursor-pointer ${
+                          activeTab === item.id
+                            ? 'gold-button shadow border-amber-500 font-extrabold'
+                            : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40 hover:border-amber-500/50'
+                        }`}
+                      >
+                        <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-5 h-5 shrink-0" />
+                        <span className="text-xs sm:text-sm">{item.label}</span>
+                      </button>
+                    ))}
+
+                    {/* SETTINGS LINKS IN DRAWER */}
+                    {(tabPermissionsState['settings'] || []).includes(activeRole) && (
+                      <div className="pt-2 space-y-1.5 border-t border-slate-200 dark:border-brand-border/40">
+                        <div className="text-[10px] font-bold text-amber-700 dark:text-gold-400 uppercase tracking-wider px-1">Sistem Ayarları</div>
+                        <button
+                          onClick={() => { navigateTo('settings-appearance'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
+                            activeTab === 'settings-appearance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <ThemeIcon icon="sparkles" fallbackEmoji="🎨" className="w-4 h-4 shrink-0" />
+                          <span>Görünüm & Tema Ayarları</span>
+                        </button>
+                        <button
+                          onClick={() => { navigateTo('settings-rbac'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
+                            activeTab === 'settings-rbac' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-4 h-4 shrink-0" />
+                          <span>Rol & İzin Yönetimi</span>
+                        </button>
+                        <button
+                          onClick={() => { navigateTo('settings-errors'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
+                            activeTab === 'settings-errors' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <ThemeIcon icon="warning" fallbackEmoji="🚨" className="w-4 h-4 shrink-0" />
+                          <span>Hata Simülasyonu</span>
+                        </button>
+                        <button
+                          onClick={() => { navigateTo('settings-performance'); setIsMobileMenuOpen(false); }}
+                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
+                            activeTab === 'settings-performance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
+                          }`}
+                        >
+                          <ThemeIcon icon="chart" fallbackEmoji="⚡" className="w-4 h-4 shrink-0" />
+                          <span>Önbellek & Performans</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* DRAWER FOOTER */}
+                <div className="pt-4 border-t border-slate-200 dark:border-brand-border/40 space-y-2">
+                  <div className="bg-amber-500/10 p-3 rounded-2xl border border-amber-500/30 flex items-center space-x-3">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-amber-500 object-cover" />
+                    <div className="text-xs">
+                      <div className="font-bold text-slate-800 dark:text-gray-100">İrem Yılmaz</div>
+                      <div className="text-[10px] text-amber-700 dark:text-gold-400 font-bold">{ROLE_NAMES[activeRole]}</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* MODALS */}
+          {venueModalData && (
+            <VenueModalComponent
+              venue={venueModalData === 'new' ? null : venueModalData}
+              onClose={() => setVenueModalData(null)}
+              onSave={handleSaveVenue}
+            />
+          )}
+
+          {serviceModalData && (
+            <ServiceModalComponent
+              service={serviceModalData === 'new' ? null : serviceModalData}
+              onClose={() => setServiceModalData(null)}
+              onSave={handleSaveService}
+            />
+          )}
+
+          {campaignModalData && (
+            <CampaignModalComponent
+              campaign={campaignModalData === 'new' ? null : campaignModalData}
+              onClose={() => setCampaignModalData(null)}
+              onSave={handleSaveCampaign}
+            />
+          )}
+
+          {userModalData && (
+            <UserModalComponent
+              user={userModalData === 'new' ? null : userModalData}
+              onClose={() => setUserModalData(null)}
+              onSave={handleSaveUser}
+            />
+          )}
+
+          {emailModalData && (
+            <EmailNotificationModal
+              emailData={emailModalData}
+              onClose={() => setEmailModalData(null)}
+            />
+          )}
+
+          {redAlertModalData && (
+            <RedAlertConfirmModal
+              isOpen={true}
+              title={redAlertModalData.title}
+              message={redAlertModalData.message}
+              confirmText={redAlertModalData.confirmText}
+              onConfirm={redAlertModalData.onConfirm}
+              onClose={() => setRedAlertModalData(null)}
+            />
+          )}
+
+          {customerModalData && (
+            <CustomerFormModal
+                customer={customerModalData === 'new' ? null : customerModalData}
+              onClose={() => setCustomerModalData(null)}
+              onSave={(c) => {
+                setCustomers(prev => c.id ? prev.map(x => x.id === c.id ? c : x) : [...prev, { ...c, id: 'cust-' + Date.now(), avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' }]);
+                showToast('👤 Müşteri Kartı Başarıyla Kaydedildi!');
+                setCustomerModalData(null);
+              }}
+            />
+          )}
+
+          {selectedResForDetail && (
+            <ErrorBoundary onReset={() => setSelectedResForDetail(null)} fallbackTitle="Rezervasyon Detay Modalı Yükleme Hatası">
+              <ReservationDetailModal
+                res={selectedResForDetail}
+                venues={venues}
+                services={services}
+                onClose={() => setSelectedResForDetail(null)}
+                onPrintInvoice={() => handlePrintInvoice(selectedResForDetail)}
+                onShowEmail={(r) => setEmailModalData({
+                  to: r.customerEmail || 'musteri@example.com',
+                  name: r.customerName,
+                  subject: 'Rezervasyonunuz Oluşturuldu! – İrem Düğün Sarayı',
+                  type: 'reservation',
+                  res: r
+                })}
+                onUpdatePayment={(id, dep, stat) => {
+                  setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
+                  showToast('💳 Ödeme & Sözleşme Güncellendi!');
+                  setSelectedResForDetail(null);
+                }}
+              />
+            </ErrorBoundary>
+          )}
+
+        </div>
+      );
+    }
+
+    // --- VENUE DETAIL POPUP MODAL COMPONENT (VIEWPORT CENTERED / MOBILE FIT FULL SCREEN / MAP LINK) ---
+    function VenueDetailModalComponent({ venue, services = [], onClose, onSelectVenue }) {
+      if (!venue) return null;
+
+      useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.body.style.overflow = originalOverflow;
+        };
+      }, []);
+
+      const interiorImages = venue.images && venue.images.length > 0 ? venue.images : [
+        (venue.image ? venue.image.replace('w=800', 'w=450&q=65') : 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=450&q=65'),
+        'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=450&q=65',
+        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=450&q=65'
+      ];
+
+      const exteriorImages = [
+        'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=450&q=65',
+        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=450&q=65',
+        'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=450&q=65'
+      ];
+
+      // DYNAMIC EVENT TYPES FROM VENUE RECORD
+      const dynamicEventTypes = (venue.eventTypes && venue.eventTypes.length > 0)
+        ? venue.eventTypes
+        : ['Düğün', 'Nişan', 'Kurumsal Kokteyl'];
+
+      // DYNAMIC AVAILABLE SERVICES MATCHING THIS VENUE'S UNIQUE SERVICE IDS
+      const defaultServicesList = (typeof INITIAL_SERVICES !== 'undefined' ? INITIAL_SERVICES : []);
+      const allServices = (services && services.length > 0) ? services : defaultServicesList;
+      
+      const venueServiceIds = venue.availableServices || [];
+      const dynamicVenueServices = venueServiceIds.length > 0
+        ? allServices.filter(s => venueServiceIds.includes(s.id))
+        : allServices.slice(0, 4);
+
+      const mapQueryUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((venue.name || '') + ' ' + (venue.location || 'Sapanca Sakarya İrem Düğün Sarayı'))}`;
+
+      const modalContent = (
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-0 sm:border border-slate-200 dark:border-brand-border w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-4xl rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between custom-scrollbar my-auto">
+            
+            {/* MODAL HEADER */}
+            <div className="relative h-44 sm:h-72 overflow-hidden shrink-0 bg-slate-900">
+              <img
+                src={venue.image}
+                alt={venue.name}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent flex flex-col justify-end p-4 sm:p-6 text-white">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <a
+                      href={mapQueryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gold-button text-[10px] sm:text-xs font-bold px-3 py-0.5 sm:py-1 rounded-full shadow inline-flex items-center space-x-1 hover:scale-105 transition"
+                      title="Haritada Yol Tarifi Al ve Konumu Aç"
+                    >
+                      <svg className="w-3.5 h-3.5 inline text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                      <span>📍 {venue.location || 'Sapanca Göl Kenarı, Sakarya'} (Haritalarda Göster ↗)</span>
+                    </a>
+                    <h2 className="text-xl sm:text-3xl font-heading font-extrabold text-white mt-1.5 drop-shadow">
+                      {venue.name}
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-gray-200 mt-1 max-w-2xl line-clamp-2 sm:line-clamp-none">{venue.description}</p>
+                  </div>
+                  <button
+                    onClick={onClose}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-red-600 text-white font-bold text-base sm:text-lg flex items-center justify-center backdrop-blur-md transition border border-white/30 shrink-0"
+                    title="Kapat"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* MODAL BODY */}
+            <div className="p-4 sm:p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1 max-h-[calc(90vh-180px)]">
+              
+              {/* TOP HIGHLIGHT BAR */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="font-extrabold text-amber-800 dark:text-gold-400">🏛️ Salon Kategorisi:</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-900 font-extrabold">{venue.category || 'Balo Salonu'}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-bold text-slate-700 dark:text-gray-300">Özel İmkanlar:</span>
+                  <span className="font-semibold text-slate-600 dark:text-gray-300">{(venue.features || ['Kristal Avize', 'VIP Odası']).join(' • ')}</span>
+                </div>
+                <a
+                  href={mapQueryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card hover:bg-slate-300 text-slate-800 dark:text-gray-200 font-bold rounded-xl text-xs border border-slate-300 dark:border-brand-border flex items-center space-x-1 shrink-0 shadow-sm"
+                >
+                  <span>Haritalarda Aç 🗺️</span>
+                </a>
+              </div>
+
+              {/* KEY SPECS GRID */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Kapasite:</span>
+                  <span className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-gray-100">{venue.capacity} Kişi</span>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Kiralama Liste Fiyatı:</span>
+                  <span className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-gray-100">{formatCurrency(venue.price)}</span>
+                </div>
+
+                <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Kapora Bedeli:</span>
+                  <span className="text-sm sm:text-base font-extrabold text-emerald-600 dark:text-emerald-400">{formatCurrency(venue.deposit || 15000)}</span>
+                </div>
+
+                <div className="bg-blue-500/10 border border-blue-500/30 p-3 sm:p-3.5 rounded-2xl">
+                  <span className="text-slate-500 block text-[10px] sm:text-[11px] font-bold">Sezonluk Doluluk Oranı:</span>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <div className="flex-1 bg-slate-200 dark:bg-brand-dark h-2 rounded-full overflow-hidden">
+                      <div className="bg-blue-600 h-full rounded-full" style={{ width: `${venue.occupancyRate || 85}%` }}></div>
+                    </div>
+                    <span className="font-extrabold text-blue-600 dark:text-blue-400">%{venue.occupancyRate || 85}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* İÇ GÖRSELLERİ GALERİSİ */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                  <span>İç Mekan & Balo Salonu Görselleri:</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {interiorImages.map((img, i) => (
+                    <div key={i} className="w-full h-32 bg-slate-100 dark:bg-brand-dark rounded-2xl overflow-hidden border border-slate-200 dark:border-brand-border shadow-sm">
+                      <img src={img} alt="İç Mekan" loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-[1.02] transition" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DIŞ GÖRSELLERİ GALERİSİ */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                  <span>Dış Mekan & Göl Manzarası Görselleri:</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {exteriorImages.map((img, i) => (
+                    <div key={i} className="w-full h-32 bg-slate-100 dark:bg-brand-dark rounded-2xl overflow-hidden border border-slate-200 dark:border-brand-border shadow-sm">
+                      <img src={img} alt="Dış Mekan" loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-[1.02] transition" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DYNAMIC YAPILABİLECEK ETKİNLİK TÜRLERİ */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                  <span>Mekanda Düzenlenebilen Etkinlik Türleri ({dynamicEventTypes.length}):</span>
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {dynamicEventTypes.map((ev, i) => (
+                    <div key={i} className="bg-amber-500/10 border border-amber-500/30 px-3.5 py-2 rounded-xl text-amber-800 dark:text-gold-400 font-extrabold text-xs flex items-center space-x-1.5 shadow-sm">
+                      <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 inline-block text-amber-500 shrink-0" />
+                      <span>{ev}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DYNAMIC SEÇİLEBİLECEK HİZMETLER (MEKANA ÖZEL VE DOĞRU) */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span>{venue.name} Mekanıyla Uyumlu Dahil Edilebilir Ek Hizmetler ({dynamicVenueServices.length}):</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {dynamicVenueServices.length === 0 ? (
+                    <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 text-xs font-bold text-amber-800 dark:text-gold-400 col-span-2">
+                      Bu mekana özel ek tanımlı hizmet bulunmamaktadır.
+                    </div>
+                  ) : (
+                    dynamicVenueServices.map((srv, i) => (
+                      <div key={srv.id || i} className="flex items-start space-x-2.5 bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border">
+                        <span className="text-emerald-500 font-extrabold text-sm shrink-0 mt-0.5">✓</span>
+                        <div className="space-y-0.5">
+                          <div className="font-bold text-xs text-slate-800 dark:text-gray-200">{srv.name}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-gray-400">{srv.description} | {formatCurrency(srv.price)} {srv.pricingType === 'per_person' ? '/Kişi' : srv.pricingType === 'per_unit' ? '/Adet' : '/Paket'}</div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="p-3 sm:p-4 bg-slate-50 dark:bg-brand-dark border-t border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-center gap-2 shrink-0">
+              <button onClick={onClose} className="w-full sm:w-auto px-5 py-2.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-300 text-center">
+                Kapat
+              </button>
+              <button
+                onClick={() => {
+                  onSelectVenue(venue);
+                  onClose();
+                }}
+                className="w-full sm:w-auto gold-button font-extrabold px-6 py-2.5 rounded-xl text-xs shadow-lg text-center"
+              >
+                Bu Salonu Seç ve Rezervasyona Ekle ✓
+              </button>
+            </div>
+
+          </div>
+        </div>
+      );
+
+      if (typeof ReactDOM !== 'undefined' && ReactDOM.createPortal) {
+        return ReactDOM.createPortal(modalContent, document.body);
+      }
+      return modalContent;
+    }
+
+    // --- FULL PAGE DEDICATED RESERVATION WORKSPACE COMPONENT ---
+    function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations = [], draftReservations = [], setDraftReservations, currentUser, prefilledDate, onSaveReservation, onCancel, showToast, navigateTo }) {
+      // 1. Venue, Start/End Date & Time
+      const venueCarouselRef = useRef(null);
+      const [selectedVenueForDetail, setSelectedVenueForDetail] = useState(null);
+      const [isMobileSummaryDrawerOpen, setIsMobileSummaryDrawerOpen] = useState(false);
+      const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '', targetInputId: null });
+
+      // DRAFT AUTOMATION & AUTO-SAVE (650ms DEBOUNCE, 12-CHAR REFKEY, USER AUDIT LOGS, CONFLICT MODAL)
+      const initialRefKey = useMemo(() => {
+        const hashData = parseHashRoute();
+        return hashData.refKey || generateDraftRefKey();
+      }, []);
+
+      const [activeRefKey, setActiveRefKey] = useState(initialRefKey);
+      const [lastSavedTime, setLastSavedTime] = useState(null);
+      const [conflictModal, setConflictModal] = useState({ isOpen: false, draft: null });
+      const autoSaveTimerRef = useRef(null);
+      const isInitialMountRef = useRef(true);
+
+      // Synchronize activeRefKey with URL hash and preserve existing draft refKeys
+      useEffect(() => {
+        const syncRef = () => {
+          const hashData = parseHashRoute();
+          if (hashData.tab !== 'create-reservation') return;
+          if (hashData.refKey && hashData.refKey !== activeRefKey) {
+            setActiveRefKey(hashData.refKey);
+          } else if (!hashData.refKey && activeRefKey && !hashData.editId) {
+            const tabSlug = TAB_TO_SLUG['create-reservation'] || 'rezervasyon-olustur';
+            const newUrl = `${window.location.pathname}#/${tabSlug}?ref=${activeRefKey}`;
+            window.history.replaceState({ tab: 'create-reservation', refKey: activeRefKey }, '', newUrl);
+          }
+        };
+
+        syncRef();
+        window.addEventListener('hashchange', syncRef);
+        window.addEventListener('popstate', syncRef);
+        return () => {
+          window.removeEventListener('hashchange', syncRef);
+          window.removeEventListener('popstate', syncRef);
+        };
+      }, [activeRefKey]);
+
+      const [venueId, setVenueId] = useState(venues[0]?.id || '');
+      const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 0);
+      const [startDate, setStartDate] = useState(prefilledDate || '2026-08-25');
+      const [startTime, setStartTime] = useState('19:00');
+      const [endDate, setEndDate] = useState(prefilledDate || '2026-08-25');
+      const [endTime, setEndTime] = useState('23:00');
+
+      const editingResFromUrl = useMemo(() => {
+        const hashData = parseHashRoute();
+        if (!hashData.editId) return null;
+        return (reservations || []).find(r => r.id === hashData.editId || r.contractNo === hashData.editId);
+      }, [reservations, window.location.hash]);
+
+      const isEditMode = !!editingResFromUrl;
+
+      // Pre-fill form when editingResFromUrl is detected
+      useEffect(() => {
+        if (editingResFromUrl) {
+          setVenueId(editingResFromUrl.venueId || venues[0]?.id || '');
+          setCustomVenuePrice(editingResFromUrl.venuePrice || editingResFromUrl.customVenuePrice || venues[0]?.price || 0);
+          setStartDate(editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.date || '2026-08-25');
+          setEndDate(editingResFromUrl.endDate || editingResFromUrl.eventDate || editingResFromUrl.date || '2026-08-25');
+
+          const timeParts = (editingResFromUrl.timeSlot || '').split('-');
+          if (timeParts.length === 2) {
+            setStartTime(timeParts[0].trim() || '19:00');
+            setEndTime(timeParts[1].trim() || '23:00');
+          } else {
+            setStartTime(editingResFromUrl.startTime || '19:00');
+            setEndTime(editingResFromUrl.endTime || '23:00');
+          }
+
+          setGuestCount(editingResFromUrl.guestCount || 500);
+
+          if (editingResFromUrl.customerId && customers.some(c => c.id === editingResFromUrl.customerId)) {
+            setCustomerMode('existing');
+            setSelectedCustomerId(editingResFromUrl.customerId);
+          } else {
+            setCustomerMode('new');
+            setNewCustName(editingResFromUrl.customerName || '');
+            setNewCustPhone(editingResFromUrl.customerPhone || '');
+            setNewCustSecondaryPhone(editingResFromUrl.customerSecondaryPhone || editingResFromUrl.secondaryPhone || '');
+            setNewCustEmail(editingResFromUrl.customerEmail || '');
+          }
+
+          if (editingResFromUrl.selectedServices && Array.isArray(editingResFromUrl.selectedServices)) {
+            setSelectedServices([...editingResFromUrl.selectedServices]);
+          }
+
+          setReferrerName(editingResFromUrl.referrerName || '');
+          setCampaignCode(editingResFromUrl.campaignCode || '');
+          setHasDeposit((editingResFromUrl.depositPaid || 0) > 0);
+          setDepositPaid(editingResFromUrl.depositPaid || 0);
+          setPaymentStatus(editingResFromUrl.paymentStatus || 'Bekliyor');
+
+          setIsInvoiced(editingResFromUrl.isInvoiced || false);
+          setInvoiceType(editingResFromUrl.invoiceType || 'individual');
+          if (editingResFromUrl.tcNo) setTcNo(editingResFromUrl.tcNo);
+          if (editingResFromUrl.vknNo) setVknNo(editingResFromUrl.vknNo);
+          if (editingResFromUrl.taxOffice) setTaxOffice(editingResFromUrl.taxOffice);
+          if (editingResFromUrl.invoiceAddress) setInvoiceAddress(editingResFromUrl.invoiceAddress);
+
+          if (editingResFromUrl.flowPlan && Array.isArray(editingResFromUrl.flowPlan) && editingResFromUrl.flowPlan.length > 0) {
+            setFlowPlan(JSON.parse(JSON.stringify(editingResFromUrl.flowPlan)));
+          }
+          if (editingResFromUrl.notes) {
+            setNotes(editingResFromUrl.notes);
+          }
+        }
+      }, [editingResFromUrl, venues, customers]);
+
+      // Load existing draft if present for activeRefKey
+      useEffect(() => {
+        if (!activeRefKey) return;
+        const existing = (draftReservations || []).find(d => d.refKey === activeRefKey);
+        if (existing && existing.formData) {
+          const f = existing.formData;
+          if (f.venueId) setVenueId(f.venueId);
+          if (f.customVenuePrice !== undefined) setCustomVenuePrice(f.customVenuePrice);
+          if (f.startDate) setStartDate(f.startDate);
+          if (f.startTime) setStartTime(f.startTime);
+          if (f.endDate) setEndDate(f.endDate);
+          if (f.endTime) setEndTime(f.endTime);
+          if (f.guestCount !== undefined) setGuestCount(f.guestCount);
+          if (f.customerMode) setCustomerMode(f.customerMode);
+          if (f.selectedCustomerId) setSelectedCustomerId(f.selectedCustomerId);
+          if (f.newCustName !== undefined) setNewCustName(f.newCustName);
+          if (f.newCustEmail !== undefined) setNewCustEmail(f.newCustEmail);
+          if (f.newCustPhone !== undefined) setNewCustPhone(f.newCustPhone);
+          if (f.newCustSecondaryPhone !== undefined) setNewCustSecondaryPhone(f.newCustSecondaryPhone);
+          if (f.selectedServices) setSelectedServices(f.selectedServices);
+          if (f.referrerName !== undefined) setReferrerName(f.referrerName);
+          if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
+          if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
+          if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
+          if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
+          if (f.notes !== undefined) setNotes(f.notes);
+          if (f.flowPlan) setFlowPlan(f.flowPlan);
+          if (existing.updatedAt) {
+            const dt = new Date(existing.updatedAt);
+            setLastSavedTime(`${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}:${String(dt.getSeconds()).padStart(2, '0')}`);
+          }
+        }
+      }, [activeRefKey, draftReservations]);
+
+      // Dynamic 14-day preview offset around selected startDate
+      const [calendarOffsetDays, setCalendarOffsetDays] = useState(0);
+
+      // Calculate 14-day preview window dynamically centered on startDate
+      const preview14Days = useMemo(() => {
+        const parts = (startDate || '2026-08-25').split('-');
+        const selYear = Number(parts[0]) || 2026;
+        const selMonth = (Number(parts[1]) || 8) - 1;
+        const selDay = Number(parts[2]) || 25;
+        const selected = new Date(selYear, selMonth, selDay);
+
+        const dayOfWeek = selected.getDay(); // 0 is Sun, 1 is Mon...
+        const distanceToMonday = (dayOfWeek + 6) % 7;
+        const monday = new Date(selected);
+        monday.setDate(selected.getDate() - distanceToMonday + calendarOffsetDays);
+
+        const days = [];
+        for (let i = 0; i < 14; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          days.push(d);
+        }
+        return days;
+      }, [startDate, calendarOffsetDays]);
+      const [guestCount, setGuestCount] = useState(500);
+
+      const showAlertModal = (title, message, targetInputId = null) => {
+        if (window.showGlobalAlert) {
+          window.showGlobalAlert(title, message, targetInputId);
+        } else {
+          setAlertModal({
+            isOpen: true,
+            title: title || '⚠️ LÜTFEN EKSİKSİZ DOLDURUNUZ',
+            message: message || 'Müşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur.',
+            targetInputId
+          });
+        }
+      };
+
+      const closeAlertModal = () => {
+        const targetId = alertModal.targetInputId;
+        setAlertModal({ isOpen: false, title: '', message: '', targetInputId: null });
+        if (targetId) {
+          const el = document.getElementById(targetId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.focus();
+          }
+        }
+      };
+
+      const eventDate = startDate;
+      const activeSlot = `${startTime} - ${endTime}`;
+
+      const scrollVenueCarouselLeft = () => {
+        if (venueCarouselRef.current) {
+          venueCarouselRef.current.scrollBy({ left: -260, behavior: 'smooth' });
+        }
+      };
+      const scrollVenueCarouselRight = () => {
+        if (venueCarouselRef.current) {
+          venueCarouselRef.current.scrollBy({ left: 260, behavior: 'smooth' });
+        }
+      };
+
+      // Update customVenuePrice when venueId changes
+      useEffect(() => {
+        const v = venues.find(x => x.id === venueId);
+        if (v) setCustomVenuePrice(v.price);
+      }, [venueId]);
+
+      // Collision Check Logic & Same Date Reservations
+      const conflictInfo = useMemo(() => {
+        const sameVenueDateRes = (reservations || []).filter(r => r.venueId === venueId && r.date === startDate && r.paymentStatus !== 'İptal');
+        if (sameVenueDateRes.length === 0) {
+          return { hasConflict: false, conflictingRes: null, sameDateResCount: (reservations || []).filter(r => r.date === startDate).length };
+        }
+
+        const isSelectedAllDay = activeSlot.includes('Tüm Gün') || (startTime === '09:00' && endTime === '23:30') || (startTime === '08:00' && endTime === '23:59');
+
+        // Check if time slot overlaps
+        const conflictingRes = sameVenueDateRes.find(r => {
+          if (isSelectedAllDay) return true;
+          if ((r.timeSlot || '').includes('Tüm Gün') || (r.timeSlot || '').includes('09:00 - 23:30')) return true;
+          if (r.timeSlot === activeSlot) return true;
+          
+          const parseHour = (str) => {
+            const match = (str || '').match(/(\d{1,2}):(\d{2})/);
+            return match ? parseInt(match[1]) : 12;
+          };
+          const rStart = parseHour(r.timeSlot);
+          const currStart = parseHour(activeSlot);
+          return Math.abs(rStart - currStart) < 4;
+        });
+
+        return {
+          hasConflict: !!conflictingRes,
+          conflictingRes: conflictingRes || (isSelectedAllDay ? sameVenueDateRes[0] : null),
+          sameDateResCount: (reservations || []).filter(r => r.date === startDate).length
+        };
+      }, [reservations, venueId, startDate, activeSlot, startTime, endTime]);
+
+      // 2. Customer & Auto-Membership (DEFAULT TO NEW MEMBER)
+      const [customerMode, setCustomerMode] = useState('new'); // 'new' or 'existing'
+      const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || 'cust1');
+      const [isAutoSelectedFromPhone, setIsAutoSelectedFromPhone] = useState(false);
+      const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+      const [newCustName, setNewCustName] = useState('');
+      const [newCustEmail, setNewCustEmail] = useState('');
+      const [newCustPhone, setNewCustPhone] = useState('');
+      const [newCustSecondaryPhone, setNewCustSecondaryPhone] = useState('');
+      const [customerError, setCustomerError] = useState(false);
+
+      // 3. Services & Per-service Guest Quantities & Paid status & Custom Unit Prices (DEFAULT TO UNCHECKED)
+      const [selectedServices, setSelectedServices] = useState([]);
+
+      // 4. Financials, Referrer, Deposit & Promo (DEFAULT HASDEPOSIT TO FALSE)
+      const [referrerName, setReferrerName] = useState('');
+      const [campaignCode, setCampaignCode] = useState('');
+      const [hasDeposit, setHasDeposit] = useState(false); // Default: Hayır
+      const [depositPaid, setDepositPaid] = useState(0); // Default: 0 TL
+      const [paymentStatus, setPaymentStatus] = useState('Bekliyor'); // Default: Bekliyor
+
+      // 5. Invoicing Details (Bireysel / Tüzel) - DEFAULT TO UNCHECKED
+      const [isInvoiced, setIsInvoiced] = useState(false);
+      const [invoiceType, setInvoiceType] = useState('individual'); // 'individual' or 'corporate'
+      const [tcNo, setTcNo] = useState('12345678901');
+      const [vknNo, setVknNo] = useState('9876543210');
+      const [taxOffice, setTaxOffice] = useState('Sapanca VD');
+      const [invoiceAddress, setInvoiceAddress] = useState('Atatürk Mah. Sapanca / Sakarya');
+
+      // 6. Flow Planning & Notes (Draggable & Reorderable, Default Finish Step)
+      const [flowPlan, setFlowPlan] = useState([
+        { time: '19:00', title: 'Misafir Karşılama & Kokteyl' },
+        { time: '19:30', title: 'Gelin Damat Giriş & İlk Dans' },
+        { time: '20:15', title: 'Yemek Servisi' },
+        { time: '21:30', title: 'Pasta Kesimi & Şov' },
+        { time: '22:00', title: 'Takı & Eğlence' },
+        { time: endTime || '23:00', title: 'Etkinlik Bitişi & Kapanış' }
+      ]);
+
+      // Keep last flow step time synced with endTime
+      useEffect(() => {
+        setFlowPlan(prev => {
+          if (!prev || prev.length === 0) return prev;
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (updated[lastIdx].title.includes('Bitişi')) {
+            updated[lastIdx] = { ...updated[lastIdx], time: endTime };
+          }
+          return updated;
+        });
+      }, [endTime]);
+
+      const [draggedIdx, setDraggedIdx] = useState(null);
+      const [dragOverIdx, setDragOverIdx] = useState(null);
+      const [notes, setNotes] = useState('Özel çiçek süslemeleri ve gelin odası ikramları dahildir.');
+
+      const handleDragStart = (e, index) => {
+        setDraggedIdx(index);
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", index.toString());
+      };
+
+      const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        if (dragOverIdx !== index) {
+          setDragOverIdx(index);
+        }
+      };
+
+      const handleDrop = (e, index) => {
+        e.preventDefault();
+        if (draggedIdx === null || draggedIdx === index) return;
+        setFlowPlan(prev => {
+          const list = [...prev];
+          const [removed] = list.splice(draggedIdx, 1);
+          list.splice(index, 0, removed);
+          return list;
+        });
+        setDraggedIdx(null);
+        setDragOverIdx(null);
+      };
+
+      const handleDragEnd = () => {
+        setDraggedIdx(null);
+        setDragOverIdx(null);
+      };
+
+      const moveFlowItemUp = (index) => {
+        if (index <= 0) return;
+        setFlowPlan(prev => {
+          const list = [...prev];
+          const temp = list[index - 1];
+          list[index - 1] = list[index];
+          list[index] = temp;
+          return list;
+        });
+      };
+
+      const moveFlowItemDown = (index) => {
+        setFlowPlan(prev => {
+          if (index >= prev.length - 1) return prev;
+          const list = [...prev];
+          const temp = list[index + 1];
+          list[index + 1] = list[index];
+          list[index] = temp;
+          return list;
+        });
+      };
+
+      // Collision Check Logic
+      const collisionDetected = useMemo(() => {
+        return reservations.some(r => r.venueId === venueId && r.date === eventDate && r.timeSlot === activeSlot);
+      }, [reservations, venueId, eventDate, activeSlot]);
+
+      // 650ms DEBOUNCED LIVE AUTO-SAVE EFFECT
+      useEffect(() => {
+        if (isInitialMountRef.current) {
+          isInitialMountRef.current = false;
+          return;
+        }
+
+        if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+
+        autoSaveTimerRef.current = setTimeout(() => {
+          let filledCount = 0;
+          let totalCount = 8;
+          const currentCustName = customerMode === 'existing'
+            ? (customers.find(c => c.id === selectedCustomerId)?.name || '')
+            : newCustName;
+          const currentPhone = customerMode === 'existing'
+            ? (customers.find(c => c.id === selectedCustomerId)?.phone || '')
+            : newCustPhone;
+
+          if (currentCustName) filledCount++;
+          if (currentPhone && currentPhone.replace(/\D/g, '').length >= 10) filledCount++;
+          if (venueId) filledCount++;
+          if (startDate) filledCount++;
+          if (guestCount > 0) filledCount++;
+          if (depositPaid > 0) filledCount++;
+          if (selectedServices && selectedServices.length > 0) filledCount++;
+          if (notes && notes.length > 5) filledCount++;
+
+          const percentage = Math.min(100, Math.round((filledCount / totalCount) * 100));
+
+          const updatedDraft = {
+            refKey: activeRefKey,
+            status: 'DRAFT',
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            completionPercentage: percentage,
+            createdBy: {
+              id: currentUser?.id || 'u-admin',
+              name: currentUser?.name || 'Davut Akbulut',
+              role: currentUser?.role || 'admin'
+            },
+            customerInfo: {
+              name: currentCustName || 'İsimsiz Müşteri',
+              phone: currentPhone || '',
+              venueName: venues.find(v => v.id === venueId)?.name || 'Salon Seçilmedi',
+              date: startDate
+            },
+            accessLogs: [
+              {
+                userId: currentUser?.id || 'u-admin',
+                userName: currentUser?.name || 'Davut Akbulut',
+                action: 'AUTO_SAVE',
+                timestamp: new Date().toISOString()
+              }
+            ],
+            formData: {
+              venueId, customVenuePrice, startDate, startTime, endDate, endTime, guestCount,
+              customerMode, selectedCustomerId, newCustName, newCustEmail, newCustPhone,
+              newCustSecondaryPhone, selectedServices, referrerName, campaignCode,
+              hasDeposit, depositPaid, paymentStatus, isInvoiced, invoiceType, tcNo, vknNo,
+              taxOffice, invoiceAddress, notes, flowPlan
+            }
+          };
+
+          if (setDraftReservations) {
+            setDraftReservations(prev => {
+              const existingIdx = (prev || []).findIndex(d => d.refKey === activeRefKey);
+              if (existingIdx >= 0) {
+                const copy = [...prev];
+                const existing = copy[existingIdx];
+                const combinedLogs = [
+                  ...(existing.accessLogs || []),
+                  {
+                    userId: currentUser?.id || 'u-admin',
+                    userName: currentUser?.name || 'Davut Akbulut',
+                    action: 'AUTO_SAVE',
+                    timestamp: new Date().toISOString()
+                  }
+                ].slice(-25);
+
+                copy[existingIdx] = {
+                  ...updatedDraft,
+                  createdAt: existing.createdAt || updatedDraft.createdAt,
+                  createdBy: existing.createdBy || updatedDraft.createdBy,
+                  accessLogs: combinedLogs
+                };
+                return copy;
+              }
+              return [updatedDraft, ...(prev || [])];
+            });
+          }
+
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+          setLastSavedTime(timeStr);
+        }, 650);
+
+        return () => {
+          if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        };
+      }, [
+        activeRefKey, venueId, customVenuePrice, startDate, startTime, endDate, endTime,
+        guestCount, customerMode, selectedCustomerId, newCustName, newCustEmail,
+        newCustPhone, newCustSecondaryPhone, selectedServices, referrerName,
+        campaignCode, hasDeposit, depositPaid, paymentStatus, isInvoiced, invoiceType,
+        tcNo, vknNo, taxOffice, invoiceAddress, notes, flowPlan
+      ]);
+
+      // CUSTOMER DRAFT CONFLICT POPUP DETECTOR
+      useEffect(() => {
+        const checkPhone = customerMode === 'existing'
+          ? (customers.find(c => c.id === selectedCustomerId)?.phone || '')
+          : newCustPhone;
+        const cleanPhone = checkPhone ? checkPhone.replace(/\D/g, '') : '';
+
+        if ((cleanPhone.length >= 10 || (customerMode === 'existing' && selectedCustomerId)) && draftReservations) {
+          const matchingConflict = draftReservations.find(d => 
+            d.status === 'DRAFT' &&
+            d.refKey !== activeRefKey &&
+            ((cleanPhone && d.customerInfo?.phone && d.customerInfo.phone.replace(/\D/g, '') === cleanPhone) ||
+             (cleanPhone && d.formData?.newCustPhone && d.formData.newCustPhone.replace(/\D/g, '') === cleanPhone) ||
+             (customerMode === 'existing' && d.formData?.selectedCustomerId === selectedCustomerId))
+          );
+
+          if (matchingConflict && (!conflictModal.isOpen || conflictModal.draft?.refKey !== matchingConflict.refKey)) {
+            setConflictModal({ isOpen: true, draft: matchingConflict });
+          }
+        }
+      }, [newCustPhone, selectedCustomerId, customerMode]);
+
+      const selectedVenue = venues.find(v => v.id === venueId);
+      const existingCustomer = customers.find(c => c.id === selectedCustomerId);
+
+      // Filter available extra services based on selected venue (Etkinlik Mekanı)
+      const availableServicesForVenue = useMemo(() => {
+        if (!selectedVenue) return services;
+        if (!selectedVenue.availableServices || selectedVenue.availableServices.length === 0) {
+          return services;
+        }
+        return services.filter(s => selectedVenue.availableServices.includes(s.id));
+      }, [selectedVenue, services]);
+
+      // Financial Calculation with Paid Services Breakdown & Deduction
+      const calculations = useMemo(() => {
+        const vPrice = Number(customVenuePrice) || 0;
+        let servTotal = 0;
+        let paidServicesTotal = 0;
+        const paidServicesList = [];
+
+        const mappedServices = selectedServices.map(item => {
+          const s = services.find(x => x.id === item.serviceId);
+          if (!s) return null;
+          const unitPrice = item.customUnitPrice !== undefined ? Number(item.customUnitPrice) : s.price;
+          const defaultQty = s.pricingType === 'per_person' ? guestCount : 1;
+          const qty = item.quantity !== undefined ? Number(item.quantity) : defaultQty;
+          const cost = unitPrice * qty;
+          servTotal += cost;
+
+          if (item.isPaid) {
+            paidServicesTotal += cost;
+            paidServicesList.push({ ...s, quantity: qty, unitPrice, cost });
+          }
+
+          return { serviceId: s.id, quantity: qty, unitPrice, isPaid: item.isPaid, cost };
+        }).filter(Boolean);
+
+        const sub = vPrice + servTotal;
+        let disc = 0;
+        const activeCampaign = (campaigns || []).find(c =>
+          (c.code || '').toUpperCase() === campaignCode.trim().toUpperCase() && c.status === 'Aktif'
+        );
+        if (activeCampaign) {
+          if (activeCampaign.discountType === 'percent' || activeCampaign.discountRate || activeCampaign.discountPercent) {
+            const rate = activeCampaign.discountRate || activeCampaign.discountPercent || 0;
+            disc = sub * (rate / 100);
+          } else if (activeCampaign.discountAmount) {
+            disc = Number(activeCampaign.discountAmount);
+          } else if (typeof activeCampaign.discount === 'number') {
+            disc = activeCampaign.discount;
+          }
+        } else if (campaignCode.trim().toUpperCase() === 'IREM2026') {
+          disc = sub * 0.10;
+        } else if (campaignCode.trim().toUpperCase() === 'VIP5000') {
+          disc = 5000;
+        }
+
+        const afterDisc = Math.max(0, sub - disc);
+        const vat = isInvoiced ? afterDisc * 0.20 : 0;
+        const grandTotal = afterDisc + vat;
+
+        const isFullyPaid = (paymentStatus === 'Ödendi' || paymentStatus === 'Tamamlandı');
+        const dep = (hasDeposit || paymentStatus === 'Kapora Alındı') ? (Number(depositPaid) || 0) : 0;
+        const netDeductions = isFullyPaid ? grandTotal : (dep + paidServicesTotal);
+        const remaining = isFullyPaid ? 0 : Math.max(0, grandTotal - netDeductions);
+
+        return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, paidServicesTotal, paidServicesList, netDeductions, remaining, isFullyPaid, mappedServices };
+      }, [customVenuePrice, selectedServices, campaignCode, hasDeposit, depositPaid, paymentStatus, isInvoiced, services]);
+
+      const handleAddFlowItem = () => {
+        setFlowPlan(prev => [...prev, { time: '22:30', title: 'Yeni Akış Adımı' }]);
+      };
+      const handleRemoveFlowItem = (index) => {
+        setFlowPlan(prev => prev.filter((_, i) => i !== index));
+      };
+
+      const handleSubmit = () => {
+        // Customer validation check with smooth scroll & focus
+        if (customerMode === 'new') {
+          if (!newCustName.trim() || !newCustPhone.trim()) {
+            setCustomerError(true);
+            showAlertModal('⚠️ MÜŞTERİ BİLGİLERİ EKSİK', 'Müşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur. Lütfen kırmızı ile işaretlenen alanları doldurunuz.', !newCustName.trim() ? 'new-cust-name-input' : 'new-cust-phone-input');
+            return;
+          }
+          if (!isValidPhoneNumber(newCustPhone)) {
+            setCustomerError(true);
+            showAlertModal('⚠️ GEÇERSİZ TELEFON NUMARASI', 'Telefon numarası 11 hane (05XX XXX XX XX) formatında olmalıdır.', 'new-cust-phone-input');
+            return;
+          }
+          const p1 = newCustPhone.replace(/\D/g, '');
+          const p2 = newCustSecondaryPhone.replace(/\D/g, '');
+          if (p1 && p2 && p1 === p2) {
+            setCustomerError(true);
+            showAlertModal('⚠️ ÇİFT TELEFON NUMARASI', 'Birincil ve ikincil telefon numarası aynı olamaz! Lütfen farklı bir numara giriniz.', 'new-cust-sec-phone-input');
+            return;
+          }
+        } else if (customerMode === 'existing') {
+          if (!selectedCustomerId) {
+            setCustomerError(true);
+            showAlertModal('⚠️ MÜŞTERİ SEÇİLMEDİ', 'Lütfen sistemde kayıtlı müşteriler arasından bir müşteri seçiniz.', 'customer-section');
+            return;
+          }
+        }
+        setCustomerError(false);
+
+        if (conflictInfo.hasConflict) {
+          showAlertModal('⛔ SEANS ÇAKIŞMA UYARISI', `${selectedVenue?.name} salonunda ${formatDate(startDate)} tarihinde (${conflictInfo.conflictingRes?.timeSlot}) aktif bir rezervasyon bulunmaktadır! Lütfen başka bir saat seansı veya başka bir salon seçiniz.`);
+          return;
+        }
+        
+        let custId = selectedCustomerId;
+        let custName = existingCustomer?.name || 'Müşteri';
+        let custEmail = existingCustomer?.email || '';
+        let custPhone = existingCustomer?.phone || '';
+        let custSecondaryPhone = existingCustomer?.secondaryPhone || '';
+        let newCustomerObj = null;
+
+        if (customerMode === 'new') {
+          custId = 'cust-' + Date.now();
+          custName = newCustName || 'Yeni Müşteri';
+          custEmail = newCustEmail;
+          custPhone = newCustPhone;
+          custSecondaryPhone = newCustSecondaryPhone;
+          newCustomerObj = {
+            id: custId,
+            name: custName,
+            email: custEmail,
+            phone: custPhone,
+            secondaryPhone: custSecondaryPhone,
+            address: invoiceAddress,
+            taxType: invoiceType,
+            tcNo: invoiceType === 'individual' ? tcNo : '',
+            vknNo: invoiceType === 'corporate' ? vknNo : '',
+            taxOffice,
+            followUp: false,
+            followUpNote: 'Otomatik kayıt oluşturan üye',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+          };
+        }
+
+        const newRes = {
+          id: editingResFromUrl?.id || `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          venueId,
+          customerId: custId,
+          customerName: custName,
+          customerEmail: custEmail,
+          customerPhone: custPhone,
+          secondaryPhone: custSecondaryPhone,
+          date: eventDate,
+          eventDate,
+          startDate,
+          endDate,
+          startTime,
+          endTime,
+          timeSlot: activeSlot,
+          guestCount,
+          selectedServices: calculations.mappedServices,
+          venuePrice: calculations.vPrice,
+          subtotal: calculations.sub,
+          campaignCode,
+          discountAmount: calculations.disc,
+          vatAmount: calculations.vat,
+          totalAmount: calculations.grandTotal,
+          depositPaid: calculations.dep,
+          remainingBalance: calculations.remaining,
+          paymentStatus: paymentStatus,
+          isInvoiced,
+          invoiceType,
+          tcNo: invoiceType === 'individual' ? tcNo : '',
+          vknNo: invoiceType === 'corporate' ? vknNo : '',
+          taxOffice,
+          invoiceAddress,
+          notes,
+          flowPlan,
+          mediaGallery: editingResFromUrl?.mediaGallery || []
+        };
+
+        onSaveReservation(newRes, newCustomerObj, isEditMode ? null : activeRefKey, isEditMode);
+      };
+
+      useEffect(() => {
+        if (window.updateMobileReservationSummary) {
+          window.updateMobileReservationSummary({
+            remaining: calculations.remaining,
+            isFullyPaid: calculations.isFullyPaid,
+            calculations,
+            isInvoiced,
+            paymentStatus,
+            hasDeposit,
+            hasConflict: conflictInfo.hasConflict,
+            onSubmit: handleSubmit
+          });
+        }
+      }, [calculations, isInvoiced, paymentStatus, hasDeposit, conflictInfo, handleSubmit]);
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto pb-24 sm:pb-12 relative">
+          
+          {/* CUSTOMER DRAFT CONFLICT POPUP WARNING MODAL */}
+          {conflictModal.isOpen && conflictModal.draft && (
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[999999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border-2 border-amber-500/80 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-6 space-y-4 animate-scale-up text-left">
+                
+                {/* Header */}
+                <div className="flex items-center space-x-3 text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
+                    ⚠️
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
+                      Müşteriye Ait Tamamlanmamış Taslak Bulundu!
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">
+                      Bu müşteriye ait arka planda otomatik kaydedilmiş yarım kalan bir rezervasyon mevcut.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Draft Card Info */}
+                <div className="bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 rounded-2xl p-4 space-y-2 text-xs text-slate-700 dark:text-gray-200">
+                  <div className="flex justify-between items-center font-bold">
+                    <span>Müşteri: {conflictModal.draft.customerInfo?.name || conflictModal.draft.formData?.newCustName || 'Müşteri'}</span>
+                    <span className="font-mono bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded text-[11px]">
+                      Ref: {conflictModal.draft.refKey}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-500 dark:text-gray-400">
+                    <span>Salon: {conflictModal.draft.customerInfo?.venueName || 'Seçilen Salon'}</span>
+                    <span>Tarih: {conflictModal.draft.customerInfo?.date || 'Belirtilmedi'}</span>
+                  </div>
+                  
+                  {/* Completion Bar */}
+                  <div className="pt-2">
+                    <div className="flex justify-between text-[11px] font-bold mb-1">
+                      <span>Form Doluluk Oranı</span>
+                      <span>%{conflictModal.draft.completionPercentage || 0}</span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${conflictModal.draft.completionPercentage || 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      const d = conflictModal.draft;
+                      if (d && d.formData) {
+                        const f = d.formData;
+                        if (f.venueId) setVenueId(f.venueId);
+                        if (f.customVenuePrice !== undefined) setCustomVenuePrice(f.customVenuePrice);
+                        if (f.startDate) setStartDate(f.startDate);
+                        if (f.startTime) setStartTime(f.startTime);
+                        if (f.endDate) setEndDate(f.endDate);
+                        if (f.endTime) setEndTime(f.endTime);
+                        if (f.guestCount !== undefined) setGuestCount(f.guestCount);
+                        if (f.customerMode) setCustomerMode(f.customerMode);
+                        if (f.selectedCustomerId) setSelectedCustomerId(f.selectedCustomerId);
+                        if (f.newCustName !== undefined) setNewCustName(f.newCustName);
+                        if (f.newCustEmail !== undefined) setNewCustEmail(f.newCustEmail);
+                        if (f.newCustPhone !== undefined) setNewCustPhone(f.newCustPhone);
+                        if (f.newCustSecondaryPhone !== undefined) setNewCustSecondaryPhone(f.newCustSecondaryPhone);
+                        if (f.selectedServices) setSelectedServices(f.selectedServices);
+                        if (f.referrerName !== undefined) setReferrerName(f.referrerName);
+                        if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
+                        if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
+                        if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
+                        if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
+                        if (f.notes !== undefined) setNotes(f.notes);
+                        if (f.flowPlan) setFlowPlan(f.flowPlan);
+                      }
+                      setActiveRefKey(d.refKey);
+                      setConflictModal({ isOpen: false, draft: null });
+                      showToast(`📂 ${d.refKey} Referanslı Tamamlanmamış Taslak Yüklendi!`);
+                    }}
+                    className="flex-1 gold-button font-extrabold py-3 px-4 rounded-xl text-xs shadow-lg text-center flex items-center justify-center space-x-2"
+                  >
+                    <span>📂 Kaldığı Yerden Devam Et</span>
+                  </button>
+
+                  <button
+                    onClick={() => setConflictModal({ isOpen: false, draft: null })}
+                    className="py-3 px-4 bg-slate-200 dark:bg-brand-dark text-slate-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-slate-300 text-center"
+                  >
+                    ✨ Yeni Rezervasyona Devam Et
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* STANDALONE FLOATING TOP-RIGHT NOTIFICATION POPUP */}
+          {alertModal.isOpen && (
+            <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-down sm:animate-slide-left">
+              <div className="bg-white/95 dark:bg-slate-900/95 border-2 border-red-500/70 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(239,68,68,0.35)] backdrop-blur-xl flex items-start space-x-3.5 relative border-l-8 border-l-red-600">
+                {/* Red Pulse Warning Icon */}
+                <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-xl font-bold shrink-0 border border-red-500/30 animate-pulse mt-0.5">
+                  ⚠️
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 space-y-1 pr-6 text-left">
+                  <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-1.5">
+                    <span>{alertModal.title}</span>
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-semibold">
+                    {alertModal.message}
+                  </p>
+                  
+                  {/* Action Button */}
+                  <div className="pt-2">
+                    <button
+                      onClick={closeAlertModal}
+                      className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-1"
+                    >
+                      <span>Anladım, Düzelt ✓</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Close X Button */}
+                <button
+                  onClick={closeAlertModal}
+                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 dark:hover:text-white transition p-1"
+                  aria-label="Kapat"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* VENUE DETAIL POPUP MODAL */}
+          {selectedVenueForDetail && (
+            <VenueDetailModalComponent
+              venue={selectedVenueForDetail}
+              services={services}
+              onClose={() => setSelectedVenueForDetail(null)}
+              onSelectVenue={(v) => {
+                setVenueId(v.id);
+                setCustomVenuePrice(v.price);
+              }}
+            />
+          )}
+
+          {/* PAGE HEADER */}
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
+            <div className="flex flex-col items-start gap-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border">
+                  <svg className="w-3.5 h-3.5 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  <span>Rezervasyon Oluşturma & Kiralama</span>
+                </span>
+
+                {/* DRAFT REF KEY & LIVE SAVE BADGES */}
+                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-mono font-bold inline-flex items-center space-x-1">
+                  <span>🔑 Ref:</span>
+                  <span className="tracking-wider">{activeRefKey}</span>
+                </span>
+                {lastSavedTime ? (
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold inline-flex items-center space-x-1">
+                    <span>💾 Taslak Kaydedildi</span>
+                    <span className="text-[10px] font-mono">({lastSavedTime})</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1">
+                    <span>⏱️ Canlı Otomatik Kayıt Aktif</span>
+                  </span>
+                )}
+              </div>
+
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-1">
+                Hayalinizdeki Düğünü Birlikte Planlayalım!
+              </h2>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-gray-400">Salon kiralama, hizmet adetleri, müşteri üyelik kaydı, fatura ve etkinlik akışını tek ekranda yönetin.</p>
+            </div>
+            <button onClick={onCancel} className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-200 text-center whitespace-nowrap shrink-0">
+              ← Rezervasyon Listesine Dön
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* LEFT COLUMN: FORM SECTIONS (8 Cols) */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* SECTION 1: ETKİNLİK MEKANI SEÇİN (TAKVİM & SEANS SEÇİMİ İLE) */}
+              <div className="glass-panel p-3.5 sm:p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+
+                {/* VISUAL HORIZONTAL SCROLLABLE VENUE CAROUSEL WITH ARROW CONTROLS */}
+                <div>
+                  <div className="flex justify-between items-center mb-2 px-1">
+                    <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H7m4 0v5"></path></svg>
+                      <span>1. Etkinlik Mekanı Seçin:</span>
+                    </h3>
+                    
+                    {/* Interactive Arrow Navigation Buttons */}
+                    <div className="flex items-center space-x-1.5">
+                      <button
+                        type="button"
+                        onClick={scrollVenueCarouselLeft}
+                        className="w-7 h-7 rounded-full border border-amber-500/40 bg-white dark:bg-brand-card text-amber-800 dark:text-gold-400 hover:bg-amber-500 hover:text-white font-bold text-xs shadow flex items-center justify-center transition active:scale-95 cursor-pointer"
+                        title="Sola Kaydır"
+                        aria-label="Etkinlik Mekanlarını Sola Kaydır"
+                      >
+                        ❮
+                      </button>
+                      <button
+                        type="button"
+                        onClick={scrollVenueCarouselRight}
+                        className="w-7 h-7 rounded-full border border-amber-500/40 bg-white dark:bg-brand-card text-amber-800 dark:text-gold-400 hover:bg-amber-500 hover:text-white font-bold text-xs shadow flex items-center justify-center transition active:scale-95 cursor-pointer"
+                        title="Sağa Kaydır"
+                        aria-label="Etkinlik Mekanlarını Sağa Kaydır"
+                      >
+                        ❯
+                      </button>
+                    </div>
+                  </div>
+
+                  <div ref={venueCarouselRef} className="flex overflow-x-auto gap-3.5 pb-3 pt-1 no-scrollbar snap-x snap-mandatory scroll-smooth px-1">
+                    {venues.length === 0 ? (
+                      <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-gold-400 text-xs font-bold text-center space-y-2.5 w-full">
+                        <div>⚠️ Sistemde henüz tanımlı bir etkinlik mekanı bulunmamaktadır.</div>
+                        <button
+                          type="button"
+                          onClick={() => navigateTo && navigateTo('dugun-salonlari')}
+                          className="gold-button px-4 py-2 rounded-xl font-extrabold shadow hover:scale-105 transition cursor-pointer inline-flex items-center space-x-2"
+                        >
+                          <span>🏰 Yeni Düğün Salonu Ekle</span>
+                        </button>
+                      </div>
+                    ) : (
+                      venues.map(v => {
+                      const isSelected = venueId === v.id;
+                      return (
+                        <div
+                          key={v.id}
+                          onClick={() => {
+                            setVenueId(v.id);
+                            setCustomVenuePrice(v.price);
+                          }}
+                          className={`shrink-0 w-64 sm:w-68 rounded-2xl border-2 transition-all duration-300 cursor-pointer overflow-hidden snap-start flex flex-col justify-between shadow-sm ${
+                            isSelected
+                              ? 'border-slate-800 dark:border-white bg-slate-100/80 dark:bg-brand-dark shadow-md ring-2 ring-slate-800/40 dark:ring-white/40'
+                              : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-slate-400'
+                          }`}
+                        >
+                          <div className="relative h-32 sm:h-36 w-full bg-slate-200 dark:bg-brand-dark overflow-hidden shrink-0">
+                            <OptimizedImage src={v.image} alt={v.name} className="w-full h-full" priority={isSelected} />
+                            
+                            <div className="absolute top-2 right-2 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 z-10 flex items-center space-x-1">
+                              <svg className="w-3 h-3 text-white inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                              <span>{v.capacity} Kişi</span>
+                            </div>
+                            
+                            {isSelected && (
+                              <div className="absolute top-2 left-2 gold-button text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow z-10">
+                                SEÇİLDİ ✓
+                              </div>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedVenueForDetail(v);
+                              }}
+                              className="absolute bottom-2 right-2 bg-slate-900/90 hover:bg-slate-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/30 transition flex items-center space-x-1 shadow z-10"
+                              title="Mekan Detaylarını Göster"
+                            >
+                              <svg className="w-3 h-3 text-white inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                              <span>Mekan Detayları</span>
+                            </button>
+                          </div>
+
+                          <div className="p-3 space-y-1.5 flex-1 flex flex-col justify-between bg-white dark:bg-brand-card">
+                            <div>
+                              <h4 className="font-heading font-extrabold text-xs sm:text-sm text-slate-800 dark:text-gray-100 leading-tight">
+                                {v.name}
+                              </h4>
+                              <p className="text-[10px] text-slate-500 dark:text-gray-400 line-clamp-1 mt-1">{v.description}</p>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-100 dark:border-brand-border flex justify-between items-center text-xs">
+                              <span className="text-[10px] font-bold text-slate-500">Liste Fiyatı:</span>
+                              <span className="font-extrabold text-xs text-slate-800 dark:text-gray-200">{formatCurrency(v.price)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Bu Rezervasyona Özel Mekan Kiralama Fiyatı (TL):</label>
+                    <input
+                      type="number"
+                      value={customVenuePrice}
+                      onChange={e => setCustomVenuePrice(Number(e.target.value))}
+                      className="w-full bg-amber-500/10 border border-amber-500/40 rounded-xl p-2.5 text-amber-800 dark:text-gold-400 font-extrabold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Davetli Sayısı (Kişi):</label>
+                    <input
+                      type="number"
+                      value={guestCount}
+                      onChange={e => {
+                        const val = Number(e.target.value);
+                        setGuestCount(val);
+                        setSelectedServices(prev => prev.map(item => {
+                          const sObj = (services || []).find(x => x.id === item.serviceId);
+                          return (sObj && sObj.pricingType === 'per_person') ? { ...item, quantity: val } : item;
+                        }));
+                      }}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                    />
+                  </div>
+                </div>
+
+                {/* QUICK TIME SLOT SEANSLARI PRESETS */}
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-brand-border">
+                  <label className="font-bold text-slate-800 dark:text-gray-200 text-xs flex items-center space-x-1.5">
+                    <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Hızlı Seans Seçimi (Aynı Gün Farklı Seans Rezerve Edilebilir):</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setStartTime('10:00'); setEndTime('15:00'); }}
+                      className={`p-2.5 rounded-xl border text-center transition font-bold text-xs flex flex-col items-center justify-center space-y-0.5 ${
+                        startTime === '10:00' && endTime === '15:00'
+                          ? 'gold-button shadow border-amber-500'
+                          : 'bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-500'
+                      }`}
+                    >
+                      <span className="flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 inline text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <span>Gündüz Seansı</span>
+                      </span>
+                      <span className="text-[10px] opacity-80 font-mono font-bold">10:00 - 15:00</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setStartTime('18:00'); setEndTime('23:00'); }}
+                      className={`p-2.5 rounded-xl border text-center transition font-bold text-xs flex flex-col items-center justify-center space-y-0.5 ${
+                        startTime === '18:00' && endTime === '23:00'
+                          ? 'gold-button shadow border-amber-500'
+                          : 'bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-500'
+                      }`}
+                    >
+                      <span className="flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 inline text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <span>Gece Balo Seansı</span>
+                      </span>
+                      <span className="text-[10px] opacity-80 font-mono font-bold">18:00 - 23:00</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setStartTime('09:00'); setEndTime('23:30'); }}
+                      className={`p-2.5 rounded-xl border text-center transition font-bold text-xs flex flex-col items-center justify-center space-y-0.5 ${
+                        startTime === '09:00' && endTime === '23:30'
+                          ? 'gold-button shadow border-amber-500'
+                          : 'bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-500'
+                      }`}
+                    >
+                      <span className="flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 inline text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        <span>Tüm Gün Kiralama</span>
+                      </span>
+                      <span className="text-[10px] opacity-80 font-mono font-bold">09:00 - 23:30</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* START AND END DATE & TIME SELECTION */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1.5">
+                      <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      <span>Etkinlik Başlangıç Tarihi & Saati:</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                      <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1.5">
+                      <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                      <span>Etkinlik Bitiş Tarihi & Saati:</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                      <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* REAL-TIME CONFLICT / AVAILABILITY WARNING BANNER */}
+                {conflictInfo.hasConflict ? (
+                  <div className="p-4 rounded-2xl border-2 border-red-500/60 bg-red-500/10 text-red-700 dark:text-red-300 space-y-2.5 shadow-xl animate-fade-in">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-2xl bg-red-500 text-white font-extrabold flex items-center justify-center text-xl shrink-0 shadow-md">
+                        <svg className="w-6 h-6 text-white inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      </div>
+                      <div>
+                        <h4 className="font-heading font-extrabold text-sm text-red-600 dark:text-red-400">
+                          ÇAKIŞMA ENGELLENDİ: SEÇİLEN SALON VE SEANS ZATEN REZERVE EDİLMİŞ!
+                        </h4>
+                        <p className="text-xs text-red-700 dark:text-red-300 leading-normal">
+                          <strong>{selectedVenue?.name}</strong> salonunda <strong>{formatDate(startDate)}</strong> tarihinde <strong>{conflictInfo.conflictingRes?.timeSlot}</strong> seansı için onaylı bir rezervasyon bulunmaktadır.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="bg-white/90 dark:bg-brand-card/90 p-3 rounded-xl border border-red-500/30 text-xs flex justify-between items-center shadow-sm">
+                      <div className="space-x-2">
+                        <span className="font-bold text-slate-800 dark:text-gray-100">Dolu Rezervasyon: </span>
+                        <span className="font-mono text-slate-900 dark:text-white font-bold">{conflictInfo.conflictingRes?.id}</span>
+                        <span className="text-slate-600 dark:text-gray-300">• {conflictInfo.conflictingRes?.customerName}</span>
+                      </div>
+                      <span className="text-[10px] font-extrabold bg-red-500/20 text-red-600 dark:text-red-400 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                        SEANS DOLU
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center space-x-2.5">
+                      <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <div className="text-xs font-bold">
+                        {selectedVenue?.name} • {formatDate(startDate)} ({activeSlot}) — Bu Salon ve Seans Tamamen Müsait!
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                      MÜSAİT
+                    </span>
+                  </div>
+                )}
+
+                {/* LIVE CALENDAR PREVIEW & OCCUPANCY TIMELINE (RESTORED INSIDE SECTION 1) */}
+                <div className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-4 rounded-2xl space-y-3 text-xs">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <span className="font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1.5">
+                      <ThemeIcon icon="calendar" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Canlı Takvim & Çakışma Önizlemesi ({selectedVenue?.name}):</span>
+                    </span>
+
+                    <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
+                      <span className="text-[10px] bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold px-2.5 py-1 rounded-full border border-amber-500/20 whitespace-nowrap">
+                        Seçilen: {formatDate(startDate)} ({startTime} - {endTime})
+                      </span>
+
+                      {/* NAV ARROWS FOR 14-DAY CALENDAR SHIFT */}
+                      <div className="flex items-center space-x-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setCalendarOffsetDays(prev => prev - 7)}
+                          className="w-7 h-7 rounded-lg bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-200 hover:border-amber-500 flex items-center justify-center font-extrabold text-sm shadow-sm hover:scale-105 transition cursor-pointer"
+                          title="Önceki Hafta (-7 Gün)"
+                          aria-label="Önceki Hafta"
+                        >
+                          ‹
+                        </button>
+                        {calendarOffsetDays !== 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setCalendarOffsetDays(0)}
+                            className="px-2 py-0.5 text-[10px] font-extrabold bg-amber-500/20 text-amber-800 dark:text-gold-400 rounded-md border border-amber-500/30 hover:bg-amber-500/30 transition"
+                            title="Seçili Tarihe Sıfırla"
+                          >
+                            Bugün
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setCalendarOffsetDays(prev => prev + 7)}
+                          className="w-7 h-7 rounded-lg bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-200 hover:border-amber-500 flex items-center justify-center font-extrabold text-sm shadow-sm hover:scale-105 transition cursor-pointer"
+                          title="Sonraki Hafta (+7 Gün)"
+                          aria-label="Sonraki Hafta"
+                        >
+                          ›
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-500 pt-1">
+                    <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+                  </div>
+
+                  {/* MINI CALENDAR DAYS GRID (DYNAMIC 14 DAYS AROUND SELECTED DATE + OFFSET) */}
+                  <div className="grid grid-cols-7 gap-1 text-[11px]">
+                    {preview14Days.map((dayDate) => {
+                      const yr = dayDate.getFullYear();
+                      const mo = String(dayDate.getMonth() + 1).padStart(2, '0');
+                      const dy = String(dayDate.getDate()).padStart(2, '0');
+                      const dateStr = `${yr}-${mo}-${dy}`;
+                      const isSelectedDate = dateStr === startDate;
+                      const hasExistingBooking = (reservations || []).some(r => r.venueId === venueId && r.date === dateStr && r.paymentStatus !== 'İptal');
+                      const monthNameShort = dayDate.toLocaleDateString('tr-TR', { month: 'short' });
+
+                      return (
+                        <div
+                          key={dateStr}
+                          onClick={() => {
+                            setStartDate(dateStr);
+                            setEndDate(dateStr);
+                          }}
+                          className={`p-1.5 rounded-xl text-center cursor-pointer transition border flex flex-col justify-between h-12 ${
+                            isSelectedDate
+                              ? 'gold-button shadow font-extrabold border-amber-500'
+                              : hasExistingBooking
+                              ? 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400 font-bold'
+                              : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:border-amber-500/50'
+                          }`}
+                        >
+                          <span className="text-[9px] opacity-75">{dayDate.getDate()} {monthNameShort}</span>
+                          <span className="text-[9px] font-bold">
+                            {isSelectedDate ? 'SEÇİLDİ' : hasExistingBooking ? 'DOLU' : 'BOŞ'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2: EK HİZMETLER */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-brand-border pb-3 gap-2">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">2. Ek Hizmetler:</h3>
+                  </div>
+                  {selectedVenue && (
+                    <span className="text-xs font-bold text-amber-800 dark:text-gold-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                      🎯 {selectedVenue.name} Mekanıyla Uyumlu ({availableServicesForVenue.length} Hizmet)
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {availableServicesForVenue.length === 0 ? (
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-gold-400 text-xs font-bold text-center">
+                      Bu etkinlik mekanı için seçilebilir ek hizmet bulunmamaktadır.
+                    </div>
+                  ) : (
+                    availableServicesForVenue.map(s => {
+                    const found = selectedServices.find(x => x.serviceId === s.id);
+                    const isSelected = !!found;
+                    const unitPrice = found && found.customUnitPrice !== undefined ? Number(found.customUnitPrice) : s.price;
+                    const defaultQty = s.pricingType === 'per_person' ? guestCount : 1;
+                    const qty = found && found.quantity !== undefined ? Number(found.quantity) : defaultQty;
+                    const isPaid = found ? found.isPaid : false;
+
+                    const isPerPerson = s.pricingType === 'per_person';
+                    const isPerUnit = s.pricingType === 'per_unit' || s.pricingType === 'unit';
+                    const isFlat = !isPerPerson && !isPerUnit;
+
+                    const calculatedCost = unitPrice * qty;
+
+                    return (
+                      <div key={s.id} className={`p-4 rounded-2xl border transition space-y-3 ${isSelected ? 'bg-amber-500/10 border-amber-500/50 shadow-sm' : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'}`}>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <label className="flex items-start sm:items-center space-x-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={e => {
+                                if (e.target.checked) {
+                                  setSelectedServices(prev => [...prev, { serviceId: s.id, quantity: defaultQty, isPaid: false }]);
+                                } else {
+                                  setSelectedServices(prev => prev.filter(x => x.serviceId !== s.id));
+                                }
+                              }}
+                              className="w-5 h-5 accent-amber-600 rounded mt-0.5 sm:mt-0 shrink-0"
+                            />
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-xs text-slate-800 dark:text-gray-200">{s.name}</span>
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                                  isPerPerson ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30' :
+                                  isPerUnit ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30' :
+                                  'bg-amber-500/10 text-amber-800 dark:text-gold-400 border-amber-500/30'
+                                }`}>
+                                  {isPerPerson ? '👥 Kişi Başı' : isPerUnit ? '🔢 Adet Başı' : '📦 Sabit Paket'}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 dark:text-gray-400 mt-0.5">{s.description} | Birim: {formatCurrency(s.price)} {isPerPerson ? '/Kişi' : isPerUnit ? '/Adet' : '/Paket'}</div>
+                            </div>
+                          </label>
+
+                          {isSelected && (
+                            <div className="flex flex-wrap items-center gap-3 text-xs w-full sm:w-auto justify-end">
+                              <div className="flex items-center space-x-1">
+                                <span className="font-bold text-slate-700 dark:text-gray-300">Özel Birim Fiyat:</span>
+                                <input
+                                  type="number"
+                                  value={found.customUnitPrice !== undefined ? found.customUnitPrice : s.price}
+                                  onChange={e => {
+                                    const val = Number(e.target.value);
+                                    setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, customUnitPrice: val } : x));
+                                  }}
+                                  className="w-24 bg-amber-500/10 border border-amber-500/40 rounded-lg p-1 font-bold text-center text-amber-800 dark:text-gold-400"
+                                />
+                              </div>
+
+                              <div className="flex items-center space-x-1">
+                                <span className="font-bold text-slate-700 dark:text-gray-300">
+                                  {isPerPerson ? 'Kişi Sayısı:' : isPerUnit ? 'Adet Sayısı:' : 'Paket Adedi:'}
+                                </span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={qty}
+                                  onChange={e => {
+                                    const val = Math.max(1, Number(e.target.value));
+                                    setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, quantity: val } : x));
+                                  }}
+                                  className="w-20 bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-1 font-bold text-center"
+                                />
+                              </div>
+
+                              <label className={`flex items-center space-x-1 font-bold cursor-pointer select-none ${isPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-gray-400'}`}>
+                                <input
+                                  type="checkbox"
+                                  checked={isPaid}
+                                  onChange={e => {
+                                    const checked = e.target.checked;
+                                    setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, isPaid: checked } : x));
+                                  }}
+                                  className={`w-4 h-4 ${isPaid ? 'accent-emerald-600' : 'accent-slate-400'}`}
+                                />
+                                <span>{isPaid ? 'Ödendi ✓' : 'Ödenmedi'}</span>
+                              </label>
+                            </div>
+                          )}
+                        </div>
+
+                        {isSelected && (
+                          <div className="pt-2 border-t border-amber-500/20 flex flex-wrap justify-between items-center text-xs">
+                            <div className="flex items-center space-x-1.5 text-[11px] text-slate-600 dark:text-gray-300">
+                              <span className="font-bold text-amber-700 dark:text-gold-400">⚡ Hesaplama Formülü:</span>
+                              <span className="font-mono">
+                                {isPerPerson
+                                  ? `${qty} Kişi × ${formatCurrency(unitPrice)}/Kişi`
+                                  : isPerUnit
+                                  ? `${qty} Adet × ${formatCurrency(unitPrice)}/Adet`
+                                  : `${qty} Paket × ${formatCurrency(unitPrice)} (Sabit Paket)`}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1.5 font-extrabold text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30">
+                              <span>Hizmet Tutarı:</span>
+                              <span className="text-sm">{formatCurrency(calculatedCost)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }))}
+                </div>
+              </div>
+
+              {/* SECTION 3: ÖDEME, KAPORA & İNDİRİM KODU BİLGİLERİ */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
+                  <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">3. Ödeme, Kapora & İndirim Kodu Bilgileri</h3>
+                </div>
+
+                <div className="text-xs">
+                  <label className="font-bold block mb-1">Referans / Aracılık Eden (İsim Soyisim):</label>
+                  <input
+                    type="text"
+                    placeholder="Örn: Ahmet Yılmaz (Organizasyon Koçu / Aile Yakını)"
+                    value={referrerName}
+                    onChange={e => setReferrerName(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-200"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">İndirim Kodu:</label>
+                    <select value={campaignCode} onChange={e => setCampaignCode(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold">
+                      <option value="">İndirim Kodu Yok</option>
+                      {campaigns.map(c => <option key={c.id} value={c.code}>{c.code} - {c.title}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1">Kapora Ödendi Mi?</label>
+                    <select value={hasDeposit ? 'yes' : 'no'} onChange={e => setHasDeposit(e.target.value === 'yes')} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold">
+                      <option value="yes">Evet, Kapora Alındı</option>
+                      <option value="no">Hayır, Henüz Ödenmedi</option>
+                    </select>
+                  </div>
+
+                  {hasDeposit && (
+                    <div>
+                      <label className="font-bold block mb-1">Ödenen Kapora Tutarı (TL):</label>
+                      <input type="number" value={depositPaid} onChange={e => setDepositPaid(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold text-emerald-600" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-xs">
+                  <label className="font-bold block mb-1">Genel Ödeme Statüsü (Anlık Bakiye Hesabı):</label>
+                  <select
+                    value={paymentStatus}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setPaymentStatus(val);
+                      if (val === 'Kapora Alındı' && !hasDeposit) {
+                        setHasDeposit(true);
+                        if (!depositPaid || depositPaid === 0) setDepositPaid(5000);
+                      }
+                    }}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 font-bold"
+                  >
+                    <option value="Bekliyor">Bekliyor (Ödeme Bekleniyor)</option>
+                    <option value="Kapora Alındı">Kapora Alındı (Kısmi Kapora Tahsil Edildi)</option>
+                    <option value="Ödendi">Ödendi (Tam ödeme yapıldı - Net Bakiye ₺0)</option>
+                    <option value="Tamamlandı">Tamamlandı (Tam ödeme yapıldı - Net Bakiye ₺0)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* SECTION 4: MÜŞTERİ İLETİŞİM BİLGİLERİ (Z-30 STACKING LAYER TO FLOAT OVER SECTION 5) */}
+              <div id="customer-section" className={`glass-panel p-6 rounded-3xl space-y-4 shadow-sm border transition relative z-30 ${customerError ? 'border-2 border-red-500 shadow-red-500/20 bg-red-500/5' : 'border-slate-200 dark:border-brand-border'}`}>
+                <div className="border-b border-slate-200 dark:border-brand-border pb-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                      <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">4. Müşteri İletişim Bilgileri:</h3>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs font-bold w-full">
+                    <button
+                      type="button"
+                      onClick={() => { setCustomerMode('new'); setIsAutoSelectedFromPhone(false); setCustomerError(false); }}
+                      className={`py-2.5 px-2 rounded-xl border text-center transition flex items-center justify-center space-x-1.5 ${customerMode === 'new' ? 'gold-button shadow font-extrabold' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border-slate-200 dark:border-slate-800'}`}
+                    >
+                      <span>+ Yeni Müşteri</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setCustomerMode('existing'); setIsAutoSelectedFromPhone(false); setCustomerError(false); }}
+                      className={`py-2.5 px-2 rounded-xl border text-center transition flex items-center justify-center space-x-1.5 ${customerMode === 'existing' ? 'gold-button shadow font-extrabold' : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border-slate-200 dark:border-slate-800'}`}
+                    >
+                      <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 inline-block" />
+                      <span>Müşteri Listesi</span>
+                    </button>
+                  </div>
+                </div>
+
+                {customerMode === 'existing' ? (
+                  <div className="text-xs space-y-2">
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block">Mevcut Müşteri Ara ve Seçin:</label>
+                    <input
+                      type="text"
+                      placeholder="🔍 Ad, Soyad, Telefon veya E-posta ile Hızlı Ara..."
+                      value={customerSearchQuery}
+                      onChange={e => setCustomerSearchQuery(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-amber-500/40 rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-medium shadow-sm focus:ring-2 focus:ring-amber-500"
+                    />
+
+                    <select
+                      value={selectedCustomerId}
+                      onChange={e => { setSelectedCustomerId(e.target.value); setIsAutoSelectedFromPhone(false); setCustomerError(false); }}
+                      className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold ${customerError && !selectedCustomerId ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30' : 'border-slate-200 dark:border-brand-border'}`}
+                    >
+                      {customers
+                        .filter(c => {
+                          if (!customerSearchQuery.trim()) return true;
+                          const q = customerSearchQuery.toLowerCase();
+                          return (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.email || '').toLowerCase().includes(q);
+                        })
+                        .map(c => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} (Tel: {c.phone} | {c.email})
+                          </option>
+                        ))}
+                    </select>
+
+                    {selectedCustomerId && isAutoSelectedFromPhone && (
+                      <div className="mt-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold p-2 rounded-lg text-[10px] flex items-center justify-center space-x-1 border border-emerald-500/20 shadow-sm animate-fade-in">
+                        <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>VAROLAN MÜŞTERİ SEÇİLDİ</span>
+                        <span className="font-semibold text-slate-500 dark:text-gray-400 ml-1 truncate max-w-[200px]">
+                          ({customers.find(c => c.id === selectedCustomerId)?.name || 'Kayıtlı Müşteri'})
+                        </span>
+                      </div>
+                    )}
+                    {customerError && !selectedCustomerId && (
+                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>⚠️ Müşteri seçimi yapılması zorunludur.</span>
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3 text-xs">
+                    <div className="bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border p-2.5 rounded-xl text-slate-700 dark:text-gray-300 font-bold flex items-center space-x-1.5">
+                      <svg className="w-4 h-4 text-slate-500 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <span>Bu kişi için sistemde otomatik olarak yeni üye ve müşteri kartı oluşturulacaktır.</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1">Adı Soyadı / Firma Unvanı <span className="text-red-500">*</span>:</label>
+                        <input
+                          id="new-cust-name-input"
+                          type="text"
+                          placeholder="Örn: Mehmet Yılmaz & Zeynep Can"
+                          value={newCustName}
+                          onChange={e => { setNewCustName(e.target.value); setCustomerError(false); }}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && !newCustName.trim() ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30 font-bold' : 'border-slate-200 dark:border-brand-border'}`}
+                        />
+                        {customerError && !newCustName.trim() && (
+                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>⚠️ Doldurulması zorunludur.</span>
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1">E-posta Adresi <span className="text-red-500">*</span>:</label>
+                        <input
+                          type="email"
+                          placeholder="ornek@domain.com"
+                          value={newCustEmail}
+                          onChange={e => { setNewCustEmail(e.target.value); setCustomerError(false); }}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 ${customerError && (!newCustEmail.trim() || !newCustEmail.includes('@')) ? 'border-2 border-red-500 bg-red-500/10 font-bold ring-2 ring-red-500/30' : 'border-slate-200 dark:border-brand-border'}`}
+                        />
+                        {customerError && (!newCustEmail.trim() || !newCustEmail.includes('@')) && (
+                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>⚠️ Geçerli bir e-posta adresi zorunludur.</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="relative z-50">
+                        <label className="font-bold block mb-1">Birincil Telefon (+90) <span className="text-red-500">*</span>:</label>
+                        <input
+                          id="new-cust-phone-input"
+                          type="text"
+                          placeholder="0 (5XX) XXX XX XX"
+                          value={newCustPhone}
+                          onChange={e => { setNewCustPhone(formatPhoneNumber(e.target.value)); setCustomerError(false); }}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold ${
+                            customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone))
+                              ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30 text-red-600'
+                              : isValidPhoneNumber(newCustPhone)
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                              : 'border-slate-200 dark:border-brand-border text-slate-800 dark:text-gray-200'
+                          }`}
+                        />
+
+                        {/* MATCHED EXISTING CUSTOMERS FLOATING DROPDOWN */}
+                        {(() => {
+                          if (!newCustPhone || customerMode !== 'new') return null;
+                          const rawDigits = newCustPhone.replace(/\D/g, '');
+                          if (rawDigits.length < 3) return null;
+                          const matches = (customers || []).filter(c => {
+                            const cDigits = (c.phone || '').replace(/\D/g, '');
+                            return cDigits.includes(rawDigits) || (c.name || '').toLowerCase().includes(newCustPhone.toLowerCase());
+                          }).slice(0, 4);
+                          if (matches.length === 0) return null;
+                          return (
+                            <div className="absolute left-0 right-0 top-full mt-1.5 z-[9999] bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
+                              <div className="bg-amber-500/15 px-3 py-2 border-b border-amber-500/30 text-[11px] font-extrabold text-amber-800 dark:text-gold-400 flex items-center justify-between">
+                                <span className="flex items-center space-x-1">
+                                  <span>⚡ Kayıtlı Müşteri Eşleşti ({matches.length}):</span>
+                                </span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400">Tıklayıp Verileri Doldurun</span>
+                              </div>
+                              <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto">
+                                {matches.map(cust => (
+                                  <div
+                                    key={cust.id}
+                                    onClick={() => {
+                                      setSelectedCustomerId(cust.id);
+                                      setIsAutoSelectedFromPhone(true);
+                                      setCustomerSearchQuery('');
+                                      setCustomerMode('existing');
+                                      setCustomerError(false);
+                                      if (showToast) showToast(`👥 "${cust.name}" Kayıtlı Müşteri Olarak Seçildi ve Aktarıldı!`);
+                                    }}
+                                    className="p-3 hover:bg-amber-500/10 dark:hover:bg-slate-800/80 cursor-pointer transition flex items-center justify-between text-left group"
+                                  >
+                                    <div>
+                                      <div className="font-extrabold text-xs text-slate-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-gold-400">
+                                        {cust.name}
+                                      </div>
+                                      <div className="text-[10px] text-slate-500 dark:text-gray-400 font-mono mt-0.5">
+                                        Tel: {cust.phone} {cust.email ? `| ${cust.email}` : ''}
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="gold-button text-[10px] font-extrabold px-2.5 py-1 rounded-lg shadow shrink-0 active:scale-95"
+                                    >
+                                      Seç & Doldur ✓
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                        {customerError && (!newCustPhone.trim() || !isValidPhoneNumber(newCustPhone)) && (
+                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>{!newCustPhone.trim() ? '⚠️ Doldurulması zorunludur.' : '⚠️ Geçerli bir telefon numarası giriniz (05XX XXX XX XX).'}</span>
+                          </p>
+                        )}
+                        {newCustPhone && isValidPhoneNumber(newCustPhone) && (
+                          <div className="mt-1 text-[10px] font-bold">
+                            <span className="text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                              <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                              <span>Geçerli Telefon Numarası</span>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1">İkinci İletişim / Yakın Telefonu <span className="text-red-500">*</span>:</label>
+                        <input
+                          id="new-cust-sec-phone-input"
+                          type="text"
+                          placeholder="0 (5XX) XXX XX XX (Anne/Baba Tel)"
+                          value={newCustSecondaryPhone}
+                          onChange={e => { setNewCustSecondaryPhone(formatPhoneNumber(e.target.value)); setCustomerError(false); }}
+                          className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold ${
+                            customerError && (!newCustSecondaryPhone.trim() || !isValidPhoneNumber(newCustSecondaryPhone))
+                              ? 'border-2 border-red-500 bg-red-500/10 ring-2 ring-red-500/30 text-red-600'
+                              : newCustPhone && newCustSecondaryPhone && newCustPhone.replace(/\D/g, '') === newCustSecondaryPhone.replace(/\D/g, '')
+                              ? 'border-2 border-red-500 bg-red-500/10 text-red-600'
+                              : newCustSecondaryPhone && isValidPhoneNumber(newCustSecondaryPhone)
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                              : 'border-slate-200 dark:border-brand-border text-slate-800 dark:text-gray-200'
+                          }`}
+                        />
+                        {customerError && (!newCustSecondaryPhone.trim() || !isValidPhoneNumber(newCustSecondaryPhone)) && (
+                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>⚠️ İkinci iletişim telefonu zorunludur.</span>
+                          </p>
+                        )}
+                        {newCustSecondaryPhone && (
+                          <div className="mt-1 text-[10px] font-bold">
+                            {newCustPhone && newCustPhone.replace(/\D/g, '') === newCustSecondaryPhone.replace(/\D/g, '') ? (
+                              <span className="text-red-600 dark:text-red-400 flex items-center space-x-1">
+                                <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>Birincil ve ikincil telefon aynı olamaz!</span>
+                              </span>
+                            ) : isValidPhoneNumber(newCustSecondaryPhone) ? (
+                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span>Geçerli Telefon Numarası</span>
+                              </span>
+                            ) : (
+                              <span className="text-amber-600 dark:text-amber-400">
+                                ⏳ Eksik Telefon Numarası
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 5: FATURA BİLGİLERİ (Z-10 LOWER STACKING LAYER) */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border relative z-10">
+                <div className="border-b border-slate-200 dark:border-brand-border pb-3 space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">5. Fatura Bilgileri</h3>
+                  </div>
+                  
+                  <label className="flex items-center space-x-2 text-xs font-bold cursor-pointer pt-1">
+                    <input type="checkbox" checked={isInvoiced} onChange={e => setIsInvoiced(e.target.checked)} className="w-4 h-4 accent-amber-600" />
+                    <span>Faturalı İşlem (%20 KDV Hesapla)</span>
+                  </label>
+                </div>
+
+                {isInvoiced && (
+                  <div className="space-y-4 text-xs">
+                    <div>
+                      <label className="font-bold block mb-1">Fatura Tipi:</label>
+                      <div className="flex space-x-4">
+                        <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                          <input type="radio" name="invType" value="individual" checked={invoiceType === 'individual'} onChange={() => setInvoiceType('individual')} className="accent-amber-600" />
+                          <span>Bireysel Fatura (TC Kimlik No)</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                          <input type="radio" name="invType" value="corporate" checked={invoiceType === 'corporate'} onChange={() => setInvoiceType('corporate')} className="accent-amber-600" />
+                          <span>Tüzel / Kurumsal Fatura (VKN)</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {invoiceType === 'individual' ? (
+                        <div><label className="font-bold block mb-1">TC Kimlik No:</label><input type="text" value={tcNo} onChange={e => setTcNo(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5" /></div>
+                      ) : (
+                        <div><label className="font-bold block mb-1">Vergi Kimlik No (VKN):</label><input type="text" value={vknNo} onChange={e => setVknNo(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5" /></div>
+                      )}
+                      <div><label className="font-bold block mb-1">Vergi Dairesi:</label><input type="text" value={taxOffice} onChange={e => setTaxOffice(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5" /></div>
+                    </div>
+
+                    <div>
+                      <label className="font-bold block mb-1">Fatura Adresi:</label>
+                      <textarea value={invoiceAddress} onChange={e => setInvoiceAddress(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-2.5 h-16" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 6: ORGANİZASYON & ETKİNLİK AKIŞ PLANLAMASI */}
+              <div className="glass-panel p-4 sm:p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 dark:border-brand-border pb-3 gap-2">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div>
+                      <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">6. Organizasyon & Etkinlik Akış Planlaması</h3>
+                      <p className="text-[11px] text-slate-500 dark:text-gray-400 font-medium">Masaüstünde (⋮⋮) simgesiyle sürükleyebilir veya mobilde (▲/▼) oklarıyla sırasını değiştirebilirsiniz.</p>
+                    </div>
+                  </div>
+                  <button onClick={handleAddFlowItem} className="w-full sm:w-auto px-3 py-1.5 bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 text-slate-800 dark:text-gray-200 font-bold rounded-xl text-xs border border-slate-200 dark:border-brand-border text-center">➕ Akış Adımı Ekle</button>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  {flowPlan.map((item, idx) => (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      onDragOver={(e) => handleDragOver(e, idx)}
+                      onDrop={(e) => handleDrop(e, idx)}
+                      onDragEnd={handleDragEnd}
+                      className={`flex items-center space-x-2 sm:space-x-3 p-2 sm:p-2.5 rounded-xl border transition-all cursor-move ${
+                        draggedIdx === idx
+                          ? 'opacity-40 bg-amber-500/20 border-amber-500 scale-95'
+                          : dragOverIdx === idx
+                          ? 'bg-amber-500/20 border-amber-500 border-2 scale-[1.02] shadow-md'
+                          : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+                      }`}
+                    >
+                      <div className="hidden sm:flex items-center cursor-grab active:cursor-grabbing text-slate-400 hover:text-amber-600 font-bold px-1 text-sm select-none" title="Masaüstünde Sürükle ve Sıralamayı Değiştir">
+                        ⋮⋮
+                      </div>
+
+                      <div className="flex flex-col space-y-0.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => moveFlowItemUp(idx)}
+                          disabled={idx === 0}
+                          className="w-5 h-4 flex items-center justify-center bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded text-[9px] font-bold disabled:opacity-20 hover:bg-amber-500 hover:text-white"
+                          title="Yukarı Taşı"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveFlowItemDown(idx)}
+                          disabled={idx === flowPlan.length - 1}
+                          className="w-5 h-4 flex items-center justify-center bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-300 rounded text-[9px] font-bold disabled:opacity-20 hover:bg-amber-500 hover:text-white"
+                          title="Aşağı Taşı"
+                        >
+                          ▼
+                        </button>
+                      </div>
+
+                      <input
+                        type="text"
+                        value={item.time}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setFlowPlan(prev => prev.map((x, i) => i === idx ? { ...x, time: val } : x));
+                        }}
+                        className="w-16 sm:w-20 bg-white dark:bg-brand-card border border-slate-200 rounded-lg p-1.5 font-mono font-bold text-center text-slate-800 dark:text-gray-200 text-xs shrink-0"
+                      />
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setFlowPlan(prev => prev.map((x, i) => i === idx ? { ...x, title: val } : x));
+                        }}
+                        className="flex-1 bg-white dark:bg-brand-card border border-slate-200 rounded-lg p-1.5 font-bold text-slate-800 dark:text-gray-200 text-xs min-w-0"
+                      />
+                      <button onClick={() => handleRemoveFlowItem(idx)} className="text-red-500 hover:text-red-700 font-bold px-1.5 text-sm shrink-0" title="Adımı Sil">✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION 7: OPERASYONEL EK NOTLAR & ÖZEL İSTEKLER */}
+              <div className="glass-panel p-6 rounded-3xl space-y-3 shadow-sm border border-slate-200 dark:border-brand-border text-xs">
+                <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100 border-b border-slate-200 dark:border-brand-border pb-3">7. Operasyonel Ek Notlar & Özel İstekler:</h3>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Gelin odası ikramları, çiçek renk tercihleri, özel teknik ekipman talepleri..." className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 rounded-xl p-3 h-20" />
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN: LIVE INTERACTIVE PREVIEW & SUMMARY CARD (4 Cols) */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              {/* TAKVİM ÖN İZLEME KARTI */}
+              <div className="glass-panel p-5 rounded-3xl space-y-3 shadow-sm border border-slate-200 dark:border-brand-border">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-2">
+                  <span className="font-bold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                    <svg className="w-4 h-4 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>Takvim Canlı Ön İzlemesi</span>
+                  </span>
+                  <span className="text-[10px] bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 font-mono font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-brand-border">{eventDate}</span>
+                </div>
+                
+                <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border text-center space-y-2 text-xs">
+                  <div className="font-bold text-slate-800 dark:text-gray-100">{formatDate(eventDate)}</div>
+                  <div className="text-slate-900 dark:text-white font-extrabold">{selectedVenue?.name}</div>
+                  <div className="text-[11px] font-mono text-slate-600 dark:text-gray-300 bg-white dark:bg-brand-card py-1 px-2 rounded-lg border border-slate-200 dark:border-brand-border">{activeSlot}</div>
+                  {collisionDetected ? (
+                    <div className="bg-red-500/10 text-red-600 dark:text-red-400 font-bold p-2 rounded-lg text-[10px] flex items-center justify-center space-x-1">
+                      <svg className="w-3.5 h-3.5 text-red-600 dark:text-red-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <span>BU SAAT DİLİMİ DOLUDUR</span>
+                    </div>
+                  ) : (
+                    <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold p-2 rounded-lg text-[10px] flex items-center justify-center space-x-1">
+                      <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <span>BU SAAT DİLİMİ MÜSAİTTİR</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* DESKTOP SIDEBAR CANLI FİNANSAL ÖZET & SÖZLEŞME ONAY KARTI */}
+              <div className="hidden sm:block glass-panel p-6 rounded-3xl space-y-4 shadow-xl border-2 border-slate-200 dark:border-brand-border sticky top-24">
+                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 border-b border-slate-200 dark:border-brand-border pb-2 flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                  <span>Canlı Hesaplama & Sözleşme Kartı</span>
+                </h3>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(calculations.vPrice)}</span></div>
+                  <div className="flex justify-between"><span>Seçilen Ek Hizmetler:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
+                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans / İndirim:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
+                  {isInvoiced && <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>}
+                  
+                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-2">
+                    <span>Genel Toplam Tutar:</span>
+                    <span>{formatCurrency(calculations.grandTotal)}</span>
+                  </div>
+
+                  {/* DÜŞÜLEN HİZMETLER SATIR SATIR */}
+                  {calculations.paidServicesList && calculations.paidServicesList.length > 0 && (
+                    <div className="space-y-1 pt-1">
+                      <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 flex items-center space-x-1">
+                        <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Ödendi İşaretlenen ve Düşülen Hizmetler:</span>
+                      </div>
+                      {calculations.paidServicesList.map(ps => (
+                        <div key={ps.id} className="flex justify-between items-center text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20">
+                          <span className="flex items-center space-x-1">
+                            <svg className="w-3 h-3 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>{ps.name} (Tahsil Edildi)</span>
+                          </span>
+                          <span className="font-mono">-{formatCurrency(ps.cost)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {calculations.isFullyPaid ? (
+                    <div className="flex justify-between items-center text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/30 mt-2">
+                      <span className="flex items-center space-x-1.5">
+                        <svg className="w-4 h-4 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Genel Ödeme ({paymentStatus}):</span>
+                      </span>
+                      <span className="font-mono text-sm">-{formatCurrency(calculations.grandTotal)}</span>
+                    </div>
+                  ) : (
+                    hasDeposit && (
+                      <div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 font-bold">
+                        <span>Tahsil Edilen Kapora:</span>
+                        <span className="font-mono">-{formatCurrency(calculations.dep)}</span>
+                      </div>
+                    )
+                  )}
+
+                  <div className={`flex justify-between font-bold text-sm p-2.5 rounded-xl border mt-2 ${
+                    calculations.isFullyPaid
+                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+                  }`}>
+                    <span>Kalan Ödenecek Net Bakiye:</span>
+                    <span className="font-mono font-extrabold text-base">
+                      {calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(calculations.remaining)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    disabled={conflictInfo.hasConflict}
+                    onClick={handleSubmit}
+                    className={`w-full gold-button font-bold py-3.5 rounded-2xl text-xs shadow-xl flex items-center justify-center space-x-2 ${
+                      conflictInfo.hasConflict ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
+                    }`}
+                  >
+                    <span>🎉</span><span>Rezervasyonu ve Sözleşmeyi Kaydet</span>
+                  </button>
+                </div>
+
+              </div>
+
+
+
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // --- CUSTOMER FORM MODAL ---
+    function CustomerFormModal({ customer, onClose, onSave }) {
+      const [name, setName] = useState(customer?.name || '');
+      const [email, setEmail] = useState(customer?.email || '');
+      const [phone, setPhone] = useState(customer?.phone || '');
+      const [address, setAddress] = useState(customer?.address || '');
+      const [taxType, setTaxType] = useState(customer?.taxType || 'individual');
+      const [tcNo, setTcNo] = useState(customer?.tcNo || '');
+      const [taxOffice, setTaxOffice] = useState(customer?.taxOffice || '');
+
+      return (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{customer ? 'Müşteri Kartı Düzenle' : 'Yeni Müşteri Ekle'}</h3>
+            <div className="space-y-3 text-xs">
+              <input type="text" placeholder="Müşteri / Firma Adı" value={name} onChange={e => setName(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Telefon 0 (5XX) XXX XX XX"
+                  value={phone}
+                  onChange={e => setPhone(formatPhoneNumber(e.target.value))}
+                  className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                />
+                <input type="email" placeholder="E-posta" value={email} onChange={e => setEmail(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+              </div>
+              <select value={taxType} onChange={e => setTaxType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
+                <option value="individual">Bireysel Müşteri (TC No)</option>
+                <option value="corporate">Kurumsal Müşteri (VKN)</option>
+              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder={taxType === 'individual' ? 'TC Kimlik No' : 'Vergi Kimlik No (VKN)'} value={tcNo} onChange={e => setTcNo(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                <input type="text" placeholder="Vergi Dairesi" value={taxOffice} onChange={e => setTaxOffice(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+              </div>
+              <textarea placeholder="Adres Bilgisi" value={address} onChange={e => setAddress(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 h-16" />
+            </div>
+            <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">İptal</button>
+              <button onClick={() => onSave({ ...customer, name, email, phone, address, taxType, tcNo, taxOffice })} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Müşteriyi Kaydet</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- GLOBAL FOOTER COMPONENT ---
+    function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal }) {
+      const activeCampaign = campaigns.length > 0 ? campaigns[0] : { title: 'Erken Rezervasyon Fırsatı', code: 'IREM2026', discount: '%20 İndirim' };
+      const currentYear = new Date().getFullYear();
+
+      return (
+        <footer className="w-full m-0 mt-0 border-t border-slate-200 dark:border-brand-border/60 glass-panel rounded-none px-4 sm:px-8 py-8 space-y-8 animate-fade-in relative overflow-hidden">
+          {/* BACKGROUND DECORATIVE GLOW */}
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+          {/* MAIN 4-COLUMN FOOTER GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+
+            {/* COLUMN 1: CORPORATE INTRO & BRAND */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md shrink-0">
+                  <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-base text-slate-900 dark:text-gray-100 gold-gradient-text">
+                    İrem Düğün Sarayı
+                  </h3>
+                  <p className="text-[10px] font-mono text-slate-500 dark:text-gray-400 uppercase tracking-widest">
+                    Balo & Etkinlik Tesisleri
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                15 yılı aşkın tecrübemiz ve 4 farklı konsept balo salonumuzla hayatınızın en özel ve unutulmaz anlarını kusursuz bir şölene dönüştürüyoruz.
+              </p>
+
+              <button
+                type="button"
+                onClick={onOpenVersionModal}
+                className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold hover:bg-emerald-500/20 transition cursor-pointer"
+                title="Sistem Sürüm Geçmişi ve Güncelleme Günlüğünü Göster"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Canlı Sistem v1.3.0 (Sürüm Notları 📋)</span>
+              </button>
+            </div>
+
+            {/* COLUMN 2: QUICK NAVIGATION & IMPORTANT LINKS */}
+            <div className="space-y-3">
+              <h4 className="font-heading font-extrabold text-xs text-slate-900 dark:text-gray-100 uppercase tracking-wider flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border/40">
+                <ThemeIcon icon="star" fallbackEmoji="⭐" className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Önemli Bağlantılar</span>
+              </h4>
+
+              <ul className="space-y-2 text-xs font-semibold text-slate-600 dark:text-gray-300">
+                <li>
+                  <button onClick={() => onNavigate('dashboard')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
+                    <span>›</span>
+                    <span>Anasayfa & Genel Bakış</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => onNavigate('venues')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
+                    <span>›</span>
+                    <span>Balo Salonlarımız & Kapasiteler</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => onNavigate('calendar')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
+                    <span>›</span>
+                    <span>Etkinlik Takvimi & Doluluk</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => onNavigate('campaigns')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
+                    <span>›</span>
+                    <span>Sezon Kampanyaları & AI Önerileri</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => onNavigate('customers')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
+                    <span>›</span>
+                    <span>Müşteri Portalı & Rehber</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* COLUMN 3: DYNAMIC PROMOTION & CAMPAIGN BANNER */}
+            <div className="space-y-3">
+              <h4 className="font-heading font-extrabold text-xs text-slate-900 dark:text-gray-100 uppercase tracking-wider flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border/40">
+                <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Aktif Sezon Kampanyası</span>
+              </h4>
+
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-2.5 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+                    Özel Fırsat
+                  </span>
+                  <span className="text-xs font-black text-amber-600 dark:text-gold-400 font-mono">
+                    {activeCampaign.code || 'IREM2026'}
+                  </span>
+                </div>
+
+                <div className="font-bold text-xs text-slate-900 dark:text-gray-100">
+                  {activeCampaign.title || '2026 Erken Rezervasyon İndirimi'}
+                </div>
+
+                <p className="text-[11px] text-slate-600 dark:text-gray-400">
+                  Rezervasyon formunda kampanya kodunu girerek %20 indirimden anında faydalanın.
+                </p>
+
+                <button
+                  onClick={() => onNavigate('create-reservation')}
+                  className="w-full text-center py-2 px-3 rounded-xl gold-button font-bold text-xs shadow hover:scale-[1.02] transition"
+                >
+                  Hemen Rezervasyon Oluştur →
+                </button>
+              </div>
+            </div>
+
+            {/* COLUMN 4: DIRECT CONTACT & EMERGENCY SUPPORT */}
+            <div className="space-y-3">
+              <h4 className="font-heading font-extrabold text-xs text-slate-900 dark:text-gray-100 uppercase tracking-wider flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border/40">
+                <ThemeIcon icon="phone" fallbackEmoji="📞" className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>İletişim & Canlı Destek</span>
+              </h4>
+
+              <ul className="space-y-2.5 text-xs text-slate-600 dark:text-gray-300">
+                <li className="flex items-start space-x-2">
+                  <span className="text-amber-500 shrink-0">📍</span>
+                  <span>Sapanca Balo Tesisleri, Sakarya / Türkiye</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-amber-500 shrink-0">📞</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-gray-200">0850 555 0 777</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-amber-500 shrink-0">✉️</span>
+                  <span className="font-mono">iletisim@iremdugunsarayi.com</span>
+                </li>
+              </ul>
+
+              <a
+                href="https://wa.me/905320000000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition hover:scale-[1.02]"
+              >
+                <span>💬 WhatsApp Canlı Destek Line</span>
+              </a>
+            </div>
+
+          </div>
+
+          {/* SUB-FOOTER COPYRIGHT BAR */}
+          <div className="pt-6 border-t border-slate-200 dark:border-brand-border/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-gray-400 relative z-10">
+            <div>
+              © {currentYear} <strong>İrem Düğün Sarayı & Balo Tesisleri</strong>. Tüm Hakları Saklıdır.
+            </div>
+
+            <div className="flex items-center space-x-4 font-semibold text-[11px]">
+              <button onClick={() => onNavigate('settings-appearance')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Görünüm Ayarları</button>
+              <span>•</span>
+              <button onClick={onOpenVersionModal} className="hover:text-amber-600 dark:hover:text-gold-400 transition font-bold text-amber-600 dark:text-gold-400">📋 Sistem Sürüm Geçmişi (v1.3.0)</button>
+              <span>•</span>
+              <button onClick={() => showToast('🛡️ Gizlilik ve Güvenlik Sözleşmesi Onaylıdır')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Gizlilik Politikası</button>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // --- DASHBOARD COMPONENT ---
+    function DashboardComponent({ activeRole, venues = [], reservations = [], financialStats, onNewResClick, onTabChange, onConvertToCampaign, onUpdateVenuePrice }) {
+      const totalRevenue = useMemo(() => {
+        return reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+      }, [reservations]);
+
+      const occupancyRate = useMemo(() => {
+        const totalVenueSlots = Math.max(1, venues.length) * 30;
+        const validResCount = reservations.filter(r => r.paymentStatus !== 'İptal').length;
+        return Math.min(100, Math.round((validResCount / totalVenueSlots) * 100));
+      }, [reservations, venues]);
+
+      const venueRevenueData = useMemo(() => {
+        const map = {};
+        venues.forEach(v => { map[v.id] = { name: v.name, color: '#f59e0b', revenue: 0 }; });
+        const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
+        venues.forEach((v, idx) => {
+          if (map[v.id]) map[v.id].color = colors[idx % colors.length];
+        });
+        reservations.forEach(r => {
+          if (r.paymentStatus !== 'İptal' && map[r.venueId]) {
+            map[r.venueId].revenue += (r.totalAmount || 0);
+          }
+        });
+        const list = Object.values(map);
+        const total = list.reduce((s, item) => s + item.revenue, 0) || 1;
+        return list.map(item => ({
+          ...item,
+          percent: Math.round((item.revenue / total) * 100)
+        }));
+      }, [venues, reservations]);
+
+      const venuePreferenceData = useMemo(() => {
+        const map = {};
+        venues.forEach(v => { map[v.id] = { name: v.name, count: 0 }; });
+        reservations.forEach(r => {
+          if (r.paymentStatus !== 'İptal' && map[r.venueId]) {
+            map[r.venueId].count += 1;
+          }
+        });
+        const totalCount = Math.max(1, reservations.filter(r => r.paymentStatus !== 'İptal').length);
+        const list = Object.values(map);
+        const maxVal = Math.max(1, ...list.map(l => l.count));
+        return list.map(item => ({
+          ...item,
+          ratio: Math.round((item.count / totalCount) * 100),
+          heightPercent: Math.round((item.count / maxVal) * 100)
+        }));
+      }, [venues, reservations]);
+
+      const aiRecs = useMemo(() => {
+        return generateSmartAIRecommendations(reservations, venues, []);
+      }, [reservations, venues]);
+
+      return (
+        <div className="space-y-6 pb-12 animate-fade-in">
+          {/* HEADER BANNER */}
+          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+            <div>
+              <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20 flex items-center space-x-1.5 w-fit">
+                {activeRole === 'admin' && <><ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3.5 h-3.5 shrink-0" /><span>Admin Kurumsal Yönetim Paneli</span></>}
+                {activeRole === 'satisci' && <><ThemeIcon icon="venue" fallbackEmoji="💼" className="w-3.5 h-3.5 shrink-0" /><span>Satış & Doluluk Ekranı</span></>}
+                {activeRole === 'sosyal_medyaci' && <><ThemeIcon icon="preview" fallbackEmoji="📸" className="w-3.5 h-3.5 shrink-0" /><span>Medya Yükleme Paneli</span></>}
+                {activeRole === 'musteri' && <><ThemeIcon icon="user" fallbackEmoji="💖" className="w-3.5 h-3.5 shrink-0" /><span>Özel Müşteri Portalı</span></>}
+              </span>
+              <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100 mt-2 flex items-center space-x-2">
+                <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-5 h-5 text-amber-500 shrink-0" />
+                <span>
+                  {activeRole === 'admin' && 'Hoş Geldiniz, İrem Hanım (Admin)'}
+                  {activeRole === 'satisci' && 'Satış Operasyon Paneli - İrem Düğün Sarayı'}
+                  {activeRole === 'sosyal_medyaci' && 'Medya & Fotoğraf Yönetim Ekranı'}
+                  {activeRole === 'musteri' && 'Değerli Müşterimiz, Hoş Geldiniz! 💍'}
+                </span>
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                {activeRole === 'admin' && 'İrem Düğün Sarayı genel finansal ciro verileri, canlı analiz grafikleri ve yapay zeka önerileri.'}
+                {activeRole === 'satisci' && 'Düğün salonu kiralama durumları, boş gün takvimi ve aktif rezervasyon satış süreçleri.'}
+                {activeRole === 'sosyal_medyaci' && 'Salon galerisi görselleri, medya yükleme alanı ve içerik takvimi takibi.'}
+                {activeRole === 'musteri' && 'Düğün organizasyonunuzun canlı detayları, salon bilgileri ve kalan ödeme bakiyeniz.'}
+              </p>
+            </div>
+
+            {(activeRole === 'admin' || activeRole === 'satisci') && (
+              <button onClick={onNewResClick} className="gold-button font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center space-x-2 text-xs cursor-pointer hover:scale-105 transition">
+                <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+                <span>Yeni Rezervasyon Oluştur</span>
+              </button>
+            )}
+            {activeRole === 'sosyal_medyaci' && (
+              <button onClick={() => onTabChange && onTabChange('media')} className="gold-button font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center space-x-2 text-xs cursor-pointer hover:scale-105 transition">
+                <ThemeIcon icon="camera" fallbackEmoji="📸" className="w-4 h-4 shrink-0" />
+                <span>Fotoğraf & Medya Yükle</span>
+              </button>
+            )}
+            {activeRole === 'musteri' && (
+              <button onClick={() => onTabChange && onTabChange('reservations')} className="gold-button font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center space-x-2 text-xs cursor-pointer hover:scale-105 transition">
+                <ThemeIcon icon="list" fallbackEmoji="📋" className="w-4 h-4 shrink-0" />
+                <span>Rezervasyon Detaylarımı Gör</span>
+              </button>
+            )}
+          </div>
+
+          {/* ========================================================================= */}
+          {/* 👑 ADMIN EXCLUSIVE DASHBOARD: FINANCIAL CHARTS, AI ENGINE & FULL METRICS */}
+          {/* ========================================================================= */}
+          {activeRole === 'admin' && (
+            <>
+              {/* TOP FINANCIAL KPI METRICS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Toplam Etkinlik Mekanı</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-gray-100 mt-1">{venues.length} Mekan</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-emerald-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Canlı Doluluk Oranı</div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">%{occupancyRate}</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-amber-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Son Ay Toplam Kazanç</div>
+                  <div className="text-2xl font-bold gold-gradient-text mt-1">{formatCurrency(financialStats?.totalRev || totalRevenue)}</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-red-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Bekleyen Ödemeler</div>
+                  <div className="text-2xl font-bold text-red-500 dark:text-red-400 mt-1">{formatCurrency(financialStats?.totalPending || 0)}</div>
+                </div>
+              </div>
+
+              {/* INTERACTIVE SVG CHARTS SECTION */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* DONUT CHART CARD */}
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
+                  <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                    <h3 className="font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="chart" fallbackEmoji="🍩" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Gelir Dağılımı (Donut Grafiği)</span>
+                    </h3>
+                    <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-gold-400 px-2.5 py-1 rounded-full">Salon Bazlı</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-around gap-4 pt-2">
+                    <div className="relative w-44 h-44 flex items-center justify-center shrink-0">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#334155" strokeWidth="3.8" strokeOpacity="0.2" />
+                        {(() => {
+                          let accumulatedPercent = 0;
+                          return venueRevenueData.map((item, i) => {
+                            const strokeDasharray = `${item.percent} ${100 - item.percent}`;
+                            const strokeDashoffset = 100 - accumulatedPercent + 25;
+                            accumulatedPercent += item.percent;
+                            return (
+                              <circle
+                                key={i}
+                                cx="18"
+                                cy="18"
+                                r="15.9155"
+                                fill="none"
+                                stroke={item.color}
+                                strokeWidth="3.8"
+                                strokeDasharray={strokeDasharray}
+                                strokeDashoffset={strokeDashoffset}
+                                className="transition-all duration-500 hover:opacity-80"
+                              />
+                            );
+                          });
+                        })()}
+                      </svg>
+                      <div className="absolute flex flex-col items-center justify-center text-center">
+                        <span className="text-[10px] text-slate-400 font-bold">Toplam Ciro</span>
+                        <span className="text-xs font-black gold-gradient-text">{formatCurrency(totalRevenue)}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-xs w-full max-w-[200px]">
+                      {venueRevenueData.map((item, i) => (
+                        <div key={i} className="flex justify-between items-center text-slate-700 dark:text-gray-300">
+                          <div className="flex items-center space-x-2">
+                            <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                            <span className="truncate max-w-[110px] font-bold text-[11px]">{item.name}</span>
+                          </div>
+                          <span className="font-extrabold text-[11px]">%{item.percent}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* BAR CHART CARD */}
+                <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 overflow-hidden">
+                  <div className="flex flex-wrap justify-between items-center gap-2 border-b pb-3 border-slate-200 dark:border-brand-border">
+                    <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="chart" fallbackEmoji="📊" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Salon Tercih Oranları (Bar Grafiği)</span>
+                    </h3>
+                    <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-gold-400 px-2.5 py-1 rounded-full shrink-0">Kiralama Sayısı</span>
+                  </div>
+                  <div className="overflow-x-auto pb-2">
+                    <div className="h-44 flex items-end justify-between gap-2 sm:gap-3 pt-6 px-1 min-w-[280px]">
+                      {venuePreferenceData.map((item, i) => (
+                        <div key={i} className="flex-1 min-w-[55px] flex flex-col items-center h-full justify-end group relative">
+                          <div className="text-[9px] sm:text-[10px] font-bold text-amber-700 dark:text-gold-400 mb-1 text-center whitespace-nowrap">{item.count} Etkinlik</div>
+                          <div
+                            className="w-full bg-gradient-to-t from-amber-600 to-amber-400 rounded-t-xl transition-all duration-500 group-hover:brightness-125 min-h-[16px]"
+                            style={{ height: `${Math.max(15, item.heightPercent)}%` }}
+                          />
+                          <span className="text-[9px] sm:text-[10px] font-bold text-slate-600 dark:text-gray-400 mt-2 truncate w-full text-center" title={item.name}>{item.name.replace('Salon', '').trim()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI RECOMMENDATIONS BANNER */}
+              {aiRecs && aiRecs.length > 0 && (
+                <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 space-y-4 shadow-sm">
+                  <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                    <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="sparkles" fallbackEmoji="🎯" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Yapay Zeka (AI) Akıllı Fiyat & Kampanya Önerileri</span>
+                    </h3>
+                    <button onClick={() => onTabChange && onTabChange('reports')} className="text-xs text-amber-600 font-bold hover:underline cursor-pointer">Tüm Raporlar →</button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {aiRecs.slice(0, 2).map((rec, i) => (
+                      <div key={i} className="p-4 rounded-2xl bg-white/60 dark:bg-brand-card/60 border border-slate-200 dark:border-brand-border space-y-3">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-xs text-amber-800 dark:text-gold-400 flex items-center space-x-1.5">
+                            <span>{rec.title}</span>
+                          </h4>
+                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-gold-400">{rec.badge}</span>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-medium">{rec.description}</p>
+                        <div className="pt-1 flex items-center space-x-2">
+                          {rec.actionType === 'create_campaign' && (
+                            <button
+                              onClick={() => onConvertToCampaign && onConvertToCampaign(rec)}
+                              className="gold-button px-3.5 py-1.5 rounded-xl text-[11px] font-bold shadow hover:scale-105 transition cursor-pointer"
+                            >
+                              🎁 Tek Tıkla Kampanyaya Dönüştür
+                            </button>
+                          )}
+                          {rec.actionType === 'update_price' && (
+                            <button
+                              onClick={() => onUpdateVenuePrice && onUpdateVenuePrice(rec.venueId, rec.suggestedPrice)}
+                              className="px-3.5 py-1.5 rounded-xl text-[11px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow hover:scale-105 transition cursor-pointer"
+                            >
+                              💰 Fiyatı Güncelle & Uygula
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 💼 SATIŞÇI OPERASYON PANELİ (SALES SPECIALIST DASHBOARD) */}
+          {/* ========================================================================= */}
+          {activeRole === 'satisci' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Aktif Salon Sayısı</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-gray-100 mt-1">{venues.length} Salon</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-amber-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Bu Ayın Boş Günleri</div>
+                  <div className="text-2xl font-bold gold-gradient-text mt-1">12 Gün</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-emerald-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Kapora Alınan Rezervasyon</div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{reservations.filter(r => r.depositPaid > 0).length} Adet</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-indigo-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Satış Dönüşüm Oranı</div>
+                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">%84</div>
+                </div>
+              </div>
+
+              <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border/40 space-y-4">
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-5 h-5 text-amber-500 shrink-0" />
+                    <span>Satışçı Hızlı Çalışma Masası & Randevular</span>
+                  </h3>
+                  <button onClick={onNewResClick} className="gold-button px-4 py-2 rounded-xl text-xs font-bold shadow hover:scale-105 transition cursor-pointer">
+                    ➕ Yeni Rezervasyon Kaydı
+                  </button>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-gold-300 font-medium">
+                  💡 <strong>Satış İpucu:</strong> Ağutos ve Eylül aylarındaki son 12 boş gün için özel %10 indirim kuponunu müşterilerinize teklif edebilirsiniz.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 📸 SOSYAL MEDYACI İÇERİK PANELİ (MEDIA SPECIALIST DASHBOARD) */}
+          {/* ========================================================================= */}
+          {activeRole === 'sosyal_medyaci' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Toplam Yüklenen Medya</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-gray-100 mt-1">48 Dosya</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-amber-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Yayındaki Galeri Görselleri</div>
+                  <div className="text-2xl font-bold gold-gradient-text mt-1">36 Görsel</div>
+                </div>
+                <div className="glass-panel p-5 rounded-2xl border border-purple-500/40 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Onay Bekleyen Medyalar</div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">12 Adet</div>
+                </div>
+              </div>
+
+              <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <ThemeIcon icon="camera" fallbackEmoji="📸" className="w-5 h-5 text-amber-500 shrink-0" />
+                    <span>Salon Görsel Galerisi & Medya Yükleme</span>
+                  </h3>
+                  <button onClick={() => onTabChange && onTabChange('media')} className="gold-button px-4 py-2 rounded-xl text-xs font-bold shadow hover:scale-105 transition cursor-pointer">
+                    📷 Hızlı Medya Yükleme Paneli
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  {venues.map(v => (
+                    <div key={v.id} className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-brand-border/40 group">
+                      <img src={v.image} alt={v.name} className="w-full h-24 object-cover group-hover:scale-110 transition duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-2 flex flex-col justify-end">
+                        <span className="text-[11px] font-bold text-white truncate">{v.name}</span>
+                        <span className="text-[9px] text-gold-400 font-bold">{v.category}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 💍 MÜŞTERİ ÖZEL DÜĞÜN PORTALI (CUSTOMER PORTAL DASHBOARD) */}
+          {/* ========================================================================= */}
+          {activeRole === 'musteri' && (
+            <div className="space-y-6">
+              {/* DÜĞÜN KONTROL & SAYAC BANNER */}
+              <div className="glass-panel p-6 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent space-y-4 shadow-lg">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <span className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-emerald-500/30">
+                      ✓ Rezervasyonunuz Onaylandı
+                    </span>
+                    <h3 className="text-xl font-heading font-extrabold text-slate-800 dark:text-gray-100 mt-2">
+                      Düğün Gününüze Son <span className="gold-gradient-text text-2xl">24 GÜN</span> Kaldı! 🎉
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Sayın <strong>Ahmet Yılmaz & Elif Kaya</strong>, İrem Düğün Sarayı Safir Balo Salonu'nda rüya gibi bir gece sizi bekliyor.
+                    </p>
+                  </div>
+                  <WhatsAppButton phone="05321234567" customerName="Ahmet Yılmaz" text="Organizatör İle WhatsApp'tan Görüş" />
+                </div>
+              </div>
+
+              {/* EVENT DETAILS & BALANCE CARDS */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3">
+                  <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border">
+                    <ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Etkinlik & Salon Bilgileriniz</span>
+                  </h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Kiralanan Salon:</span>
+                      <span className="font-bold">Safir Balo Salonu (750 Kişi)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Etkinlik Tarihi:</span>
+                      <span className="font-bold text-amber-700 dark:text-gold-400">15 Ağustos 2026</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Saat Dilimi:</span>
+                      <span className="font-bold">19:00 - 23:30 (Akşam Seansı)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Dahil Hizmetler:</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">Orkestra, HD Video, VIP Süsleme</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3">
+                  <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border">
+                    <ThemeIcon icon="money" fallbackEmoji="💰" className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Ödeme & Bakiye Özeti</span>
+                  </h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Toplam Anlaşma Tutarı:</span>
+                      <span className="font-bold">75.000 ₺</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Ödenen Kapora:</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">25.000 ₺ (Ödendi ✓)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                      <span className="text-slate-400">Kalan Net Bakiye:</span>
+                      <span className="font-extrabold text-amber-700 dark:text-gold-400 text-sm">50.000 ₺</span>
+                    </div>
+                    <div className="pt-2">
+                      <button onClick={() => onTabChange && onTabChange('reservations')} className="w-full py-2 rounded-xl gold-button text-xs font-bold shadow hover:scale-102 transition cursor-pointer">
+                        📄 Sözleşme & Fatura Özetini İndir (PDF)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* RECENT RESERVATIONS SUMMARY TABLE (ADMIN & SATIŞÇI ROLES ONLY) */}
+          {/* ========================================================================= */}
+          {(activeRole === 'admin' || activeRole === 'satisci') && (
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border/40 space-y-4">
+              <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                <h3 className="font-bold text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <ThemeIcon icon="list" fallbackEmoji="📋" className="w-5 h-5 text-amber-500 shrink-0" />
+                  <span>Son Rezervasyon Hareketleri</span>
+                </h3>
+                <button onClick={() => onTabChange && onTabChange('reservations')} className="text-xs text-amber-600 font-bold hover:underline cursor-pointer">Tüm Listeyi Gör →</button>
+              </div>
+
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border text-slate-400 uppercase tracking-wider text-[10px]">
+                      <th className="py-2.5 px-3">Kod</th>
+                      <th className="py-2.5 px-3">Müşteri</th>
+                      <th className="py-2.5 px-3">Tarih</th>
+                      <th className="py-2.5 px-3">Tutar</th>
+                      <th className="py-2.5 px-3">Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30">
+                    {reservations.slice(0, 5).map(r => (
+                      <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 transition">
+                        <td className="py-2.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{r.id}</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-gray-200">{r.customerName}</td>
+                        <td className="py-2.5 px-3 text-slate-600 dark:text-gray-400">{formatDate(r.date)} ({r.timeSlot})</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-gray-100">{formatCurrency(r.totalAmount)}</td>
+                        <td className="py-2.5 px-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                            r.paymentStatus === 'Tamamlandı' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
+                            r.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30' :
+                            'bg-red-500/20 text-red-600 border border-red-500/30'
+                          }`}>
+                            {r.paymentStatus}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- VENUE MODAL COMPONENT ---
+    function VenueModalComponent({ venue, allServices = [], onClose, onSave }) {
+      const [name, setName] = useState(venue?.name || '');
+      const [category, setCategory] = useState(venue?.category || 'Balo Salonu');
+      const [capacity, setCapacity] = useState(venue?.capacity || 500);
+      const [price, setPrice] = useState(venue?.price || 50000);
+      const [deposit, setDeposit] = useState(venue?.deposit || 10000);
+      const [description, setDescription] = useState(venue?.description || '');
+      const [image, setImage] = useState(venue?.image || venue?.images?.[0] || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80');
+
+      const [eventTypes, setEventTypes] = useState(
+        venue?.eventTypes || ['Düğün', 'Nişan', 'Kına', 'Kurumsal Etkinlik', 'Gala', 'Sünnet Düğünü']
+      );
+      const [newEventInput, setNewEventInput] = useState('');
+
+      const addEventType = () => {
+        const trimmed = newEventInput.trim();
+        if (trimmed && !eventTypes.includes(trimmed)) {
+          setEventTypes([...eventTypes, trimmed]);
+          setNewEventInput('');
+        }
+      };
+
+      const removeEventType = (typeToRemove) => {
+        setEventTypes(eventTypes.filter(t => t !== typeToRemove));
+      };
+      
+      const defaultServicesList = allServices.length > 0 ? allServices : [
+        { id: 's1', name: 'Gurme Yemek Servisi (Et Menü)' },
+        { id: 's2', name: 'Fotoğraf & 4K Video Paketi' },
+        { id: 's3', name: 'Canlı Müzik Orkestrası & DJ' },
+        { id: 's4', name: 'Masa & Sahne Süsleme' },
+        { id: 's5', name: 'Volkan, Konfeti & Işık Şovu' }
+      ];
+
+      const [selectedServices, setSelectedServices] = useState(
+        venue?.availableServices || ['s1', 's2', 's3'] // Auto-assign standard default services for new venues!
+      );
+
+      const toggleService = (srvId) => {
+        setSelectedServices(prev => 
+          prev.includes(srvId) ? prev.filter(id => id !== srvId) : [...prev, srvId]
+        );
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: venue?.id || `v-${Date.now()}`,
+          name,
+          category,
+          capacity: Number(capacity),
+          price: Number(price),
+          deposit: Number(deposit),
+          description,
+          image,
+          images: [image],
+          occupancyRate: venue?.occupancyRate || 75,
+          eventTypes: eventTypes,
+          availableServices: selectedServices
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-[999999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                <span>{venue ? '🏰 Etkinlik Mekanını Düzenle' : '➕ Yeni Etkinlik Mekanı Ekle'}</span>
+              </h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Etkinlik Mekanı Adı:</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Örn: Kraliyet Balo Salonu / Kır Bahçesi" className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Mekan Kategorisi / Konsepti:</label>
+                  <input type="text" value={category} onChange={e => setCategory(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Maksimum Kapasite (Kişi):</label>
+                  <input type="number" value={capacity} onChange={e => setCapacity(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Kiralama Fiyatı (TL):</label>
+                  <input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Asgari Kaparo Bedeli (TL):</label>
+                  <input type="number" value={deposit} onChange={e => setDeposit(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-emerald-600 font-bold" />
+                </div>
+              </div>
+
+              {/* SEÇİLEBİLİR EK HİZMETLER TANIMLAMA SEKTÖRÜ */}
+              <div className="border-t border-b border-slate-200 dark:border-brand-border/60 py-3 space-y-2">
+                <label className="font-extrabold block text-slate-800 dark:text-gray-100 flex items-center justify-between">
+                  <span>✨ Bu Mekanda Sunulabilecek Hizmetler:</span>
+                  <span className="text-[10px] text-amber-600 font-bold">({selectedServices.length} Seçili)</span>
+                </label>
+                <p className="text-[11px] text-slate-500 dark:text-gray-400">
+                  Bu etkinlik mekanına özel tanımlamak istediğiniz paket hizmetlerini işaretleyin:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto custom-scrollbar p-2.5 bg-slate-50 dark:bg-brand-dark/60 border border-slate-200 dark:border-brand-border rounded-xl">
+                  {defaultServicesList.map(srv => {
+                    const isChecked = selectedServices.includes(srv.id);
+                    return (
+                      <label key={srv.id} className={`flex items-center space-x-2 p-2 rounded-xl cursor-pointer transition-all ${
+                        isChecked 
+                          ? 'bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-300 font-bold' 
+                          : 'hover:bg-slate-200/50 dark:hover:bg-brand-card text-slate-700 dark:text-gray-300'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleService(srv.id)}
+                          className="accent-amber-500 rounded w-4 h-4 cursor-pointer"
+                        />
+                        <span className="text-xs truncate">{srv.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ETKİNLİK TÜRLERİ YÖNETİMİ */}
+              <div className="space-y-1.5 pt-1">
+                <label className="font-bold block text-slate-700 dark:text-gray-200 flex items-center justify-between">
+                  <span>🎯 Düzenlenebilen Etkinlik Türleri:</span>
+                  <span className="text-[10px] text-amber-600 font-bold">({eventTypes.length} Tür Tanımlı)</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newEventInput}
+                    onChange={e => setNewEventInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addEventType(); } }}
+                    placeholder="Örn: Sünnet, Bekarlığa Veda, Gala (Enter'a basın)"
+                    className="flex-1 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-slate-800 dark:text-gray-200 text-xs font-bold"
+                  />
+                  <button
+                    type="button"
+                    onClick={addEventType}
+                    className="gold-button font-bold px-3 py-2 rounded-xl text-xs"
+                  >
+                    + Tür Ekle
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {eventTypes.map(type => (
+                    <span key={type} className="inline-flex items-center space-x-1 text-[11px] bg-amber-500/10 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold px-2.5 py-1 rounded-lg border border-amber-500/30">
+                      <span>{type}</span>
+                      <button type="button" onClick={() => removeEventType(type)} className="hover:text-red-500 font-extrabold ml-1.5">✕</button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <ImageDropzoneUploader
+                label="Mekan Kapak Görseli Yükle"
+                value={image}
+                onChange={setImage}
+                aspectGuide="1200x800 px (16:9 Geniş)"
+                placeholderIcon="🏰"
+              />
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Açıklama & Mekan Özellikleri:</label>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16 text-slate-800 dark:text-gray-200" placeholder="Mekan detayları, teknik altyapı ve imkanlar..." />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Mekanı Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SERVICE MODAL COMPONENT ---
+    function ServiceModalComponent({ service, onClose, onSave }) {
+      const [name, setName] = useState(service?.name || '');
+      const [pricingType, setPricingType] = useState(service?.pricingType || 'per_person');
+      const [price, setPrice] = useState(service?.price || 250);
+      const [description, setDescription] = useState(service?.description || '');
+      const [image, setImage] = useState(service?.image || 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=400&q=80');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: service?.id || `s-${Date.now()}`,
+          name,
+          pricingType,
+          price: Number(price),
+          description,
+          image
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{service ? '✨ Ek Hizmeti Düzenle' : '➕ Yeni Ek Hizmet Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div><label className="font-bold block mb-1">Hizmet Adı:</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Fiyatlandırma Tipi:</label>
+                  <select value={pricingType} onChange={e => setPricingType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold">
+                    <option value="per_person">Kişi Başı (₺/Kişi)</option>
+                    <option value="flat">Sabit Paket (₺/Paket)</option>
+                  </select>
+                </div>
+                <div><label className="font-bold block mb-1">Birim Fiyat (TL):</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" /></div>
+              </div>
+              <ImageDropzoneUploader
+                label="Hizmet Kapak Görseli Yükle"
+                value={image}
+                onChange={setImage}
+                aspectGuide="600x400 px (3:2)"
+                placeholderIcon="✨"
+              />
+              <div><label className="font-bold block mb-1">Açıklama:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16" /></div>
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Hizmeti Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- CAMPAIGN MODAL COMPONENT ---
+    function CampaignModalComponent({ campaign, onClose, onSave }) {
+      const [code, setCode] = useState(campaign?.code || '');
+      const [title, setTitle] = useState(campaign?.title || '');
+      const [type, setType] = useState(campaign?.type || 'percent');
+      const [value, setValue] = useState(campaign?.value || 15);
+      const [description, setDescription] = useState(campaign?.description || '');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: campaign?.id || `c-${Date.now()}`,
+          code: code.toUpperCase(),
+          title,
+          type,
+          value: Number(value),
+          description
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{campaign ? '🎁 Kampanyayı Düzenle' : '➕ Yeni Özel Kampanya Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="font-bold block mb-1">Referans / İndirim Kodu:</label><input type="text" placeholder="Örn: YAZ2026" value={code} onChange={e => setCode(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-mono font-bold uppercase text-amber-700" /></div>
+                <div>
+                  <label className="font-bold block mb-1">Kampanya Tipi:</label>
+                  <select value={type} onChange={e => setType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold">
+                    <option value="percent">% Yüzde İndirimi</option>
+                    <option value="amount">TL Tutar İndirimi</option>
+                    <option value="free_service">Hediye Hizmet</option>
+                  </select>
+                </div>
+              </div>
+              <div><label className="font-bold block mb-1">Kampanya Başlığı:</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div><label className="font-bold block mb-1">İndirim Değeri ({type === 'percent' ? '%' : 'TL'}):</label><input type="number" value={value} onChange={e => setValue(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-emerald-600" /></div>
+              <div><label className="font-bold block mb-1">Detaylı Kampanya Açıklaması:</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16" /></div>
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kampanyayı Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- USER MODAL COMPONENT ---
+    function UserModalComponent({ user, onClose, onSave }) {
+      const [name, setName] = useState(user?.name || '');
+      const [email, setEmail] = useState(user?.email || '');
+      const [role, setRole] = useState(user?.role || 'satisci');
+      const [avatar, setAvatar] = useState(user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80');
+      const [password, setPassword] = useState(user?.password || '');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          id: user?.id || `u-${Date.now()}`,
+          name,
+          email,
+          role,
+          avatar,
+          password
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{user ? '⚙️ Kullanıcıyı Düzenle' : '➕ Yeni Kullanıcı Ekle'}</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+              <div><label className="font-bold block mb-1">Adı Soyadı:</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div><label className="font-bold block mb-1">E-posta Adresi:</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div><label className="font-bold block mb-1">Giriş Şifresi:</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Şifre giriniz..." required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
+              <div>
+                <label className="font-bold block mb-1">Sistem Rolü & Yetki Seviyesi:</label>
+                <select value={role} onChange={e => setRole(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-200">
+                  <option value="admin">Admin (Tam Yetkili)</option>
+                  <option value="satisci">Satış Müdürü (Rezervasyon & Satış)</option>
+                  <option value="sosyal_medyaci">Sosyal Medya Sorumlusu (Foto/Medya)</option>
+                  <option value="musteri">Müşteri (Özel Takip Portalı)</option>
+                </select>
+              </div>
+              <ImageDropzoneUploader
+                label="Kullanıcı Profil Fotoğrafı Yükle"
+                value={avatar}
+                onChange={setAvatar}
+                aspectGuide="400x400 px (1:1 Kare)"
+                placeholderIcon="👤"
+              />
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kullanıcıyı Kaydet ✓</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- RED ALERT CONFIRMATION POPUP MODAL ---
+    function RedAlertConfirmModal({ isOpen, title, message, confirmText = 'Evet, Sil', cancelText = 'Vazgeç', onConfirm, onClose, icon = <ThemeIcon icon="trash" className="w-8 h-8 shrink-0 text-red-600 dark:text-red-400" /> }) {
+      if (!isOpen) return null;
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [onClose]);
+
+      return (
+        <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-slate-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden animate-fade-in">
+          <div className="w-full max-w-lg sm:max-w-md bg-white dark:bg-slate-900 border-t-2 sm:border-2 border-red-500/60 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(239,68,68,0.4)] relative animate-slide-up sm:animate-scale-up text-center space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center text-3xl mx-auto border border-red-500/30 shadow-inner animate-pulse shrink-0">
+              {icon}
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="font-heading font-extrabold text-lg sm:text-xl text-slate-800 dark:text-white">
+                {title}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 leading-relaxed font-medium">
+                {message}
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-gray-200 font-bold text-xs sm:text-sm transition"
+              >
+                {cancelText}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onConfirm();
+                  onClose();
+                }}
+                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-red-500/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center space-x-1"
+              >
+                <span>{confirmText}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- EMAIL NOTIFICATION SIMULATION MODAL ---
+    function EmailNotificationModal({ emailData, onClose }) {
+      if (!emailData) return null;
+
+      return (
+        <div className="fixed inset-0 z-[999999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border-2 border-amber-500/50 rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl">✉️</span>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">Otomatik E-Posta Gönderim Simülatörü</h3>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Müşteri E-Posta Adresine Başarıyla İletildi</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold">✕</button>
+            </div>
+
+            {/* EMAIL TEMPLATE PREVIEW */}
+            <div className="bg-slate-50 dark:bg-brand-dark p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-4 text-xs font-sans">
+              <div className="space-y-1 border-b border-slate-200 dark:border-brand-border pb-3">
+                <div><strong className="text-slate-500">Alıcı:</strong> <span className="font-bold text-slate-800 dark:text-gray-200">{emailData.to}</span></div>
+                <div><strong className="text-slate-500">Konu:</strong> <span className="font-bold text-amber-700 dark:text-gold-400">{emailData.subject}</span></div>
+              </div>
+
+              <div className="space-y-3 leading-relaxed text-slate-700 dark:text-gray-300">
+                <p>Merhaba <strong>{emailData.name}</strong>,</p>
+                <p>İrem Düğün Sarayı'nı tercih ettiğiniz için bizi çok mutlu ettiniz. Aşağıdaki bilgilerle tüm süreçleri anlık ve sorunsuz takip edebilirsiniz:</p>
+
+                {emailData.type === 'welcome' && (
+                  <div className="bg-white dark:bg-brand-card p-4 rounded-xl border border-amber-500/30 space-y-2">
+                    <div className="font-bold text-amber-700 dark:text-gold-400">🔑 Üyelik ve Giriş Bilgileriniz:</div>
+                    <div>• Kullanıcı Adı / E-Posta: <strong className="font-mono text-slate-900 dark:text-white">{emailData.email}</strong></div>
+                    <div>• Geçici Giriş Şifresi: <strong className="font-mono text-slate-900 dark:text-white">İrem2026!</strong></div>
+                  </div>
+                )}
+
+                {emailData.type === 'reservation' && emailData.res && (
+                  <div className="bg-white dark:bg-brand-card p-4 rounded-xl border border-amber-500/30 space-y-2">
+                    <div className="font-bold text-amber-700 dark:text-gold-400">📋 Rezervasyon Fatura ve Ödeme Özeti ({emailData.res.id}):</div>
+                    <table className="w-full text-left text-[11px] border-collapse">
+                      <tbody>
+                        <tr className="border-b"><td className="py-1">Salon:</td><td className="font-bold">{emailData.res.customerName}</td></tr>
+                        <tr className="border-b"><td className="py-1">Tarih & Saat:</td><td className="font-bold">{formatDate(emailData.res.date)} ({emailData.res.timeSlot})</td></tr>
+                        <tr className="border-b"><td className="py-1">Toplam Tutarı:</td><td className="font-bold text-slate-900 dark:text-white">{formatCurrency(emailData.res.totalAmount)}</td></tr>
+                        <tr className="border-b"><td className="py-1">Ödenen Kapora:</td><td className="font-bold text-emerald-600">{formatCurrency(emailData.res.depositPaid)}</td></tr>
+                        <tr><td className="py-1">Kalan Bakiye:</td><td className="font-bold text-red-500">{formatCurrency(emailData.res.remainingBalance)}</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-slate-200 dark:border-brand-border text-[11px] text-slate-500 text-center">
+                  Hayallerinizdeki etkinliği unutulmaz kılmak bizim işimiz!<br />
+                  <strong>İREM DÜĞÜN SARAYI</strong> | Sakarya, Sapanca | +90 555 555 55 55 | @iremdugunsarayi
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button onClick={onClose} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow">Tamam, Kapat</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- VENUES COMPONENT ---
+    // --- VENUES COMPONENT ---
+    function VenuesComponent({ venues, services = [], onAddClick, onEditClick, onDeleteClick }) {
+      const [selectedVenueDetail, setSelectedVenueDetail] = useState(null);
+      const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+      const [searchTerm, setSearchTerm] = useState('');
+      const [categoryFilter, setCategoryFilter] = useState('ALL');
+
+      const categories = useMemo(() => {
+        const set = new Set(venues.map(v => v.category).filter(Boolean));
+        return ['ALL', ...Array.from(set)];
+      }, [venues]);
+
+      const filteredVenues = useMemo(() => {
+        return venues.filter(v => {
+          const matchesCategory = categoryFilter === 'ALL' || v.category === categoryFilter;
+          const matchesSearch = !searchTerm || (
+            v.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            v.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            v.category?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          return matchesCategory && matchesSearch;
+        });
+      }, [venues, categoryFilter, searchTerm]);
+
+      return (
+        <div className="space-y-6">
+          {/* VENUE DETAIL MODAL */}
+          {selectedVenueDetail && (
+            <VenueDetailModalComponent
+              venue={selectedVenueDetail}
+              services={services}
+              onClose={() => setSelectedVenueDetail(null)}
+              onSelectVenue={(v) => {
+                setSelectedVenueDetail(null);
+                if (onEditClick) onEditClick(v);
+              }}
+            />
+          )}
+
+          {/* PAGE TOP HEADER & PRIMARY ACTION */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-brand-border/40">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                <ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-gray-100 gold-gradient-text">
+                  Etkinlik Mekanları & Balo Salonları
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-gray-400">
+                  Toplam {filteredVenues.length} konsept salon ve etkinlik mekanı listeleniyor
+                </p>
+              </div>
+            </div>
+
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-1.5 self-start sm:self-auto">
+              <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+              <span>Yeni Mekan Ekle</span>
+            </button>
+          </div>
+
+          {/* FILTER & VIEW MODE TOGGLE TOOLBAR */}
+          <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-brand-border/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-sm">
+            
+            {/* LEFT: SEARCH INPUT */}
+            <div className="flex-1 relative min-w-[200px]">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="Salon adı veya açıklamasında ara..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500 transition"
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs">
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* CENTER: CATEGORY FILTER */}
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-slate-500 dark:text-gray-400 shrink-0">Kategori:</span>
+              <select
+                value={categoryFilter}
+                onChange={e => setCategoryFilter(e.target.value)}
+                className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500"
+              >
+                {categories.map(c => (
+                  <option key={c} value={c}>
+                    {c === 'ALL' ? 'Tüm Kategoriler' : c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* RIGHT: VIEW MODE BUTTON TOGGLE */}
+            <div className="flex items-center p-1 bg-slate-100 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border shrink-0 self-end md:self-auto">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  viewMode === 'grid'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100'
+                }`}
+                title="Kart Izgara Görünümü"
+              >
+                <ThemeIcon icon="grid" fallbackEmoji="🎴" className="w-4 h-4 shrink-0" />
+                <span>Kart Görünümü</span>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  viewMode === 'table'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100'
+                }`}
+                title="Detaylı Tablo Görünümü"
+              >
+                <ThemeIcon icon="list" fallbackEmoji="📋" className="w-4 h-4 shrink-0" />
+                <span>Tablo Görünümü</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* DATA PRESENTATION: GRID MODE vs TABLE MODE */}
+          {filteredVenues.length === 0 ? (
+            <div className="glass-panel p-12 text-center rounded-3xl border border-dashed border-slate-300 dark:border-brand-border space-y-3">
+              <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-10 h-10 mx-auto text-slate-400 opacity-60" />
+              <div className="font-bold text-slate-700 dark:text-gray-300 text-sm">Aramanızla Eşleşen Düğün Salonu Bulunamadı</div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Filtre kriterlerini temizleyerek veya yeni bir arama yaparak tekrar deneyebilirsiniz.</p>
+              <button onClick={() => { setSearchTerm(''); setCategoryFilter('ALL'); }} className="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-600 font-bold text-xs border border-amber-500/30">
+                Filtreleri Temizle
+              </button>
+            </div>
+          ) : viewMode === 'grid' ? (
+            /* --- KART IZGARA GÖRÜNÜMÜ --- */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {filteredVenues.map(v => (
+                <div key={v.id} className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden space-y-3 shadow-sm flex flex-col justify-between hover:border-amber-500/50 transition group">
+                  <div>
+                    <div className="cursor-pointer overflow-hidden relative" onClick={() => setSelectedVenueDetail(v)}>
+                      <OptimizedImage src={v.image || v.images[0]} alt={`${v.name} Görseli`} className="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
+                      <span className="absolute top-3 right-3 text-[10px] text-amber-950 font-black bg-amber-400 px-2.5 py-1 rounded-full shadow-md">
+                        {v.category}
+                      </span>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <h3
+                        onClick={() => setSelectedVenueDetail(v)}
+                        className="font-bold text-base text-slate-800 dark:text-gray-100 cursor-pointer hover:text-amber-500 transition"
+                      >
+                        {v.name}
+                      </h3>
+                      <div className="flex justify-between items-center text-xs text-slate-600 dark:text-gray-300 font-bold border-b border-slate-100 dark:border-brand-border/30 pb-2">
+                        <span className="flex items-center space-x-1">
+                          <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                          <span>Kapasite: {v.capacity} Kişi</span>
+                        </span>
+                        <span className="text-amber-600 dark:text-gold-400 font-extrabold">{formatCurrency(v.price)}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-2">{v.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 pt-0 flex space-x-2">
+                    <button
+                      onClick={() => setSelectedVenueDetail(v)}
+                      className="flex-1 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs shadow hover:bg-amber-400 transition flex items-center justify-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Detay İncele</span>
+                    </button>
+                    <button onClick={() => onEditClick(v)} className="py-2 px-3 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30 flex items-center justify-center space-x-1 hover:bg-amber-500/20 transition">
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Düzenle</span>
+                    </button>
+                    <button onClick={() => onDeleteClick(v.id)} className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-xs uppercase border border-red-500/30 inline-flex items-center space-x-1 transition">
+                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                      <span>SİL</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* --- TABLO GÖRÜNÜMÜ --- */
+            <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="py-3.5 px-4">Salon Görseli</th>
+                      <th className="py-3.5 px-4">Salon Adı & Konsept</th>
+                      <th className="py-3.5 px-4">Kapasite</th>
+                      <th className="py-3.5 px-4">Başlangıç Fiyatı</th>
+                      <th className="py-3.5 px-4">Açıklama</th>
+                      <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
+                    {filteredVenues.map(v => (
+                      <tr key={v.id} className="hover:bg-amber-500/5 transition">
+                        <td className="py-3 px-4">
+                          <div className="w-14 h-10 rounded-xl overflow-hidden cursor-pointer border border-amber-500/30 shrink-0" onClick={() => setSelectedVenueDetail(v)}>
+                            <OptimizedImage src={v.image || v.images[0]} alt={v.name} className="w-full h-full object-cover hover:scale-110 transition" />
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-slate-900 dark:text-gray-100 cursor-pointer hover:text-amber-500 transition" onClick={() => setSelectedVenueDetail(v)}>
+                            {v.name}
+                          </div>
+                          <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block mt-0.5">
+                            {v.category}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1">
+                          <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                          <span>{v.capacity} Kişi</span>
+                        </td>
+                        <td className="py-3 px-4 font-mono font-extrabold text-amber-600 dark:text-gold-400">
+                          {formatCurrency(v.price)}
+                        </td>
+                        <td className="py-3 px-4 max-w-xs truncate text-slate-500 dark:text-gray-400">
+                          {v.description}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end space-x-1.5">
+                            <button
+                              onClick={() => setSelectedVenueDetail(v)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px] shadow hover:bg-amber-400 transition flex items-center space-x-1"
+                              title="Salon Detayını İncele"
+                            >
+                              <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3 h-3 shrink-0" />
+                              <span>Detay</span>
+                            </button>
+                            <button
+                              onClick={() => onEditClick(v)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
+                              title="Salonu Düzenle"
+                            >
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                              <span>Düzenle</span>
+                            </button>
+                            <button
+                              onClick={() => onDeleteClick(v.id)}
+                              className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
+                              title="Salonu Sil"
+                            >
+                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- SERVICES COMPONENT ---
+    function ServicesComponent({ services, onAddClick, onEditClick, onDeleteClick }) {
+      const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+      const [searchTerm, setSearchTerm] = useState('');
+      const [categoryFilter, setCategoryFilter] = useState('ALL');
+
+      const categories = useMemo(() => {
+        const set = new Set(services.map(s => s.category).filter(Boolean));
+        return ['ALL', ...Array.from(set)];
+      }, [services]);
+
+      const filteredServices = useMemo(() => {
+        return services.filter(s => {
+          const matchesCategory = categoryFilter === 'ALL' || s.category === categoryFilter;
+          const matchesSearch = !searchTerm || (
+            s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.category?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          return matchesCategory && matchesSearch;
+        });
+      }, [services, categoryFilter, searchTerm]);
+
+      return (
+        <div className="space-y-6">
+          {/* HEADER & PRIMARY ACTION */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-brand-border/40">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                <ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-gray-100 gold-gradient-text">
+                  Ek Hizmetlerim
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-gray-400">
+                  Toplam {filteredServices.length} ek hizmet seçeneği tanımlı
+                </p>
+              </div>
+            </div>
+
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-1.5 self-start sm:self-auto">
+              <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+              <span>Yeni Ek Hizmet Ekle</span>
+            </button>
+          </div>
+
+          {/* FILTER TOOLBAR & VIEW MODE SWITCHER */}
+          <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-brand-border/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-sm">
+            
+            {/* SEARCH INPUT */}
+            <div className="flex-1 relative min-w-[200px]">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="Hizmet adı veya açıklamasında ara..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500 transition"
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs">
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* CATEGORY FILTER */}
+            {categories.length > 1 && (
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-bold text-slate-500 dark:text-gray-400 shrink-0">Kategori:</span>
+                <select
+                  value={categoryFilter}
+                  onChange={e => setCategoryFilter(e.target.value)}
+                  className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500"
+                >
+                  {categories.map(c => (
+                    <option key={c} value={c}>
+                      {c === 'ALL' ? 'Tüm Kategoriler' : c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* VIEW MODE TOGGLE BUTTONS */}
+            <div className="flex items-center p-1 bg-slate-100 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border shrink-0 self-end md:self-auto">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  viewMode === 'grid'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100'
+                }`}
+                title="Kart Izgara Görünümü"
+              >
+                <ThemeIcon icon="grid" fallbackEmoji="🎴" className="w-4 h-4 shrink-0" />
+                <span>Kart Görünümü</span>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  viewMode === 'table'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100'
+                }`}
+                title="Detaylı Tablo Görünümü"
+              >
+                <ThemeIcon icon="list" fallbackEmoji="📋" className="w-4 h-4 shrink-0" />
+                <span>Tablo Görünümü</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* CONTENT: GRID MODE vs TABLE MODE */}
+          {filteredServices.length === 0 ? (
+            <div className="glass-panel p-12 text-center rounded-3xl border border-dashed border-slate-300 dark:border-brand-border space-y-3">
+              <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-10 h-10 mx-auto text-slate-400 opacity-60" />
+              <div className="font-bold text-slate-700 dark:text-gray-300 text-sm">Aramanızla Eşleşen Ek Hizmet Bulunamadı</div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Filtre kriterlerinizi temizleyerek tekrar arayabilirsiniz.</p>
+              <button onClick={() => { setSearchTerm(''); setCategoryFilter('ALL'); }} className="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-600 font-bold text-xs border border-amber-500/30">
+                Filtreleri Temizle
+              </button>
+            </div>
+          ) : viewMode === 'grid' ? (
+            /* --- KART IZGARA GÖRÜNÜMÜ --- */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredServices.map(s => (
+                <div key={s.id} className="glass-panel p-4 rounded-2xl space-y-3 shadow-sm flex flex-col justify-between border border-slate-200 dark:border-brand-border/40 hover:border-amber-500/50 transition">
+                  <div>
+                    <OptimizedImage src={s.image} alt={`${s.name} Görseli`} className="w-full h-36 object-cover rounded-xl border border-slate-200 dark:border-brand-border" />
+                    <div className="flex justify-between items-center pt-3">
+                      <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{s.name}</h3>
+                      <span className="font-mono font-extrabold text-xs text-amber-600 dark:text-gold-400">{formatCurrency(s.price)}</span>
+                    </div>
+                    {s.category && (
+                      <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block mt-1">
+                        {s.category}
+                      </span>
+                    )}
+                    <p className="text-xs text-slate-500 dark:text-gray-400 pt-2 line-clamp-2">{s.description}</p>
+                  </div>
+
+                  <div className="flex space-x-2 pt-3 border-t border-slate-200 dark:border-brand-border/40">
+                    <button onClick={() => onEditClick(s)} className="flex-1 py-1.5 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30 flex items-center justify-center space-x-1 hover:bg-amber-500/20 transition">
+                      <span>Düzenle</span>
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                    </button>
+                    <button onClick={() => onDeleteClick(s.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-xs uppercase border border-red-500/30 inline-flex items-center space-x-1 transition">
+                      <span>SİL</span>
+                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* --- TABLO GÖRÜNÜMÜ --- */
+            <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="py-3.5 px-4">Görsel</th>
+                      <th className="py-3.5 px-4">Hizmet Adı</th>
+                      <th className="py-3.5 px-4">Kategori</th>
+                      <th className="py-3.5 px-4">Paket / Ek Fiyat</th>
+                      <th className="py-3.5 px-4">Açıklama</th>
+                      <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
+                    {filteredServices.map(s => (
+                      <tr key={s.id} className="hover:bg-amber-500/5 transition">
+                        <td className="py-3 px-4">
+                          <div className="w-12 h-10 rounded-xl overflow-hidden border border-amber-500/30 shrink-0">
+                            <OptimizedImage src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 font-bold text-slate-900 dark:text-gray-100">
+                          {s.name}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-full">
+                            {s.category || 'Genel Hizmet'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono font-extrabold text-amber-600 dark:text-gold-400">
+                          {formatCurrency(s.price)}
+                        </td>
+                        <td className="py-3 px-4 max-w-xs truncate text-slate-500 dark:text-gray-400">
+                          {s.description}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end space-x-1.5">
+                            <button
+                              onClick={() => onEditClick(s)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
+                              title="Hizmeti Düzenle"
+                            >
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                              <span>Düzenle</span>
+                            </button>
+                            <button
+                              onClick={() => onDeleteClick(s.id)}
+                              className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
+                              title="Hizmeti Sil"
+                            >
+                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- UNIFIED RESERVATIONS & MASTER CALENDAR COMPONENT ---
+    function ReservationsComponent({
+      reservations = [],
+      draftReservations = [],
+      setDraftReservations,
+      currentUser,
+      venues = [],
+      services = [],
+      customers = [],
+      campaigns = [],
+      navigateTo,
+      onNewResClick,
+      onUpdateReservation,
+      onDeleteReservation,
+      onPrintInvoice,
+      onShowEmail
+    }) {
+      const [viewMode, setViewMode] = useState('table');
+      const [isFilterOpen, setIsFilterOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+      const [isDraftPanelOpen, setIsDraftPanelOpen] = useState(true);
+
+      const [searchQuery, setSearchQuery] = useState('');
+      const [venueFilter, setVenueFilter] = useState('ALL');
+      const [statusFilter, setStatusFilter] = useState('ALL');
+      const [startDateFilter, setStartDateFilter] = useState('');
+      const [endDateFilter, setEndDateFilter] = useState('');
+
+      const [selectedResForPreview, setSelectedResForPreview] = useState(null);
+      const [selectedDayInspector, setSelectedDayInspector] = useState(null);
+      const [editingRes, setEditingRes] = useState(null);
+      const [deletingRes, setDeletingRes] = useState(null);
+
+      const [editForm, setEditForm] = useState(null);
+      const [editError, setEditError] = useState(false);
+
+      const handleOpenEdit = (res) => {
+        setSelectedResForPreview(null);
+        setSelectedDayInspector(null);
+        if (res && res.id) {
+          window.location.hash = `#/rezervasyon-olustur?editId=${res.id}`;
+        }
+      };
+
+      const filteredReservations = (reservations || []).filter(r => {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch = !q ||
+          (r.customerName || '').toLowerCase().includes(q) ||
+          (r.id || '').toLowerCase().includes(q) ||
+          (r.customerPhone || '').includes(q);
+
+        const matchesVenue = venueFilter === 'ALL' || r.venueId === venueFilter;
+        const matchesStatus = statusFilter === 'ALL' || r.paymentStatus === statusFilter;
+
+        let matchesDate = true;
+        const rDate = r.eventDate || r.date;
+        if (startDateFilter && rDate < startDateFilter) matchesDate = false;
+        if (endDateFilter && rDate > endDateFilter) matchesDate = false;
+
+        return matchesSearch && matchesVenue && matchesStatus && matchesDate;
+      });
+
+      // Dynamic Month & Year Navigation State (Defaults to real current date)
+      const MONTH_NAMES = [
+        'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+      ];
+
+      const today = new Date();
+      const [currentYear, setCurrentYear] = useState(today.getFullYear());
+      const [currentMonth, setCurrentMonth] = useState(today.getMonth()); // Real current month (July = 6)
+
+      const handlePrevMonth = () => {
+        if (currentMonth === 0) {
+          setCurrentMonth(11);
+          setCurrentYear(prev => prev - 1);
+        } else {
+          setCurrentMonth(prev => prev - 1);
+        }
+      };
+
+      const handleNextMonth = () => {
+        if (currentMonth === 11) {
+          setCurrentMonth(0);
+          setCurrentYear(prev => prev + 1);
+        } else {
+          setCurrentMonth(prev => prev + 1);
+        }
+      };
+
+      const handleGoToday = () => {
+        const now = new Date();
+        setCurrentYear(now.getFullYear());
+        setCurrentMonth(now.getMonth());
+      };
+
+      // Dynamic Calendar Grid Setup for currentYear & currentMonth (1 to 28..31 Days)
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const jsFirstDay = new Date(currentYear, currentMonth, 1).getDay(); // Sunday=0, Monday=1, ..., Saturday=6
+      const monthStartEmptyCount = jsFirstDay === 0 ? 6 : jsFirstDay - 1; // Monday-first calendar index
+
+      const calendarGridCells = [];
+      for (let i = 0; i < monthStartEmptyCount; i++) {
+        calendarGridCells.push({ isEmpty: true, key: `empty-${i}` });
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayStr = day < 10 ? `0${day}` : `${day}`;
+        const monthStr = (currentMonth + 1) < 10 ? `0${currentMonth + 1}` : `${currentMonth + 1}`;
+        const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
+        calendarGridCells.push({ isEmpty: false, dayNumber: day, dateStr, key: dateStr });
+      }
+
+      // Drag & Drop State
+      const [draggedResId, setDraggedResId] = useState(null);
+      const [dragOverDate, setDragOverDate] = useState(null);
+
+      // Handle Drag & Drop Date Change
+      const handleDropReschedule = (resId, newDateStr) => {
+        const targetRes = (reservations || []).find(r => r.id === resId);
+        if (targetRes && targetRes.eventDate !== newDateStr && targetRes.date !== newDateStr) {
+          if (onUpdateReservation) {
+            onUpdateReservation({
+              ...targetRes,
+              eventDate: newDateStr,
+              date: newDateStr,
+              startDate: newDateStr,
+              endDate: newDateStr
+            });
+          }
+        }
+        setDraggedResId(null);
+        setDragOverDate(null);
+      };
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto animate-fade-in pb-20">
+          
+          {/* HEADER & TOP CONTROLS (Görünüm Değiştirici En Sağda) */}
+          <div className="glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-sm">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+                <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-6 h-6 text-amber-500 shrink-0" />
+                <span>Rezervasyonlar & Canlı Takvim Yönetimi</span>
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                Tüm düğün sözleşmelerini filtreleyin, canlı takvimde inceleyin veya düzenleyin.
+              </p>
+            </div>
+
+            {/* HARMONIOUS ACTION TOOLBAR (FORCED SINGLE ROW ON MOBILE, ICONIC WHEN TEXT DOESNT FIT) */}
+            <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0 flex-nowrap w-full sm:w-auto justify-between sm:justify-end">
+              
+              {/* 1. FILTER TOGGLE BUTTON */}
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`h-10 px-2.5 sm:px-4 rounded-xl font-bold text-xs border transition flex items-center space-x-1.5 sm:space-x-2 shadow-xs cursor-pointer shrink-0 ${
+                  isFilterOpen 
+                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-gold-400' 
+                    : 'bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:bg-slate-200 dark:hover:bg-slate-800'
+                }`}
+                title="Detaylı Filtreleri Aç / Kapat"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="hidden sm:inline">Filtreler</span>
+                <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
+              </button>
+
+              {/* 2. YENİ REZERVASYON PRIMARY BUTTON */}
+              <button 
+                onClick={onNewResClick} 
+                className="gold-button font-bold text-xs h-10 px-3 sm:px-4 rounded-xl shadow-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer"
+                title="Yeni Rezervasyon Oluştur"
+              >
+                <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Yeni Rezervasyon</span>
+              </button>
+
+              {/* 3. SEGMENTED VIEW SWITCHER (LIST VS CALENDAR) */}
+              <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border h-10 items-center shrink-0">
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
+                    viewMode === 'table' 
+                      ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Liste Görünümü"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                  </svg>
+                  <span className="hidden md:inline">Liste</span>
+                </button>
+
+                <button
+                  onClick={() => setViewMode('calendar')}
+                  className={`h-8 px-2 sm:px-3 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
+                    viewMode === 'calendar' 
+                      ? 'bg-white dark:bg-brand-card text-amber-700 dark:text-gold-400 shadow-sm border border-slate-200/60 dark:border-brand-border' 
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Takvim Görünümü"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="8" y1="14" x2="8.01" y2="14"/>
+                    <line x1="12" y1="14" x2="12.01" y2="14"/>
+                    <line x1="16" y1="14" x2="16.01" y2="14"/>
+                    <line x1="8" y1="18" x2="8.01" y2="18"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                    <line x1="16" y1="18" x2="16.01" y2="18"/>
+                  </svg>
+                  <span className="hidden md:inline">Takvim</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          {/* COLLAPSIBLE FILTER PANEL */}
+          {isFilterOpen && (
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 animate-fade-in shadow-md">
+              <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-2 text-xs font-bold text-slate-700 dark:text-gray-300">
+                <span>🔍 Detaylı Filtreleme & Arama Kriterleri</span>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setVenueFilter('ALL');
+                    setStatusFilter('ALL');
+                    setStartDateFilter('');
+                    setEndDateFilter('');
+                  }}
+                  className="text-amber-700 dark:text-gold-400 hover:underline text-[11px]"
+                >
+                  Filtreleri Temizle ↺
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div>
+                  <label className="font-bold block mb-1">Arama Kriteri:</label>
+                  <input
+                    type="text"
+                    placeholder="🔍 Müşteri Adı, Tel veya Sözleşme Kodu..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold block mb-1">Düğün Salonu Filtresi:</label>
+                  <select
+                    value={venueFilter}
+                    onChange={e => setVenueFilter(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                  >
+                    <option value="ALL">Tüm Salonlar ({(venues || []).length})</option>
+                    {(venues || []).map(v => (
+                      <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold block mb-1">Ödeme Durumu Filtresi:</label>
+                  <select
+                    value={statusFilter}
+                    onChange={e => setStatusFilter(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                  >
+                    <option value="ALL">Tüm Durumlar ({(reservations || []).length})</option>
+                    <option value="Kapora Alındı">Kapora Alındı</option>
+                    <option value="Ödendi">Ödendi / Tamamlandı</option>
+                    <option value="Bekliyor">Bekliyor</option>
+                    <option value="İptal">İptal Edilenler</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold block mb-1">Başlangıç Tarihi:</label>
+                    <input
+                      type="date"
+                      value={startDateFilter}
+                      onChange={e => setStartDateFilter(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Bitiş Tarihi:</label>
+                    <input
+                      type="date"
+                      value={endDateFilter}
+                      onChange={e => setEndDateFilter(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW SWITCHER: TABLE OR MASTER CALENDAR */}
+          {viewMode === 'table' ? (
+            /* TABLE LIST VIEW WITH EDIT & DELETE BUTTONS */
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border text-slate-500 dark:text-gray-400 font-bold">
+                      <th className="py-3 px-3">Sözleşme Kodu</th>
+                      <th className="py-3 px-3">Müşteri / Çift</th>
+                      <th className="py-3 px-3">Düğün Salonu</th>
+                      <th className="py-3 px-3">Tarih & Saat</th>
+                      <th className="py-3 px-3">Davetli</th>
+                      <th className="py-3 px-3">Toplam Tutar</th>
+                      <th className="py-3 px-3">Kalan Bakiye</th>
+                      <th className="py-3 px-3">Ödeme Durumu</th>
+                      <th className="py-3 px-3 text-right">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
+                    {filteredReservations.length === 0 ? (
+                      <tr>
+                        <td colSpan="9" className="py-8 text-center text-slate-400 font-bold">
+                          Kriterlere uygun kayıtlı rezervasyon bulunamadı.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredReservations.map(res => {
+                        const vObj = (venues || []).find(v => v.id === res.venueId);
+                        return (
+                          <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
+                            <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{res.id}</td>
+                            <td className="py-3.5 px-3">
+                              <div className="font-bold">{res.customerName}</div>
+                              <div className="text-[10px] text-slate-400">{res.customerPhone}</div>
+                            </td>
+                            <td className="py-3.5 px-3 font-bold">{vObj?.name || res.venueId}</td>
+                            <td className="py-3.5 px-3 font-mono">
+                              <div>{formatDate(res.eventDate || res.date)}</div>
+                              <div className="text-[10px] text-slate-500">{res.startTime || '18:00'} - {res.endTime || '23:00'}</div>
+                            </td>
+                            <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
+                            <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
+                            <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
+                              {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
+                            </td>
+                            <td className="py-3.5 px-3">
+                              {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
+                                  <ThemeIcon icon="check-circle" fallbackEmoji="✅" className="w-3.5 h-3.5 mr-1 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                  <span>Ödeme Tamamlandı</span>
+                                </span>
+                              ) : res.paymentStatus === 'Kapora Alındı' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-gold-400 border border-amber-500/40 shadow-xs">
+                                  <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                                  <span>Kapora Alındı</span>
+                                </span>
+                              ) : res.paymentStatus === 'İptal' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shadow-xs">
+                                  <ThemeIcon icon="x-circle" fallbackEmoji="❌" className="w-3.5 h-3.5 mr-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                                  <span>İptal Edildi</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 shadow-xs">
+                                  <ThemeIcon icon="clock" fallbackEmoji="🕒" className="w-3.5 h-3.5 mr-1 shrink-0 text-blue-600 dark:text-blue-400" />
+                                  <span>{res.paymentStatus || 'Ödeme Bekliyor'}</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-3 text-right">
+                              <div className="flex items-center justify-end space-x-1.5">
+                                <button
+                                  onClick={() => setSelectedResForPreview(res)}
+                                  className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20 transition font-bold text-xs flex items-center space-x-1"
+                                  title="Detaylı Önizle"
+                                >
+                                  <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                                </button>
+                                <button
+                                  onClick={() => handleOpenEdit(res)}
+                                  className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold text-xs hover:bg-amber-500/30 transition flex items-center space-x-1"
+                                >
+                                  <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                                  <span>Düzenle</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeletingRes(res)}
+                                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 font-bold text-xs transition flex items-center space-x-1 border border-red-500/20"
+                                  title="Rezervasyonu Sil"
+                                >
+                                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400" />
+                                  <span>Sil</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID MATCHING USER SCREENSHOT) */
+            <div className="space-y-4">
+              
+              {/* CALENDAR HEADER & HELP BADGE */}
+              <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
+                <div>
+                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">
+                    İnteraktif Takvim & Saat Çakışma Denetleyicisi
+                  </h3>
+                </div>
+                <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
+                  <span>💡</span>
+                  <span>Günün üzerine tıklayarak tüm salon doluluklarını inceleyebilir veya kartı sürükleyerek başka güne taşıyabilirsiniz.</span>
+                </div>
+              </div>
+
+              {/* MONTH TITLE & NAVIGATION TOOLBAR */}
+              <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
+                
+                {/* DYNAMIC MONTH NAVIGATION TOOLBAR (PERFECTLY ALIGNED H-10) */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-brand-border">
+                  
+                  {/* PREV / MONTH TITLE / NEXT GROUP */}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handlePrevMonth}
+                      className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/20 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center transition cursor-pointer shrink-0 shadow-xs"
+                      title="Önceki Ay"
+                      aria-label="Önceki Ay"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+                      </svg>
+                    </button>
+
+                    <div className="h-10 flex items-center space-x-2 bg-amber-500/10 px-4 rounded-xl border border-amber-500/30">
+                      <span className="text-base sm:text-lg">📅</span>
+                      <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white whitespace-nowrap">
+                        {MONTH_NAMES[currentMonth]} {currentYear}
+                      </h4>
+                    </div>
+
+                    <button
+                      onClick={handleNextMonth}
+                      className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/20 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center transition cursor-pointer shrink-0 shadow-xs"
+                      title="Sonraki Ay"
+                      aria-label="Sonraki Ay"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* DROPDOWNS & SHORTCUT GROUP */}
+                  <div className="flex items-center space-x-2">
+                    <select
+                      value={currentMonth}
+                      onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                      className="h-10 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer shadow-xs"
+                    >
+                      {MONTH_NAMES.map((name, idx) => (
+                        <option key={idx} value={idx}>{name}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={currentYear}
+                      onChange={(e) => setCurrentYear(Number(e.target.value))}
+                      className="h-10 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer shadow-xs"
+                    >
+                      {[2024, 2025, 2026, 2027, 2028].map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+
+                    <button
+                      onClick={handleGoToday}
+                      className="h-10 px-3.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-gold-400 rounded-xl font-bold text-xs border border-amber-300 dark:border-amber-700/60 shadow-xs hover:bg-amber-100 transition cursor-pointer flex items-center space-x-1 shrink-0"
+                    >
+                      <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Bugünkü Ay ({MONTH_NAMES[today.getMonth()]} {today.getFullYear()})</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 7 DAYS COLUMN HEADERS */}
+                <div className="grid grid-cols-7 gap-2 text-center font-bold text-xs text-slate-600 dark:text-gray-300">
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Pzt</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Sal</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Çar</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Per</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Cum</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Cmt</div>
+                  <div className="bg-slate-100 dark:bg-brand-dark py-2.5 rounded-xl border border-slate-200 dark:border-brand-border">Paz</div>
+                </div>
+
+                {/* 31 DAYS MONTHLY GRID WITH DRAG-AND-DROP TARGETS */}
+                <div className="grid grid-cols-7 gap-2 text-xs">
+                  {calendarGridCells.map(cell => {
+                    if (cell.isEmpty) {
+                      return (
+                        <div key={cell.key} className="min-h-[110px] bg-slate-50/50 dark:bg-brand-dark/40 rounded-2xl border border-slate-100 dark:border-brand-border/40" />
+                      );
+                    }
+
+                    // Get reservations for this day sorted chronologically
+                    const dayResList = filteredReservations
+                      .filter(r => (r.eventDate === cell.dateStr || r.date === cell.dateStr) && r.paymentStatus !== 'İptal')
+                      .sort((a, b) => {
+                        const timeA = a.startTime || a.timeSlot || '00:00';
+                        const timeB = b.startTime || b.timeSlot || '00:00';
+                        return timeA.localeCompare(timeB);
+                      });
+
+                    // Get draft reservations for this day
+                    const dayDraftList = (draftReservations || []).filter(d => 
+                      (d.customerInfo?.date === cell.dateStr || d.formData?.startDate === cell.dateStr)
+                    );
+
+                    const hasEvents = dayResList.length > 0 || dayDraftList.length > 0;
+                    const isDragOver = dragOverDate === cell.dateStr;
+
+                    return (
+                      <div
+                        key={cell.key}
+                        onClick={() => setSelectedDayInspector({ dateStr: cell.dateStr, dayNumber: cell.dayNumber, reservations: dayResList, drafts: dayDraftList })}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'move';
+                        }}
+                        onDragEnter={(e) => {
+                          e.preventDefault();
+                          setDragOverDate(cell.dateStr);
+                        }}
+                        onDragLeave={() => setDragOverDate(null)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const resId = e.dataTransfer.getData('text/plain') || draggedResId;
+                          if (resId) {
+                            handleDropReschedule(resId, cell.dateStr);
+                          }
+                        }}
+                        className={`min-h-[110px] p-2.5 rounded-2xl border transition flex flex-col justify-between cursor-pointer space-y-1.5 group ${
+                          isDragOver
+                            ? 'bg-amber-100/90 dark:bg-amber-900/50 border-2 border-amber-500 scale-[1.03] shadow-lg ring-2 ring-amber-400'
+                            : hasEvents
+                            ? 'bg-amber-50/80 dark:bg-amber-950/20 border-amber-300 dark:border-amber-700/60 shadow-sm hover:border-amber-500'
+                            : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border hover:border-amber-400'
+                        }`}
+                      >
+                        {/* DAY NUMBER TOP LEFT & EVENT COUNT BADGE TOP RIGHT */}
+                        <div className="flex justify-between items-center text-xs font-extrabold">
+                          <span className="text-slate-800 dark:text-gray-200 text-sm group-hover:text-amber-600 transition">
+                            {cell.dayNumber}
+                          </span>
+                          {hasEvents && (
+                            <div className="flex items-center space-x-1">
+                              {dayDraftList.length > 0 && (
+                                <span className="bg-amber-500/20 text-amber-800 dark:text-gold-400 font-extrabold text-[9px] px-1.5 py-0.5 rounded-md border border-amber-500/30">
+                                  {dayDraftList.length} Taslak
+                                </span>
+                              )}
+                              {dayResList.length > 0 && (
+                                <span className="bg-slate-200 dark:bg-brand-dark text-slate-800 dark:text-gray-200 font-extrabold text-[9px] px-1.5 py-0.5 rounded-md border border-slate-300 dark:border-brand-border shadow-xs">
+                                  {dayResList.length} Onaylı
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* EVENT PILLS :: APPROVED & DRAFTS WITH HTML5 DRAGGABLE */}
+                        <div className="space-y-1 overflow-y-auto max-h-20 custom-scrollbar">
+                          {/* Approved Reservations */}
+                          {dayResList.map(r => {
+                            const firstName = (r.customerName || 'Etkinlik').split(' ')[0];
+                            return (
+                              <div
+                                key={r.id}
+                                draggable={true}
+                                onDragStart={(e) => {
+                                  e.stopPropagation();
+                                  e.dataTransfer.setData('text/plain', r.id);
+                                  setDraggedResId(r.id);
+                                }}
+                                onDragEnd={() => {
+                                  setDraggedResId(null);
+                                  setDragOverDate(null);
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedResForPreview(r);
+                                }}
+                                className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border hover:border-amber-500/60 p-1.5 rounded-xl text-[10px] font-bold text-slate-700 dark:text-gray-300 shadow-xs hover:scale-[1.02] transition flex items-center justify-between cursor-grab active:cursor-grabbing"
+                                title="Sürükleyip başka bir güne bırakabilirsiniz. Tıklayarak Detay Önizleyin."
+                              >
+                                <span className="truncate">:: {firstName}</span>
+                                <span className="text-[9px] font-mono text-amber-700 dark:text-gold-400 font-extrabold ml-1">({r.startTime || '18:00'})</span>
+                              </div>
+                            );
+                          })}
+
+                          {/* Draft Reservations */}
+                          {dayDraftList.map(d => {
+                            const custName = d.customerInfo?.name || d.formData?.newCustName || 'Taslak';
+                            const firstName = custName.split(' ')[0];
+                            return (
+                              <div
+                                key={d.refKey}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const slug = TAB_TO_SLUG['create-reservation'] || 'rezervasyon-olustur';
+                                  window.location.hash = `#/${slug}?ref=${d.refKey}`;
+                                  if (navigateTo) navigateTo('create-reservation', { ref: d.refKey });
+                                }}
+                                className="bg-amber-500/10 border border-dashed border-amber-500/40 hover:bg-amber-500/20 p-1.5 rounded-xl text-[10px] font-extrabold text-amber-800 dark:text-gold-400 shadow-xs hover:scale-[1.02] transition flex items-center justify-between cursor-pointer"
+                                title={`Taslağı Tamamla: ${d.refKey}`}
+                              >
+                                <span className="truncate">⏳ {firstName}</span>
+                                <span className="text-[9px] font-mono font-bold ml-1">({d.completionPercentage || 0}%)</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DRAFT / UNCOMPLETED RESERVATIONS DEDICATED PANEL (BOTTOM OF PAGE WITH THEME ICONS) */}
+          {draftReservations && draftReservations.length > 0 && (
+            <div className="mt-8 glass-panel p-5 sm:p-6 rounded-3xl border-2 border-amber-500/40 bg-amber-500/5 dark:bg-amber-950/20 space-y-4 shadow-lg animate-fade-in">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-amber-500/20 pb-3">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-lg shrink-0">
+                    <ThemeIcon icon="briefcase" fallbackEmoji="📂" className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                      <span>Tamamlanmamış Taslak Rezervasyonlar</span>
+                      <span className="bg-amber-500 text-white font-mono text-xs px-2.5 py-0.5 rounded-full font-bold">
+                        {draftReservations.length} Adet
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">
+                      Form doldurulurken arka planda canlı otomatik kaydedilmiş ve henüz onaylanmamış taslaklar.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDraftPanelOpen(!isDraftPanelOpen)}
+                  className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline inline-flex items-center space-x-1 shrink-0"
+                >
+                  <span>{isDraftPanelOpen ? 'Taslak Paneli Gizle ▲' : 'Taslak Paneli Göster ▼'}</span>
+                </button>
+              </div>
+
+              {isDraftPanelOpen && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+                  {draftReservations.map((draft, idx) => {
+                    const custName = draft.customerInfo?.name || draft.formData?.newCustName || 'İsimsiz Müşteri';
+                    const custPhone = draft.customerInfo?.phone || draft.formData?.newCustPhone || '-';
+                    const venueName = draft.customerInfo?.venueName || (venues.find(v => v.id === draft.formData?.venueId)?.name) || 'Salon Seçilmedi';
+                    const eventDate = draft.customerInfo?.date || draft.formData?.startDate || 'Tarih Belirtilmedi';
+                    const percentage = draft.completionPercentage || 0;
+                    const updatedAtFormatted = draft.updatedAt ? new Date(draft.updatedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-';
+                    const lastLogger = draft.accessLogs && draft.accessLogs.length > 0 ? draft.accessLogs[draft.accessLogs.length - 1].userName : 'Sistem';
+
+                    return (
+                      <div key={draft.refKey || idx} className="bg-white dark:bg-brand-card border border-amber-500/30 rounded-2xl p-4 space-y-3 shadow-md hover:shadow-lg transition flex flex-col justify-between">
+                        
+                        <div className="space-y-2">
+                          {/* Ref & Status */}
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-xs font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-lg inline-flex items-center">
+                              <ThemeIcon icon="shield" fallbackEmoji="🔑" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                              <span>{draft.refKey}</span>
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
+                              TASLAK (%{percentage})
+                            </span>
+                          </div>
+
+                          {/* Customer & Event Details */}
+                          <div>
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                              <ThemeIcon icon="user" fallbackEmoji="👤" className="w-4 h-4 text-amber-700 dark:text-gold-400 shrink-0" />
+                              <span>{custName}</span>
+                            </h4>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 font-mono mt-0.5 flex items-center space-x-1">
+                              <ThemeIcon icon="phone" fallbackEmoji="📞" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{custPhone}</span>
+                            </p>
+                          </div>
+
+                          <div className="text-xs text-slate-600 dark:text-gray-300 space-y-1 bg-slate-50 dark:bg-brand-dark p-2.5 rounded-xl border border-slate-200 dark:border-brand-border">
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-400 inline-flex items-center">
+                                <ThemeIcon icon="building" fallbackEmoji="🏛️" className="w-3 h-3 mr-1 shrink-0" />
+                                <span>Salon:</span>
+                              </span>
+                              <span className="font-semibold">{venueName}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-400 inline-flex items-center">
+                                <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-3 h-3 mr-1 shrink-0" />
+                                <span>Tarih:</span>
+                              </span>
+                              <span className="font-semibold">{eventDate}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] pt-1 border-t border-slate-200/50 dark:border-brand-border">
+                              <span className="text-slate-400 inline-flex items-center">
+                                <ThemeIcon icon="clock" fallbackEmoji="🕒" className="w-3 h-3 mr-1 shrink-0" />
+                                <span>Son İşlem:</span>
+                              </span>
+                              <span className="font-mono">{updatedAtFormatted} ({lastLogger})</span>
+                            </div>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div>
+                            <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                              <span className="inline-flex items-center">
+                                <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3 h-3 mr-1 text-amber-500 shrink-0" />
+                                <span>Form Doluluğu</span>
+                              </span>
+                              <span>%{percentage}</span>
+                            </div>
+                            <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                              <div
+                                className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                                style={{ width: `${percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="pt-2 flex items-center gap-2 border-t border-slate-100 dark:border-brand-border">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const slug = TAB_TO_SLUG['create-reservation'] || 'rezervasyon-olustur';
+                              window.location.hash = `#/${slug}?ref=${draft.refKey}`;
+                              if (navigateTo) navigateTo('create-reservation', { ref: draft.refKey });
+                            }}
+                            className="flex-1 gold-button font-bold py-2.5 px-3 rounded-xl text-xs shadow text-center flex items-center justify-center space-x-1.5"
+                          >
+                            <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                            <span>Devam Et & Tamamla</span>
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`${draft.refKey} referanslı taslağı silmek istediğinize emin misiniz?`)) {
+                                if (setDraftReservations) {
+                                  setDraftReservations(prev => prev.filter(d => d.refKey !== draft.refKey));
+                                }
+                              }
+                            }}
+                            className="p-2.5 bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-200 rounded-xl text-xs transition flex items-center justify-center"
+                            title="Taslağı Sil"
+                          >
+                            <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                          </button>
+                        </div>
+
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* HOURLY TIMELINE SCHEDULE FLOW MODAL (GÜNE TIKLAYINCA SAAT AKIŞI GÖRÜNÜMÜ) */}
+          {selectedDayInspector && ReactDOM.createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div>
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 uppercase tracking-wider">Saat Akışı & Doluluk Çizelgesi</span>
+                    <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+                      🕒 {formatDate(selectedDayInspector.dateStr)} ({selectedDayInspector.reservations.length} Etkinlik)
+                    </h3>
+                  </div>
+                  <button onClick={() => setSelectedDayInspector(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+                </div>
+
+                {/* HOURLY TIMELINE SCHEDULE FLOW (08:00 - 24:00) */}
+                <div className="space-y-4 text-xs">
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-300 font-medium">
+                    💡 <strong>Saat Akış Çizelgesi:</strong> Gün içindeki düğün ve etkinliklerin başlangıç-bitiş saatlerine göre kronolojik zaman çizelgesidir.
+                  </div>
+
+                  {/* VISUAL HOURLY TIME BARS */}
+                  <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border space-y-3">
+                    <span className="font-bold block text-slate-700 dark:text-gray-200">⏱️ Günlük Zaman Çizelgesi (08:00 - 24:00):</span>
+                    <div className="flex justify-between text-[10px] font-mono font-bold text-slate-400 border-b pb-1">
+                      <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span><span>20:00</span><span>22:00</span><span>24:00</span>
+                    </div>
+
+                    {selectedDayInspector.reservations.length === 0 ? (
+                      <div className="py-4 text-center text-slate-400 font-bold">Bu saat aralıklarında kayıtlı organizasyon yok.</div>
+                    ) : (
+                      selectedDayInspector.reservations.map(r => {
+                        const vObj = (venues || []).find(v => v.id === r.venueId);
+                        const startH = parseInt((r.startTime || '18:00').split(':')[0]) || 18;
+                        const endH = parseInt((r.endTime || '23:00').split(':')[0]) || 23;
+                        const leftPct = Math.max(0, ((startH - 8) / 16) * 100);
+                        const widthPct = Math.min(100 - leftPct, Math.max(10, ((endH - startH) / 16) * 100));
+
+                        return (
+                          <div key={r.id} className="space-y-1">
+                            <div className="flex justify-between text-[11px] font-bold">
+                              <span className="text-slate-800 dark:text-gray-200 flex items-center space-x-1">
+                                <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3.5 h-3.5 shrink-0" />
+                                <span>{r.customerName} ({vObj?.name || r.venueId})</span>
+                              </span>
+                              <span className="font-mono text-amber-600 font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+                            </div>
+                            <div className="w-full bg-slate-200 dark:bg-brand-card h-4 rounded-full overflow-hidden relative border border-slate-300 dark:border-brand-border">
+                              <div
+                                className="bg-amber-500 h-full rounded-full flex items-center justify-center text-[9px] text-slate-900 font-extrabold truncate px-2 shadow-sm"
+                                style={{ marginLeft: `${leftPct}%`, width: `${widthPct}%` }}
+                              >
+                                {r.startTime || '18:00'} - {r.customerName}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* DETAILED RESERVATION LIST FOR THE DAY */}
+                  <div className="space-y-3">
+                    <span className="font-bold block text-slate-700 dark:text-gray-200">📋 Günlük Etkinlik Kartları ({selectedDayInspector.reservations.length}):</span>
+                    {selectedDayInspector.reservations.length === 0 ? (
+                      <div className="p-6 text-center text-slate-400 font-bold bg-slate-50 dark:bg-brand-dark rounded-2xl border border-dashed">
+                        Bu tarihte henüz herhangi bir düğün veya organizasyon kaydı yok.
+                      </div>
+                    ) : (
+                      selectedDayInspector.reservations.map(r => {
+                        const vObj = (venues || []).find(v => v.id === r.venueId);
+                        return (
+                          <div key={r.id} className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                            <div className="flex justify-between items-center font-bold">
+                              <span className="text-amber-700 dark:text-gold-400 font-mono">{r.id} - {vObj?.name || r.venueId}</span>
+                              <span className="text-emerald-600 font-mono font-extrabold">{r.startTime || '18:00'} - {r.endTime || '23:00'}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1">
+                                <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-4 h-4 shrink-0" />
+                                <span>{r.customerName} ({r.guestCount} Kişi)</span>
+                              </span>
+                              <span className="font-mono font-bold text-amber-600">{formatCurrency(r.totalAmount)}</span>
+                            </div>
+                            <div className="flex justify-end space-x-2 pt-1 border-t border-slate-200 dark:border-brand-border/40">
+                              <button
+                                onClick={() => setSelectedResForPreview(r)}
+                                className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-200 rounded-xl font-bold text-xs inline-flex items-center space-x-1"
+                              >
+                                <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                                <span>Detay Önizle</span>
+                              </button>
+                              <button
+                                onClick={() => handleOpenEdit(r)}
+                                className="gold-button px-4 py-1.5 rounded-xl font-bold text-xs shadow inline-flex items-center space-x-1"
+                              >
+                                <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                                <span>Rezervasyonu Düzenle</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t flex justify-between items-center text-xs font-bold">
+                  <button
+                    onClick={() => {
+                      setSelectedDayInspector(null);
+                      onNewResClick();
+                    }}
+                    className="gold-button px-4 py-2 rounded-xl shadow inline-flex items-center space-x-1"
+                  >
+                    <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+                    <span>Bu Tarihe Yeni Rezervasyon Ekle</span>
+                  </button>
+                  <button onClick={() => setSelectedDayInspector(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">Kapat</button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {/* 5. RICH DETAILED PREVIEW MODAL */}
+          {selectedResForPreview && ReactDOM.createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+                
+                {/* PREVIEW HEADER */}
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-amber-500/20 text-amber-800 dark:text-gold-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border border-amber-500/30 uppercase font-mono">
+                        Sözleşme No: {selectedResForPreview.id}
+                      </span>
+                      <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-md ${
+                        selectedResForPreview.paymentStatus === 'Ödendi' || selectedResForPreview.paymentStatus === 'Tamamlandı' ? 'bg-emerald-500/20 text-emerald-600' :
+                        selectedResForPreview.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-600' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {selectedResForPreview.paymentStatus}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-1 flex items-center space-x-2">
+                      <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>{selectedResForPreview.customerName}</span>
+                    </h3>
+                  </div>
+                  <button onClick={() => setSelectedResForPreview(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+                </div>
+
+                <div className="space-y-4 text-xs">
+                  
+                  {/* SECTION A: MÜŞTERİ İLETİŞİM & SALON ZAMAN BİLGİLERİ */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 Müşteri İletişim Bilgileri:</span>
+                      <div className="font-extrabold text-sm text-slate-900 dark:text-white">{selectedResForPreview.customerName}</div>
+                      <div>📞 Birincil Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerPhone}</strong></div>
+                      <div>📱 İkinci Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerSecondaryPhone || 'İkinci Tel Belirtilmedi'}</strong></div>
+                      <div>✉️ E-Posta: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.customerEmail || 'E-Posta Girilmedi'}</strong></div>
+                    </div>
+
+                    <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏰 Etkinlik & Salon Detayı:</span>
+                      <div className="font-extrabold text-sm text-slate-900 dark:text-white">
+                        {(venues.find(v => v.id === selectedResForPreview.venueId))?.name || selectedResForPreview.venueId}
+                      </div>
+                      <div>📅 Tarih: <strong className="font-mono text-slate-800 dark:text-gray-200">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</strong></div>
+                      <div>⏰ Saat Aralığı: <strong className="font-mono text-emerald-600">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'}</strong></div>
+                      <div>👥 Davetli Sayısı: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.guestCount} Davetli Kişi</strong></div>
+                    </div>
+                  </div>
+
+                  {/* SECTION B: DÜĞÜN AKIŞ PLANLAMASI (HANGİ BİLGİLER / AKIŞ VERİLDİ) */}
+                  <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 Organizasyon & Zaman Akış Programı:</span>
+                    {(!selectedResForPreview.flowPlan || selectedResForPreview.flowPlan.length === 0) ? (
+                      <div className="text-slate-400 italic">Standart akış programı uygulanacaktır. Özel akış bilgisi eklenmedi.</div>
+                    ) : (
+                      <div className="space-y-2">
+                        {selectedResForPreview.flowPlan.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-2.5 bg-white dark:bg-brand-card rounded-xl border border-slate-200 dark:border-brand-border">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono font-bold text-amber-600 text-xs px-2 py-0.5 bg-amber-500/10 rounded">{item.time}</span>
+                              <div>
+                                <div className="font-bold text-slate-900 dark:text-white">{item.title}</div>
+                                {item.description && <div className="text-[10px] text-slate-500">{item.description}</div>}
+                              </div>
+                            </div>
+                            {item.responsible && (
+                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-brand-dark px-2 py-0.5 rounded">
+                                Sorumlu: {item.responsible}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SECTION C: VERİLEN PAKETLER & EK HİZMETLER */}
+                  <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 Verilen Hizmetler & Dahili Paketler:</span>
+                    {(!selectedResForPreview.selectedServices || selectedResForPreview.selectedServices.length === 0) ? (
+                      <div className="text-slate-400 italic">Dahili temel salon paketi dâhildir. Ek paket seçilmedi.</div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedResForPreview.selectedServices.map((srvItem, sIdx) => {
+                          const serviceId = typeof srvItem === 'string' ? srvItem : (srvItem?.serviceId || srvItem?.id);
+                          const sObj = services.find(s => s.id === serviceId);
+                          const displayName = sObj?.name || (typeof srvItem === 'object' ? (srvItem.name || serviceId || 'Ek Hizmet') : String(srvItem));
+                          const displayPrice = (typeof srvItem === 'object' && srvItem.customUnitPrice !== undefined) 
+                            ? srvItem.customUnitPrice 
+                            : (sObj?.price || (typeof srvItem === 'object' ? (srvItem.price || srvItem.unitPrice || 0) : 0));
+
+                          return (
+                            <span key={sIdx} className="bg-white dark:bg-brand-card border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1 shadow-xs">
+                              <span>🎁</span>
+                              <span>{displayName}</span>
+                              {displayPrice ? <span className="font-mono text-amber-600 text-[10px]">({formatCurrency(displayPrice)})</span> : null}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SECTION D: ÖDEMELER NE DURUMDA & HANGİLERİNİN ÖDEMELERİ YAPILDI */}
+                  <div className="bg-amber-50/60 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-300 dark:border-amber-700/50 space-y-3">
+                    <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 Detaylı Ödeme Durumları & Finansal Döküm:</span>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-slate-400 block font-bold">Salon Bedeli:</span>
+                        <span className="font-mono font-bold text-slate-800 dark:text-gray-100">{formatCurrency(selectedResForPreview.venuePrice || 85000)}</span>
+                      </div>
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-slate-400 block font-bold">Genel Toplam:</span>
+                        <span className="font-mono font-bold text-amber-600">{formatCurrency(selectedResForPreview.totalAmount)}</span>
+                      </div>
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-emerald-600 block font-bold">Ödenen Kapora:</span>
+                        <span className="font-mono font-extrabold text-emerald-600">{formatCurrency(selectedResForPreview.depositPaid)}</span>
+                      </div>
+                      <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
+                        <span className="text-[10px] text-red-500 block font-bold">Kalan Net Bakiye:</span>
+                        <span className="font-mono font-extrabold text-red-500">
+                          {selectedResForPreview.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(selectedResForPreview.remainingBalance)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* HANGİ ÖDEMELER YAPILDI DÖKÜMÜ */}
+                    <div className="p-3 bg-white dark:bg-brand-card rounded-xl border space-y-2">
+                      <span className="font-bold block text-slate-800 dark:text-gray-200">💳 Gerçekleşen Ödemeler Geçmişi:</span>
+                      <div className="space-y-1 text-[11px]">
+                        <div className="flex justify-between items-center text-emerald-600 font-bold">
+                          <span>✓ 1. Ödeme (Kapora Tahsilatı):</span>
+                          <span className="font-mono">{formatCurrency(selectedResForPreview.depositPaid)} (Tahsil Edildi)</span>
+                        </div>
+                        {selectedResForPreview.remainingBalance === 0 ? (
+                          <div className="flex justify-between items-center text-emerald-600 font-bold">
+                            <span>✓ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+                            <span className="font-mono">Tamamı Ödendi (Hesap Kapatıldı)</span>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-center text-amber-600 font-bold">
+                            <span>⏳ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+                            <span className="font-mono">{formatCurrency(selectedResForPreview.remainingBalance)} (Etkinlik Günü Ödenecek)</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION E: OPERASYONEL NOTLAR */}
+                  {selectedResForPreview.notes && (
+                    <div className="bg-slate-50 dark:bg-brand-dark p-3.5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1">
+                      <span className="text-slate-400 font-bold block">📝 Operasyonel Notlar & Özel İstekler:</span>
+                      <p className="text-slate-700 dark:text-gray-300 italic">{selectedResForPreview.notes}</p>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* PREVIEW ACTIONS */}
+                <div className="pt-2 border-t border-slate-200 dark:border-brand-border flex justify-between items-center gap-2">
+                  <div className="flex space-x-2">
+                    {onPrintInvoice && (
+                      <button onClick={() => onPrintInvoice(selectedResForPreview)} className="bg-slate-800 text-white px-3 py-2 rounded-xl font-bold text-xs inline-flex items-center space-x-1">
+                        <ThemeIcon icon="document" fallbackEmoji="📄" className="w-3.5 h-3.5 shrink-0" />
+                        <span>Fatura Yazdır</span>
+                      </button>
+                    )}
+                    {onShowEmail && (
+                      <button onClick={() => onShowEmail(selectedResForPreview)} className="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-xs inline-flex items-center space-x-1">
+                        <ThemeIcon icon="email" fallbackEmoji="✉️" className="w-3.5 h-3.5 shrink-0" />
+                        <span>E-Posta Önizle</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <button onClick={() => setSelectedResForPreview(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl text-xs font-bold">Kapat</button>
+                    <button
+                      onClick={() => { handleOpenEdit(selectedResForPreview); setSelectedResForPreview(null); }}
+                      className="gold-button font-bold px-5 py-2 rounded-xl text-xs shadow inline-flex items-center space-x-1"
+                    >
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Rezervasyonu Düzenle</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {/* DELETE CONFIRMATION MODAL */}
+          {deletingRes && ReactDOM.createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center my-auto">
+                <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">
+                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-6 h-6 shrink-0 text-red-600 dark:text-red-400" />
+                </div>
+                <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+                  Rezervasyon Silinsin Mi?
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed font-medium">
+                  <strong>{deletingRes.id}</strong> sözleşme kodlu <strong>{deletingRes.customerName}</strong> kaydı kalıcı olarak silinecektir. Bu işlem geri alınamaz.
+                </p>
+                <div className="pt-2 flex justify-center space-x-3 text-xs font-bold">
+                  <button onClick={() => setDeletingRes(null)} className="px-4 py-2.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">İptal</button>
+                  <button
+                    onClick={() => {
+                      if (onDeleteReservation) onDeleteReservation(deletingRes.id);
+                      setDeletingRes(null);
+                    }}
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl shadow"
+                  >
+                    Evet, Kalıcı Olarak Sil
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {/* 7. FULL EDIT RESERVATION MODAL (REZERVASYON OLUŞTURURKEN YAPILABİLEN HER ŞEYİ DÜZENLEME) */}
+          {editingRes && editForm && ReactDOM.createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
+                
+                {/* EDIT HEADER */}
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <div>
+                    <span className="text-[10px] font-bold text-amber-600 uppercase font-mono">Sözleşme Düzenleme Modu — ID: {editForm.id}</span>
+                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-0.5 flex items-center space-x-1.5">
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Rezervasyon Tüm Bilgilerini Düzenle</span>
+                    </h3>
+                  </div>
+                  <button onClick={() => setEditingRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold text-xs hover:bg-red-500 hover:text-white transition">✕</button>
+                </div>
+
+                <div className="space-y-5 text-xs">
+                  
+                  {/* SECTION 1: SALON & KAPASİTE BİLGİLERİ */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                      <ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-3.5 h-3.5 shrink-0" />
+                      <span>1. Salon & Kapasite Seçimi:</span>
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Düğün Salonu:</label>
+                        <select
+                          value={editForm.venueId}
+                          onChange={e => {
+                            const vId = e.target.value;
+                            const vObj = (venues || []).find(v => v.id === vId);
+                            setEditForm({
+                              ...editForm,
+                              venueId: vId,
+                              venuePrice: vObj?.price || editForm.venuePrice || 85000
+                            });
+                          }}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          {(venues || []).map(v => <option key={v.id} value={v.id}>{v.name} ({formatCurrency(v.price || 0)})</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Özel Salon Bedeli (TL):</label>
+                        <input
+                          type="number"
+                          value={editForm.venuePrice || 0}
+                          onChange={e => setEditForm({ ...editForm, venuePrice: Number(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-amber-600 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Davetli Sayısı (Kişi):</label>
+                        <input
+                          type="number"
+                          value={editForm.guestCount || 0}
+                          onChange={e => setEditForm({ ...editForm, guestCount: Number(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 2: TARİH, SEANS & SAAT DÜZENLEME */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">⏰ 2. Etkinlik Tarihi & Hızlı Seans Seçimi:</span>
+                      
+                      {/* HIZLI SEANS BUTONLARI */}
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, startTime: '12:00', endTime: '17:00' })}
+                          className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[10px]"
+                        >
+                          ☀️ Gündüz (12-17)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, startTime: '18:00', endTime: '23:00' })}
+                          className="px-2 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold rounded-lg text-[10px]"
+                        >
+                          🌙 Gece (18-23)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, startTime: '09:00', endTime: '23:30' })}
+                          className="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold rounded-lg text-[10px] flex items-center space-x-1"
+                        >
+                          <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3 h-3 shrink-0" />
+                          <span>Tüm Gün</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Etkinlik Tarihi:</label>
+                        <input
+                          type="date"
+                          value={editForm.startDate || editForm.eventDate || editForm.date || ''}
+                          onChange={e => setEditForm({ ...editForm, startDate: e.target.value, eventDate: e.target.value, date: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Başlangıç Saati:</label>
+                        <input
+                          type="time"
+                          value={editForm.startTime || '18:00'}
+                          onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Bitiş Saati:</label>
+                        <input
+                          type="time"
+                          value={editForm.endTime || '23:00'}
+                          onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 3: EK HİZMETLER & DAHİLİ PAKET DÜZENLEYİCİ */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 3. Ek Hizmetler & Dahili Paket Seçimi:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {(services || []).map(srv => {
+                        const isSelected = (editForm.selectedServices || []).some(s => (typeof s === 'string' ? s === srv.id : s.serviceId === srv.id || s.id === srv.id));
+                        return (
+                          <label
+                            key={srv.id}
+                            className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                              isSelected 
+                                ? 'bg-amber-500/10 border-amber-500/50 dark:bg-amber-950/30' 
+                                : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2.5">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={e => {
+                                  let current = [...(editForm.selectedServices || [])];
+                                  if (e.target.checked) {
+                                    current.push({ serviceId: srv.id, name: srv.name, customUnitPrice: srv.price, quantity: 1 });
+                                  } else {
+                                    current = current.filter(s => (typeof s === 'string' ? s !== srv.id : (s.serviceId || s.id) !== srv.id));
+                                  }
+                                  setEditForm({ ...editForm, selectedServices: current });
+                                }}
+                                className="w-4 h-4 rounded text-amber-600"
+                              />
+                              <div>
+                                <div className="font-bold text-slate-800 dark:text-gray-100 text-xs">{srv.name}</div>
+                                <div className="text-[10px] text-slate-400">{srv.category || 'Ek Paket'}</div>
+                              </div>
+                            </div>
+                            <span className="font-mono font-bold text-amber-600 text-xs">{formatCurrency(srv.price || 0)}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* SECTION 4: KAMPANYA & İNDİRİM KODU */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏷️ 4. Özel Kampanya & İndirim Kodu:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Aktif Kampanya Uygula:</label>
+                        <select
+                          value={editForm.campaignCode || ''}
+                          onChange={e => {
+                            const code = e.target.value;
+                            const cmp = (campaigns || []).find(c => c.code === code);
+                            setEditForm({
+                              ...editForm,
+                              campaignCode: code,
+                              discountAmount: cmp ? cmp.discountValue : editForm.discountAmount || 0
+                            });
+                          }}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          <option value="">Kampanya Seçilmedi (İndirimsiz)</option>
+                          {(campaigns || []).map(c => (
+                            <option key={c.id || c.code} value={c.code}>
+                              {c.code} - {c.title} ({formatCurrency(c.discountValue)})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Özel İndirim Tutarı (TL):</label>
+                        <input
+                          type="number"
+                          value={editForm.discountAmount || 0}
+                          onChange={e => setEditForm({ ...editForm, discountAmount: Number(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-red-500 font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 5: MÜŞTERİ İLETİŞİM, ADRES & FATURA BİLGİLERİ */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 5. Müşteri İletişim, Adres & Fatura Bilgileri:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Müşteri / Çift Adı Soyadı <span className="text-red-500">*</span>:</label>
+                        <input
+                          type="text"
+                          value={editForm.customerName || ''}
+                          onChange={e => setEditForm({ ...editForm, customerName: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">E-posta Adresi:</label>
+                        <input
+                          type="email"
+                          value={editForm.customerEmail || ''}
+                          onChange={e => setEditForm({ ...editForm, customerEmail: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Birincil Telefon <span className="text-red-500">*</span>:</label>
+                        <input
+                          type="text"
+                          value={editForm.customerPhone || ''}
+                          onChange={e => setEditForm({ ...editForm, customerPhone: formatPhoneNumber(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">İkinci İletişim Telefonu:</label>
+                        <input
+                          type="text"
+                          value={editForm.customerSecondaryPhone || ''}
+                          onChange={e => setEditForm({ ...editForm, customerSecondaryPhone: formatPhoneNumber(e.target.value) })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Fatura Türü:</label>
+                        <select
+                          value={editForm.taxType || 'Bireysel'}
+                          onChange={e => setEditForm({ ...editForm, taxType: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          <option value="Bireysel">Bireysel (TC Kimlik)</option>
+                          <option value="Kurumsal">Kurumsal (Şirket VKN)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">TC No / VKN No:</label>
+                        <input
+                          type="text"
+                          value={editForm.tcNo || editForm.vknNo || ''}
+                          onChange={e => setEditForm({ ...editForm, tcNo: e.target.value, vknNo: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-mono font-bold"
+                          placeholder="11 haneli TC veya VKN"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Vergi Dairesi:</label>
+                        <input
+                          type="text"
+                          value={editForm.taxOffice || ''}
+                          onChange={e => setEditForm({ ...editForm, taxOffice: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                          placeholder="Örn: Sakarya VD"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 6: FİNANS, KAPORA & FATURA KESİLDİ BİLGİSİ */}
+                  <div className="p-4 bg-amber-50/60 dark:bg-amber-950/20 rounded-2xl border border-amber-300 dark:border-amber-700/50 space-y-3">
+                    <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 6. Finans, Kapora, Ödeme Statüsü & Fatura Kesildi Bilgisi:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Tahsil Edilen Kapora (TL):</label>
+                        <input
+                          type="number"
+                          value={editForm.depositPaid || 0}
+                          onChange={e => {
+                            const dep = Number(e.target.value);
+                            const venueCost = Number(editForm.venuePrice || 85000);
+                            const srvCost = (editForm.selectedServices || []).reduce((sum, s) => {
+                              const p = typeof s === 'object' ? (s.customUnitPrice || s.price || 5000) : 5000;
+                              return sum + p;
+                            }, 0);
+                            const disc = Number(editForm.discountAmount || 0);
+                            const tot = Math.max(0, venueCost + srvCost - disc);
+                            const rem = Math.max(0, tot - dep);
+                            setEditForm({
+                              ...editForm,
+                              depositPaid: dep,
+                              totalAmount: tot,
+                              remainingBalance: rem,
+                              paymentStatus: rem === 0 ? 'Ödendi' : dep > 0 ? 'Kapora Alındı' : 'Bekliyor'
+                            });
+                          }}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-emerald-600 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Ödeme Durumu:</label>
+                        <select
+                          value={editForm.paymentStatus || 'Bekliyor'}
+                          onChange={e => setEditForm({ ...editForm, paymentStatus: e.target.value })}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                        >
+                          <option value="Bekliyor">Bekliyor (Ödeme Bekleniyor)</option>
+                          <option value="Kapora Alındı">Kapora Alındı</option>
+                          <option value="Ödendi">Ödendi / Tamamlandı</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center pt-5">
+                        <label className="flex items-center space-x-2 cursor-pointer font-bold bg-white dark:bg-brand-card p-2.5 rounded-xl border border-slate-200 dark:border-brand-border w-full">
+                          <input
+                            type="checkbox"
+                            checked={editForm.isInvoiced || false}
+                            onChange={e => setEditForm({ ...editForm, isInvoiced: e.target.checked })}
+                            className="w-4 h-4 rounded text-amber-600"
+                          />
+                          <span className="text-slate-800 dark:text-gray-200">📄 Faturası Kesildi mi?</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 7: DÜĞÜN & ETKİNLİK AKIŞ PLANLAMASI */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 7. Düğün & Etkinlik Akış Planlaması:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPlan = [...(editForm.flowPlan || [])];
+                          newPlan.push({ time: '20:00', title: 'Yeni Akış Maddesi', description: 'Açıklama giriniz', responsible: 'Müdür' });
+                          setEditForm({ ...editForm, flowPlan: newPlan });
+                        }}
+                        className="px-2.5 py-1 bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[11px] hover:bg-amber-500/30 transition"
+                      >
+                        ➕ Yeni Akış Maddesi Ekle
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {(!editForm.flowPlan || editForm.flowPlan.length === 0) ? (
+                        <div className="text-slate-400 italic text-[11px]">Akış planı eklenmedi. Yukarıdaki butonla yeni saat maddesi ekleyebilirsiniz.</div>
+                      ) : (
+                        editForm.flowPlan.map((step, idx) => (
+                          <div key={idx} className="flex gap-2 items-center bg-white dark:bg-brand-card p-2 rounded-xl border border-slate-200 dark:border-brand-border">
+                            <input
+                              type="time"
+                              value={step.time || '18:00'}
+                              onChange={e => {
+                                const updated = [...editForm.flowPlan];
+                                updated[idx].time = e.target.value;
+                                setEditForm({ ...editForm, flowPlan: updated });
+                              }}
+                              className="w-24 bg-slate-50 dark:bg-brand-dark p-1 rounded font-mono font-bold text-[11px] border"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Akış Başlığı"
+                              value={step.title || ''}
+                              onChange={e => {
+                                const updated = [...editForm.flowPlan];
+                                updated[idx].title = e.target.value;
+                                setEditForm({ ...editForm, flowPlan: updated });
+                              }}
+                              className="flex-1 bg-slate-50 dark:bg-brand-dark p-1 rounded font-bold text-[11px] border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = editForm.flowPlan.filter((_, i) => i !== idx);
+                                setEditForm({ ...editForm, flowPlan: updated });
+                              }}
+                              className="text-red-500 font-bold px-2 py-1 hover:bg-red-50 rounded text-xs"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* SECTION 8: OPERASYONEL NOTLAR */}
+                  <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                      <ThemeIcon icon="notes" fallbackEmoji="📝" className="w-3.5 h-3.5 shrink-0" />
+                      <span>8. Operasyonel Ek Notlar & Özel İstekler:</span>
+                    </span>
+                    <textarea
+                      rows="3"
+                      value={editForm.notes || ''}
+                      onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                      placeholder="Müşterinin özel istekleri, organizasyon detayları..."
+                      className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium"
+                    />
+                  </div>
+
+                </div>
+
+                {/* EDIT MODAL FOOTER */}
+                <div className="pt-3 border-t flex justify-between items-center text-xs font-bold">
+                  {editError && (
+                    <span className="text-red-500 font-bold flex items-center space-x-1">
+                      <ThemeIcon icon="warning" fallbackEmoji="⚠️" className="w-3.5 h-3.5 shrink-0 text-red-500" />
+                      <span>Müşteri adı ve telefonu zorunludur!</span>
+                    </span>
+                  )}
+                  <div className="flex space-x-3 ml-auto">
+                    <button onClick={() => setEditingRes(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark rounded-xl">İptal</button>
+                    <button
+                      onClick={() => {
+                        if (!editForm.customerName || !editForm.customerPhone) {
+                          setEditError(true);
+                          return;
+                        }
+                        const tot = (editForm.venuePrice || 85000) + (editForm.selectedServices ? editForm.selectedServices.length * 5000 : 0);
+                        const rem = Math.max(0, tot - (editForm.depositPaid || 0));
+                        const finalObj = {
+                          ...editForm,
+                          totalAmount: tot,
+                          remainingBalance: rem,
+                          paymentStatus: rem === 0 ? 'Ödendi' : (editForm.depositPaid > 0 ? 'Kapora Alındı' : 'Bekliyor')
+                        };
+                        if (onUpdateReservation) onUpdateReservation(finalObj);
+                        setEditingRes(null);
+                      }}
+                      className="gold-button px-6 py-2.5 rounded-xl shadow inline-flex items-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="check" fallbackEmoji="💾" className="w-4 h-4 shrink-0" />
+                      <span>Değişiklikleri Kaydet</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+        </div>
+      );
+    }
+
+    // --- CALENDAR DAY SCHEDULE & TIME CONFLICT INSPECTOR MODAL ---
+    function DayDetailModalComponent({ dayData, venues = [], onResClick, onCreateNewForDay, onClose, navigateTo }) {
+      if (!dayData) return null;
+      const { dateStr, dayNumber, reservations = [], drafts = [] } = dayData;
+
+      const dateObj = new Date(dateStr);
+      const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            {/* MODAL HEADER */}
+            <div className="flex justify-between items-start border-b border-slate-200 dark:border-brand-border pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-700 dark:text-gold-400 text-lg">
+                  {dayNumber}
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100">
+                    {formattedDate} Detayı
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">
+                    Bu güne ait tüm rezervasyonlar, salon doluluk durumları ve yarım kalmış taslaklar
+                  </p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+            </div>
+
+            {/* DRAFT RESERVATIONS SECTION IF ANY */}
+            {drafts.length > 0 && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-dashed border-amber-500/50 space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-amber-700 dark:text-gold-400 flex items-center space-x-1.5">
+                    <span>⏳</span>
+                    <span>Yarım Kalmış Taslak Rezervasyonlar ({drafts.length})</span>
+                  </h4>
+                  <span className="text-[10px] font-bold text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded">
+                    Tamamlanmayı Bekliyor
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {drafts.map(d => (
+                    <div key={d.refKey} className="bg-white dark:bg-brand-dark p-3 rounded-xl border border-amber-500/30 flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                          <span>{d.customerName || 'İsimsiz Taslak Müşteri'}</span>
+                          <span className="text-[10px] text-slate-500 font-normal">({d.timeSlot || 'Seans Belirtilmedi'})</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-gray-400">
+                          Salon: <strong>{venues.find(v => v.id === d.venueId)?.name || 'Salon 1'}</strong> • Son Kayıt: {d.lastSaved || 'Bugün'}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          onClose();
+                          if (navigateTo) navigateTo('create-reservation', { ref: d.refKey });
+                        }}
+                        className="px-3 py-1.5 bg-amber-500 text-white rounded-xl text-xs font-bold shadow hover:bg-amber-600 transition flex items-center space-x-1"
+                      >
+                        <span>✍️</span>
+                        <span>Taslağı Tamamla</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* VENUES AVAILABILITY & CONFLICT MATRIX */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-gray-300">
+                  🏛️ Salon Doluluk & Seans Çakışma Analizi
+                </h4>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-gray-400 font-mono bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg">
+                  Toplam {reservations.length} Onaylı Rezervasyon
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {venues.map(venue => {
+                  const venueRes = reservations.filter(r => r.venueId === venue.id);
+                  const isOccupied = venueRes.length > 0;
+
+                  return (
+                    <div
+                      key={venue.id}
+                      className={`p-4 rounded-2xl border transition ${
+                        isOccupied
+                          ? 'bg-amber-500/10 border-amber-500/40 text-slate-800 dark:text-gray-100'
+                          : 'bg-emerald-500/5 border-emerald-500/30 text-slate-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-sm">{venue.name}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            isOccupied
+                              ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+                          }`}>
+                            {isOccupied ? `⚠️ ${venueRes.length} Organizasyon Yapılacak` : '✅ TAMAMEN MÜSAİT'}
+                          </span>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-amber-700 dark:text-gold-400">
+                          {formatCurrency(venue.price)}
+                        </span>
+                      </div>
+
+                      {/* RESERVATIONS IN THIS VENUE */}
+                      {isOccupied ? (
+                        <div className="mt-3 space-y-2 pt-2 border-t border-amber-500/20">
+                          {venueRes.map(r => (
+                            <div
+                              key={r.id}
+                              onClick={() => { onClose(); onResClick(r); }}
+                              className="bg-white dark:bg-brand-card p-3 rounded-xl border border-amber-500/30 flex justify-between items-center hover:scale-[1.01] transition cursor-pointer shadow-sm"
+                            >
+                              <div className="space-y-0.5">
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-mono text-[10px] font-bold text-amber-700 dark:text-gold-400">{r.id}</span>
+                                  <span className="font-bold text-xs text-slate-800 dark:text-gray-100">{r.customerName}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-500 dark:text-gray-400 flex items-center space-x-2">
+                                  <span>⏰ Seans: <strong className="text-amber-800 dark:text-gold-300">{r.timeSlot}</strong></span>
+                                  <span>• 👥 {r.guestCount} Davetli</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                  {r.paymentStatus}
+                                </span>
+                                <span className="text-xs text-amber-700 dark:text-gold-400">Detay 🔍</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1.5">
+                          💡 Bu salon için {formattedDate} tarihinde henüz hiç rezervasyon yapılmamıştır. Gündüz veya Gece seansı hemen rezerve edilebilir!
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="pt-3 border-t border-slate-200 dark:border-brand-border flex justify-between items-center">
+              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">
+                Kapat
+              </button>
+              <button
+                onClick={() => { onClose(); onCreateNewForDay(dateStr); }}
+                className="gold-button font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg flex items-center space-x-2"
+              >
+                <span>➕</span>
+                <span>{formattedDate} İçin Yeni Rezervasyon Oluştur</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // --- CALENDAR COMPONENT WITH HTML5 DRAG & DROP RESCHEDULING & DAY INSPECTOR ---
+    function CalendarComponent({ reservations = [], draftReservations = [], venues = [], onResClick, onReschedule, onCreateNewForDate, navigateTo }) {
+      const [draggedResId, setDraggedResId] = useState(null);
+      const [selectedDayData, setSelectedDayData] = useState(null);
+      const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1)); // August 2026 default
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+
+      const monthName = currentDate.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+
+      const handlePrevMonth = () => {
+        setCurrentDate(new Date(year, month - 1, 1));
+      };
+
+      const handleNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+      };
+
+      const handleToday = () => {
+        setCurrentDate(new Date());
+      };
+
+      return (
+        <div className="space-y-6">
+          {/* DAY DETAIL INSPECTOR MODAL */}
+          {selectedDayData && (
+            <DayDetailModalComponent
+              dayData={selectedDayData}
+              venues={venues}
+              onResClick={onResClick}
+              navigateTo={navigateTo}
+              onCreateNewForDay={(dateStr) => {
+                if (onCreateNewForDate) onCreateNewForDate(dateStr);
+              }}
+              onClose={() => setSelectedDayData(null)}
+            />
+          )}
+
+          <div className="flex justify-between items-center flex-wrap gap-3">
+            <div>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim & Saat Çakışma Denetleyicisi</h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Günün üzerine tıklayarak tüm salon doluluklarını inceleyin veya sürükleyip bırakın</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handlePrevMonth}
+                className="px-3 py-1.5 bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border rounded-xl font-bold text-xs text-slate-700 dark:text-gray-200 transition border border-slate-200 dark:border-brand-border"
+              >
+                ← Önceki Ay
+              </button>
+              <button
+                onClick={handleToday}
+                className="px-3 py-1.5 gold-button font-bold text-xs rounded-xl shadow transition"
+              >
+                Bugün
+              </button>
+              <button
+                onClick={handleNextMonth}
+                className="px-3 py-1.5 bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border rounded-xl font-bold text-xs text-slate-700 dark:text-gray-200 transition border border-slate-200 dark:border-brand-border"
+              >
+                Sonraki Ay →
+              </button>
+            </div>
+          </div>
+
+          <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-brand-border pb-3">
+              <h3 className="font-bold text-lg text-amber-700 dark:text-gold-400 capitalize">📅 {monthName}</h3>
+              <div className="flex items-center space-x-3 text-xs">
+                <span className="text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                  👑 Onaylı Rezervasyonlar
+                </span>
+                <span className="text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-dashed border-amber-500/40">
+                  ⏳ Yarım Kalmış Taslaklar
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2 text-center text-xs">
+              {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
+                <div key={d} className="font-bold text-slate-500 dark:text-gray-400 p-2 bg-slate-100 dark:bg-brand-card rounded-lg">{d}</div>
+              ))}
+
+              {/* Offset Blank Cells */}
+              {Array.from({ length: firstDayIndex }).map((_, i) => (
+                <div key={`blank-${i}`} className="min-h-[90px] p-2 rounded-xl bg-slate-50/50 dark:bg-brand-dark/20 opacity-30 border border-transparent"></div>
+              ))}
+
+              {/* Dynamic Days in Month */}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayRes = reservations.filter(r => r.date === dateStr || r.eventDate === dateStr || r.startDate === dateStr);
+                const dayDrafts = (draftReservations || []).filter(d => (d.startDate === dateStr || d.eventDate === dateStr || d.date === dateStr) && d.customerName);
+                const totalCount = dayRes.length + dayDrafts.length;
+
+                return (
+                  <div
+                    key={day}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => {
+                      e.preventDefault();
+                      if (draggedResId && onReschedule) {
+                        onReschedule(draggedResId, dateStr);
+                        setDraggedResId(null);
+                      }
+                    }}
+                    onClick={() => setSelectedDayData({ dateStr, dayNumber: day, reservations: dayRes, drafts: dayDrafts })}
+                    className={`min-h-[95px] p-2 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer hover:shadow-md ${
+                      totalCount > 0 ? 'bg-amber-50/80 dark:bg-brand-card border-amber-500/40 hover:border-amber-500' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-emerald-500'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
+                      {totalCount > 0 && (
+                        <div className="flex items-center space-x-1">
+                          {dayRes.length > 0 && (
+                            <span className="text-[9px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                              {dayRes.length} Etkinlik
+                            </span>
+                          )}
+                          {dayDrafts.length > 0 && (
+                            <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-dashed border-amber-500/40">
+                              ⏳ {dayDrafts.length} Taslak
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      {dayRes.map(r => (
+                        <div
+                          key={r.id}
+                          draggable={true}
+                          onDragStart={() => setDraggedResId(r.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onResClick(r);
+                          }}
+                          className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/40 cursor-grab active:cursor-grabbing hover:bg-amber-500 hover:text-white transition"
+                        >
+                          ⋮⋮ {(r.customerName || 'Etkinlik').split(' ')[0]} ({r.timeSlot ? r.timeSlot.split('-')[0] : ''})
+                        </div>
+                      ))}
+                      {dayDrafts.map(d => (
+                        <div
+                          key={d.refKey}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (navigateTo) navigateTo('create-reservation', { ref: d.refKey });
+                          }}
+                          title="Taslağı tamamlamak için tıklayın"
+                          className="bg-amber-500/10 text-amber-700 dark:text-gold-400 p-1 rounded text-[9px] font-bold truncate border border-dashed border-amber-500/50 hover:bg-amber-500 hover:text-white transition cursor-pointer flex items-center space-x-1"
+                        >
+                          <span>⏳</span>
+                          <span className="truncate">{(d.customerName || 'Taslak').split(' ')[0]} (Taslak)</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- CAMPAIGNS COMPONENT ---
+    function CampaignsComponent({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice }) {
+      const aiRecs = React.useMemo(() => {
+        return generateSmartAIRecommendations(reservations, venues, services);
+      }, [reservations, venues, services]);
+
+      return (
+        <div className="space-y-6 animate-fade-in pb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Özel Kampanyalar & İndirim Kodu Yönetimi</h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Düğün ve kiralama rezervasyonlarında geçerli promosyon, indirim ve AI destekli kampanyalar</p>
+            </div>
+            <button
+              onClick={onAddClick}
+              className="gold-button font-bold text-xs py-2.5 px-4 rounded-2xl shadow-lg flex items-center justify-center space-x-1"
+            >
+              <span>➕</span>
+              <span>Yeni Özel Kampanya Ekle</span>
+            </button>
+          </div>
+
+          {/* AI RECOMMENDATIONS FEED */}
+          <div className="glass-panel p-5 rounded-3xl space-y-4 border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent shadow-md">
+            <div className="flex items-center justify-between border-b border-amber-500/20 pb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-gold-400 font-bold flex items-center justify-center text-lg shrink-0">
+                  <ThemeIcon icon="brain" fallbackEmoji="🧠" className="w-5 h-5 shrink-0" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-sm text-slate-800 dark:text-gray-100">AI Akıllı Öneri Akışı – Canlı Kampanya Önerileri</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-gray-400">Tek tıkla önerileri canlı kampanya listesine dahil edin</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30">
+                Canlı AI Algoritması
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {aiRecs.map(ai => (
+                <div key={ai.id} className="bg-white dark:bg-brand-card p-4 rounded-2xl border border-amber-500/30 flex flex-col justify-between space-y-3 shadow hover:shadow-lg transition">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-mono font-bold text-[11px] text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
+                        {ai.code}
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md flex items-center space-x-1">
+                        <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3 h-3 shrink-0" />
+                        <span>{ai.badge || 'AI Teklifi'}</span>
+                      </span>
+                    </div>
+                    <div className="font-bold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                      <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                      <span>{ai.title}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 leading-tight">{ai.description}</p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-brand-border/40">
+                    <button
+                      onClick={() => onConvertToCampaign && onConvertToCampaign(ai)}
+                      className="w-full gold-button font-bold text-[11px] py-2 px-3 rounded-xl shadow inline-flex items-center justify-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="sparkles" fallbackEmoji="🚀" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Tek Tıkla Kampanyaya Dönüştür</span>
+                    </button>
+
+                    {ai.canUpdatePrice && (
+                      <button
+                        onClick={() => onUpdateVenuePrice && onUpdateVenuePrice(ai.venueId, ai.suggestedPrice)}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] py-1.5 px-3 rounded-xl shadow transition inline-flex items-center justify-center space-x-1.5"
+                      >
+                        <ThemeIcon icon="money" fallbackEmoji="💰" className="w-3.5 h-3.5 shrink-0" />
+                        <span>Fiyatı Güncelle & Uygula</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 mb-3 flex items-center space-x-2">
+              <ThemeIcon icon="campaign" fallbackEmoji="🎁" className="w-5 h-5 text-amber-500 shrink-0" />
+              <span>Aktif Promosyon ve Kampanyalar ({campaigns.length})</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {campaigns.map(c => (
+                <div
+                  key={c.id}
+                  className={`glass-panel p-5 rounded-3xl space-y-3 flex flex-col justify-between shadow-md hover:scale-[1.01] transition border ${
+                    c.isAiGenerated ? 'border-amber-500/60 bg-amber-500/5' : 'border-amber-500/30'
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-mono font-bold text-xs text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/20">
+                        {c.code}
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        {c.isAiGenerated && (
+                          <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/40">
+                            ✨ AI Üretimi
+                          </span>
+                        )}
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
+                          {c.type === 'percent' ? `%${c.value} İndirim` : c.type === 'amount' ? `${c.value} TL İndirim` : 'Hediye Paket'}
+                        </span>
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.title}</h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">{c.description}</p>
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40 text-xs">
+                    <button onClick={() => onEditClick(c)} className="px-3 py-1.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl font-bold hover:bg-amber-500/20">Düzenle</button>
+                    <button onClick={() => onDeleteClick(c.id)} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group">
+                      <span className="group-hover:text-white transition">SİL</span>
+                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- REPORTS COMPONENT ---
+    function ReportsComponent({ reservations = [], venues = [], services = [], onConvertToCampaign, onUpdateVenuePrice }) {
+      const totalRevenue = useMemo(() => {
+        return reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+      }, [reservations]);
+
+      // Dynamic Occupancy Calculation
+      const occupancyRate = useMemo(() => {
+        const totalVenueSlots = Math.max(1, venues.length) * 30;
+        const validResCount = reservations.filter(r => r.paymentStatus !== 'İptal').length;
+        return Math.min(100, Math.round((validResCount / totalVenueSlots) * 100));
+      }, [reservations, venues]);
+
+      // Dynamic Venue Revenue Distribution for Donut Chart
+      const venueRevenueData = useMemo(() => {
+        const map = {};
+        venues.forEach(v => { map[v.id] = { name: v.name, color: '#f59e0b', revenue: 0 }; });
+
+        const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
+        venues.forEach((v, idx) => {
+          if (map[v.id]) map[v.id].color = colors[idx % colors.length];
+        });
+
+        reservations.forEach(r => {
+          if (r.paymentStatus !== 'İptal') {
+            if (map[r.venueId]) {
+              map[r.venueId].revenue += (r.totalAmount || 0);
+            }
+          }
+        });
+
+        const list = Object.values(map);
+        const total = list.reduce((s, item) => s + item.revenue, 0) || 1;
+        return list.map(item => ({
+          ...item,
+          percent: Math.round((item.revenue / total) * 100)
+        }));
+      }, [venues, reservations]);
+
+      // Dynamic Venue Preference Data for Bar Chart
+      const venuePreferenceData = useMemo(() => {
+        const map = {};
+        venues.forEach(v => { map[v.id] = { name: v.name, count: 0 }; });
+        reservations.forEach(r => {
+          if (r.paymentStatus !== 'İptal') {
+            if (map[r.venueId]) map[r.venueId].count += 1;
+          }
+        });
+        const totalCount = Math.max(1, reservations.filter(r => r.paymentStatus !== 'İptal').length);
+        const list = Object.values(map);
+        const maxVal = Math.max(1, ...list.map(l => l.count));
+        return list.map(item => ({
+          ...item,
+          ratio: Math.round((item.count / totalCount) * 100),
+          heightPercent: Math.round((item.count / maxVal) * 100)
+        }));
+      }, [venues, reservations]);
+
+      const aiRecs = useMemo(() => {
+        return generateSmartAIRecommendations(reservations, venues, services);
+      }, [reservations, venues, services]);
+
+      return (
+        <div className="space-y-6 animate-fade-in pb-12">
+          <div>
+            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Yapay Zeka (AI) Gelir Optimizasyonu & Raporlar</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Düğün salonlarınızın doluluk ve ciro verilerinden öğrenen Akıllı AI Tahmin Motoru</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30">
+              <div className="text-xs text-slate-500 font-bold">Toplam Ciro Hacmi</div>
+              <div className="text-2xl font-heading font-extrabold gold-gradient-text mt-1">{formatCurrency(totalRevenue)}</div>
+              <div className="text-[10px] text-emerald-600 font-bold mt-1">↑ %18 Geçen Sezona Göre Artış</div>
+            </div>
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border">
+              <div className="text-xs text-slate-500 font-bold">Ağustos Ayı Dinamik Doluluk Oranı</div>
+              <div className="text-2xl font-heading font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">%{occupancyRate}</div>
+              <div className="text-[10px] text-slate-400 mt-1">Canlı Rezervasyon Doluluğu</div>
+            </div>
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border">
+              <div className="text-xs text-slate-500 font-bold">Ortalama Rezervasyon Tutarı</div>
+              <div className="text-2xl font-heading font-extrabold text-amber-700 dark:text-gold-400 mt-1">{formatCurrency(totalRevenue / Math.max(1, reservations.length))}</div>
+              <div className="text-[10px] text-slate-400 mt-1">Düğün + Ek Hizmet Ortalaması</div>
+            </div>
+          </div>
+
+          {/* SVG CHARTS SECTION */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* DONUT CHART CARD */}
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
+              <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                <h3 className="font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <span>🍩</span>
+                  <span>Gelir Dağılımı (Donut Grafiği)</span>
+                </h3>
+                <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-gold-400 px-2 py-0.5 rounded-full">Salon Bazlı</span>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center justify-around gap-4 pt-2">
+                <div className="relative w-44 h-44 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#334155" strokeWidth="3.8" strokeOpacity="0.2" />
+                    {(() => {
+                      let accumulatedPercent = 0;
+                      return venueRevenueData.map((item, i) => {
+                        const strokeDasharray = `${item.percent} ${100 - item.percent}`;
+                        const strokeDashoffset = 100 - accumulatedPercent + 25;
+                        accumulatedPercent += item.percent;
+                        return (
+                          <circle
+                            key={i}
+                            cx="18"
+                            cy="18"
+                            r="15.9155"
+                            fill="none"
+                            stroke={item.color}
+                            strokeWidth="3.8"
+                            strokeDasharray={strokeDasharray}
+                            strokeDashoffset={strokeDashoffset}
+                            className="transition-all duration-500 hover:opacity-80"
+                          />
+                        );
+                      });
+                    })()}
+                  </svg>
+                  <div className="absolute flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">Ciro</span>
+                    <span className="text-xs font-bold text-amber-700 dark:text-gold-400">{formatCurrency(totalRevenue)}</span>
+                  </div>
+                </div>
+                <div className="space-y-2 w-full sm:w-auto">
+                  {venueRevenueData.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs space-x-4 bg-slate-50 dark:bg-brand-dark/50 p-2 rounded-xl border border-slate-200/60 dark:border-brand-border/40">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
+                        <span className="font-bold text-slate-700 dark:text-gray-200">{item.name}</span>
+                      </div>
+                      <span className="font-mono font-bold text-amber-600 dark:text-gold-400">%{item.percent}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* BAR CHART CARD */}
+            <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 overflow-hidden">
+              <div className="flex flex-wrap justify-between items-center gap-2 border-b pb-3 border-slate-200 dark:border-brand-border">
+                <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                  <ThemeIcon icon="chart" fallbackEmoji="📊" className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>Salon Tercih Oranları (Bar Grafiği)</span>
+                </h3>
+                <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full shrink-0">Rezervasyon Oranları</span>
+              </div>
+              <div className="overflow-x-auto pb-2">
+                <div className="h-44 flex items-end justify-around pt-6 px-2 gap-2 sm:gap-4 bg-slate-50/50 dark:bg-brand-dark/30 rounded-2xl border border-slate-100 dark:border-brand-border/20 min-w-[280px]">
+                  {venuePreferenceData.map((item, idx) => (
+                    <div key={idx} className="flex flex-col items-center flex-1 min-w-[55px] h-full justify-end group">
+                      <span className="text-[9px] sm:text-[10px] font-bold text-amber-600 dark:text-gold-400 mb-1 opacity-90 text-center whitespace-nowrap">{item.count} Adet</span>
+                      <div className="w-full max-w-[40px] bg-slate-200 dark:bg-brand-border rounded-t-xl overflow-hidden h-32 flex items-end p-0.5">
+                        <div
+                          className="w-full rounded-t-lg bg-gradient-to-t from-amber-600 to-gold-400 transition-all duration-500 group-hover:brightness-125"
+                          style={{ height: `${Math.max(15, item.heightPercent)}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-[9px] sm:text-[10px] font-bold text-slate-600 dark:text-gray-400 truncate w-full text-center mt-2" title={item.name}>{item.name.split(' ')[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* AI RECOMMENDATIONS CARD */}
+          <div className="glass-panel p-6 rounded-3xl space-y-4 border border-amber-500/40 bg-amber-500/5">
+            <div className="flex items-center justify-between border-b border-amber-500/20 pb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-gold-400 font-bold flex items-center justify-center text-xl shadow-inner shrink-0">
+                  <ThemeIcon icon="brain" fallbackEmoji="🧠" className="w-6 h-6 shrink-0" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-slate-800 dark:text-gray-100">Akıllı AI Öneri Algoritması & Gelir Fırsatları</h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">Canlı rezervasyon trendlerini, doluluk oranlarını (%{occupancyRate}) ve ek hizmet ilgisini analiz eden dinamik tavsiyeler</p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                Otomatik Canlı Analiz
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              {aiRecs.map(rec => (
+                <div key={rec.id} className="bg-white dark:bg-brand-card p-5 rounded-2xl border border-amber-500/30 flex flex-col justify-between space-y-4 shadow-md hover:scale-[1.02] transition">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                        {rec.code}
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
+                        {rec.badge || '✨ AI Önerisi'}
+                      </span>
+                    </div>
+                    <div className="font-bold text-sm text-slate-800 dark:text-gray-100">{rec.title}</div>
+                    <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">{rec.description}</p>
+                    {rec.canUpdatePrice && (
+                      <div className="bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20 text-xs font-medium space-y-0.5">
+                        <div className="text-slate-500 dark:text-gray-400">Mevcut Fiyat: <strong>{formatCurrency(rec.currentPrice)}</strong></div>
+                        <div className="text-emerald-600 dark:text-emerald-400 font-bold">Önerilen Fiyat: {formatCurrency(rec.suggestedPrice)}</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-brand-border/40">
+                    <button
+                      onClick={() => onConvertToCampaign && onConvertToCampaign(rec)}
+                      className="w-full gold-button font-bold text-xs py-2.5 px-4 rounded-xl shadow inline-flex items-center justify-center space-x-1.5 hover:scale-[1.01] transition"
+                    >
+                      <ThemeIcon icon="sparkles" fallbackEmoji="🚀" className="w-4 h-4 shrink-0" />
+                      <span>Tek Tıkla Kampanyaya Dönüştür</span>
+                    </button>
+
+                    {rec.canUpdatePrice && (
+                      <button
+                        onClick={() => onUpdateVenuePrice && onUpdateVenuePrice(rec.venueId, rec.suggestedPrice)}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-xl shadow transition inline-flex items-center justify-center space-x-1.5"
+                      >
+                        <ThemeIcon icon="money" fallbackEmoji="💰" className="w-4 h-4 shrink-0" />
+                        <span>Fiyatı Güncelle & Uygula</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- FINANCE COMPONENT ---
+    function FinanceComponent({ financialStats, reservations }) {
+      const [expenses, setExpenses] = useState([
+        { id: 'exp-1', title: 'Orkestra & Ses Sistemi Ödemesi', category: 'Personel & Sanatçı', type: 'gider', amount: 18000, date: '2026-08-01', status: 'Ödendi' },
+        { id: 'exp-2', title: 'Salon Garson ve Mutfak Yevmiyeleri', category: 'Personel & Sanatçı', type: 'gider', amount: 24500, date: '2026-08-05', status: 'Ödendi' },
+        { id: 'exp-3', title: 'Peyzaj & Çiçek Süsleme Malzemeleri', category: 'Dekorasyon & Çiçek', type: 'gider', amount: 14200, date: '2026-08-10', status: 'Ödendi' },
+        { id: 'exp-4', title: 'Elektrik & Jeneratör Yakıt Faturası', category: 'Faturalar & Enerji', type: 'gider', amount: 16800, date: '2026-08-12', status: 'Bekliyor' },
+        { id: 'exp-5', title: 'Pasta & Catering Malzeme Alımı', category: 'Yiyecek & İçecek', type: 'gider', amount: 32000, date: '2026-08-15', status: 'Ödendi' }
+      ]);
+
+      const [filterTab, setFilterTab] = useState('all');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [isModalOpen, setIsModalOpen] = useState(false);
+
+      const [newTitle, setNewTitle] = useState('');
+      const [newCategory, setNewCategory] = useState('Genel Harcama');
+      const [newAmount, setNewAmount] = useState('');
+      const [newDate, setNewDate] = useState('2026-08-20');
+      const [newStatus, setNewStatus] = useState('Ödendi');
+
+      const incomeTransactions = useMemo(() => {
+        return (reservations || []).map(r => ({
+          id: `inc-${r.id}`,
+          title: `${r.customerName || 'Müşteri'} - ${r.venueName || 'Salon'} Rezervasyonu`,
+          category: 'Düğün / Organizasyon',
+          type: 'gelir',
+          amount: r.totalAmount || 0,
+          date: r.date || '2026-08-01',
+          status: r.paymentStatus === 'Ödendi' || r.paymentStatus === 'Tamamlandı' ? 'Tahsil Edildi' : (r.paymentStatus === 'Kapora Alındı' ? 'Kapora Alındı' : 'Bekliyor')
+        }));
+      }, [reservations]);
+
+      const allTransactions = useMemo(() => {
+        return [...incomeTransactions, ...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+      }, [incomeTransactions, expenses]);
+
+      const totalCiro = useMemo(() => {
+        return incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+      }, [incomeTransactions]);
+
+      const totalGider = useMemo(() => {
+        return expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+      }, [expenses]);
+
+      const netKar = totalCiro - totalGider;
+
+      const tahsilEdilenKapora = useMemo(() => {
+        return (financialStats?.totalDeposit !== undefined)
+          ? financialStats.totalDeposit
+          : (reservations || []).reduce((sum, r) => sum + Number(r.depositPaid || 0), 0);
+      }, [financialStats, reservations]);
+
+      const filteredTransactions = useMemo(() => {
+        return allTransactions.filter(t => {
+          if (filterTab === 'income' && t.type !== 'gelir') return false;
+          if (filterTab === 'expense' && t.type !== 'gider') return false;
+
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            const matchTitle = t.title.toLowerCase().includes(q);
+            const matchCategory = t.category.toLowerCase().includes(q);
+            const matchAmount = String(t.amount).includes(q);
+            if (!matchTitle && !matchCategory && !matchAmount) return false;
+          }
+          return true;
+        });
+      }, [allTransactions, filterTab, searchQuery]);
+
+      const handleAddExpense = (e) => {
+        e.preventDefault();
+        if (!newTitle.trim() || !newAmount) return;
+
+        const newExp = {
+          id: `exp-${Date.now()}`,
+          title: newTitle,
+          category: newCategory,
+          type: 'gider',
+          amount: Number(newAmount),
+          date: newDate,
+          status: newStatus
+        };
+
+        setExpenses(prev => [newExp, ...prev]);
+        setNewTitle('');
+        setNewAmount('');
+        setIsModalOpen(false);
+      };
+
+      return (
+        <div className="space-y-6 animate-fade-in pb-12">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Finans Yönetimi & Kasa Takibi</h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Canlı Gelir / Gider Dengesi, Kapora Durumu ve Harcama Yönetim Paneli</p>
+            </div>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-2"
+            >
+              <span>➕</span>
+              <span>Gider Kaydı Ekle</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30">
+              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
+                <span>Toplam Ciro</span>
+                <span className="text-amber-500">💰</span>
+              </div>
+              <div className="text-2xl font-heading font-extrabold gold-gradient-text mt-2">{formatCurrency(totalCiro)}</div>
+              <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">↑ Tüm Rezervasyon Gelirleri</div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-red-500/30">
+              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
+                <span>Toplam Gider</span>
+                <span className="text-red-500">💸</span>
+              </div>
+              <div className="text-2xl font-heading font-extrabold text-red-600 dark:text-red-400 mt-2">{formatCurrency(totalGider)}</div>
+              <div className="text-[10px] text-red-500 font-bold mt-1">↓ Salon & Operasyon Harcamaları</div>
+            </div>
+
+            <div className={`glass-panel p-5 rounded-3xl border ${netKar >= 0 ? 'border-emerald-500/30' : 'border-red-500/30'}`}>
+              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
+                <span>Net Kar (Ciro - Gider)</span>
+                <span>📈</span>
+              </div>
+              <div className={`text-2xl font-heading font-extrabold mt-2 ${netKar >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                {formatCurrency(netKar)}
+              </div>
+              <div className="text-[10px] text-slate-400 font-bold mt-1">Net Kar Marjı Denge Hesabı</div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-blue-500/30">
+              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
+                <span>Tahsil Edilen Kapora</span>
+                <span className="text-blue-500">🛡️</span>
+              </div>
+              <div className="text-2xl font-heading font-extrabold text-blue-600 dark:text-blue-400 mt-2">{formatCurrency(tahsilEdilenKapora)}</div>
+              <div className="text-[10px] text-blue-500 font-bold mt-1">Alınan Ön Ödemeler</div>
+            </div>
+          </div>
+
+          <div className="glass-panel p-4 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 border border-slate-200 dark:border-brand-border">
+            <div className="flex bg-slate-100 dark:bg-brand-card p-1 rounded-2xl border border-slate-200 dark:border-brand-border/60 w-full md:w-auto">
+              <button
+                onClick={() => setFilterTab('all')}
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none ${
+                  filterTab === 'all' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Tümü ({allTransactions.length})
+              </button>
+              <button
+                onClick={() => setFilterTab('income')}
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none ${
+                  filterTab === 'income' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Gelirler (+) ({incomeTransactions.length})
+              </button>
+              <button
+                onClick={() => setFilterTab('expense')}
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none ${
+                  filterTab === 'expense' ? 'bg-red-600 text-white shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Giderler (-) ({expenses.length})
+              </button>
+            </div>
+
+            <div className="relative w-full md:w-80">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Kasa hareketlerinde ara..."
+                className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          </div>
+
+          <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
+                    <th className="p-3.5">Tarih</th>
+                    <th className="p-3.5">Açıklama</th>
+                    <th className="p-3.5">Kategori</th>
+                    <th className="p-3.5 text-center">Tür</th>
+                    <th className="p-3.5 text-right">Tutar</th>
+                    <th className="p-3.5 text-center">Durum</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40 font-medium">
+                  {filteredTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="text-center py-8 text-slate-400 font-bold">
+                        Kasa hareketi bulunamadı.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredTransactions.map(t => (
+                      <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-brand-card/50 transition">
+                        <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-400">{formatDate(t.date)}</td>
+                        <td className="p-3.5 font-bold text-slate-800 dark:text-gray-100">{t.title}</td>
+                        <td className="p-3.5">
+                          <span className="bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
+                            {t.category}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-center whitespace-nowrap">
+                          {t.type === 'gelir' ? (
+                            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-[10px] px-2.5 py-1 rounded-full">
+                              + Gelir
+                            </span>
+                          ) : (
+                            <span className="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-bold text-[10px] px-2.5 py-1 rounded-full">
+                              - Gider
+                            </span>
+                          )}
+                        </td>
+                        <td className={`p-3.5 text-right font-bold text-sm whitespace-nowrap ${t.type === 'gelir' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {t.type === 'gelir' ? '+' : '-'}{formatCurrency(t.amount)}
+                        </td>
+                        <td className="p-3.5 text-center whitespace-nowrap">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            t.status === 'Ödendi' || t.status === 'Tahsil Edildi' || t.status === 'Tamamlandı'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                              : 'bg-amber-500/10 text-amber-600 dark:text-gold-400'
+                          }`}>
+                            {t.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {isModalOpen && (
+            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <span>💸</span>
+                    <span>Yeni Gider Kaydı Ekle</span>
+                  </h3>
+                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+                </div>
+                <form onSubmit={handleAddExpense} className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Harcama Başlığı:</label>
+                    <input
+                      type="text"
+                      value={newTitle}
+                      onChange={e => setNewTitle(e.target.value)}
+                      placeholder="Örn: Garson Yevmiyeleri Ödemesi"
+                      required
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Kategori:</label>
+                    <select
+                      value={newCategory}
+                      onChange={e => setNewCategory(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                    >
+                      <option value="Personel & Sanatçı">Personel & Sanatçı</option>
+                      <option value="Dekorasyon & Çiçek">Dekorasyon & Çiçek</option>
+                      <option value="Faturalar & Enerji">Faturalar & Enerji</option>
+                      <option value="Yiyecek & İçecek">Yiyecek & İçecek</option>
+                      <option value="Ekipman & Bakım">Ekipman & Bakım</option>
+                      <option value="Genel Harcama">Genel Harcama</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Tutar (TL):</label>
+                    <input
+                      type="number"
+                      value={newAmount}
+                      onChange={e => setNewAmount(e.target.value)}
+                      placeholder="0"
+                      required
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Tarih:</label>
+                    <input
+                      type="date"
+                      value={newDate}
+                      onChange={e => setNewDate(e.target.value)}
+                      required
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Ödeme Durumu:</label>
+                    <select
+                      value={newStatus}
+                      onChange={e => setNewStatus(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                    >
+                      <option value="Ödendi">Ödendi</option>
+                      <option value="Bekliyor">Bekliyor</option>
+                    </select>
+                  </div>
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-brand-border">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold"
+                    >
+                      İptal
+                    </button>
+                    <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">
+                      Gider Kaydet ✓
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- CUSTOMERS COMPONENT ---
+    // --- CUSTOMERS COMPONENT ---
+    function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick }) {
+      const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+      const [searchTerm, setSearchTerm] = useState('');
+      const [taxTypeFilter, setTaxTypeFilter] = useState('ALL'); // 'ALL' | 'individual' | 'corporate'
+
+      const filteredCustomers = useMemo(() => {
+        return customers.filter(c => {
+          const matchesTaxType = taxTypeFilter === 'ALL' || c.taxType === taxTypeFilter;
+          const matchesSearch = !searchTerm || (
+            c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.tcNo?.includes(searchTerm) ||
+            c.vknNo?.includes(searchTerm)
+          );
+          return matchesTaxType && matchesSearch;
+        });
+      }, [customers, taxTypeFilter, searchTerm]);
+
+      return (
+        <div className="space-y-6">
+          {/* HEADER & PRIMARY ACTION */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-brand-border/40">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                <ThemeIcon icon="user" fallbackEmoji="👥" className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-gray-100 gold-gradient-text">
+                  Müşteri Rehberi
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-gray-400">
+                  Toplam {filteredCustomers.length} kayıtlı müşteri rehberde listeleniyor
+                </p>
+              </div>
+            </div>
+
+            <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-1.5 self-start sm:self-auto">
+              <ThemeIcon icon="user" fallbackEmoji="👤" className="w-4 h-4 shrink-0" />
+              <span>Yeni Müşteri Ekle</span>
+            </button>
+          </div>
+
+          {/* FILTER TOOLBAR & VIEW MODE SWITCHER */}
+          <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-brand-border/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-sm">
+            
+            {/* SEARCH INPUT */}
+            <div className="flex-1 relative min-w-[200px]">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="Müşteri adı, telefon, e-posta veya TC/VKN no ara..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500 transition"
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs">
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* TAX TYPE FILTER */}
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-slate-500 dark:text-gray-400 shrink-0">Müşteri Türü:</span>
+              <select
+                value={taxTypeFilter}
+                onChange={e => setTaxTypeFilter(e.target.value)}
+                className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-gray-200 focus:outline-none focus:border-amber-500"
+              >
+                <option value="ALL">Tümü (Bireysel & Kurumsal)</option>
+                <option value="individual">Bireysel Müşteriler</option>
+                <option value="corporate">Kurumsal Müşteriler</option>
+              </select>
+            </div>
+
+            {/* VIEW MODE TOGGLE BUTTONS */}
+            <div className="flex items-center p-1 bg-slate-100 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border shrink-0 self-end md:self-auto">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  viewMode === 'grid'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100'
+                }`}
+                title="Kart Izgara Görünümü"
+              >
+                <ThemeIcon icon="grid" fallbackEmoji="🎴" className="w-4 h-4 shrink-0" />
+                <span>Kart Görünümü</span>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  viewMode === 'table'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100'
+                }`}
+                title="Detaylı Tablo Görünümü"
+              >
+                <ThemeIcon icon="list" fallbackEmoji="📋" className="w-4 h-4 shrink-0" />
+                <span>Tablo Görünümü</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* CONTENT: GRID MODE vs TABLE MODE */}
+          {filteredCustomers.length === 0 ? (
+            <div className="glass-panel p-12 text-center rounded-3xl border border-dashed border-slate-300 dark:border-brand-border space-y-3">
+              <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-10 h-10 mx-auto text-slate-400 opacity-60" />
+              <div className="font-bold text-slate-700 dark:text-gray-300 text-sm">Aramanızla Eşleşen Müşteri Bulunamadı</div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Filtre kriterlerinizi temizleyerek tekrar arayabilirsiniz.</p>
+              <button onClick={() => { setSearchTerm(''); setTaxTypeFilter('ALL'); }} className="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-600 font-bold text-xs border border-amber-500/30">
+                Filtreleri Temizle
+              </button>
+            </div>
+          ) : viewMode === 'grid' ? (
+            /* --- KART IZGARA GÖRÜNÜMÜ --- */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredCustomers.map(c => (
+                <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4 shadow-sm border border-slate-200 dark:border-brand-border/40 hover:border-amber-500/50 transition">
+                  <img src={c.avatar} alt={`${c.name} Avatarı`} className="w-14 h-14 rounded-2xl object-cover border border-amber-500/40 shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
+                      <div className="flex space-x-1.5 items-center">
+                        <button onClick={() => onEditClick(c)} className="text-[11px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center space-x-1 hover:bg-amber-500/20 transition">
+                          <span>Düzenle</span>
+                          <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                        </button>
+                        <button onClick={() => onDeleteClick(c.id)} className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-xs uppercase border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs">
+                          <span>SİL</span>
+                          <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
+                    <div className="text-[11px] text-slate-600 dark:text-gray-400">
+                      <span className="font-bold text-amber-600 dark:text-gold-400 inline-flex items-center space-x-1">
+                        {c.taxType === 'corporate' ? (
+                          <>
+                            <ThemeIcon icon="briefcase" fallbackEmoji="🏢" className="w-3.5 h-3.5 shrink-0" />
+                            <span>Kurumsal</span>
+                          </>
+                        ) : (
+                          <>
+                            <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3.5 h-3.5 shrink-0" />
+                            <span>Bireysel</span>
+                          </>
+                        )}
+                      </span>
+                      <span> - </span>
+                      <span>{c.taxType === 'corporate' ? `VKN: ${c.vknNo || c.tcNo || '-'}` : `TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</span>
+                    </div>
+                    <div className="pt-1">
+                      <WhatsAppButton phone={c.phone} customerName={c.name} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* --- TABLO GÖRÜNÜMÜ --- */
+            <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="py-3.5 px-4">Müşteri</th>
+                      <th className="py-3.5 px-4">İletişim Bilgileri</th>
+                      <th className="py-3.5 px-4">Müşteri Türü & Kimlik / Vergi No</th>
+                      <th className="py-3.5 px-4">Vergi Dairesi & Adres</th>
+                      <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
+                    {filteredCustomers.map(c => (
+                      <tr key={c.id} className="hover:bg-amber-500/5 transition">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-3">
+                            <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-xl object-cover border border-amber-500/30 shrink-0" />
+                            <div>
+                              <div className="font-bold text-slate-900 dark:text-gray-100">{c.name}</div>
+                              <div className="text-[10px] text-slate-400">ID: #{c.id}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="font-mono text-slate-800 dark:text-gray-200 font-bold">{c.phone}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-gray-400">{c.email}</div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
+                            c.taxType === 'corporate'
+                              ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                              : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                          }`}>
+                            {c.taxType === 'corporate' ? (
+                              <>
+                                <ThemeIcon icon="briefcase" fallbackEmoji="🏢" className="w-3 h-3 shrink-0" />
+                                <span>Kurumsal</span>
+                              </>
+                            ) : (
+                              <>
+                                <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3 h-3 shrink-0" />
+                                <span>Bireysel</span>
+                              </>
+                            )}
+                          </span>
+                          <div className="text-[11px] font-mono text-slate-600 dark:text-gray-300 mt-1">
+                            {c.taxType === 'corporate' ? `VKN: ${c.vknNo || '-'}` : `TC: ${c.tcNo || '-'}`}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-slate-500 dark:text-gray-400">
+                          <div>{c.taxOffice || 'Sapanca VD'}</div>
+                          <div className="text-[10px] truncate max-w-xs">{c.address || 'Sakarya / Sapanca'}</div>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end space-x-1.5">
+                            <WhatsAppButton phone={c.phone} customerName={c.name} />
+                            <button
+                              onClick={() => onEditClick(c)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
+                              title="Müşteri Bilgilerini Düzenle"
+                            >
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                            </button>
+                            <button
+                              onClick={() => onDeleteClick(c.id)}
+                              className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
+                              title="Müşteriyi Sil"
+                            >
+                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                            </button>
+                          </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </div>
+);
+}
+
+// --- MIND MAP COMPONENT & INTERACTIVE SYSTEM TOPOLOGY ---
+
+// COMPREHENSIVE MIND MAP NODE DATA WITH STATE DEPENDENCIES & CONNECTED NODES
+const MIND_MAP_DATA = [
+  {
+    id: 'core-arch',
+    title: 'Core Mimari & Altyapı',
+    icon: 'sparkles',
+    fallbackEmoji: '🏗️',
+    category: 'Architecture',
+    color: 'from-amber-500 to-amber-600',
+    borderColor: 'border-amber-500',
+    bgColor: 'bg-amber-500/10',
+    summary: 'Çift mimarili senkronizasyon, otomatik taslak kaydı ve Toast notification altyapısı.',
+    whatItDoes: 'İrem Düğün Sarayı dijital yönetim platformunun temel teknik ve mimari omurgasını oluşturur.',
+    connectedNodes: ['page-dashboard', 'theme-iconography', 'page-create-reservation', 'page-rbac-settings'],
+    readsState: ['activeRole', 'currentTheme', 'draftReservations', 'systemLogs'],
+    mutatesState: ['draftReservations', 'systemLogs', 'alertModal'],
+    whichFeatures: [
+      'Dual-Architecture Sync (Monolitik index.html + Modüler React src/ yapısı)',
+      'Otomatik Taslak Kaydı Engine (draftReservations & refKey ile kaldığı yerden devam etme)',
+      'Global Standalone Toast Notification System (Sağ üst kayar bildirim popupı)',
+      'Error Page Guard (Hata simülasyonlarında header & sidebar gizleme kuralı)',
+      'LocalStorage Caching & Persistence Engine'
+    ],
+    whyWeBuiltIt: 'Platformun hem hızlı prototipleme için tek dosyadan çalışabilmesini hem de kurumsal ölçeklenebilirlik için modüler ES2022 Standartlarında kalmasını sağlamak için inşa ettik.',
+    rulesAndCore: [
+      'Kural 1: Yapılan her UI ve mantık güncellemesi hem index.html hem de src/ bileşenlerinde %100 birebir senkronize edilmelidir.',
+      'Kural 2: Hatalı veya eksik veri durumunda asla uygulama çökmemeli, null-safe optional chaining kullanılmalıdır.',
+      'Kural 3: Formlar doldurulurken her adımda arka planda draftReservations güncellenmelidir.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Kullanıcı sisteme girer, LocalStorage önbelleği ve varsayılan durumlar yüklenir.',
+      '2. Adım: Herhangi bir işlem yapıldığında (ör. form doldurma) taslak motoru canlı tetiklenir.',
+      '3. Adım: Başarılı işlemlerde global Toast popupı kullanıcıya anında geri bildirim verir.'
+    ],
+    relatedRoute: 'dashboard'
+  },
+  {
+    id: 'theme-iconography',
+    title: 'Tema Mimarisi & İkonografi',
+    icon: 'sparkles',
+    fallbackEmoji: '🎨',
+    category: 'UI/UX System',
+    color: 'from-blue-500 to-indigo-600',
+    borderColor: 'border-blue-500',
+    bgColor: 'bg-blue-500/10',
+    summary: '5 Kurumsal Tema ve Emojisiz İkon Kuralları (ThemeIcon & NordicSvgMap).',
+    whatItDoes: 'Tüm uygulamanın renk paletlerini, tipografisini, buton keskinliklerini ve minimalist ikon setlerini yönetir.',
+    connectedNodes: ['core-arch', 'page-dashboard', 'page-create-reservation', 'page-finance'],
+    readsState: ['currentTheme'],
+    mutatesState: ['currentTheme'],
+    whichFeatures: [
+      '5 Kurumsal Tema: Nordic Light, Elite Luxury, Obsidian Gold, Sapphire Clean, Emerald Royal',
+      'Nordic Light Temasında SIFIR EMOJİ KURALI (Tüm emojiler SVG vektör ikonlara dönüşür)',
+      'ThemeIcon Bileşeni & NordicSvgMap Vektör Haritası (52+ Özel SVG İkon)',
+      'Responsive Sticky Navigation (sticky top-0 h-[calc(100vh-105px)] kaydırma mimarisi)'
+    ],
+    whyWeBuiltIt: 'Kullanıcılara modern, lüks ve göz yormayan kurumsal bir deneyim sunmak; Nordic temasında emojiler yerine premium minimalist SVG ikonlar hissettirmek için tasarladık.',
+    rulesAndCore: [
+      'Kural 1: Nordic Light teması seçiliyken sayfada ham emoji görünmesi YASAKTIR. Tüm ikonlar <ThemeIcon /> ile sarmalanmalıdır.',
+      'Kural 2: Tema değiştiğinde HTML data-ui-theme niteliği anında güncellenmeli ve CSS CSS-variables ile renkleri yenilemelidir.',
+      'Kural 3: Sidebar ve Header menüleri ekran boyutu ne olursa olsun kırpılmamalı, kendi içinde kaymalıdır.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Kullanıcı Ayarlar > Görünüm sekmesinden veya header tema butonundan tema seçer.',
+      '2. Adım: Uygulama data-ui-theme etiketini değiştirir ve ThemeIcon bileşenleri SVG haritasını günceller.',
+      '3. Adım: Nordic temasında tüm ham emojiler minimalist siyah/gri vektör ikonlara dönüşür.'
+    ],
+    relatedRoute: 'settings-appearance'
+  },
+  {
+    id: 'page-dashboard',
+    title: 'Dashboard (Genel Bakış)',
+    icon: 'chart',
+    fallbackEmoji: '📊',
+    category: 'Pages',
+    color: 'from-emerald-500 to-teal-600',
+    borderColor: 'border-emerald-500',
+    bgColor: 'bg-emerald-500/10',
+    summary: 'Canlı KPI kartları, yaklaşan düğünler, hızlı işlem barı ve sistem durumu.',
+    whatItDoes: 'İşletmenin tüm anlık durumunu, cirosunu, yaklaşan organizasyonlarını tek bakışta özetler.',
+    connectedNodes: ['page-create-reservation', 'page-reservations', 'page-finance', 'page-reports-ai'],
+    readsState: ['reservations', 'venues', 'services', 'customers', 'campaigns'],
+    mutatesState: [],
+    whichFeatures: [
+      'Canlı KPI Kartları: Bu Ayki Toplam Ciro, Onaylı Düğün Sayısı, Bekleyen Taslaklar, Doluluk Oranı',
+      'Yaklaşan Organizasyonlar Listesi & Hızlı Detay Önizleme',
+      'Hızlı Kısayol Butonları: Yeni Rezervasyon, Kasa Ekleme, Fatura Kes',
+      'AI Öneri Kartı: Doluluk analizi ve tek tıkla aksiyon önerisi'
+    ],
+    whyWeBuiltIt: 'Salon yöneticisinin ve resepsiyon görevlisinin güne başlarken tüm kritik verileri tek ekranda görmesini sağlamak için inşa ettik.',
+    rulesAndCore: [
+      'Kural 1: Ciro ve doluluk sayıları statik olmamalı, reservations dizisinden canlı hesaplanmalıdır.',
+      'Kural 2: Yaklaşan etkinliklerde müşteri adı, tarih ve seans bilgisi eksiksiz görünmelidir.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Kullanıcı sisteme girince varsayılan olarak Dashboard açılır.',
+      '2. Adım: KPI kartları anlık rezervasyon durumlarını hesaplar.',
+      '3. Adım: Hızlı butonlar üzerinden doğrudan rezervasyon veya finans sayfasına geçilir.'
+    ],
+    relatedRoute: 'dashboard'
+  },
+  {
+    id: 'page-create-reservation',
+    title: 'Rezervasyon Oluşturma (Wizard)',
+    icon: 'calendar',
+    fallbackEmoji: '📝',
+    category: 'Pages',
+    color: 'from-purple-500 to-pink-600',
+    borderColor: 'border-purple-500',
+    bgColor: 'bg-purple-500/10',
+    summary: '6 adımlı canlı sözleşme ve rezervasyon sihirbazı, otomatik taslak kaydı.',
+    whatItDoes: 'Yeni düğün/etkinlik sözleşmesi oluşturur, müşteri bilgilerini, ek hizmetleri, kaporayı ve özel istekleri kaydeder.',
+    connectedNodes: ['page-reservations', 'page-calendar', 'page-finance', 'page-customers', 'page-campaigns'],
+    readsState: ['venues', 'services', 'customers', 'campaigns', 'draftReservations'],
+    mutatesState: ['reservations', 'customers', 'draftReservations'],
+    whichFeatures: [
+      '6 Adımlı Süreç: Müşteri Seçimi -> Salon/Tarih -> Ek Hizmetler -> Kampanya/İskonto -> Finans/Kapora -> Akış Planı',
+      'Anlık Fatura & Sözleşme Hesaplama Motoru (KDV, Kapora, Kalan Bakiye)',
+      'Otomatik Taslak Kaydı (RefKey bazlı taslak saklama)',
+      'Dinamik Kampanya İndirimi Hesaplayıcı (campaigns dizisinde indirim kodunu tarama)'
+    ],
+    whyWeBuiltIt: 'Karmaşık düğün organizasyonu sözleşmelerini hatasız, hızlı ve 6 adımda adımlar arası taslak kaydı kaybedilmeden tamamlayabilmek için geliştirdik.',
+    rulesAndCore: [
+      'Kural 1: Giriş yapılan kampanya kodu canlı doğrulanmalı ve toplam tutardan düşmelidir.',
+      'Kural 2: Müşteri adı veya salon seçilmediğinde sözleşme tamamlanamaz.',
+      'Kural 3: Başarılı kayıtta müşteri rehberine ve rezervasyon listesine eşzamanlı eklenmelidir.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Müşteri bilgileri girilir veya var olan rehberden seçilir.',
+      '2. Adım: Salon, düğün tarihi ve seans (Gündüz/Gece) seçilir.',
+      '3. Adım: Menü, Orkestra, Fotoğraf gibi ek hizmetler eklenir ve kampanya indirim kodu uygulanır.',
+      '4. Adım: Alınan kapora yazılır, sözleşme onaylanır ve rezervasyon oluşturulur.'
+    ],
+    relatedRoute: 'create-reservation'
+  },
+  {
+    id: 'page-reservations',
+    title: 'Rezervasyon Listesi & Sözleşmeler',
+    icon: 'user',
+    fallbackEmoji: '📋',
+    category: 'Pages',
+    color: 'from-cyan-500 to-blue-600',
+    borderColor: 'border-cyan-500',
+    bgColor: 'bg-cyan-500/10',
+    summary: 'Tüm onaylı ve taslak sözleşmelerin listelenmesi, filtreleme ve yazdırılabilir fatura.',
+    whatItDoes: 'Geçmiş ve gelecek tüm düğün kayıtlarını arama, durum bazlı filtreleme ve resmi sözleşme çıktısı alma imkanı sunar.',
+    connectedNodes: ['page-create-reservation', 'page-calendar', 'page-finance', 'page-reports-ai'],
+    readsState: ['reservations', 'venues', 'customers', 'services'],
+    mutatesState: ['reservations'],
+    whichFeatures: [
+      'Arama & Filtreleme (Sözleşme No, Müşteri Adı, Salon, Tarih Aralığı)',
+      'Fatura & Resmi Sözleşme Yazdırma Modalı (A4 Formatlı Print View)',
+      'Sözleşme Düzenleme & İptal Etme / Silme (RedAlert Güvenlik Onayı)',
+      'Tarih / Seans Değiştirme (Reschedule Engine)'
+    ],
+    whyWeBuiltIt: 'Salon resepsiyonunun sözleşmeleri tek tıkla arayıp bulması ve müşteriye anında yazdırılabilir çıktı sunması için tasarladık.',
+    rulesAndCore: [
+      'Kural 1: İptal edilen rezervasyonlar silinmeden önce onay modalı çıkarılmalıdır.',
+      'Kural 2: Yazdır butonuna basıldığında A4 formatında temiz fatura şablonu üretilmelidir.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Rezervasyonlar listesinden ilgili sözleşme bulunur.',
+      '2. Adım: "Yazdır" butonuna basılarak resmi PDF/A4 sözleşme çıktısı alınır.',
+      '3. Adım: Gerekirse "Tarih Değiştir" veya "Düzenle" ile kayıt güncellenir.'
+    ],
+    relatedRoute: 'reservations'
+  },
+  {
+    id: 'page-calendar',
+    title: 'Dinamik Takvim Yönetimi',
+    icon: 'calendar',
+    fallbackEmoji: '📅',
+    category: 'Pages',
+    color: 'from-amber-500 to-orange-600',
+    borderColor: 'border-amber-500',
+    bgColor: 'bg-amber-500/10',
+    summary: 'Aylık/Haftalık görsel düğün takvimi, sürükle-bırak tarih değiştirme.',
+    whatItDoes: 'Düğün salonlarının hangi gün ve hangi saat diliminde (Gündüz/Gece) dolu olduğunu takvim üzerinde gösterir.',
+    connectedNodes: ['page-create-reservation', 'page-reservations', 'page-venues'],
+    readsState: ['reservations', 'venues'],
+    mutatesState: ['reservations'],
+    whichFeatures: [
+      'Dinamik Ay Navigasyonu (Önceki Ay / Bugün / Sonraki Ay)',
+      'Salon Bazlı Renkli Etiketleme (Altın Salon, Balo Salonu, vb.)',
+      'Boş Gün Tıklaması ile Hızlı Rezervasyon Başlatma',
+      'Düğün Günü Detay Popupı (Müşteri, Misafir Sayısı, Kalan Bakiye)'
+    ],
+    whyWeBuiltIt: 'Müşteriler telefonla tarih sorduğunda hangi salonun ne zaman boş olduğunu saniyeler içinde görebilmek için geliştirdik.',
+    rulesAndCore: [
+      'Kural 1: Çift rezervasyon (çakışma) durumunda takvim günü kırmızı uyarı vermelidir.',
+      'Kural 2: Takvim dinamik ay gün sayısı ve ilk gün indisini doğru hesaplamalıdır.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Takvimden aranılan ay ve yıla geçilir.',
+      '2. Adım: İlgili güne tıklanarak kayıtlı düğün detayları incelenir.',
+      '3. Adım: Boş bir güne tıklanarak doğrudan rezervasyon sihirbazı başlatılır.'
+    ],
+    relatedRoute: 'calendar'
+  },
+  {
+    id: 'page-finance',
+    title: 'Finans & Kasa Yönetimi',
+    icon: 'finance',
+    fallbackEmoji: '💰',
+    category: 'Pages',
+    color: 'from-emerald-600 to-green-700',
+    borderColor: 'border-emerald-600',
+    bgColor: 'bg-emerald-600/10',
+    summary: 'Gelir/Gider tablosu, net kar hesabı, harcama kaydı ekleme modalı.',
+    whatItDoes: 'Düğün kaporalarını, kalan tahsilatları ve orkestra/ikram/personel giderlerini tek kasada yönetir.',
+    connectedNodes: ['page-reservations', 'page-reports-ai', 'page-dashboard'],
+    readsState: ['reservations', 'financialStats'],
+    mutatesState: ['financialStats'],
+    whichFeatures: [
+      'KPI Kartları: Toplam Ciro, Toplam Gider, Net Kar (Ciro - Gider), Tahsil Edilen Kapora',
+      'Birleşik Gelir & Gider İşlem Tablosu (Tarih, Açıklama, Kategori, Tür, Tutar, Durum)',
+      'Canlı Arama & Filtreleme (Tümü / Gelirler (+) / Giderler (-))',
+      '+ Gider Kaydı Ekle Modalı (Harcama başlığı, Kategori, Tutar, Tarih, Ödeme Durumu)'
+    ],
+    whyWeBuiltIt: 'Düğün salonunun anlık nakit akışını, kaporaları ve organizasyon maliyetlerini şeffaf şekilde takip etmek için kurduk.',
+    rulesAndCore: [
+      'Kural 1: Net Kar = Toplam Ciro - Toplam Gider formülüyle canlı hesaplanmalıdır.',
+      'Kural 2: Yeni gider eklendiğinde finansal göstergeler anında güncellenmelidir.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Finans sayfasına girilir, anlık ciro ve gider görülür.',
+      '2. Adım: "+ Gider Kaydı Ekle" butonuna basılarak orkestra veya ikram harcaması yazılır.',
+      '3. Adım: Net kar göstergesi otomatik güncellenir.'
+    ],
+    relatedRoute: 'finans'
+  },
+  {
+    id: 'page-reports-ai',
+    title: 'Raporlar & AI Analytics',
+    icon: 'chart',
+    fallbackEmoji: '📈',
+    category: 'Pages',
+    color: 'from-violet-500 to-purple-700',
+    borderColor: 'border-violet-500',
+    bgColor: 'bg-violet-500/10',
+    summary: 'SVG grafikleri, dinamik doluluk oranları ve Tek Tıkla Kampanya Dönüştürme.',
+    whatItDoes: 'Rezervasyon verilerini analiz eder, SVG Gelir ve Salon grafikleri üretir, AI tavsiyeleri sunar.',
+    connectedNodes: ['page-finance', 'page-campaigns', 'page-dashboard'],
+    readsState: ['reservations', 'venues', 'services'],
+    mutatesState: ['campaigns', 'venues'],
+    whichFeatures: [
+      'Dinamik Doluluk Oranı Hesabı (occupancyRate)',
+      'Donut SVG Gelir Dağılımı Grafiği Kartı',
+      'Bar SVG Salon Tercih Oranları Grafiği Kartı',
+      'AI Öneri Kartları ("Tek Tıkla Kampanyaya Dönüştür" ve "Fiyat Güncelle & Uygula")'
+    ],
+    whyWeBuiltIt: 'Yapay zekanın boş günleri tespit edip salon sahibine stratejik kampanya ve fiyat önerileri sunması için tasarladık.',
+    rulesAndCore: [
+      'Kural 1: "Tek Tıkla Kampanyaya Dönüştür" butonuna tıklandığında kampanya anında eklenmeli ve Kampanyalar sayfasına yönlendirilmelidir.',
+      'Kural 2: Grafikler CSS/SVG ile responsive olarak çizilmelidir.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Raporlar sayfasına girilir, grafikler ve doluluk incelenir.',
+      '2. Adım: AI öneri kartındaki "Kampanyaya Dönüştür" butonuna basılır.',
+      '3. Adım: Otomatik olarak Kampanyalar sayfasına yeni indirim kodu tanımlanır.'
+    ],
+    relatedRoute: 'raporlar-ai'
+  },
+  {
+    id: 'page-campaigns',
+    title: 'Kampanyalar & AI İndirimler',
+    icon: 'sparkles',
+    fallbackEmoji: '🏷️',
+    category: 'Pages',
+    color: 'from-rose-500 to-pink-600',
+    borderColor: 'border-rose-500',
+    bgColor: 'bg-rose-500/10',
+    summary: 'İndirim kodları, erken rezervasyon kampanyaları ve AI önerili promosyonlar.',
+    whatItDoes: 'Rezervasyon sırasında uygulanabilecek indirim kodlarını ve şartlarını yönetir.',
+    connectedNodes: ['page-reports-ai', 'page-create-reservation'],
+    readsState: ['campaigns'],
+    mutatesState: ['campaigns'],
+    whichFeatures: [
+      'Aktif & Pasif Kampanya Listesi (İndirim Oranı, Son Geçerlilik Tarihi)',
+      'Yeni Kampanya Tanımlama Modalı',
+      'AI Otomatik Üretilmiş Kampanya Rozeti'
+    ],
+    whyWeBuiltIt: 'Düğün sezonu dışı aylarda ve hafta içi günlerde doluluk oranını artıracak esnek kampanyalar oluşturabilmek için tasarladık.',
+    rulesAndCore: [
+      'Kural 1: Süresi geçen veya pasif olan kampanyalar rezervasyon sihirbazında uygulanamaz.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Kampanyalar sayfasından indirim kodu ve geçerlilik tarihi oluşturulur.',
+      '2. Adım: Rezervasyon oluştururken müşteriye bu kod uygulanır.'
+    ],
+    relatedRoute: 'kampanyalar'
+  },
+  {
+    id: 'page-venues',
+    title: 'Düğün Salonları Yönetimi',
+    icon: 'venue',
+    fallbackEmoji: '🏰',
+    category: 'Pages',
+    color: 'from-yellow-600 to-amber-700',
+    borderColor: 'border-yellow-600',
+    bgColor: 'bg-yellow-600/10',
+    summary: 'Salon kapasiteleri, paket fiyatları, görseller ve detay modalı.',
+    whatItDoes: 'İşletmeye ait tüm düğün ve balo salonlarının özelliklerini ve görsellerini sergiler.',
+    connectedNodes: ['page-create-reservation', 'page-calendar', 'page-reports-ai'],
+    readsState: ['venues'],
+    mutatesState: ['venues'],
+    whichFeatures: [
+      'Salon Kartları (Kapasite, Paket Fiyatı, Alan m²)',
+      'Salon Detay Modalı (selectedVenueDetail ile zengin açıklama & galeri)',
+      'Yeni Salon Ekleme / Fiyat Düzenleme Modalı'
+    ],
+    whyWeBuiltIt: 'Müşterilere salonların teknik kapasitesini ve görsellerini prestijli şekilde sunabilmek için geliştirdik.',
+    rulesAndCore: [
+      'Kural 1: Salon fiyatları değiştiğinde yeni rezervasyonlarda güncel fiyat baz alınmalıdır.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Salonlar sayfasında ilgilenilen salona tıklanarak detay modalı açılır.',
+      '2. Adım: Kapasite ve özellikler müşteriye gösterilir.'
+    ],
+    relatedRoute: 'dugun-salonlari'
+  },
+  {
+    id: 'page-rbac-settings',
+    title: 'Rol & İzin Matrisi (RBAC)',
+    icon: 'shield',
+    fallbackEmoji: '🔒',
+    category: 'Security & Management',
+    color: 'from-slate-700 to-slate-900',
+    borderColor: 'border-slate-600',
+    bgColor: 'bg-slate-500/10',
+    summary: 'Rol bazlı erişim denetimi (Süper Admin, Moderatör, İyileştirme Uzmanı).',
+    whatItDoes: 'Kullanıcıların hangi sayfaları görebileceğini ve hangi butonlara basabileceğini yetkilendirir.',
+    connectedNodes: ['core-arch', 'page-users', 'page-profile'],
+    readsState: ['roles', 'tabPermissions', 'activeRole'],
+    mutatesState: ['roles', 'tabPermissions', 'activeRole'],
+    whichFeatures: [
+      'Rol Değiştirme Simülasyonu (Header & Profil üzerinden anlık rol değiştirme)',
+      'Sayfa Erişim Hakları Matrisi',
+      'Kullanıcı Şifre Yönetimi (UserModalComponent password input alanı)'
+    ],
+    whyWeBuiltIt: 'Resepsiyon personelinin yetkisiz finansal silme veya sistem ayarlarını değiştirmesini engellemek için kurduk.',
+    rulesAndCore: [
+      'Kural 1: Yetkisiz bir sayfaya girmeye çalışan kullanıcıya 403 Erişim Engellendi ekranı gösterilmelidir.',
+      'Kural 2: Kullanıcı ekleme modalında giriş şifresi alanı zorunlu olmalıdır.'
+    ],
+    stepByStepFlow: [
+      '1. Adım: Ayarlar > Rol & İzinler sekmesine gidilir.',
+      '2. Adım: Moderatör rolünün Finans silme izni düzenlenir.',
+      '3. Adım: Değişiklikler anında rol matrisine yansır.'
+    ],
+    relatedRoute: 'ayarlar/rol-izinleri'
+  }
+];
+
+// STATE DATA DEPENDENCY MATRIX FOR VISUALIZATION
+const DATA_FLOW_MATRIX = [
+  {
+    stateName: 'reservations',
+    label: 'Rezervasyonlar & Sözleşmeler',
+    storage: 'LocalStorage (irem_cache_reservations)',
+    readers: ['Dashboard', 'Rezervasyon Sihirbazı', 'Rezervasyon Listesi', 'Takvim', 'Finans', 'Raporlar AI', 'Medya Galerisi'],
+    mutators: ['Rezervasyon Sihirbazı (Ekle)', 'Rezervasyon Listesi (Düzenle/Sil/Ertele)', 'Takvim (Tarih Değiştir)'],
+    description: 'Sistemdeki tüm düğün organizasyonu kayıtlarını, ödeme ve tarih verilerini tutan ana state.'
+  },
+  {
+    stateName: 'venues',
+    label: 'Düğün Salonları Listesi',
+    storage: 'INITIAL_VENUES + LocalStorage',
+    readers: ['Dashboard', 'Rezervasyon Sihirbazı', 'Takvim', 'Salonlar Sayfası', 'Raporlar AI'],
+    mutators: ['Salonlar Sayfası (Ekle/Düzenle)', 'Raporlar AI (Fiyat Güncelle)'],
+    description: 'Salon isimlerini, kapasitelerini, görsellerini ve varsayılan paket fiyatlarını saklar.'
+  },
+  {
+    stateName: 'services',
+    label: 'Ek Hizmetler Kataloğu',
+    storage: 'INITIAL_SERVICES + LocalStorage',
+    readers: ['Rezervasyon Sihirbazı', 'Ek Hizmetler Sayfası', 'Raporlar AI'],
+    mutators: ['Ek Hizmetler Sayfası (Ekle/Düzenle)'],
+    description: 'Orkestra, Fotoğrafçı, İkram Menüleri gibi organizasyon opsiyonlarını barındırır.'
+  },
+  {
+    stateName: 'customers',
+    label: 'Müşteri Rehberi',
+    storage: 'INITIAL_CUSTOMERS + LocalStorage',
+    readers: ['Rezervasyon Sihirbazı', 'Müşteri Rehberi Sayfası', 'Rezervasyon Listesi'],
+    mutators: ['Müşteri Rehberi Sayfası (Ekle/Düzenle)', 'Rezervasyon Sihirbazı (Yeni Müşteri Kaydı)'],
+    description: 'Müşteri ad-soyad, telefon, e-posta ve sözleşme geçmişi kayıtları.'
+  },
+  {
+    stateName: 'campaigns',
+    label: 'Kampanyalar & AI Promosyonlar',
+    storage: 'INITIAL_CAMPAIGNS + LocalStorage',
+    readers: ['Rezervasyon Sihirbazı', 'Kampanyalar Sayfası'],
+    mutators: ['Kampanyalar Sayfası (Ekle/Düzenle)', 'Raporlar AI (Tek Tıkla Kampanyaya Dönüştür)'],
+    description: 'Rezervasyon sihirbazında uygulanan indirim kodları ve tutarları.'
+  },
+  {
+    stateName: 'financialStats',
+    label: 'Kasa & Gider Hareketleri',
+    storage: 'LocalStorage (irem_cache_financialStats)',
+    readers: ['Finans & Kasa Sayfası', 'Dashboard'],
+    mutators: ['Finans Sayfası (+ Gider Kaydı Ekle)'],
+    description: 'Gider kalemlerini (Orkestra ödemesi, garson ikramları vb.) ve ciro analizini yönetir.'
+  },
+  {
+    stateName: 'activeRole / tabPermissions',
+    label: 'RBAC Yetki & Rol Tanımları',
+    storage: 'LocalStorage (irem_cache_roles)',
+    readers: ['Tüm Sayfalar (PageErrorBoundary / Header / Sidebar)'],
+    mutators: ['Settings (Rol & İzin Matrisi)', 'Header Rol Simülatörü'],
+    description: 'Kullanıcının erişebileceği modülleri ve buton aksiyon yetkilerini kısıtlar.'
+  }
+];
+
+// END-TO-END USER WORKFLOWS
+const E2E_WORKFLOWS = [
+  {
+    id: 'flow-1',
+    title: '📝 1. Yeni Müşteri Sözleşmesi & Rezervasyon Kaydı Akışı',
+    color: 'border-purple-500 bg-purple-500/10',
+    steps: [
+      { num: '01', title: 'Müşteri Seçimi / Ekleme', desc: 'Müşteri rehberinden arama yapılır veya yeni müşteri adı & telefonu girilir.' },
+      { num: '02', title: 'Salon & Tarih Belirleme', desc: 'Takvim çakışma kontrolü yapılır, Altın Salon veya Balo Salonu gündüz/gece seansı seçilir.' },
+      { num: '03', title: 'Hizmet & Kampanya Ekleme', desc: 'Fotoğraf, Orkestra paketi eklenir. Kampanya kodu (ör. IREM2026) girilerek indirim düşülür.' },
+      { num: '04', title: 'Kapora Alımı & Sözleşme', desc: 'Alınan kapora tutarı yazılır. Sistem otomatik A4 formatında resmi sözleşme çıktısı üretir.' },
+      { num: '05', title: 'Canlı Yansıma', desc: 'Kayıt anında Takvim, Finans Kasası, Dashboard KPI ve Müşteri Rehberine senkronize olur.' }
+    ]
+  },
+  {
+    id: 'flow-2',
+    title: '🤖 2. AI Rapor Analizi -> Akıllı Kampanya Dönüştürme Akışı',
+    color: 'border-violet-500 bg-violet-500/10',
+    steps: [
+      { num: '01', title: 'Veri Analizi', desc: 'Raporlar & AI Analytics sayfası rezervasyon verilerinden doluluk oranını (occupancyRate) hesaplar.' },
+      { num: '02', title: 'AI Fırsat Tespiti', desc: 'Yapay zeka boş kalan günleri (ör. Hafta içi Salı akşamları) tespit edip indirim önerisi kartı üretir.' },
+      { num: '03', title: 'Tek Tıkla Dönüştürme', desc: 'Kullanıcı AI Öneri kartındaki "Tek Tıkla Kampanyaya Dönüştür" butonuna tıklar.' },
+      { num: '04', title: 'Kampanya Aktivasyonu', desc: 'Sistem Kampanyalar sayfasına yeni %15 indirim kodu tanımlar ve rezervasyon sihirbazında aktif eder.' }
+    ]
+  },
+  {
+    id: 'flow-3',
+    title: '💰 3. Finans Kasa Hareketleri & Gider Kaydı Akışı',
+    color: 'border-emerald-500 bg-emerald-500/10',
+    steps: [
+      { num: '01', title: 'Kapora Girişi', desc: 'Rezervasyon yapıldığında alınan kapora otomatik olarak Kasa Gelirleri (+) hanesine yazılır.' },
+      { num: '02', title: 'Gider Kaydı Oluşturma', desc: 'Finans sayfasından "+ Gider Kaydı Ekle" butonuna basılarak ikram/garson harcaması girilir.' },
+      { num: '03', title: 'Net Kar Hesaplama', desc: 'Sistem Net Kar = Toplam Ciro - Toplam Gider formülünü anlık çalıştırıp KPI kartını günceller.' }
+    ]
+  },
+  {
+    id: 'flow-4',
+    title: '🛡️ 4. Rol Yetki Değişimi & RBAC Güvenlik Bloklama Akışı',
+    color: 'border-slate-500 bg-slate-500/10',
+    steps: [
+      { num: '01', title: 'Yetki Düzenleme', desc: 'Süper Admin Ayarlar > Rol & İzin Matrisinden Moderatör rolünün Finans silme yetkisini kaldırır.' },
+      { num: '02', title: 'Canlı Rol Simülasyonu', desc: 'Header menüsünden "Moderatör" rolü seçilerek sistem bu kimlikle test edilir.' },
+      { num: '03', title: '403 Erişim Engeli', desc: 'Moderatör Finans silme butonuna bastığında veya yetkisiz adrese gittiğinde 403 Erişim Engellendi ekranı basılır.' }
+    ]
+  }
+];
+
+function MindMapPageComponent({ navigateTo }) {
+  const [selectedNode, setSelectedNode] = useState(MIND_MAP_DATA[0]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState('topology'); // 'topology' | 'matrix' | 'workflows' | 'rbac'
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  const categories = ['ALL', 'Architecture', 'UI/UX System', 'Pages', 'Security & Management'];
+
+  const filteredNodes = MIND_MAP_DATA.filter(node => {
+    const matchesSearch = node.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          node.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          node.whichFeatures.some(f => f.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCat = activeCategoryFilter === 'ALL' || node.category === activeCategoryFilter;
+    return matchesSearch && matchesCat;
+  });
+
+  // Check if a node is connected to the selected node
+  const isConnectedNode = (nodeId) => {
+    if (!selectedNode) return false;
+    return selectedNode.id === nodeId || 
+           (selectedNode.connectedNodes && selectedNode.connectedNodes.includes(nodeId));
+  };
+
+  return (
+    <div className="space-y-6 relative animate-fade-in pb-12">
+      
+      {/* PAGE HEADER & VIEW MODE TABS */}
+      <div className="bg-white dark:bg-brand-card p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-gold-400 flex items-center justify-center text-2xl font-bold">
+              <ThemeIcon icon="sparkles" fallbackEmoji="🧠" className="w-6 h-6 shrink-0" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">
+                İnteraktif Sistem Zihin Haritası & Veri Akış Topolojisi
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+                Modül Bağlantıları, State Bağımlılıkları, Uçtan Uca Kullanıcı Akışları & Mimari Kılavuz
+              </p>
+            </div>
+          </div>
+
+          {/* VIEW MODE SWITCHER BUTTONS */}
+          <div className="flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-brand-dark p-1.5 rounded-2xl border border-slate-200 dark:border-brand-border w-full lg:w-auto">
+            <button
+              onClick={() => setViewMode('topology')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                viewMode === 'topology'
+                  ? 'gold-button shadow-xs'
+                  : 'text-slate-600 dark:text-gray-400 hover:text-amber-500'
+              }`}
+            >
+              <span>🌳 Topoloji & Ağaç</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('workflows')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                viewMode === 'workflows'
+                  ? 'gold-button shadow-xs'
+                  : 'text-slate-600 dark:text-gray-400 hover:text-amber-500'
+              }`}
+            >
+              <span>🔀 Uçtan Uca Akışlar</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('matrix')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                viewMode === 'matrix'
+                  ? 'gold-button shadow-xs'
+                  : 'text-slate-600 dark:text-gray-400 hover:text-amber-500'
+              }`}
+            >
+              <span>🔗 Veri & State Matrisi</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('rbac')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                viewMode === 'rbac'
+                  ? 'gold-button shadow-xs'
+                  : 'text-slate-600 dark:text-gray-400 hover:text-amber-500'
+              }`}
+            >
+              <span>🛡️ Yetki & RBAC</span>
+            </button>
+          </div>
+        </div>
+
+        {/* CONTROLS & FILTERS (Only shown in topology view) */}
+        {viewMode === 'topology' && (
+          <div className="pt-3 border-t border-slate-100 dark:border-brand-border/60 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            {/* CATEGORY BADGES */}
+            <div className="flex items-center space-x-2 overflow-x-auto pb-1 custom-scrollbar w-full md:w-auto">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategoryFilter(cat)}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                    activeCategoryFilter === cat
+                      ? 'bg-amber-500 text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 border border-slate-200 dark:border-brand-border hover:border-amber-500'
+                  }`}
+                >
+                  {cat === 'ALL' ? '🌐 Tüm Modüller' : cat}
+                </button>
+              ))}
+            </div>
+
+            {/* SEARCH & ZOOM */}
+            <div className="flex items-center space-x-3 w-full md:w-auto">
+              <div className="relative flex-1 md:w-56">
+                <input
+                  type="text"
+                  placeholder="Zihin Haritasında Ara..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl text-xs font-bold focus:outline-none focus:border-amber-500 text-slate-800 dark:text-white"
+                />
+                <span className="absolute left-2.5 top-2 text-slate-400 text-xs">
+                  <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-3.5 h-3.5 opacity-60" />
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-1 bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border">
+                <button
+                  onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.1))}
+                  className="px-2 py-0.5 text-xs font-bold hover:bg-amber-500/20 rounded"
+                  title="Uzaklaş"
+                >
+                  -
+                </button>
+                <span className="text-[10px] font-mono font-bold px-1 text-slate-800 dark:text-white">{Math.round(zoomLevel * 100)}%</span>
+                <button
+                  onClick={() => setZoomLevel(prev => Math.min(1.3, prev + 0.1))}
+                  className="px-2 py-0.5 text-xs font-bold hover:bg-amber-500/20 rounded"
+                  title="Yakınlaş"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* VIEW 1: TOPOLOGY & MIND MAP CANVAS */}
+      {viewMode === 'topology' && (
+        <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm min-h-[620px] overflow-auto custom-scrollbar relative">
+          
+          <div
+            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left' }}
+            className="transition-transform duration-200 space-y-8"
+          >
+            {/* ROOT NODE (CENTER SYSTEM ROOT) */}
+            <div className="flex justify-center">
+              <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 text-white p-5 rounded-3xl shadow-xl border-4 border-amber-300 dark:border-amber-400/40 text-center max-w-md">
+                <div className="text-3xl mb-1 flex justify-center">
+                  <ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-lg font-heading font-black tracking-wide">
+                  İREM DÜĞÜN SARAYI CORE ECOSYSTEM
+                </h3>
+                <p className="text-[11px] text-amber-100 font-medium mt-1">
+                  Çift Mimarili Dijital Yönetim & Organizasyon Platformu
+                </p>
+                <div className="mt-2 text-[10px] bg-black/20 py-1 px-3 rounded-full inline-block font-mono">
+                  Seçili Modül: <strong className="text-gold-400">{selectedNode?.title}</strong> (Bağlantılı modüller parlar)
+                </div>
+              </div>
+            </div>
+
+            {/* CONNECTOR LINE SVG */}
+            <div className="w-full flex justify-center opacity-30">
+              <div className="w-0.5 h-8 bg-amber-500"></div>
+            </div>
+
+            {/* BRANCH NODES GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredNodes.map(node => {
+                const isSelected = selectedNode?.id === node.id;
+                const connected = isConnectedNode(node.id);
+
+                return (
+                  <div
+                    key={node.id}
+                    onClick={() => setSelectedNode(node)}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative group ${
+                      isSelected
+                        ? `${node.borderColor} bg-white dark:bg-brand-card shadow-2xl scale-[1.03] ring-4 ring-amber-500/30 z-10`
+                        : connected
+                        ? 'border-amber-400 dark:border-amber-500/80 bg-amber-50/40 dark:bg-amber-950/20 shadow-md scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-amber-500/60 shadow-xs'
+                    }`}
+                  >
+                    {/* TOP BADGES */}
+                    <div className="flex justify-between items-center mb-3">
+                      <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${node.bgColor} text-amber-700 dark:text-gold-400 border border-amber-500/30 uppercase tracking-wider`}>
+                        {node.category}
+                      </span>
+                      {isSelected ? (
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full animate-pulse">
+                          🎯 Aktif Seçim
+                        </span>
+                      ) : connected ? (
+                        <span className="text-[10px] font-bold text-amber-600 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                          🔗 Bağlantılı
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {/* TITLE & SUMMARY */}
+                    <div className="flex items-center space-x-2 mb-1">
+                      <ThemeIcon icon={node.icon} fallbackEmoji={node.fallbackEmoji} className="w-5 h-5 text-amber-500 shrink-0" />
+                      <h4 className="font-heading font-bold text-base text-slate-900 dark:text-white group-hover:text-amber-600 transition">
+                        {node.title}
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-2 font-medium">
+                      {node.summary}
+                    </p>
+
+                    {/* STATE DEPENDENCY CHIPS */}
+                    <div className="mt-3 pt-2 border-t border-slate-100 dark:border-brand-border/40 flex flex-wrap gap-1">
+                      {node.readsState?.map(st => (
+                        <span key={st} className="text-[9px] bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 px-1.5 py-0.5 rounded font-mono">
+                          👁️ {st}
+                        </span>
+                      ))}
+                      {node.mutatesState?.map(st => (
+                        <span key={st} className="text-[9px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold">
+                          ✏️ {st}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* BOTTOM ACTION INDICATOR */}
+                    <div className="mt-3 flex justify-between items-center text-[11px] font-bold text-amber-600 dark:text-gold-400">
+                      <span>İncele & Bağlantıları Gör</span>
+                      <span>→</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 2: END-TO-END WORKFLOW DIAGRAMS */}
+      {viewMode === 'workflows' && (
+        <div className="space-y-6">
+          {E2E_WORKFLOWS.map(flow => (
+            <div key={flow.id} className={`bg-white dark:bg-brand-card p-6 rounded-3xl border-2 ${flow.color} shadow-sm space-y-4`}>
+              <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+                {flow.title}
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3 relative">
+                {flow.steps.map((step, idx) => (
+                  <div key={idx} className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border relative flex flex-col justify-between">
+                    <div>
+                      <div className="w-8 h-8 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center justify-center mb-2 shadow-sm">
+                        {step.num}
+                      </div>
+                      <h4 className="font-bold text-xs text-slate-900 dark:text-white mb-1">
+                        {step.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-gray-400 leading-relaxed">
+                        {step.desc}
+                      </p>
+                    </div>
+                    {idx < flow.steps.length - 1 && (
+                      <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-amber-500 text-lg font-bold z-10">
+                        ➔
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* VIEW 3: DATA & STATE DEPENDENCY MATRIX */}
+      {viewMode === 'matrix' && (
+        <div className="bg-white dark:bg-brand-card p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
+          <div>
+            <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white">
+              🔗 Hangi Değer Nereye Bağlı? (State Bağımlılık Matrisi)
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-gray-400">
+              Sistemdeki ana state değişkenleri, nereden beslendikleri, hangi modüllerce okundukları ve güncellendikleri
+            </p>
+          </div>
+
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 font-extrabold uppercase border-b border-slate-200 dark:border-brand-border">
+                <tr>
+                  <th className="p-3">State Değişkeni</th>
+                  <th className="p-3">Açıklama & Depo</th>
+                  <th className="p-3 text-blue-600 dark:text-blue-400">Veriyi Okuyan Modüller (Readers)</th>
+                  <th className="p-3 text-emerald-600 dark:text-emerald-400">Veriyi Değiştiren Modüller (Mutators)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40">
+                {DATA_FLOW_MATRIX.map(row => (
+                  <tr key={row.stateName} className="hover:bg-slate-50 dark:hover:bg-brand-dark/40 transition">
+                    <td className="p-3 font-mono font-bold text-amber-600 dark:text-gold-400 whitespace-nowrap">
+                      {row.stateName}
+                    </td>
+                    <td className="p-3">
+                      <div className="font-bold text-slate-800 dark:text-white">{row.label}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">{row.storage}</div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex flex-wrap gap-1">
+                        {row.readers.map(r => (
+                          <span key={r} className="bg-blue-500/10 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[10px] font-semibold">
+                            {r}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex flex-wrap gap-1">
+                        {row.mutators.map(m => (
+                          <span key={m} className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-[10px] font-semibold">
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 4: SECURITY & RBAC SCHEME */}
+      {viewMode === 'rbac' && (
+        <div className="bg-white dark:bg-brand-card p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-6">
+          <div>
+            <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white">
+              🛡️ Rol Bazlı Erişim Denetim Şeması (RBAC Hierarchy)
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-gray-400">
+              Kullanıcı rollerinin sistemdeki yetki sınırları ve korunan modüller
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-amber-500/10 border border-amber-500/40 p-5 rounded-2xl space-y-3">
+              <span className="text-xs font-black bg-amber-500 text-white px-3 py-1 rounded-full uppercase tracking-wider">
+                👑 Süper Admin (SuperAdmin)
+              </span>
+              <h4 className="font-bold text-sm text-slate-900 dark:text-white">Tam Sistem Yetkisi</h4>
+              <p className="text-xs text-slate-600 dark:text-gray-300">
+                Tüm sayfaları görüntüleme, rezervasyon ve finansal kayıt silme, rol izin matrisini değiştirme yetkisi.
+              </p>
+            </div>
+
+            <div className="bg-blue-500/10 border border-blue-500/40 p-5 rounded-2xl space-y-3">
+              <span className="text-xs font-black bg-blue-500 text-white px-3 py-1 rounded-full uppercase tracking-wider">
+                🛡️ Moderatör (Moderator)
+              </span>
+              <h4 className="font-bold text-sm text-slate-900 dark:text-white">Operasyonel Yönetim</h4>
+              <p className="text-xs text-slate-600 dark:text-gray-300">
+                Rezervasyon ve müşteri ekleme/düzenleme yapar. Finans silme ve RBAC ayarları yetkisi kısıtlanabilir.
+              </p>
+            </div>
+
+            <div className="bg-slate-500/10 border border-slate-500/40 p-5 rounded-2xl space-y-3">
+              <span className="text-xs font-black bg-slate-600 text-white px-3 py-1 rounded-full uppercase tracking-wider">
+                👤 Resepsiyon / Satışçı
+              </span>
+              <h4 className="font-bold text-sm text-slate-900 dark:text-white">Sınırlı Veri Girişi</h4>
+              <p className="text-xs text-slate-600 dark:text-gray-300">
+                Sadece yeni rezervasyon oluşturma ve takvim inceleme yapabilir. Finans ve ayarlar sayfasına erişimi engellenebilir (403).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* INSPECTOR SIDE-SHEET DRAWER FOR SELECTED NODE */}
+      {selectedNode && (
+        <div className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white dark:bg-brand-card border-l border-slate-200 dark:border-brand-border shadow-2xl z-50 flex flex-col animate-slide-in-right">
+          {/* DRAWER HEADER */}
+          <div className="p-6 border-b border-slate-200 dark:border-brand-border flex justify-between items-start bg-slate-50 dark:bg-brand-dark/50">
+            <div>
+              <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30 uppercase tracking-wider">
+                {selectedNode.category}
+              </span>
+              <div className="flex items-center space-x-2 mt-2">
+                <ThemeIcon icon={selectedNode.icon} fallbackEmoji={selectedNode.fallbackEmoji} className="w-6 h-6 text-amber-500 shrink-0" />
+                <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white">
+                  {selectedNode.title}
+                </h3>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedNode(null)}
+              className="w-8 h-8 rounded-full bg-slate-200 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold hover:bg-red-500 hover:text-white transition flex items-center justify-center text-sm"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* QUICK NAVIGATE ACTION BAR */}
+          <div className="p-4 bg-amber-500/10 border-b border-amber-500/20 flex justify-between items-center">
+            <span className="text-xs font-bold text-amber-800 dark:text-gold-400">
+              Bu modülü canlı sistemde denemek ister misiniz?
+            </span>
+            <button
+              onClick={() => {
+                if (navigateTo && selectedNode.relatedRoute) {
+                  navigateTo(selectedNode.relatedRoute);
+                }
+              }}
+              className="gold-button font-bold text-xs py-1.5 px-4 rounded-xl shadow-sm flex items-center space-x-1"
+            >
+              <span>🚀 Sayfaya Git</span>
+            </button>
+          </div>
+
+          {/* DRAWER BODY CONTENT */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            
+            {/* CONNECTED NODES CHIPS */}
+            {selectedNode.connectedNodes && selectedNode.connectedNodes.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400 uppercase tracking-wider">
+                  🔗 Doğrudan Etkileşimde Olduğu Modüller
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedNode.connectedNodes.map(cId => {
+                    const targetNode = MIND_MAP_DATA.find(n => n.id === cId);
+                    if (!targetNode) return null;
+                    return (
+                      <button
+                        key={cId}
+                        onClick={() => setSelectedNode(targetNode)}
+                        className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-gold-400 px-3 py-1 rounded-xl border border-amber-500/30 transition flex items-center space-x-1 font-semibold"
+                      >
+                        <span>• {targetNode.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* READS & MUTATES STATE */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">
+                  👁️ Okuduğu State (Reads)
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {selectedNode.readsState?.map(s => (
+                    <span key={s} className="text-[10px] font-mono bg-blue-500/10 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
+                      {s}
+                    </span>
+                  )) || <span className="text-xs text-gray-400">Yok</span>}
+                </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-1">
+                  ✏️ Değiştirdiği State (Mutates)
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {selectedNode.mutatesState?.map(s => (
+                    <span key={s} className="text-[10px] font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded">
+                      {s}
+                    </span>
+                  )) || <span className="text-xs text-gray-400">Yok</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* WHAT IT DOES */}
+            <div className="space-y-2">
+              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400 uppercase tracking-wider">
+                📌 Modülün Görevi & Amacı
+              </h4>
+              <p className="text-xs text-slate-700 dark:text-gray-300 leading-relaxed font-medium bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                {selectedNode.whatItDoes}
+              </p>
+            </div>
+
+            {/* FEATURES */}
+            <div className="space-y-2">
+              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400 uppercase tracking-wider">
+                ✨ İçerdiği Alt Özellikler
+              </h4>
+              <ul className="space-y-2">
+                {selectedNode.whichFeatures.map((feat, idx) => (
+                  <li key={idx} className="text-xs text-slate-700 dark:text-gray-300 flex items-start space-x-2 bg-slate-50 dark:bg-brand-dark p-2.5 rounded-xl border border-slate-100 dark:border-brand-border/40 font-medium">
+                    <span className="text-amber-500 font-bold">•</span>
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* RULES */}
+            <div className="space-y-2">
+              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400 uppercase tracking-wider">
+                🛡️ İş Mantığı & Kritik Kurallar
+              </h4>
+              <ul className="space-y-2">
+                {selectedNode.rulesAndCore.map((rule, idx) => (
+                  <li key={idx} className="text-xs text-amber-900 dark:text-amber-200 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/30 font-medium">
+                    {rule}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* STEP BY STEP FLOW */}
+            <div className="space-y-2">
+              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400 uppercase tracking-wider">
+                🔄 Adım Adım Kullanım Adımları
+              </h4>
+              <div className="space-y-2">
+                {selectedNode.stepByStepFlow.map((step, idx) => (
+                  <div key={idx} className="text-xs text-slate-700 dark:text-gray-300 bg-slate-50 dark:bg-brand-dark p-2.5 rounded-xl border border-slate-200 dark:border-brand-border font-medium">
+                    {step}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* DRAWER FOOTER */}
+          <div className="p-4 border-t border-slate-200 dark:border-brand-border bg-slate-50 dark:bg-brand-dark/50 flex justify-end">
+            <button
+              onClick={() => setSelectedNode(null)}
+              className="px-4 py-2 bg-slate-200 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-slate-300 transition"
+            >
+              Kapat
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// --- PROFILE COMPONENT ---
+    function ProfileComponent({ currentUser, activeRole, onSaveProfile, showToast, onRoleChange }) {
+      const [name, setName] = useState(currentUser?.name || 'Davut Akbulut');
+      const [email, setEmail] = useState(currentUser?.email || 'davut@iremdugunsarayi.com');
+      const [phone, setPhone] = useState(currentUser?.phone || '+90 532 123 4567');
+      const [avatar, setAvatar] = useState(currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80');
+      const [password, setPassword] = useState('');
+      const [selectedRole, setSelectedRole] = useState(activeRole);
+
+      const [notifyWhatsapp, setNotifyWhatsapp] = useState(true);
+      const [notifyEmail, setNotifyEmail] = useState(true);
+      const [notifySms, setNotifySms] = useState(false);
+
+      const handleSave = (e) => {
+        e.preventDefault();
+        onSaveProfile({
+          name,
+          email,
+          phone,
+          avatar,
+          role: selectedRole
+        });
+        if (selectedRole !== activeRole && onRoleChange) {
+          onRoleChange(selectedRole);
+        }
+        showToast('👤 Profil ve Hesap Bilgileriniz Başarıyla Güncellendi!');
+      };
+
+      const isAdmin = activeRole === 'admin';
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-12">
+          {/* HEADER */}
+          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+            <div className="flex items-center space-x-4">
+              <OptimizedImage src={avatar} alt={name} className="w-16 h-16 rounded-full border-2 border-amber-500/60 shadow" />
+              <div>
+                <span className="text-[10px] font-bold gold-button px-2.5 py-0.5 rounded-full shadow">
+                  {ROLE_NAMES[activeRole]}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-1">
+                  {name}
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-gray-400">{email} | {phone}</p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSave} className="glass-panel p-6 rounded-3xl space-y-6 shadow-sm border border-slate-200 dark:border-brand-border/40">
+            <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100 border-b border-slate-200 dark:border-brand-border/40 pb-3 flex items-center space-x-2">
+              <span>👤 Profil & Güvenlik Ayarlarını Düzenle</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Ad Soyad / Unvan:</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">E-posta Adresi:</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Telefon Numarası:</label>
+                <input
+                  type="text"
+                  placeholder="0 (5XX) XXX XX XX"
+                  value={phone}
+                  onChange={e => setPhone(formatPhoneNumber(e.target.value))}
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <ImageDropzoneUploader
+                  label="Profil Fotoğrafı Yükle"
+                  value={avatar}
+                  onChange={setAvatar}
+                  aspectGuide="400x400 px (1:1 Kare Profil Görseli)"
+                  placeholderIcon="👤"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2 border-t border-slate-100 dark:border-brand-border/40">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Yeni Parola / Güvenlik Şifresi:</label>
+                <input
+                  type="password"
+                  placeholder="Değiştirmek istemiyorsanız boş bırakın..."
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">
+                  Sistem Rolü & Yetkileri: {isAdmin ? '(Admin Yetkisi)' : '(Salt Okunur)'}
+                </label>
+                {isAdmin ? (
+                  <select
+                    value={selectedRole}
+                    onChange={e => setSelectedRole(e.target.value)}
+                    className="w-full bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                  >
+                    <option value="admin">Admin (Tam Yetkili)</option>
+                    <option value="satisci">Satış Müdürü (Rezervasyon & Müşteri)</option>
+                    <option value="sosyal_medyaci">Sosyal Medya (Fotoğraf & Galeri)</option>
+                    <option value="musteri">Müşteri (Özelleştirilmiş Görünüm)</option>
+                  </select>
+                ) : (
+                  <div className="p-2.5 bg-slate-100 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border text-slate-500 dark:text-gray-400 font-bold">
+                    {ROLE_NAMES[activeRole]} — Roller sadece Sistem Yöneticisi (Admin) tarafından değiştirilebilir.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs pt-2 border-t border-slate-100 dark:border-brand-border/40">
+              <label className="font-bold text-slate-800 dark:text-gray-200 block mb-1">🔔 Otomatik Bildirim Tercihleri:</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label className="flex items-center space-x-2 cursor-pointer font-bold bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 p-2 rounded-xl border border-emerald-500/20">
+                  <input type="checkbox" checked={notifyWhatsapp} onChange={e => setNotifyWhatsapp(e.target.checked)} className="w-4 h-4 accent-[#25D366] rounded" />
+                  <ThemeIcon icon="whatsapp" fallbackEmoji="💬" className="w-4 h-4 text-[#25D366] shrink-0" />
+                  <span>WhatsApp Bildirimleri</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                  <input type="checkbox" checked={notifyEmail} onChange={e => setNotifyEmail(e.target.checked)} className="w-4 h-4 accent-amber-600 rounded" />
+                  <span>E-posta Hatırlatmaları</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer font-bold">
+                  <input type="checkbox" checked={notifySms} onChange={e => setNotifySms(e.target.checked)} className="w-4 h-4 accent-amber-600 rounded" />
+                  <span>SMS Bilgilendirme</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button type="submit" className="gold-button font-bold px-6 py-3 rounded-2xl text-xs shadow-lg hover:scale-105 transition">
+                Değişiklikleri Kaydet ✓
+              </button>
+            </div>
+          </form>
+        </div>
+      );
+    }
+
+    // --- VERSION HISTORY & RELEASE LOG MODAL ---
+    function VersionHistoryModalComponent({ isOpen, onClose }) {
+      if (!isOpen) return null;
+
+      const releases = [
+        {
+          version: 'v1.3.0',
+          tag: 'GÜNCEL SÜRÜM',
+          date: '30 Temmuz 2026',
+          title: 'Dinamik Sürüm Yönetimi & Sub-Header Mimarisi',
+          color: 'bg-emerald-500',
+          changes: [
+            'Ana header ile menü arasında bağımsız Rol & Canlı Sistem Sub-Header barı kuruldu.',
+            'Git commit analizine dayalı Semantik Sürümleme (Semantic Versioning) motoru entegre edildi.',
+            'Düğün.com stili Mega Menü çekmecesi (full-width hover drawer) tamamlandı.'
+          ]
+        },
+        {
+          version: 'v1.2.0',
+          date: '30 Temmuz 2026',
+          title: 'Çift Navigasyon Mimarisi & Düzen Değiştirici',
+          color: 'bg-amber-500',
+          changes: [
+            'Ayarlar > Görünüm sekmesine Dikey Sol Menü / Yatay Üst Menü kartları eklendi.',
+            'Seçilen menü yerleşiminin LocalStorage önbelleği ile kalıcılığı sağlandı.'
+          ]
+        },
+        {
+          version: 'v1.1.0',
+          date: '29 Temmuz 2026',
+          title: 'RBAC Rol Bazlı Sayfa & İstatistik Kısıtlamaları',
+          color: 'bg-blue-500',
+          changes: [
+            'Ciro ve finansal grafikler strictly Admin rolüne kısıtlandı.',
+            'Satışçı, Sosyal Medyacı ve Müşteri için özelleştirilmiş özel ana sayfa panoları geliştirildi.'
+          ]
+        },
+        {
+          version: 'v1.0.0',
+          date: '29 Temmuz 2026',
+          title: '🎉 Modüler Sayfa Mimarisi & 5 Kurumsal Tema',
+          color: 'bg-purple-500',
+          changes: [
+            '11 ana sayfa bileşeni ES modülleri halinde src/pages/ dizinine ayrıştırıldı.',
+            'Nordic Light Zero Emoji direktifi ve SVG ThemeIcon mimarisi devreye alındı.',
+            '5 kurumsal tema (Classic Gold, Elite Luxury, Sapphire, Emerald, Nordic) yayına alındı.'
+          ]
+        },
+        {
+          version: 'v0.1.0',
+          date: '28 Temmuz 2026',
+          title: 'Dinamik Düğün Takvimi & Hatasız Modallar',
+          color: 'bg-slate-500',
+          changes: [
+            'Düğün takvimine Ay/Yıl navigasyon araçları ve dinamik gün matrisi yerleştirildi.',
+            'Gelişmiş Fatura dökümü ve WhatsApp rezervasyon bildirimleri entegre edildi.'
+          ]
+        },
+        {
+          version: 'v0.0.1',
+          date: '27 Temmuz 2026',
+          title: 'İrem Düğün Sarayı İlk Sürüm Yayını',
+          color: 'bg-slate-400',
+          changes: [
+            'Temel rezervasyon oluşturma formu, müşteri CRM kayıtları ve salon kapasite tanımları kuruldu.'
+          ]
+        }
+      ];
+
+      return (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-white dark:bg-brand-card w-full max-w-2xl rounded-3xl shadow-2xl border border-amber-500/30 overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-6 border-b border-slate-200 dark:border-brand-border flex items-center justify-between bg-slate-50/50 dark:bg-brand-dark/50">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 rounded-2xl gold-button text-slate-950">
+                  <ThemeIcon icon="shield" fallbackEmoji="🚀" className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-lg text-slate-900 dark:text-gray-100">
+                    Sistem Sürüm Geçmişi & Güncelleme Günlüğü
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">
+                    İrem Düğün Sarayı portalının Git commit geçmişi ve Semantik Sürümleme (SemVer) logları.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-slate-200 dark:bg-brand-border text-slate-700 dark:text-gray-300 font-bold flex items-center justify-center hover:bg-red-500 hover:text-white transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6 custom-scrollbar flex-1">
+              {releases.map((rel) => (
+                <div key={rel.version} className="relative pl-6 border-l-2 border-slate-200 dark:border-brand-border space-y-2">
+                  <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full ${rel.color} ring-4 ring-white dark:ring-brand-card`} />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-heading font-black text-sm text-slate-900 dark:text-gray-100">
+                        {rel.version}
+                      </span>
+                      {rel.tag && (
+                        <span className="text-[9px] font-black px-2 py-0.5 rounded-md gold-button">
+                          {rel.tag}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-slate-400 font-bold">{rel.date}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-amber-800 dark:text-gold-400">
+                    {rel.title}
+                  </h4>
+                  <ul className="space-y-1 text-xs text-slate-600 dark:text-gray-300 list-disc list-inside">
+                    {rel.changes.map((ch, cIdx) => (
+                      <li key={cIdx}>{ch}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 border-t border-slate-200 dark:border-brand-border bg-slate-50/50 dark:bg-brand-dark/50 flex justify-between items-center text-xs">
+              <span className="text-slate-500 dark:text-gray-400 font-bold">
+                Mevcut Aktif Sürüm: <strong className="text-emerald-700 dark:text-emerald-400 font-extrabold">v1.3.0 (Canlı)</strong>
+              </span>
+              <button
+                onClick={onClose}
+                className="gold-button font-bold px-5 py-2 rounded-xl text-xs shadow-md cursor-pointer"
+              >
+                Anlaşıldı ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HORIZONTAL NAVBAR COMPONENT (DUGUN.COM STYLE MEGA MENU) ---
+    function HorizontalNavbarComponent({ activeTab, onTabChange, activeRole, tabPermissionsState = TAB_PERMISSIONS, rolesState, setActiveRole, showToast }) {
+      const [activeHoverGroup, setActiveHoverGroup] = useState(null);
+      const permMap = tabPermissionsState || TAB_PERMISSIONS;
+
+      const menuGroups = [
+        {
+          id: 'dashboard-group',
+          title: 'Ana Panolar',
+          icon: 'chart',
+          fallbackEmoji: '📌',
+          showcaseTitle: 'İrem Düğün Sarayı Yönetim Paneli',
+          showcaseDesc: 'Salon doluluk oranlarınızı, anlık rezervasyon hareketlerinizi ve performans verilerinizi tek ekrandan canlı takip edin.',
+          showcaseImg: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=600&q=80',
+          items: [
+            { id: 'dashboard', label: 'Anasayfa / İstatistikler', desc: 'Genel ciro, doluluk ve AI önerileri', icon: 'chart', fallbackEmoji: '📊' },
+            { id: 'create-reservation', label: 'Yeni Rezervasyon Oluştur', desc: 'Hızlı salon kiralama ve sözleşme girişi', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' }
+          ]
+        },
+        {
+          id: 'calendar-group',
+          title: 'Rezervasyon & Takvim',
+          icon: 'calendar',
+          fallbackEmoji: '📅',
+          showcaseTitle: 'Düğün & Etkinlik Takvimi',
+          showcaseDesc: 'Tüm düğün salonlarınızın opsiyonlu ve kesinleşmiş davet tarihlerini takvim üzerinden interaktif yönetin.',
+          showcaseImg: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80',
+          items: [
+            { id: 'reservations', label: 'Rezervasyon Listesi', desc: 'Filtrelenebilir davet kaydı ve faturasız döküm', icon: 'list', fallbackEmoji: '📋' },
+            { id: 'calendar', label: 'İnteraktif Düğün Takvimi', desc: 'Ay/Gün bazlı doluluk kontrolü ve etkinlikler', icon: 'calendar', fallbackEmoji: '📅' }
+          ]
+        },
+        {
+          id: 'finance-group',
+          title: 'İşletme & Finans',
+          icon: 'money',
+          fallbackEmoji: '💰',
+          showcaseTitle: 'Finansal Yönetim & Salon İndirimleri',
+          showcaseDesc: 'Kasa giriş-çıkışları, gider kayıtları ve AI destekli kampanya fiyat otomasyonu ile karlılığınızı artırın.',
+          showcaseImg: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
+          items: [
+            { id: 'finance', label: 'Finans Kasa & Gider Yönetimi', desc: 'Anlık kasa durumu, alacaklar ve harcamalar', icon: 'money', fallbackEmoji: '💰', badge: 'CANLI' },
+            { id: 'venues', label: 'Etkinlik Mekanları', desc: 'Mekan kapasiteleri, özel imkanları ve paket fiyatları', icon: 'venue', fallbackEmoji: '🏰' },
+            { id: 'services', label: 'Ek Hizmetler & Paketler', desc: 'Orkestra, fotoğrafçı, menü ve süsleme paketleri', icon: 'gift', fallbackEmoji: '🎁' },
+            { id: 'campaigns', label: 'Kampanyalar & AI Fiyatlama', desc: 'Sezonluk indirimler ve dinamik fiyat motoru', icon: 'campaign', fallbackEmoji: '🏷️' }
+          ]
+        },
+        {
+          id: 'crm-group',
+          title: 'Müşteri & Analiz',
+          icon: 'user',
+          fallbackEmoji: '👥',
+          showcaseTitle: 'Müşteri Rehberi (CRM) & Foto Galeri',
+          showcaseDesc: 'Gelin ve damat adaylarının iletişim geçmişini tutun, yapılan organizasyonların fotoğraf ve videolarını sergileyin.',
+          showcaseImg: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=600&q=80',
+          items: [
+            { id: 'customers', label: 'Müşteri Rehberi (CRM)', desc: 'Gelin & Damat bilgileri, özel notlar ve kayıtlar', icon: 'user', fallbackEmoji: '👥' },
+            { id: 'reports', label: 'Raporlar & Grafikler', desc: 'Salon tercih oranları, doluluk ve ciro analizleri', icon: 'chart', fallbackEmoji: '📈' },
+            { id: 'media', label: 'Medya & Foto Galeri', desc: 'Salon fotoğrafları, videoları ve organizasyon albümleri', icon: 'camera', fallbackEmoji: '📸' }
+          ]
+        },
+        {
+          id: 'admin-group',
+          title: 'Yönetim & Ayarlar',
+          icon: 'settings',
+          fallbackEmoji: '⚙️',
+          showcaseTitle: 'Personel Yetkileri & Sistem Ayarları',
+          showcaseDesc: 'RBAC rol matrisi ile personel yetkilerini denetleyin, 5 kurumsal tema ve performans önbelleğini yönetin.',
+          showcaseImg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80',
+          items: [
+            { id: 'users', label: 'Personel (RBAC Yetkileri)', desc: 'Kullanıcı rolleri, şifre tanımları ve erişim matrisi', icon: 'shield', fallbackEmoji: '🛡️' },
+            { id: 'settings-appearance', label: 'Görünüm & Temalar', desc: '5 kurumsal renk teması, buton tarzları ve görünüm modu', icon: 'sparkles', fallbackEmoji: '🎨' },
+            { id: 'settings-rbac', label: 'Rol & İzin Matrisi', desc: 'Sayfa bazlı rol erişim yetkilerini özelleştirme', icon: 'shield', fallbackEmoji: '🛡️', badge: 'RBAC' },
+            { id: 'settings-errors', label: 'Hata & Simülasyon', desc: '404, 500 ve yönlendirme testi simülatörü', icon: 'warning', fallbackEmoji: '🚨', badge: 'TEST' },
+            { id: 'settings-performance', label: 'Önbellek & Performans', desc: 'Sistem belleği, önbellek temizleme ve hızlandırma', icon: 'chart', fallbackEmoji: '⚡' },
+            { id: 'profile', label: 'Profilim & Güvenlik', desc: 'Kişisel hesap bilgileri, e-posta ve güvenlik', icon: 'user', fallbackEmoji: '👤' },
+            { id: 'settings', label: 'Tüm Sistem Ayarları', desc: 'Genel yapılandırma ve gelişmiş tercihler', icon: 'settings', fallbackEmoji: '⚙️' }
+          ]
+        }
+      ];
+
+      const currentGroupData = menuGroups.find(g => g.id === activeHoverGroup);
+
+      return (
+        <div
+          className="relative z-50 bg-white dark:bg-brand-card border-t border-b border-slate-200 dark:border-brand-border/60 shadow-xs"
+          onMouseLeave={() => setActiveHoverGroup(null)}
+        >
+          {/* DUGUN.COM STYLE HORIZONTAL NAVBAR HEADER */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-start text-xs">
+            {/* LEFT: NAV ITEMS WITH DOT SEPARATORS */}
+            <nav className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 lg:space-x-6 overflow-x-auto lg:overflow-x-visible custom-scrollbar w-full">
+              {menuGroups.map((group) => {
+                const validGroupItems = group.items.filter(item => {
+                  if (activeRole === 'admin' || activeRole === 'SuperAdmin') return true;
+                  const allowed = permMap[item.id] || permMap[item.id.split('-')[0]] || TAB_PERMISSIONS[item.id] || ['admin'];
+                  return allowed.includes(activeRole);
+                });
+                if (validGroupItems.length === 0) return null;
+
+                const isGroupActive = validGroupItems.some(item => activeTab === item.id || activeTab.startsWith(item.id));
+                const isHovered = activeHoverGroup === group.id;
+
+                return (
+                  <React.Fragment key={group.id}>
+                    <button
+                      type="button"
+                      onMouseEnter={() => setActiveHoverGroup(group.id)}
+                      onClick={() => setActiveHoverGroup(prev => prev === group.id ? null : group.id)}
+                      className={`px-3.5 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-2 cursor-pointer whitespace-nowrap text-xs md:text-sm ${
+                        isHovered || isGroupActive
+                          ? 'text-amber-800 dark:text-gold-300 font-extrabold border-b-2 border-amber-500 bg-amber-500/10'
+                          : 'text-slate-700 dark:text-gray-300 hover:text-amber-800 dark:hover:text-gold-300 hover:bg-slate-100 dark:hover:bg-brand-dark/50'
+                      }`}
+                    >
+                      <ThemeIcon icon={group.icon} fallbackEmoji={group.fallbackEmoji} className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span className="whitespace-nowrap">{group.title}</span>
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* DUGUN.COM MEGA MENU DRAWER OVERLAY (100% SOLID OPAQUE SOLID BACKGROUND) */}
+          {activeHoverGroup && currentGroupData && (
+            <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border-b-4 border-amber-500 shadow-[0_30px_70px_rgba(0,0,0,0.4)] z-40 animate-fade-in">
+              <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-8 bg-white dark:bg-slate-900">
+                {/* SUB-LINKS COLUMNS (2 COLS) */}
+                <div className="md:col-span-2 space-y-4">
+                  <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-brand-border/40 pb-3">
+                    <ThemeIcon icon={currentGroupData.icon} fallbackEmoji={currentGroupData.fallbackEmoji} className="w-5 h-5 text-amber-500" />
+                    <h3 className="font-heading font-extrabold text-sm text-slate-900 dark:text-gray-100 uppercase tracking-wider">
+                      {currentGroupData.title} Bağlantıları
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {currentGroupData.items.filter(item => {
+                      if (activeRole === 'admin' || activeRole === 'SuperAdmin') return true;
+                      const allowed = permMap[item.id] || permMap[item.id.split('-')[0]] || TAB_PERMISSIONS[item.id] || ['admin'];
+                      return allowed.includes(activeRole);
+                    }).map(item => {
+                      const isItemActive = activeTab === item.id || activeTab.startsWith(item.id);
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            onTabChange(item.id);
+                            setActiveHoverGroup(null);
+                          }}
+                          className={`p-3.5 rounded-2xl border text-left transition-all duration-200 group flex items-start space-x-3 cursor-pointer ${
+                            isItemActive
+                              ? 'bg-amber-500/15 border-amber-500/40 shadow-sm'
+                              : 'bg-slate-50/60 dark:bg-brand-dark/50 border-slate-200/80 dark:border-brand-border/60 hover:bg-white dark:hover:bg-brand-dark hover:border-amber-500/40 hover:shadow-md'
+                          }`}
+                        >
+                          <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-gold-400 group-hover:bg-amber-500 group-hover:text-white transition shrink-0 mt-0.5">
+                            <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-4 h-4" />
+                          </div>
+                          <div className="space-y-0.5 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-bold text-xs text-slate-800 dark:text-gray-100 group-hover:text-amber-800 dark:group-hover:text-gold-300 transition truncate">
+                                {item.label}
+                              </span>
+                              {item.badge && (
+                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-500 text-white shrink-0">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-gray-400 leading-normal line-clamp-2">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* VISUAL SHOWCASE CARD (1 COL) */}
+                <div className="hidden md:block">
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-brand-border shadow-md h-full min-h-[200px] flex flex-col justify-end p-5 group">
+                    <img
+                      src={currentGroupData.showcaseImg}
+                      alt={currentGroupData.showcaseTitle}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent"></div>
+                    <div className="relative z-10 space-y-1.5 text-white">
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-md gold-button uppercase tracking-wider inline-block">
+                        Öne Çıkan Özellik
+                      </span>
+                      <h4 className="font-heading font-extrabold text-sm text-white">
+                        {currentGroupData.showcaseTitle}
+                      </h4>
+                      <p className="text-[11px] text-slate-200 leading-relaxed">
+                        {currentGroupData.showcaseDesc}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- SETTINGS COMPONENT ---
+    function SettingsComponent({
+      activeRole,
+      roles,
+      tabPermissions,
+      onAddRole,
+      onToggleTabPermission,
+      themeColor,
+      onThemeColorChange,
+      menuLayout = 'vertical',
+      onMenuLayoutChange,
+      isCacheEnabled,
+      onToggleCache,
+      onClearCache,
+      onSeedDatabase,
+      showToast,
+      onNavigate,
+      initialSubTab = 'appearance'
+    }) {
+      const [settingsTab, setSettingsTab] = useState(initialSubTab);
+      const [draftTheme, setDraftTheme] = useState(themeColor || 'gold');
+
+      useEffect(() => {
+        if (initialSubTab) setSettingsTab(initialSubTab);
+      }, [initialSubTab]);
+
+      // New role form state
+      const [newRoleId, setNewRoleId] = useState('');
+      const [newRoleName, setNewRoleName] = useState('');
+
+      const handleCreateRole = (e) => {
+        e.preventDefault();
+        if (!newRoleId || !newRoleName) return;
+        const cleanId = newRoleId.toLowerCase().replace(/[^a-z0-9_]/g, '');
+        if (roles[cleanId]) {
+          showToast('⚠️ Bu rol Kimliği (ID) zaten mevcut!');
+          return;
+        }
+        onAddRole(cleanId, newRoleName);
+        setNewRoleId('');
+        setNewRoleName('');
+        showToast(`🎉 Yeni Rol "${newRoleName}" Başarıyla Oluşturuldu!`);
+      };
+
+      const colorPalettes = [
+        { id: 'gold', name: '👑 Altın & Şampanya (Varsayılan)', primary: '#d97706', hover: '#b45309', radiusBadge: 'rounded-2xl' },
+        { id: 'emerald', name: '💎 Zümrüt Yeşili (Royal Emerald)', primary: '#059669', hover: '#047857', radiusBadge: 'rounded-xl' },
+        { id: 'sapphire', name: '🔷 Gece Mavisi (Deep Sapphire)', primary: '#2563eb', hover: '#1d4ed8', radiusBadge: 'rounded-xl' },
+        { id: 'rose', name: '🌸 Gül Altını (Rose Gold)', primary: '#e11d48', hover: '#be123c', radiusBadge: 'rounded-2xl' },
+        { id: 'violet', name: '🍇 Gece Moru (Midnight Violet)', primary: '#7c3aed', hover: '#6d28d9', radiusBadge: 'rounded-xl' },
+        { id: 'obsidian', name: '⬛ Obsidian Gold (Kurumsal Siyah & Altın)', primary: '#18181b', hover: '#09090b', radiusBadge: 'rounded-none' },
+        { id: 'sapphire_clean', name: '💎 Sapphire Clean (Safir Mavisi Minimal)', primary: '#0284c7', hover: '#0369a1', radiusBadge: 'rounded-md' },
+        { id: 'platinum', name: '🪙 Platinum Silver (Platin Gümüş VIP)', primary: '#475569', hover: '#334155', radiusBadge: 'rounded-lg' },
+        { id: 'emerald_royal', name: '🌲 Emerald Royal (Kraliyet Zümrütü)', primary: '#047857', hover: '#065f46', radiusBadge: 'rounded-2xl' },
+        { id: 'titanium', name: '⚡ Titanium Tech (Titanyum Koyu Metal)', primary: '#3b82f6', hover: '#1d4ed8', radiusBadge: 'rounded-md' },
+        { id: 'apple', name: ' Apple (2026 HIG Minimalist & Clean)', primary: '#0071E3', hover: '#0077ED', radiusBadge: 'rounded-full' }
+      ];
+
+      const [simulatedError, setSimulatedError] = useState(null);
+      const [redAlertModalData, setRedAlertModalData] = useState(null);
+
+      const allPagesList = [
+        { id: 'dashboard', name: 'Genel Bakış & İstatistikler' },
+        { id: 'create-reservation', name: 'Yeni Rezervasyon Oluştur' },
+        { id: 'reservations', name: 'Rezervasyon Listesi & Sözleşmeler' },
+        { id: 'calendar', name: 'İnteraktif Takvim' },
+        { id: 'venues', name: 'Düğün Salonları' },
+        { id: 'services', name: 'Ek Hizmetler' },
+        { id: 'finance', name: 'Finans Kasa & Gider Yönetimi' },
+        { id: 'customers', name: 'Müşteri Rehberi (CRM)' },
+        { id: 'campaigns', name: 'Kampanyalar & AI Önerileri' },
+        { id: 'reports', name: 'Raporlar & Analizler' },
+        { id: 'media', name: 'Medya & Galeri Yükleyici' },
+        { id: 'users', name: 'Kullanıcı Yönetimi (RBAC)' },
+        { id: 'settings', name: 'Sistem Ayarları' }
+      ];
+
+      if (simulatedError === '404') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık</button>
+            <Page404Component onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+      if (simulatedError === '301') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık</button>
+            <Page301Component onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+      if (simulatedError === '403') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık</button>
+            <Page403Component onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+      if (simulatedError === '500') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık (Sistemi Sıfırla)</button>
+            <Page500Component errorDetails="Simüle Edilen 500 Sunucu Çökme ve Beklenmeyen İstisna Testi" onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+
+      return (
+        <div className="w-full space-y-6 animate-fade-in pb-16">
+          {/* PAGE HEADER */}
+          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
+            <div>
+              <div className="flex items-center space-x-2">
+                <ThemeIcon icon="settings" fallbackEmoji="⚙️" className="w-6 h-6 text-amber-500 shrink-0" />
+                <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">
+                  Sistem Ayarları & Yapılandırma Paneli
+                </h2>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 font-medium">
+                Tema tercihlerini, Rol & İzin matrisini, önbellek ve hata simülasyonlarını tam ekranda yönetin.
+              </p>
+            </div>
+          </div>
+
+          {/* TOP TAB NAVIGATION BAR */}
+          <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-brand-border pb-3">
+            <button
+              onClick={() => setSettingsTab('appearance')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'appearance' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="sparkles" fallbackEmoji="🎨" className="w-4 h-4 shrink-0" />
+              <span>Görünüm & Temalar</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('rbac')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'rbac' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-4 h-4 shrink-0" />
+              <span>Rol & İzin Matrisi (RBAC)</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('error-sim')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'error-sim' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="warning" fallbackEmoji="🚨" className="w-4 h-4 shrink-0" />
+              <span>Hata & Yönlendirme Simülasyonu</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('performance')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'performance' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="chart" fallbackEmoji="⚡" className="w-4 h-4 shrink-0" />
+              <span>Önbellek & Performans</span>
+            </button>
+          </div>
+
+          {/* TAB 1: APPEARANCE & VISUAL THEME SELECTION WITH PREVIEWS */}
+          {settingsTab === 'appearance' && (
+            <div className="space-y-6">
+              {/* MENU LAYOUT CONFIGURATION (DİKEY vs YATAY MENÜ SEÇİMİ) */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-amber-500/30 shadow-md">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="settings" fallbackEmoji="📐" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Masaüstü Menü Yerleşimi & Navigasyon Modu</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Sistem gezinti menünüzü klasik Dikey Sol Panel veya geniş ekranlara uygun Yatay Üst Bar olarak tercih edin.
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/20">
+                    Aktif: {menuLayout === 'horizontal' ? 'Yatay Üst Menü ══' : 'Dikey Sol Menü 📌'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  {/* OPTION 1: DİKEY SOL MENÜ */}
+                  <div
+                    onClick={() => onMenuLayoutChange && onMenuLayoutChange('vertical')}
+                    className={`p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 space-y-3 ${
+                      menuLayout === 'vertical'
+                        ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-4 ring-amber-500/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2 font-bold text-sm text-slate-800 dark:text-gray-100">
+                        <ThemeIcon icon="list" fallbackEmoji="📌" className="w-5 h-5 text-amber-500 shrink-0" />
+                        <span>Dikey Sol Menü (Klasik Sidebar)</span>
+                      </div>
+                      {menuLayout === 'vertical' && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full gold-button">SEÇİLDİ</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">
+                      Sol tarafta dikey panel olarak yer alır. Tüm kategoriler ve alt gezinti bağlantıları dikey listede gösterilir.
+                    </p>
+                  </div>
+
+                  {/* OPTION 2: YATAY ÜST MENÜ */}
+                  <div
+                    onClick={() => onMenuLayoutChange && onMenuLayoutChange('horizontal')}
+                    className={`p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 space-y-3 ${
+                      menuLayout === 'horizontal'
+                        ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-4 ring-amber-500/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2 font-bold text-sm text-slate-800 dark:text-gray-100">
+                        <ThemeIcon icon="chart" fallbackEmoji="══" className="w-5 h-5 text-amber-500 shrink-0" />
+                        <span>Yatay Üst Menü (Modern Bar)</span>
+                      </div>
+                      {menuLayout === 'horizontal' && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full gold-button">SEÇİLDİ</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">
+                      Üst başlığın hemen altında yatay gezinti barı olarak yer alır. Ekran alanını maksimum genişlikte kullanmanızı sağlar.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="glass-panel p-6 rounded-3xl space-y-6 border border-amber-500/30 shadow-md">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="paint" fallbackEmoji="🎨" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Kurumsal Arayüz Mimarisi & Tema Kartları</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Tasarım çizginizi, buton hatlarınızı, kart mimarinizi ve renk kimliğinizi görsel kart önizlemeleri ile seçip kaydet düğmesiyle kalıcı hale getirin.
+                    </p>
+                  </div>
+                </div>
+
+                {/* INTERACTIVE VISUAL THEME PREVIEW CARDS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  {/* THEME PREVIEW CARD 1: MEVCUT RENKLİ & YUMUŞAK TEMA */}
+                  <div
+                    onClick={() => setDraftTheme('gold')}
+                    style={{ borderRadius: '24px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'gold'
+                        ? 'border-amber-500 bg-amber-500/10 shadow-xl ring-4 ring-amber-500/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border/60 bg-white dark:bg-brand-card hover:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">👑</span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-amber-900 dark:text-amber-300">Klasik Şampanya Altını (Canlı & Yuvarlak Hatlı)</h4>
+                          <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-bold">Yuvarlak Hatlar (rounded-2xl) • Canlı Turuncu/Altın Gradyanlar</span>
+                        </div>
+                      </div>
+                      {draftTheme === 'gold' && <span style={{ borderRadius: '9999px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }} className="text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '16px', background: '#FFFBEB', borderColor: '#FDE68A' }} className="p-4 border space-y-3 shadow-inner">
+                      <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">CANLI TEMA ÖNİZLEMESİ (ORİJİNAL):</div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ background: 'linear-gradient(135deg, #D97706 0%, #B45309 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} className="font-heading font-extrabold text-xs">İrem Düğün Sarayı</span>
+                        <div style={{ borderRadius: '16px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', boxShadow: '0 4px 14px rgba(217, 119, 6, 0.35)' }} className="font-bold text-[11px] px-3.5 py-1.5">Canlı Buton</div>
+                      </div>
+                      <div style={{ borderRadius: '16px', background: '#FFFFFF', borderColor: '#FCD34D' }} className="p-3 border text-[11px] space-y-1">
+                        <div className="font-bold text-amber-900">Kraliyet Balo Salonu</div>
+                        <div className="text-[10px] text-amber-700">750 Kişilik Yumuşak Yuvarlak Balo Mimarisi</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* THEME PREVIEW CARD 2: QUIET LUXURY & MINIMALIST HIGH-END ARCHITECTURE DARK THEME */}
+                  <div
+                    onClick={() => setDraftTheme('elite-luxury')}
+                    style={{ borderRadius: '0px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'elite-luxury' || draftTheme === 'obsidian'
+                        ? 'border-[#D4AF37] bg-[#14161D] text-[#F8FAFC] shadow-2xl ring-4 ring-[#D4AF37]/20 scale-[1.01]'
+                        : 'border-[#22252F] bg-[#0B0C0E] text-[#94A3B8] hover:border-[#D4AF37]/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🖤👑</span>
+                        <div>
+                          <h4 className="font-heading font-bold text-sm text-[#D4AF37] uppercase tracking-wider">Quiet Luxury & Minimalist Architecture</h4>
+                          <span className="text-[10px] text-[#94A3B8] font-mono font-bold">Obsidian (#0B0C0E) • Champagne Gold (#D4AF37) • 0px Border-Radius</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'elite-luxury' || draftTheme === 'obsidian') && <span style={{ borderRadius: '0px' }} className="bg-[#D4AF37] text-[#0B0C0E] font-extrabold text-[10px] px-2.5 py-0.5 tracking-widest shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '0px', background: '#0B0C0E', borderColor: 'rgba(212, 175, 55, 0.3)' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest">QUIET LUXURY TOKENS ÖNİZLEME:</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-bold text-xs text-[#F8FAFC] uppercase tracking-wider">İrem Balo Sarayı</span>
+                        <div style={{ borderRadius: '0px', background: '#D4AF37', color: '#0B0C0E' }} className="font-bold text-[10px] uppercase px-3 py-1.5 tracking-wider">PRIMARY BUTTON</div>
+                      </div>
+                      <div style={{ borderRadius: '0px', background: '#14161D', borderColor: 'rgba(255, 255, 255, 0.08)' }} className="p-3 border text-[11px]">
+                        <div className="font-bold text-[#F8FAFC]">Kraliyet Balo Salonu (VİP)</div>
+                        <div className="text-[10px] text-[#94A3B8]">750 Kişilik High-End Balo Mimarisi</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* THEME PREVIEW CARD 3: NORDIC CLARITY & PREMIUM SCANDINAVIAN MINIMAL (LIGHT THEME) */}
+                  <div
+                    onClick={() => setDraftTheme('nordic-light')}
+                    style={{ borderRadius: '0px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'nordic-light'
+                        ? 'border-[#0F172A] bg-[#FAFAFA] text-[#0F172A] shadow-xl ring-4 ring-[#0F172A]/10 scale-[1.01]'
+                        : 'border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#0F172A]/30'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <ThemeIcon icon="venue" fallbackEmoji="" className="w-6 h-6 text-[#0F172A] shrink-0" />
+                        <div>
+                          <h4 className="font-heading font-bold text-sm text-[#0F172A] uppercase tracking-wider">Nordic Clarity & Scandinavian Minimal</h4>
+                          <span className="text-[10px] text-[#64748B] font-mono font-bold">Alabaster (#FAFAFA) • Midnight Navy (#0F172A) • 0px Sharp Geometry</span>
+                        </div>
+                      </div>
+                      {draftTheme === 'nordic-light' && <span style={{ borderRadius: '0px' }} className="bg-[#0F172A] text-white font-extrabold text-[10px] px-2.5 py-0.5 tracking-widest shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '0px', background: '#FAFAFA', borderColor: '#E2E8F0' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#64748B] uppercase tracking-widest">NORDIC CLARITY LIGHT PREVIEW:</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-bold text-xs text-[#0F172A] uppercase tracking-wider">İrem Balo Sarayı</span>
+                        <div style={{ borderRadius: '0px', background: '#0F172A', color: '#FFFFFF' }} className="font-bold text-[10px] uppercase px-3 py-1.5 tracking-wider">NORDIC BUTTON</div>
+                      </div>
+                      <div style={{ borderRadius: '0px', background: '#FFFFFF', borderColor: '#E2E8F0' }} className="p-3 border text-[11px] shadow-sm">
+                        <div className="font-bold text-[#0F172A]">Kraliyet Balo Salonu (VİP)</div>
+                        <div className="text-[10px] text-[#64748B]">750 Kişilik Mimari Aydınlık Düzen</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* THEME PREVIEW CARD 4: NEO-MINIMALIST SAFİR */}
+                  <div
+                    onClick={() => setDraftTheme('sapphire-minimal')}
+                    style={{ borderRadius: '12px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean'
+                        ? 'border-[#0284C7] bg-[#1E293B] text-[#F8FAFC] shadow-2xl ring-4 ring-[#0284C7]/30 scale-[1.01]'
+                        : 'border-[#334155] bg-[#0F172A] text-[#94A3B8] hover:border-[#0284C7]/50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🔷⚡</span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-[#38BDF8] tracking-wide">Neo-Minimalist Safir (Tech Corporate)</h4>
+                          <span className="text-[10px] text-[#94A3B8] font-mono font-bold">Deep Slate (#0F172A) • Electric Blue (#0284C7) • 8px Rounded</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean') && <span style={{ borderRadius: '6px' }} className="bg-[#0284C7] text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '8px', background: '#0F172A', borderColor: '#334155' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#38BDF8] uppercase tracking-widest">SAFİR TECH DESIGN TOKENS ÖNİZLEME:</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-extrabold text-xs text-[#F8FAFC]">İrem Safir Sarayı</span>
+                        <div style={{ borderRadius: '8px', background: '#0284C7', color: '#FFFFFF', boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)' }} className="font-bold text-[10px] px-3.5 py-1.5">SAFİR BUTON</div>
+                      </div>
+                      <div style={{ borderRadius: '8px', background: '#1E293B', borderColor: '#334155' }} className="p-3 border text-[11px]">
+                        <div className="font-bold text-[#F8FAFC]">Kraliyet Safir Balo Düzeni</div>
+                        <div className="text-[10px] text-[#94A3B8]">Modern Dijital Teknoloji Balo Mimarisi</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* THEME PREVIEW CARD 5: KRALİYET ZÜMRÜT KIR BAHÇESİ */}
+                  <div
+                    onClick={() => setDraftTheme('emerald-royal')}
+                    style={{ borderRadius: '16px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal'
+                        ? 'border-[#34D399] bg-[#064E3B] text-[#ECFDF5] shadow-2xl ring-4 ring-[#10B981]/30 scale-[1.01]'
+                        : 'border-emerald-900/60 bg-[#042F2E] text-[#A7F3D0] hover:border-[#34D399]/50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🌿🏰</span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-[#34D399] tracking-wide">Kraliyet Zümrüt Kır Bahçesi (Botanık Lüks)</h4>
+                          <span className="text-[10px] text-[#A7F3D0] font-mono font-bold">Forest Emerald (#042F2E) • Mint Gold Trim (#34D399) • 14px Curved</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal') && <span style={{ borderRadius: '12px' }} className="bg-[#10B981] text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '14px', background: '#042F2E', borderColor: 'rgba(52, 211, 153, 0.3)' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#34D399] uppercase tracking-widest">ZÜMRÜT BOTANİK PREVIEW:</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-extrabold text-xs text-[#ECFDF5]">Kır Bahçesi VİP Estate</span>
+                        <div style={{ borderRadius: '14px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', color: '#FFFFFF', border: '1px solid #34D399', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)' }} className="font-bold text-[10px] px-3.5 py-1.5">ZÜMRÜT BUTON</div>
+                      </div>
+                      <div style={{ borderRadius: '14px', background: '#064E3B', borderColor: 'rgba(52, 211, 153, 0.3)' }} className="p-3 border text-[11px]">
+                        <div className="font-bold text-[#ECFDF5]">Doğal Kır Bahçesi & Botanik Balo Düzeni</div>
+                        <div className="text-[10px] text-[#A7F3D0]">Zümrüt Yeşili & Çim Alan Organizasyonu</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* THEME PREVIEW CARD:  APPLE (2026 HUMAN INTERFACE GUIDELINES) */}
+                  <div
+                    onClick={() => setDraftTheme('apple')}
+                    style={{ borderRadius: '20px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'apple' || draftTheme === 'apple-light'
+                        ? 'border-[#0071E3] bg-[#F5F5F7] text-[#1D1D1F] shadow-xl ring-4 ring-[#0071E3]/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border/60 bg-white dark:bg-brand-card hover:border-[#0071E3]/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl"></span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-[#1D1D1F] dark:text-gray-100">Apple (2026 HIG Clean Design System)</h4>
+                          <span className="text-[10px] text-[#86868B] font-mono font-bold">SF Pro Typography • Cupertino Blue (#0071E3) • Frosted Glass & Pill Buttons</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'apple' || draftTheme === 'apple-light') && <span style={{ borderRadius: '980px', background: '#0071E3' }} className="text-white font-extrabold text-[10px] px-3 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '18px', background: 'rgba(255, 255, 255, 0.85)', borderColor: 'rgba(0, 0, 0, 0.08)', backdropFilter: 'blur(20px)' }} className="p-4 border space-y-3 shadow-sm">
+                      <div className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider"> APPLE 2026 HIG PREVIEW:</div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: '#1D1D1F', letterSpacing: '-0.02em' }} className="font-heading font-extrabold text-xs">İrem Düğün Sarayı</span>
+                        <div style={{ borderRadius: '980px', background: '#0071E3', color: '#ffffff', boxShadow: '0 2px 10px rgba(0, 113, 227, 0.3)' }} className="font-semibold text-[11px] px-4 py-1.5">Action Pill</div>
+                      </div>
+                      <div style={{ borderRadius: '14px', background: '#FFFFFF', borderColor: 'rgba(0, 0, 0, 0.06)' }} className="p-3 border text-[11px] space-y-1">
+                        <div className="font-bold text-[#1D1D1F]">Royal Grand Hall</div>
+                        <div className="text-[10px] text-[#86868B]">SF Pro Display • Frosted Glass Card Architecture</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* SAVE CHANGES BUTTON */}
+                <div className="pt-4 border-t border-slate-200 dark:border-brand-border/40 flex justify-between items-center">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">
+                    Seçilen Tasarım Çizgisi: <strong className="text-amber-700 dark:text-gold-400 uppercase font-mono font-bold">{draftTheme}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onThemeColorChange(draftTheme);
+                      if (draftTheme === 'elite-luxury' || draftTheme === 'obsidian') {
+                        document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
+                      } else if (draftTheme === 'nordic-light') {
+                        document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+                      } else if (draftTheme === 'apple' || draftTheme === 'apple-light') {
+                        document.documentElement.setAttribute('data-ui-theme', 'apple');
+                      } else if (draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean' || draftTheme === 'sapphire') {
+                        document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
+                      } else if (draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal' || draftTheme === 'emerald') {
+                        document.documentElement.setAttribute('data-ui-theme', 'emerald-royal');
+                      } else {
+                        document.documentElement.removeAttribute('data-ui-theme');
+                      }
+                      showToast(`🎨 Tasarım Konsepti Başarıyla Değiştirildi ve Uygulandı! (${draftTheme})`);
+                    }}
+                    className="gold-button font-bold text-xs py-3 px-8 rounded-2xl shadow-xl hover:scale-105 transition flex items-center space-x-2"
+                  >
+                    <span>💾 Değişiklikleri Kaydet & Tüm Sistemde Uygula ✓</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: PERFORMANCE & CACHE */}
+          {settingsTab === 'performance' && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-3xl space-y-6 border border-slate-200 dark:border-brand-border/40 shadow-sm">
+                <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100 border-b pb-3 flex items-center space-x-2">
+                  <span>⚡ Önbellekleme (Caching Engine) Yönetimi</span>
+                </h3>
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100">Sistem Önbellekleme (LocalStorage Persistence)</h4>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                      Açık olduğunda verileriniz taranırken yerel depolamadan 0ms ile yüklenir. Kapalıyken her yenilemede canlı çekilir.
+                    </p>
+                  </div>
+
+                  <label className="flex items-center space-x-3 cursor-pointer font-extrabold text-xs shrink-0 bg-white dark:bg-brand-card px-4 py-2 rounded-xl border border-slate-200 dark:border-brand-border shadow-sm">
+                    <span>Önbellekleme:</span>
+                    <input
+                      type="checkbox"
+                      checked={isCacheEnabled}
+                      onChange={e => {
+                        onToggleCache(e.target.checked);
+                        showToast(e.target.checked ? '⚡ Önbellekleme AKTİF Edildi' : '⚠️ Önbellekleme DEVRE DIŞI Bırakıldı');
+                      }}
+                      className="w-5 h-5 accent-amber-600 rounded cursor-pointer"
+                    />
+                    <span className={isCacheEnabled ? 'text-emerald-600 font-bold' : 'text-red-500 font-bold'}>
+                      {isCacheEnabled ? 'AÇIK ✓' : 'KAPALI ✕'}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-slate-200 dark:border-brand-border/40">
+                  <div className="text-xs text-slate-500 dark:text-gray-400">
+                    Sistem önbelleğinde saklanan kayıtlar: <strong className="text-slate-800 dark:text-gray-200">Salonlar, Ek Hizmetler, Müşteriler, Rezervasyonlar</strong>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onSeedDatabase) {
+                          onSeedDatabase();
+                        }
+                      }}
+                      className="gold-button font-extrabold px-5 py-2.5 rounded-xl text-xs shadow-md hover:scale-105 transition"
+                    >
+                      🏰 Veritabanını Tohumla & Tüm Varsayılanları Oluştur
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRedAlertModalData({
+                          title: '⚠️ ÖNBELLEK VE SİSTEM VERİSİ SIFIRLANACAK',
+                          message: 'Sistemde depolanan tüm yerel ayarlar, salon tercihleri ve önbellek verileri sıfırlanacaktır. Devam etmek istiyor musunuz?',
+                          confirmText: 'Evet, Önbelleği Sıfırla',
+                          onConfirm: () => {
+                            onClearCache();
+                            showToast('🗑️ Yerel Önbellek Tamamen Sıfırlandı!');
+                          }
+                        });
+                      }}
+                      className="bg-red-500/10 hover:bg-red-500 text-red-700 hover:text-white border border-red-500/40 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow"
+                    >
+                      🗑️ Önbelleği Temizle & Sıfırla
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: DYNAMIC ROLES & RBAC MATRIX */}
+          {settingsTab === 'rbac' && (
+            <div className="space-y-6">
+              {/* CREATE NEW ROLE FORM */}
+              <form onSubmit={handleCreateRole} className="glass-panel p-6 rounded-3xl space-y-4 border border-amber-500/30 shadow-sm">
+                <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100 border-b pb-2 flex items-center space-x-2">
+                  <span>➕ Yeni Kullanıcı Rolü Tanımla</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Rol Kimliği (Kod):</label>
+                    <input
+                      type="text"
+                      placeholder="Örn: muhasebe, on_buro"
+                      value={newRoleId}
+                      onChange={e => setNewRoleId(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Rol Görünen Adı & İkon:</label>
+                    <input
+                      type="text"
+                      placeholder="Örn: Muhasebe Sorumlusu 📊"
+                      value={newRoleName}
+                      onChange={e => setNewRoleName(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex items-end">
+                    <button type="submit" className="w-full gold-button font-bold py-2.5 rounded-xl text-xs shadow hover:scale-[1.02] transition">
+                      Sisteme Rolü Ekle +
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {/* PERMISSIONS MATRIX TABLE */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border/40 shadow-sm overflow-x-auto">
+                <div className="flex justify-between items-center border-b pb-3">
+                  <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100">
+                    🛡️ Rol Tabanlı Sayfa İzin Matrisi (RBAC Matrix)
+                  </h3>
+                  <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                    Canlı Güncellenir
+                  </span>
+                </div>
+
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-brand-border/40 bg-slate-50 dark:bg-brand-dark text-slate-700 dark:text-gray-300">
+                      <th className="p-3 font-extrabold rounded-l-xl">Sistem Paneli / Sayfa</th>
+                      {Object.keys(roles).map(roleId => (
+                        <th key={roleId} className="p-3 font-extrabold text-center whitespace-nowrap">
+                          {roles[roleId]}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.keys(TAB_LABELS).map(tabId => (
+                      <tr key={tabId} className="border-b border-slate-100 dark:border-brand-border/30 hover:bg-slate-500/5 transition">
+                        <td className="p-3 font-bold text-slate-800 dark:text-gray-200">
+                          {TAB_LABELS[tabId]}
+                        </td>
+                        {Object.keys(roles).map(roleId => {
+                          const isAllowed = (tabPermissions[tabId] || []).includes(roleId);
+                          return (
+                            <td key={roleId} className="p-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={isAllowed}
+                                onChange={() => onToggleTabPermission(tabId, roleId)}
+                                className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                              />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: ERROR & REDIRECTION PAGES LIVE SIMULATION PANEL */}
+          {(settingsTab === 'error-sim' || settingsTab === 'errors') && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-3xl space-y-6 border border-red-500/30 shadow-md">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <span>🚨 Özel Hata & Yönlendirme Sayfaları Canlı Simülasyon Paneli</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Sistemdeki HTTP 404 (Bulunamadı), 301 (Kalıcı Yönlendirme), 403 (Yetkisiz Erişim) ve 500 (Sistem Hatası) ekranlarını canlı simüle edin.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold">
+                  {/* SIMULATE 404 */}
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl space-y-2">
+                    <span className="text-amber-800 dark:text-gold-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="search" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>HTTP 404 - Sayfa Bulunamadı</span>
+                    </span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Geçersiz rota veya silinmiş içeriklerde arama çubuğu ve hızlı aksiyon butonlarıyla gösterilir.</p>
+                    <button
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-404'); } else { window.location.hash = '#/simulasyon-404'; } }}
+                      className="w-full bg-amber-500 text-slate-900 font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>404 Ekranını Simüle Et</span>
+                    </button>
+                  </div>
+
+                  {/* SIMULATE 301 */}
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl space-y-2">
+                    <span className="text-blue-700 dark:text-blue-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="refresh" fallbackEmoji="" className="w-4 h-4 text-blue-500 shrink-0" />
+                      <span>HTTP 301 - Kalıcı Yönlendirme</span>
+                    </span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Eski veya taşınmış rotalarda geri sayım sayacı ile otomatik hedef sayfaya yönlendirir.</p>
+                    <button
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-301'); } else { window.location.hash = '#/simulasyon-301'; } }}
+                      className="w-full bg-blue-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>301 Ekranını Simüle Et</span>
+                    </button>
+                  </div>
+
+                  {/* SIMULATE 403 */}
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl space-y-2">
+                    <span className="text-red-700 dark:text-red-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="shield" fallbackEmoji="" className="w-4 h-4 text-red-500 shrink-0" />
+                      <span>HTTP 403 - Yetkisiz Erişim Uyarısı</span>
+                    </span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Kullanıcı rolünün izin vermediği sayfalarda yetki isteme butonuyla uyarı verir.</p>
+                    <button
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-403'); } else { window.location.hash = '#/simulasyon-403'; } }}
+                      className="w-full bg-red-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>403 Ekranını Simüle Et</span>
+                    </button>
+                  </div>
+
+                  {/* SIMULATE 500 */}
+                  <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-2xl space-y-2">
+                    <span className="text-purple-700 dark:text-purple-400 text-sm font-extrabold flex items-center space-x-1.5">
+                      <ThemeIcon icon="alert" fallbackEmoji="" className="w-4 h-4 text-purple-500 shrink-0" />
+                      <span>HTTP 500 - Sunucu / Sistem Hatası</span>
+                    </span>
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 font-normal">Çalışma zamanı istisnalarında akordeon teknik hata detayı ve sistemi yeniden başlatma butonu sunar.</p>
+                    <button
+                      onClick={() => { if (onNavigate) { onNavigate('simulasyon-500'); } else { window.location.hash = '#/simulasyon-500'; } }}
+                      className="w-full bg-purple-600 text-white font-extrabold py-2 rounded-xl text-xs shadow hover:scale-[1.02] transition inline-flex items-center justify-center space-x-1.5"
+                    >
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>500 Ekranını Simüle Et</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* RED ALERT CONFIRMATION MODAL */}
+          {redAlertModalData && (
+            <RedAlertConfirmModal
+              isOpen={true}
+              title={redAlertModalData.title}
+              message={redAlertModalData.message}
+              confirmText={redAlertModalData.confirmText}
+              onConfirm={() => {
+                redAlertModalData.onConfirm();
+                setRedAlertModalData(null);
+              }}
+              onClose={() => setRedAlertModalData(null)}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // --- RESERVATION DETAIL MODAL ---
+    function ReservationDetailModal({ res, venues = [], services = [], onClose, onPrintInvoice, onUpdatePayment, onShowEmail }) {
+      if (!res) return null;
+      const venue = (venues || []).find(v => v.id === res.venueId);
+      const [deposit, setDeposit] = useState(res.depositPaid || 0);
+      const [status, setStatus] = useState(res.paymentStatus || 'Bekliyor');
+
+      return (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar my-auto shadow-2xl">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
+              <div>
+                <span className="font-mono text-amber-700 dark:text-gold-400 font-bold text-xs">{res.id}</span>
+                <h3 id="modal-title" className="text-lg font-bold text-slate-800 dark:text-gray-100">{res.customerName}</h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white" aria-label="Modalı Kapat">✕</button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Salon</div><div className="font-bold text-slate-800 dark:text-gray-200">{venue?.name || '-'}</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Tarih</div><div className="font-bold text-slate-800 dark:text-gray-200">{formatDate(res.date)} ({res.timeSlot})</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Toplam Tutar</div><div className="font-bold text-amber-700 dark:text-gold-400">{formatCurrency(res.totalAmount)}</div></div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Kalan Bakiye</div><div className="font-bold text-red-500 dark:text-red-400">{formatCurrency(Math.max(0, res.totalAmount - deposit))}</div></div>
+            </div>
+
+            {/* FLOW PLAN PREVIEW */}
+            {res.flowPlan && res.flowPlan.length > 0 && (
+              <div className="bg-slate-50 dark:bg-brand-dark/70 p-3 rounded-xl border border-slate-200 dark:border-brand-border space-y-2 text-xs">
+                <h4 className="font-bold text-amber-700 dark:text-gold-400">📋 Etkinlik Akış Planlaması ({res.flowPlan.length} Adım):</h4>
+                <div className="space-y-1 max-h-28 overflow-y-auto">
+                  {res.flowPlan.map((fp, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-[11px] bg-white dark:bg-brand-card p-1.5 rounded border border-slate-200/60 dark:border-brand-border/40">
+                      <span className="font-mono font-bold text-amber-700 dark:text-gold-300">{fp.time}</span>
+                      <span className="text-slate-800 dark:text-gray-200 font-medium">{fp.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="bg-slate-50 dark:bg-brand-dark/70 p-4 rounded-xl border border-amber-500/30 space-y-3">
+              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400">💳 Ödeme ve Kapora Güncelleme</h4>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label htmlFor="deposit-input" className="text-slate-500 dark:text-gray-400 block mb-1">Tahsil Edilen Kapora (TL):</label>
+                  <input id="deposit-input" type="number" value={deposit} onChange={e => setDeposit(Number(e.target.value))} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200 font-bold" />
+                </div>
+                <div>
+                  <label htmlFor="status-select" className="text-slate-500 dark:text-gray-400 block mb-1">Ödeme Statüsü:</label>
+                  <select id="status-select" value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200 font-bold">
+                    <option value="Bekliyor">Bekliyor</option>
+                    <option value="Kapora Alındı">Kapora Alındı</option>
+                    <option value="Ödendi">Ödendi</option>
+                    <option value="Tamamlandı">Tamamlandı</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border gap-2 flex-wrap">
+              <div className="flex space-x-2">
+                <button onClick={onPrintInvoice} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
+                  <span>📄</span><span>Yazdır</span>
+                </button>
+                {onShowEmail && (
+                  <button onClick={() => onShowEmail(res)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
+                    <span>✉️</span><span>E-Posta Önizle</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex space-x-2">
+                <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
+                <button onClick={() => onUpdatePayment(res.id, deposit, status)} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Ödemeyi Güncelle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 404: NOT FOUND SCREEN ---
+    function NotFoundScreen({ onGoHome, onSearch }) {
+      const [searchQuery, setSearchQuery] = useState('');
+      return (
+        <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-amber-500/40 shadow-2xl animate-fade-in">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-gold-400 shadow-inner">
+            <ThemeIcon icon="search" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+          </div>
+          <span className="bg-amber-500/10 text-amber-800 dark:text-gold-400 text-xs font-bold px-3.5 py-1 rounded-full border border-amber-500/30 inline-block">
+            HTTP 404 / Sayfa Bulunamadı
+          </span>
+          <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+            Aradığınız Sayfa Mevcut Değil veya Taşınmış Olabilir
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Girdiğiniz web adresi hatalı olabilir veya bu içerik sistemden kaldırılmış olabilir. Hızlı arama çubuğunu kullanabilir veya aşağıdaki butonlarla doğrudan gezinebilirsiniz.
+          </p>
+
+          <form onSubmit={(e) => { e.preventDefault(); if (onSearch) onSearch(searchQuery); }} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Sistemde sayfa veya hizmet ara..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="flex-1 bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium"
+            />
+            <button type="submit" className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1.5 shrink-0">
+              <ThemeIcon icon="search" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Ara</span>
+            </button>
+          </form>
+
+          <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
+            <button onClick={onGoHome} className="gold-button font-bold px-5 py-2.5 rounded-xl shadow flex items-center space-x-1.5">
+              <ThemeIcon icon="dashboard" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Anasayfaya Dön</span>
+            </button>
+            <button onClick={() => window.location.hash = '#/yeni-rezervasyon'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
+              <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Rezervasyon Oluştur</span>
+            </button>
+            <button onClick={() => window.location.hash = '#/rezervasyonlar'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
+              <ThemeIcon icon="calendar" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Rezervasyonlar & Takvim</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 301: PERMANENT REDIRECT SCREEN ---
+    function PermanentRedirectScreen({ targetPath = '#/rezervasyonlar', targetName = 'Rezervasyonlarım & Takvim', onRedirect }) {
+      const [countdown, setCountdown] = useState(3);
+
+      useEffect(() => {
+        const timer = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              if (onRedirect) onRedirect(targetPath);
+              else window.location.hash = targetPath;
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [targetPath]);
+
+      return (
+        <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-5 border border-blue-500/40 shadow-2xl animate-fade-in">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-inner">
+            <ThemeIcon icon="refresh" fallbackEmoji="" className="w-10 h-10 shrink-0 animate-spin" style={{ animationDuration: '3s' }} />
+          </div>
+          <span className="bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-bold px-3.5 py-1 rounded-full border border-blue-500/30 inline-block">
+            HTTP 301 / Kalıcı Yönlendirme (Moved Permanently)
+          </span>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">
+            Bu Sayfa Yeni Bir Adrese Kalıcı Olarak Taşındı
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Erişmeye çalıştığınız sayfa güncellendi ve doğrudan <strong className="text-blue-600 dark:text-blue-400">{targetName}</strong> sayfasına aktarılıyor.
+          </p>
+
+          <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700 dark:text-gray-200 flex items-center space-x-1.5">
+              <ThemeIcon icon="clock" fallbackEmoji="" className="w-4 h-4 text-blue-500 shrink-0" />
+              <span>Otomatik Yönlendirme Sayacı:</span>
+            </span>
+            <span className="w-10 h-10 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-lg shadow-lg">
+              {countdown}
+            </span>
+          </div>
+
+          <div className="pt-2">
+            <button onClick={() => { if (onRedirect) onRedirect(targetPath); else window.location.hash = targetPath; }} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition inline-flex items-center space-x-1.5">
+              <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 shrink-0" />
+              <span>Beklemeden Hemen Yönlendir ({targetName})</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 403: UNAUTHORIZED ACCESS SCREEN ---
+    function UnauthorizedAccessScreen({ pageTitle = 'Bu Sayfa', activeRoleName = 'Müşteri', onGoHome, onRequestPermission }) {
+      const [requested, setRequested] = useState(false);
+      return (
+        <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-4 border border-red-500/40 shadow-2xl animate-fade-in">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-600 dark:text-red-400 shadow-inner">
+            <ThemeIcon icon="shield" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+          </div>
+          <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3.5 py-1 rounded-full border border-red-500/20 inline-block">
+            Hata 403 / Yetkisiz Erişim Uyarısı
+          </span>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">
+            "{pageTitle}" Sayfasına Erişim Yetkiniz Bulunmamaktadır
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Mevcut kullanıcınızın yetki rolü: <strong className="text-amber-700 dark:text-gold-400">{activeRoleName}</strong>.<br />
+            Bu sayfa güvenlik ve veri mahremiyeti nedeniyle bu rolün erişimine kısıtlanmıştır.
+          </p>
+
+          <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
+            <button onClick={onGoHome} className="gold-button font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg inline-flex items-center space-x-1.5">
+              <ThemeIcon icon="dashboard" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Güvenli Anasayfaya Dön</span>
+            </button>
+            <button
+              onClick={() => {
+                setRequested(true);
+                if (onRequestPermission) onRequestPermission();
+              }}
+              className={`font-bold px-5 py-2.5 rounded-xl text-xs border shadow transition inline-flex items-center space-x-1.5 ${
+                requested ? 'bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400 hover:bg-red-500 hover:text-white'
+              }`}
+            >
+              <ThemeIcon icon={requested ? "check" : "mail"} fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>{requested ? 'Yöneticiye Yetki Talebi İletildi' : 'Yöneticiden Yetki İste'}</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- HTTP 500: SERVER / SYSTEM ERROR SCREEN ---
+    function ServerErrorScreen({ errorMessage = 'Internal Server Exception: Unhandled Promise Rejection at Controller', onRestart, onReport }) {
+      const [showDetails, setShowDetails] = useState(false);
+      return (
+        <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-purple-500/40 shadow-2xl animate-fade-in">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shadow-inner">
+            <ThemeIcon icon="alert" fallbackEmoji="" className="w-10 h-10 shrink-0" />
+          </div>
+          <span className="bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-bold px-3.5 py-1 rounded-full border border-purple-500/30 inline-block">
+            HTTP 500 / Sunucu & Sistem Hatası
+          </span>
+          <h2 className="text-2xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+            Beklenmeyen Bir Sistem Hatası Meydana Geldi
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-gray-400">
+            Sunucumuzda geçici bir işlem hatası oluştu. Verilerinizin güvenliği korunmıştır. Aşağıdaki butona tıklayarak sistemi yeniden başlatabilirsiniz.
+          </p>
+
+          {/* ACCORDION TECHNICAL DETAILS */}
+          <div className="border border-purple-500/30 rounded-2xl text-left overflow-hidden bg-purple-500/5">
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full p-3.5 flex justify-between items-center text-xs font-bold text-purple-800 dark:text-purple-300 hover:bg-purple-500/10 transition"
+            >
+              <span className="flex items-center space-x-1.5">
+                <ThemeIcon icon="settings" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                <span>Teknik Hata Detayı & Stack Trace</span>
+              </span>
+              <span>{showDetails ? '▲ Gizle' : '▼ Göster'}</span>
+            </button>
+
+            {showDetails && (
+              <div className="p-4 border-t border-purple-500/20 font-mono text-[11px] text-purple-900 dark:text-purple-200 bg-black/80 space-y-2">
+                <div className="text-red-400 font-bold">ERROR: {errorMessage}</div>
+                <div className="text-gray-400 text-[10px]">
+                  at App.render (index.html:1320:14)<br />
+                  at React.useEffect (react-dom.umd.js:452:12)<br />
+                  at DispatchEvent (server.js:84:9)
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 flex justify-center gap-3 flex-wrap text-xs">
+            <button onClick={() => { if (onRestart) onRestart(); else window.location.reload(); }} className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition inline-flex items-center space-x-1.5">
+              <ThemeIcon icon="refresh" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Sistemi Yeniden Başlat & Yenile</span>
+            </button>
+            <button onClick={() => alert('Hata raporu teknik destek ekibine iletildi!')} className="bg-slate-100 dark:bg-brand-dark font-bold px-5 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border inline-flex items-center space-x-1.5 text-slate-700 dark:text-gray-300">
+              <ThemeIcon icon="mail" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+              <span>Teknik Desteğe Bildir</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Render React Root
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  

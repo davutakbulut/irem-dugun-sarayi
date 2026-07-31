@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeIcon } from '../components/ThemeIcon';
+import { TAB_PERMISSIONS } from '../constants/initialData';
+import { Page404Component, Page301Component, Page403Component, Page500Component } from './ErrorPages';
 
-    export function SettingsPage({
+export function SettingsPage({
       activeRole,
       roles,
       tabPermissions,
@@ -9,9 +11,12 @@ import { ThemeIcon } from '../components/ThemeIcon';
       onToggleTabPermission,
       themeColor,
       onThemeColorChange,
+      menuLayout = 'vertical',
+      onMenuLayoutChange,
       isCacheEnabled,
       onToggleCache,
       onClearCache,
+      onSeedDatabase,
       showToast,
       onNavigate,
       initialSubTab = 'appearance'
@@ -51,61 +56,190 @@ import { ThemeIcon } from '../components/ThemeIcon';
         { id: 'sapphire_clean', name: '💎 Sapphire Clean (Safir Mavisi Minimal)', primary: '#0284c7', hover: '#0369a1', radiusBadge: 'rounded-md' },
         { id: 'platinum', name: '🪙 Platinum Silver (Platin Gümüş VIP)', primary: '#475569', hover: '#334155', radiusBadge: 'rounded-lg' },
         { id: 'emerald_royal', name: '🌲 Emerald Royal (Kraliyet Zümrütü)', primary: '#047857', hover: '#065f46', radiusBadge: 'rounded-2xl' },
-        { id: 'titanium', name: '⚡ Titanium Tech (Titanyum Koyu Metal)', primary: '#3b82f6', hover: '#1d4ed8', radiusBadge: 'rounded-md' }
+        { id: 'titanium', name: '⚡ Titanium Tech (Titanyum Koyu Metal)', primary: '#3b82f6', hover: '#1d4ed8', radiusBadge: 'rounded-md' },
+        { id: 'apple', name: ' Apple (2026 HIG Minimalist & Clean)', primary: '#0071E3', hover: '#0077ED', radiusBadge: 'rounded-full' }
       ];
 
+      const [simulatedError, setSimulatedError] = useState(null);
+      const [redAlertModalData, setRedAlertModalData] = useState(null);
+
+      const allPagesList = [
+        { id: 'dashboard', name: 'Genel Bakış & İstatistikler' },
+        { id: 'create-reservation', name: 'Yeni Rezervasyon Oluştur' },
+        { id: 'reservations', name: 'Rezervasyon Listesi & Sözleşmeler' },
+        { id: 'calendar', name: 'İnteraktif Takvim' },
+        { id: 'venues', name: 'Düğün Salonları' },
+        { id: 'services', name: 'Ek Hizmetler' },
+        { id: 'finance', name: 'Finans Kasa & Gider Yönetimi' },
+        { id: 'customers', name: 'Müşteri Rehberi (CRM)' },
+        { id: 'campaigns', name: 'Kampanyalar & AI Önerileri' },
+        { id: 'reports', name: 'Raporlar & Analizler' },
+        { id: 'media', name: 'Medya & Galeri Yükleyici' },
+        { id: 'users', name: 'Kullanıcı Yönetimi (RBAC)' },
+        { id: 'settings', name: 'Sistem Ayarları' }
+      ];
+
+      if (simulatedError === '404') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık</button>
+            <Page404Component onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+      if (simulatedError === '301') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık</button>
+            <Page301Component onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+      if (simulatedError === '403') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık</button>
+            <Page403Component onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+      if (simulatedError === '500') {
+        return (
+          <div className="space-y-4">
+            <button onClick={() => setSimulatedError(null)} className="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">← Simülasyondan Çık (Sistemi Sıfırla)</button>
+            <Page500Component errorDetails="Simüle Edilen 500 Sunucu Çökme ve Beklenmeyen İstisna Testi" onNavigate={(route) => { setSimulatedError(null); if (onNavigate) onNavigate(route); }} />
+          </div>
+        );
+      }
+
       return (
-        <div className="max-w-5xl mx-auto space-y-6 animate-fade-in pb-16">
+        <div className="w-full space-y-6 animate-fade-in pb-16">
           {/* PAGE HEADER */}
-          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
             <div>
               <div className="flex items-center space-x-2">
-                <ThemeIcon icon="settings" fallbackEmoji="" className="w-6 h-6 text-amber-500 shrink-0" />
+                <ThemeIcon icon="settings" fallbackEmoji="⚙️" className="w-6 h-6 text-amber-500 shrink-0" />
                 <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">
-                  Sistem Ayarları & Rol Yönetimi
+                  Sistem Ayarları & Yapılandırma Paneli
                 </h2>
               </div>
-              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                Tasarım paletlerini kişiselleştirin, önbellek modunu yönetin ve dinamik rol/izin matrisini yapılandırın.
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 font-medium">
+                Tema tercihlerini, Rol & İzin matrisini, önbellek ve hata simülasyonlarını tam ekranda yönetin.
               </p>
             </div>
+          </div>
 
-            {/* SETTINGS SUB-TABS */}
-            <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-2xl border border-slate-200 dark:border-brand-border/40 text-xs font-bold whitespace-nowrap overflow-x-auto no-scrollbar">
-              <button
-                onClick={() => { setSettingsTab('appearance'); if (onNavigate) onNavigate('settings-appearance'); }}
-                className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'appearance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
-              >
-                <ThemeIcon icon="paint" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
-                <span>Görünüm & Tema</span>
-              </button>
-              <button
-                onClick={() => { setSettingsTab('performance'); if (onNavigate) onNavigate('settings-performance'); }}
-                className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'performance' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
-              >
-                <ThemeIcon icon="zap" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
-                <span>Önbellek & Performans</span>
-              </button>
-              <button
-                onClick={() => { setSettingsTab('rbac'); if (onNavigate) onNavigate('settings-rbac'); }}
-                className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'rbac' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
-              >
-                <ThemeIcon icon="shield" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
-                <span>Rol & İzin Matrisi</span>
-              </button>
-              <button
-                onClick={() => { setSettingsTab('errors'); if (onNavigate) onNavigate('settings-errors'); }}
-                className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${settingsTab === 'errors' ? 'gold-button shadow' : 'text-slate-600 dark:text-gray-400'}`}
-              >
-                <ThemeIcon icon="alert" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
-                <span>Hata & Yönlendirme Simülasyonu</span>
-              </button>
-            </div>
+          {/* TOP TAB NAVIGATION BAR */}
+          <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-brand-border pb-3">
+            <button
+              onClick={() => setSettingsTab('appearance')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'appearance' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="sparkles" fallbackEmoji="🎨" className="w-4 h-4 shrink-0" />
+              <span>Görünüm & Temalar</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('rbac')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'rbac' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-4 h-4 shrink-0" />
+              <span>Rol & İzin Matrisi (RBAC)</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('error-sim')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'error-sim' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="warning" fallbackEmoji="🚨" className="w-4 h-4 shrink-0" />
+              <span>Hata & Yönlendirme Simülasyonu</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('performance')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'performance' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="chart" fallbackEmoji="⚡" className="w-4 h-4 shrink-0" />
+              <span>Önbellek & Performans</span>
+            </button>
           </div>
 
           {/* TAB 1: APPEARANCE & VISUAL THEME SELECTION WITH PREVIEWS */}
           {settingsTab === 'appearance' && (
             <div className="space-y-6">
+              {/* MENU LAYOUT CONFIGURATION (DİKEY vs YATAY MENÜ SEÇİMİ) */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-amber-500/30 shadow-md">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="settings" fallbackEmoji="📐" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Masaüstü Menü Yerleşimi & Navigasyon Modu</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Sistem gezinti menünüzü klasik Dikey Sol Panel veya geniş ekranlara uygun Yatay Üst Bar olarak tercih edin.
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/20">
+                    Aktif: {menuLayout === 'horizontal' ? 'Yatay Üst Menü ══' : 'Dikey Sol Menü 📌'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  {/* OPTION 1: DİKEY SOL MENÜ */}
+                  <div
+                    onClick={() => onMenuLayoutChange && onMenuLayoutChange('vertical')}
+                    className={`p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 space-y-3 ${
+                      menuLayout === 'vertical'
+                        ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-4 ring-amber-500/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2 font-bold text-sm text-slate-800 dark:text-gray-100">
+                        <ThemeIcon icon="list" fallbackEmoji="📌" className="w-5 h-5 text-amber-500 shrink-0" />
+                        <span>Dikey Sol Menü (Klasik Sidebar)</span>
+                      </div>
+                      {menuLayout === 'vertical' && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full gold-button">SEÇİLDİ</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">
+                      Sol tarafta dikey panel olarak yer alır. Tüm kategoriler ve alt gezinti bağlantıları dikey listede gösterilir.
+                    </p>
+                  </div>
+
+                  {/* OPTION 2: YATAY ÜST MENÜ */}
+                  <div
+                    onClick={() => onMenuLayoutChange && onMenuLayoutChange('horizontal')}
+                    className={`p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 space-y-3 ${
+                      menuLayout === 'horizontal'
+                        ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-4 ring-amber-500/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2 font-bold text-sm text-slate-800 dark:text-gray-100">
+                        <ThemeIcon icon="chart" fallbackEmoji="══" className="w-5 h-5 text-amber-500 shrink-0" />
+                        <span>Yatay Üst Menü (Modern Bar)</span>
+                      </div>
+                      {menuLayout === 'horizontal' && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full gold-button">SEÇİLDİ</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">
+                      Üst başlığın hemen altında yatay gezinti barı olarak yer alır. Ekran alanını maksimum genişlikte kullanmanızı sağlar.
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className="glass-panel p-6 rounded-3xl space-y-6 border border-amber-500/30 shadow-md">
                 <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
                   <div>
@@ -297,6 +431,41 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     </div>
                   </div>
 
+                  {/* THEME PREVIEW CARD:  APPLE (2026 HUMAN INTERFACE GUIDELINES) */}
+                  <div
+                    onClick={() => setDraftTheme('apple')}
+                    style={{ borderRadius: '20px' }}
+                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
+                      draftTheme === 'apple' || draftTheme === 'apple-light'
+                        ? 'border-[#0071E3] bg-[#F5F5F7] text-[#1D1D1F] shadow-xl ring-4 ring-[#0071E3]/20 scale-[1.01]'
+                        : 'border-slate-200 dark:border-brand-border/60 bg-white dark:bg-brand-card hover:border-[#0071E3]/40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl"></span>
+                        <div>
+                          <h4 className="font-heading font-extrabold text-sm text-[#1D1D1F] dark:text-gray-100">Apple (2026 HIG Clean Design System)</h4>
+                          <span className="text-[10px] text-[#86868B] font-mono font-bold">SF Pro Typography • Cupertino Blue (#0071E3) • Frosted Glass & Pill Buttons</span>
+                        </div>
+                      </div>
+                      {(draftTheme === 'apple' || draftTheme === 'apple-light') && <span style={{ borderRadius: '980px', background: '#0071E3' }} className="text-white font-extrabold text-[10px] px-3 py-0.5 shadow">SEÇİLDİ</span>}
+                    </div>
+
+                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
+                    <div style={{ borderRadius: '18px', background: 'rgba(255, 255, 255, 0.85)', borderColor: 'rgba(0, 0, 0, 0.08)', backdropFilter: 'blur(20px)' }} className="p-4 border space-y-3 shadow-sm">
+                      <div className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider"> APPLE 2026 HIG PREVIEW:</div>
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: '#1D1D1F', letterSpacing: '-0.02em' }} className="font-heading font-extrabold text-xs">İrem Düğün Sarayı</span>
+                        <div style={{ borderRadius: '980px', background: '#0071E3', color: '#ffffff', boxShadow: '0 2px 10px rgba(0, 113, 227, 0.3)' }} className="font-semibold text-[11px] px-4 py-1.5">Action Pill</div>
+                      </div>
+                      <div style={{ borderRadius: '14px', background: '#FFFFFF', borderColor: 'rgba(0, 0, 0, 0.06)' }} className="p-3 border text-[11px] space-y-1">
+                        <div className="font-bold text-[#1D1D1F]">Royal Grand Hall</div>
+                        <div className="text-[10px] text-[#86868B]">SF Pro Display • Frosted Glass Card Architecture</div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* SAVE CHANGES BUTTON */}
@@ -312,6 +481,8 @@ import { ThemeIcon } from '../components/ThemeIcon';
                         document.documentElement.setAttribute('data-ui-theme', 'elite-luxury');
                       } else if (draftTheme === 'nordic-light') {
                         document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+                      } else if (draftTheme === 'apple' || draftTheme === 'apple-light') {
+                        document.documentElement.setAttribute('data-ui-theme', 'apple');
                       } else if (draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean' || draftTheme === 'sapphire') {
                         document.documentElement.setAttribute('data-ui-theme', 'sapphire-minimal');
                       } else if (draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal' || draftTheme === 'emerald') {
@@ -369,23 +540,37 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     Sistem önbelleğinde saklanan kayıtlar: <strong className="text-slate-800 dark:text-gray-200">Salonlar, Ek Hizmetler, Müşteriler, Rezervasyonlar</strong>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRedAlertModalData({
-                        title: '⚠️ ÖNBELLEK VE SİSTEM VERİSİ SIFIRLANACAK',
-                        message: 'Sistemde depolanan tüm yerel ayarlar, salon tercihleri ve önbellek verileri sıfırlanacaktır. Devam etmek istiyor musunuz?',
-                        confirmText: 'Evet, Önbelleği Sıfırla',
-                        onConfirm: () => {
-                          onClearCache();
-                          showToast('🗑️ Yerel Önbellek Tamamen Sıfırlandı!');
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onSeedDatabase) {
+                          onSeedDatabase();
                         }
-                      });
-                    }}
-                    className="bg-red-500/10 hover:bg-red-500 text-red-700 hover:text-white border border-red-500/40 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow"
-                  >
-                    🗑️ Önbelleği Temizle & Sıfırla
-                  </button>
+                      }}
+                      className="gold-button font-extrabold px-5 py-2.5 rounded-xl text-xs shadow-md hover:scale-105 transition"
+                    >
+                      🏰 Veritabanını Tohumla & Tüm Varsayılanları Oluştur
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRedAlertModalData({
+                          title: '⚠️ ÖNBELLEK VE SİSTEM VERİSİ SIFIRLANACAK',
+                          message: 'Sistemde depolanan tüm yerel ayarlar, salon tercihleri ve önbellek verileri sıfırlanacaktır. Devam etmek istiyor musunuz?',
+                          confirmText: 'Evet, Önbelleği Sıfırla',
+                          onConfirm: () => {
+                            onClearCache();
+                            showToast('🗑️ Yerel Önbellek Tamamen Sıfırlandı!');
+                          }
+                        });
+                      }}
+                      className="bg-red-500/10 hover:bg-red-500 text-red-700 hover:text-white border border-red-500/40 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow"
+                    >
+                      🗑️ Önbelleği Temizle & Sıfırla
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -483,7 +668,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
           )}
 
           {/* TAB 4: ERROR & REDIRECTION PAGES LIVE SIMULATION PANEL */}
-          {settingsTab === 'errors' && (
+          {(settingsTab === 'error-sim' || settingsTab === 'errors') && (
             <div className="space-y-6">
               <div className="glass-panel p-6 rounded-3xl space-y-6 border border-red-500/30 shadow-md">
                 <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
@@ -564,6 +749,21 @@ import { ThemeIcon } from '../components/ThemeIcon';
                 </div>
               </div>
             </div>
+          )}
+
+          {/* RED ALERT CONFIRMATION MODAL */}
+          {redAlertModalData && (
+            <RedAlertConfirmModal
+              isOpen={true}
+              title={redAlertModalData.title}
+              message={redAlertModalData.message}
+              confirmText={redAlertModalData.confirmText}
+              onConfirm={() => {
+                redAlertModalData.onConfirm();
+                setRedAlertModalData(null);
+              }}
+              onClose={() => setRedAlertModalData(null)}
+            />
           )}
         </div>
       );

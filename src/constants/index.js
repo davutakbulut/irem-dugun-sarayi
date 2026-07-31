@@ -45,6 +45,7 @@ export const INITIAL_TAB_PERMISSIONS = {
   'users': ['admin'],
   'reports': ['admin', 'satisci'],
   'media': ['admin', 'sosyal_medyaci'],
+  'mind-map': ['admin'],
   'profile': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
   'settings': ['admin']
 };

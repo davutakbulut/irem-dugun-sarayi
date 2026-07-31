@@ -22,7 +22,7 @@ export default function MobileDrawer({ isOpen, onClose, activeTab, activeRole, t
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex justify-start transition-opacity duration-300"
+      className="fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-md flex justify-start transition-opacity duration-300"
       onClick={onClose}
     >
       <div

@@ -33,7 +33,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   </button>
                   <button onClick={() => onDeleteClick(u.id)} className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-600 font-bold text-xs border border-red-500/20 flex items-center space-x-1">
                     <span>Sil</span>
-                    <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                    <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
               </div>

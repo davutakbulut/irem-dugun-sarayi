@@ -122,7 +122,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     <button onClick={() => onEditClick(c)} className="px-3 py-1.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl font-bold hover:bg-amber-500/20">Düzenle</button>
                     <button onClick={() => onDeleteClick(c.id)} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group">
                       <span className="group-hover:text-white transition">SİL</span>
-                      <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
                     </button>
                   </div>
                 </div>

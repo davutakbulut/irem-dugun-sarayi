@@ -1,0 +1,311 @@
+1244: 🖼 | 🖼️ Görsel
+1298: 📷 | function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '📷' }) {
+1332: 📐 | <ThemeIcon icon="ruler" fallbackEmoji="📐" className="w-3 h-3 shrink-0" />
+1360: 🔄 | <ThemeIcon icon="edit" fallbackEmoji="🔄" className="w-5 h-5 shrink-0" />
+1367: 📸 | <ThemeIcon icon="preview" fallbackEmoji="📸" className="w-8 h-8 text-amber-500 shrink-0 mb-1" />
+1473: 📊 | 'dashboard': '📊',
+1474: ➕ | 'create-reservation': '➕',
+1475: 🏛 | 'venues': '🏛️',
+1476: ✨ | 'services': '✨',
+1477: 📋 | 'reservations': '📋',
+1478: 📅 | 'calendar': '📅',
+1479: 🎁 | 'campaigns': '🎁',
+1480: 💰 | 'finance': '💰',
+1481: 👥 | 'customers': '👥',
+1482: ⚙ | 'users': '⚙️',
+1483: 📈 | 'reports': '📈',
+1484: 📷 | 'media': '📷',
+1485: ⚙ | 'settings': '⚙️',
+1486: 🎨 | 'settings-appearance': '🎨',
+1487: ⚡ | 'settings-performance': '⚡',
+1488: 🛡 | 'settings-rbac': '🛡️',
+1489: 🚨 | 'settings-errors': '🚨',
+1490: 🔍 | 'simulasyon-404': '🔍',
+1491: 🔄 | 'simulasyon-301': '🔄',
+1492: 🚫 | 'simulasyon-403': '🚫',
+1493: 💥 | 'simulasyon-500': '💥'
+1808: 🏰 | showToast('🏰 Düğün Salonu Başarıyla Kaydedildi!');
+1816: 🚨 | title: '🚨 DÜĞÜN SALONU SİLİNECEK',
+1821: 🗑 | showToast('🗑️ Düğün Salonu Sistemden Silindi.');
+1837: ✨ | showToast('✨ Ek Hizmet Başarıyla Kaydedildi!');
+1845: 🚨 | title: '🚨 EK HİZMET SİLİNECEK',
+1850: 🗑 | showToast('🗑️ Ek Hizmet Silindi.');
+1866: 🎁 | showToast('🎁 Özel Kampanya Başarıyla Oluşturuldu!');
+1873: 🎯⚡🍂💡 | title: (rec.title || '').replace(/^[🎯💡🍂⚡]\s*/, ''),
+1878: ✨ | badge: '✨ AI Üretimi',
+1882: 🚀 | showToast(`🚀 AI Önerisi Canlı Kampanyalar Sayfasına Enjekte Edildi! Kod: ${newCamp.code}`);
+1888: 💰 | showToast(`💰 Salon Fiyatı AI Tarafından Güncellendi: ${formatCurrency(newPrice)}`);
+1897: 🚨 | title: '🚨 ÖZEL KAMPANYA SİLİNECEK',
+1902: 🗑 | showToast('🗑️ Kampanya Kaldırıldı.');
+1918: ⚙ | showToast('⚙️ Kullanıcı Bilgileri Başarıyla Güncellendi!');
+1926: 🚨 | title: '🚨 KULLANICI HESABI SİLİNECEK',
+1931: 🗑 | showToast('🗑️ Kullanıcı Sistemden Silindi.');
+1941: 🚨 | title: '🚨 MÜŞTERİ KARTI SİLİNECEK',
+1946: 🗑 | showToast('🗑️ Müşteri Rehberden Silindi.');
+1954: 📅 | showToast(`📅 Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi!`);
+1989: ✏ | showToast(`✏️ ${updatedRes.customerName} rezervasyon bilgileri güncellendi.`);
+1994: 🗑 | showToast(`🗑️ ${resId} sözleşme kodlu rezervasyon silindi.`);
+2046: 👑 | <div class="logo">👑 İREM DÜĞÜN SARAYI</div>
+2119: ✓ | <td>${serv?.name || 'Ek Hizmet'} ${s.isPaid ? '(Ödendi ✓)' : ''}</td>
+2163: ⚠ | ⚠️
+2181: ✓ | <span>Anladım, Düzelt ✓</span>
+2212: ☰ | ☰
+2217: 👑 | <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 text-amber-900 dark:text-gold-400" />
+2236: 🏢🥂📸👑 | const roleEmoji = rId === 'ADMIN' ? '👑' : rId === 'SALES' ? '🏢' : rId === 'SOCIAL' ? '📸' : '🥂';
+2266: ▼ | <span className="text-[10px] opacity-60">▼</span>
+2284: 👤 | <span>👤</span>
+2296: ⚙ | <span>⚙️</span>
+2303: 🚪 | showToast('🚪 Hesabınızdan Güvenle Çıkış Yapıldı');
+2308: 🚪 | <span>🚪</span>
+2373: ⚙ | <span className="text-base">⚙️</span>
+2388: 🎨 | <span>🎨</span>
+2402: ⚡ | <span>⚡</span>
+2416: 🛡 | <span>🛡️</span>
+2428: 🏰 | <ThemeIcon icon="crown" fallbackEmoji="🏰" className="w-6 h-6 shrink-0 inline-block text-amber-500" />
+2471: 🎉 | showToast('🎉 Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
+2588: 👤 | showToast('👤 Profil Bilgileri Başarıyla Güncellendi!');
+2630: 📩 | <UnauthorizedAccessScreen pageTitle="Simülasyon Paneli" activeRoleName={rolesState[activeRole] || activeRole} onGoHome={() => navigateTo('dashboard')} onRequestPermission={() => showToast('📩 Yöneticiye yetki talebi iletildi!')} />
+2646: 📊 | { id: 'dashboard', label: 'Anasayfa', icon: '📊' },
+2647: 📝 | { id: 'create-reservation', label: 'Ekle', icon: '📝' },
+2648: 📅 | { id: 'reservations', label: 'Rezervasyon & Takvim', icon: '📅' }
+2716: ✕ | ✕
+2774: ✓ | {mobileReservationSummary.calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(mobileReservationSummary.calculations.remaining)}
+2812: 👑 | 👑
+2823: ✕ | ✕
+2829: 📊 | { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: '📊', roles: ['admin', 'satisci', 'sosyal_medyaci', 'musteri'] },
+2830: 📝➕ | { id: 'create-reservation', label: '➕ Yeni Rezervasyon Oluştur', icon: '📝', roles: ['admin', 'satisci'] },
+2831: 🏛 | { id: 'venues', label: 'Düğün Salonlarım', icon: '🏛️', roles: ['admin', 'satisci'] },
+2832: ✨ | { id: 'services', label: 'Ek Hizmetlerim', icon: '✨', roles: ['admin', 'satisci'] },
+2833: 📅 | { id: 'reservations', label: 'Rezervasyonlarım & Takvim', icon: '📅', roles: ['admin', 'satisci'] },
+2834: 🎁 | { id: 'campaigns', label: 'Kampanyalar', icon: '🎁', roles: ['admin'] },
+2835: 💰 | { id: 'finance', label: 'Finans & Fatura Yönetimi', icon: '💰', roles: ['admin'] },
+2836: 👥 | { id: 'customers', label: 'Müşteri Rehberi', icon: '👥', roles: ['admin', 'satisci'] },
+2837: ⚙ | { id: 'users', label: 'Kullanıcı Yönetimi', icon: '⚙️', roles: ['admin'] },
+2838: 📈 | { id: 'reports', label: 'Raporlar & AI Önerileri', icon: '📈', roles: ['admin'] },
+2839: 📷 | { id: 'media', label: 'Medya & Foto Yükleme', icon: '📷', roles: ['sosyal_medyaci', 'admin', 'musteri'] }
+2870: 🎨 | <span className="text-base">🎨</span>
+2879: ⚡ | <span className="text-base">⚡</span>
+2888: 🛡 | <span className="text-base">🛡️</span>
+2968: 👤 | showToast('👤 Müşteri Kartı Başarıyla Kaydedildi!');
+2991: 💳 | showToast('💳 Ödeme & Sözleşme Güncellendi!');
+3067: ↗📍 | <span>📍 {venue.location || 'Sapanca Göl Kenarı, Sakarya'} (Haritalarda Göster ↗)</span>
+3079: ✕ | ✕
+3103: 🗺 | <span>Haritalarda Aç 🗺️</span>
+3190: ✓ | <span className="text-emerald-500 font-bold">✓</span>
+3211: ✓ | Bu Salonu Seç ve Rezervasyona Ekle ✓
+3272: ⚠ | title: title || '⚠️ LÜTFEN EKSİKSİZ DOLDURUNUZ',
+3528: ⚠ | showAlertModal('⚠️ MÜŞTERİ BİLGİLERİ EKSİK', 'Müşteri Adı Soyadı ve İletişim Telefon Numarası zorunludur. Lütfen kırmızı ile işaretlenen alanları doldurunuz.', !newCustName.trim() ? 'new-cust-name-input' : 'new-cust-phone-input');
+3533: ⚠ | showAlertModal('⚠️ GEÇERSİZ TELEFON NUMARASI', 'Telefon numarası 11 hane (05XX XXX XX XX) formatında olmalıdır.', 'new-cust-phone-input');
+3540: ⚠ | showAlertModal('⚠️ ÇİFT TELEFON NUMARASI', 'Birincil ve ikincil telefon numarası aynı olamaz! Lütfen farklı bir numara giriniz.', 'new-cust-sec-phone-input');
+3546: ⚠ | showAlertModal('⚠️ MÜŞTERİ SEÇİLMEDİ', 'Lütfen sistemde kayıtlı müşteriler arasından bir müşteri seçiniz.', 'customer-section');
+3553: ⛔ | showAlertModal('⛔ SEANS ÇAKIŞMA UYARISI', `${selectedVenue?.name} salonunda ${formatDate(startDate)} tarihinde (${conflictInfo.conflictingRes?.timeSlot}) aktif bir rezervasyon bulunmaktadır! Lütfen başka bir saat seansı veya başka bir salon seçiniz.`);
+3646: ⚠ | ⚠️
+3664: ✓ | <span>Anladım, Düzelt ✓</span>
+3735: ❮ | ❮
+3744: ❯ | ❯
+3775: ✓ | SEÇİLDİ ✓
+4114: ✓ | <span>{isPaid ? 'Ödendi ✓' : 'Ödenmedi'}</span>
+4213: 👥 | <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 inline-block" />
+4224: 🔍 | placeholder="🔍 Ad, Soyad, Telefon veya E-posta ile Hızlı Ara..."
+4260: ⚠ | <span>⚠️ Müşteri seçimi yapılması zorunludur.</span>
+4284: ⚠ | <span>⚠️ Doldurulması zorunludur.</span>
+4300: ⚠ | <span>⚠️ Geçerli bir e-posta adresi zorunludur.</span>
+4337: ⚡ | <span>⚡ Kayıtlı Müşteri Eşleşti ({matches.length}):</span>
+4351: 👥 | showToast(`👥 "${cust.name}" Kayıtlı Müşteri Olarak Seçildi ve Aktarıldı!`);
+4367: ✓ | Seç & Doldur ✓
+4378: ⚠ | <span>{!newCustPhone.trim() ? '⚠️ Doldurulması zorunludur.' : '⚠️ Geçerli bir telefon numarası giriniz (05XX XXX XX XX).'}</span>
+4411: ⚠ | <span>⚠️ İkinci iletişim telefonu zorunludur.</span>
+4428: ⏳ | ⏳ Eksik Telefon Numarası
+4493: ▼▲ | <p className="text-[11px] text-slate-500 dark:text-gray-400 font-medium">Masaüstünde (⋮⋮) simgesiyle sürükleyebilir veya mobilde (▲/▼) oklarıyla sırasını değiştirebilirsiniz.</p>
+4496: ➕ | <button onClick={handleAddFlowItem} className="w-full sm:w-auto px-3 py-1.5 bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 text-slate-800 dark:text-gray-200 font-bold rounded-xl text-xs border border-slate-200 dark:border-brand-border text-center">➕ Akış Adımı Ekle</button>
+4528: ▲ | ▲
+4537: ▼ | ▼
+4559: ✕ | <button onClick={() => handleRemoveFlowItem(idx)} className="text-red-500 hover:text-red-700 font-bold px-1.5 text-sm shrink-0" title="Adımı Sil">✕</button>
+4666: ✓ | {calculations.isFullyPaid ? '0 ₺ (Ödendi ✓)' : formatCurrency(calculations.remaining)}
+4679: 🎉 | <span>🎉</span><span>Rezervasyonu ve Sözleşmeyi Kaydet</span>
+4746: 👑 | {activeRole === 'admin' && <><ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3.5 h-3.5 shrink-0" /><span>Admin Kurumsal Yönetim Paneli</span></>}
+4747: 💼 | {activeRole === 'satisci' && <><ThemeIcon icon="venue" fallbackEmoji="💼" className="w-3.5 h-3.5 shrink-0" /><span>Satış & Doluluk Ekranı</span></>}
+4748: 📸 | {activeRole === 'sosyal_medyaci' && <><ThemeIcon icon="preview" fallbackEmoji="📸" className="w-3.5 h-3.5 shrink-0" /><span>Medya Yükleme Paneli</span></>}
+4749: 💖 | {activeRole === 'musteri' && <><ThemeIcon icon="user" fallbackEmoji="💖" className="w-3.5 h-3.5 shrink-0" /><span>Özel Müşteri Portalı</span></>}
+4752: ✨ | <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-5 h-5 text-amber-500 shrink-0" />
+4760: ➕ | <span>➕</span><span>Tam Sayfa Yeni Rezervasyon Çalışma Alanı</span>
+4819: 🏰➕ | <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{venue ? '🏰 Düğün Salonunu Düzenle' : '➕ Yeni Düğün Salonu Ekle'}</h3>
+4820: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+4837: 🏰 | placeholderIcon="🏰"
+4842: ✓ | <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Salonu Kaydet ✓</button>
+4874: ✨➕ | <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{service ? '✨ Ek Hizmeti Düzenle' : '➕ Yeni Ek Hizmet Ekle'}</h3>
+4875: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+4894: ✨ | placeholderIcon="✨"
+4899: ✓ | <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Hizmeti Kaydet ✓</button>
+4931: 🎁➕ | <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{campaign ? '🎁 Kampanyayı Düzenle' : '➕ Yeni Özel Kampanya Ekle'}</h3>
+4932: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+4951: ✓ | <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kampanyayı Kaydet ✓</button>
+4983: ⚙➕ | <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{user ? '⚙️ Kullanıcıyı Düzenle' : '➕ Yeni Kullanıcı Ekle'}</h3>
+4984: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
+5004: 👤 | placeholderIcon="👤"
+5008: ✓ | <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kullanıcıyı Kaydet ✓</button>
+5017: 🚨 | function RedAlertConfirmModal({ isOpen, title, message, confirmText = 'Evet, Sil', cancelText = 'Vazgeç', onConfirm, onClose, icon = '🚨' }) {
+5077: ✉ | <span className="text-xl">✉️</span>
+5080: ✓ | <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Müşteri E-Posta Adresine Başarıyla İletildi</p>
+5083: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold">✕</button>
+5099: 🔑 | <div className="font-bold text-amber-700 dark:text-gold-400">🔑 Üyelik ve Giriş Bilgileriniz:</div>
+5107: 📋 | <div className="font-bold text-amber-700 dark:text-gold-400">📋 Rezervasyon Fatura ve Ödeme Özeti ({emailData.res.id}):</div>
+5143: ➕ | <button onClick={onAddClick} className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow">➕ Yeni Düğün Salonu Ekle</button>
+5152: 🔍 | <span className="bg-white/90 dark:bg-slate-900/90 text-slate-800 dark:text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg border border-amber-500/30">🔍 Detay İncele</span>
+5171: ✏ | <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+5175: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+5198: 🎁 | <ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-6 h-6 text-amber-500 shrink-0" />
+5202: ➕ | <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+5221: ✏ | <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+5225: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+5388: 📅 | <ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-6 h-6 text-amber-500 shrink-0" />
+5413: ▼▲ | <span className="text-[10px] ml-0.5">{isFilterOpen ? '▲' : '▼'}</span>
+5422: ➕ | <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+5480: 🔍 | <span>🔍 Detaylı Filtreleme & Arama Kriterleri</span>
+5491: ↺ | Filtreleri Temizle ↺
+5500: 🔍 | placeholder="🔍 Müşteri Adı, Tel veya Sözleşme Kodu..."
+5622: 👁 | <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+5628: ✏ | <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+5635: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+5660: 💡 | <span>💡</span>
+5685: 📅 | <span className="text-base sm:text-lg">📅</span>
+5729: 🎯 | <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 shrink-0" />
+5853: 🕒 | 🕒 {formatDate(selectedDayInspector.dateStr)} ({selectedDayInspector.reservations.length} Etkinlik)
+5856: ✕ | <button onClick={() => setSelectedDayInspector(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+5862: 💡 | 💡 <strong>Saat Akış Çizelgesi:</strong> Gün içindeki düğün ve etkinliklerin başlangıç-bitiş saatlerine göre kronolojik zaman çizelgesidir.
+5867: ⏱ | <span className="font-bold block text-slate-700 dark:text-gray-200">⏱️ Günlük Zaman Çizelgesi (08:00 - 24:00):</span>
+5886: 👑 | <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3.5 h-3.5 shrink-0" />
+5907: 📋 | <span className="font-bold block text-slate-700 dark:text-gray-200">📋 Günlük Etkinlik Kartları ({selectedDayInspector.reservations.length}):</span>
+5923: 👑 | <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-4 h-4 shrink-0" />
+5933: 👁 | 👁️ Detay Önizle
+5939: ✏ | ✏️ Rezervasyonu Düzenle
+5957: ➕ | ➕ Bu Tarihe Yeni Rezervasyon Ekle
+5985: 👑 | <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 text-amber-500 shrink-0" />
+5989: ✕ | <button onClick={() => setSelectedResForPreview(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+5997: 👤 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 Müşteri İletişim Bilgileri:</span>
+5999: 📞 | <div>📞 Birincil Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerPhone}</strong></div>
+6000: 📱 | <div>📱 İkinci Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerSecondaryPhone || 'İkinci Tel Belirtilmedi'}</strong></div>
+6001: ✉ | <div>✉️ E-Posta: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.customerEmail || 'E-Posta Girilmedi'}</strong></div>
+6005: 🏰 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏰 Etkinlik & Salon Detayı:</span>
+6009: 📅 | <div>📅 Tarih: <strong className="font-mono text-slate-800 dark:text-gray-200">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</strong></div>
+6010: ⏰ | <div>⏰ Saat Aralığı: <strong className="font-mono text-emerald-600">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'}</strong></div>
+6011: 👥 | <div>👥 Davetli Sayısı: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.guestCount} Davetli Kişi</strong></div>
+6017: 📜 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 Organizasyon & Zaman Akış Programı:</span>
+6044: 🎁 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 Verilen Hizmetler & Dahili Paketler:</span>
+6059: 🎁 | <span>🎁</span>
+6071: 💰 | <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 Detaylı Ödeme Durumları & Finansal Döküm:</span>
+6096: 💳 | <span className="font-bold block text-slate-800 dark:text-gray-200">💳 Gerçekleşen Ödemeler Geçmişi:</span>
+6099: ✓ | <span>✓ 1. Ödeme (Kapora Tahsilatı):</span>
+6104: ✓ | <span>✓ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+6109: ⏳ | <span>⏳ 2. Ödeme (Kalan Bakiye Tahsilatı):</span>
+6120: 📝 | <span className="text-slate-400 font-bold block">📝 Operasyonel Notlar & Özel İstekler:</span>
+6131: 📄 | <button onClick={() => onPrintInvoice(selectedResForPreview)} className="bg-slate-800 text-white px-3 py-2 rounded-xl font-bold text-xs">📄 Fatura Yazdır</button>
+6134: ✉ | <button onClick={() => onShowEmail(selectedResForPreview)} className="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-xs">✉️ E-Posta Önizle</button>
+6144: ✏ | ✏️ Rezervasyonu Düzenle
+6157: 🗑 | <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">🗑️</div>
+6190: ✏ | ✏️ Rezervasyon Tüm Bilgilerini Düzenle
+6193: ✕ | <button onClick={() => setEditingRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold text-xs hover:bg-red-500 hover:text-white transition">✕</button>
+6200: 🏰 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏰 1. Salon & Kapasite Seçimi:</span>
+6244: ⏰ | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">⏰ 2. Etkinlik Tarihi & Hızlı Seans Seçimi:</span>
+6253: ☀ | ☀️ Gündüz (12-17)
+6260: 🌙 | 🌙 Gece (18-23)
+6267: 👑 | <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-3 h-3 shrink-0" />
+6306: 🎁 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 3. Ek Hizmetler & Dahili Paket Seçimi:</span>
+6348: 🏷 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏷️ 4. Özel Kampanya & İndirim Kodu:</span>
+6387: 👤 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 5. Müşteri İletişim, Adres & Fatura Bilgileri:</span>
+6467: 💰 | <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 6. Finans, Kapora, Ödeme Statüsü & Fatura Kesildi Bilgisi:</span>
+6515: 📄 | <span className="text-slate-800 dark:text-gray-200">📄 Faturası Kesildi mi?</span>
+6524: 📜 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 7. Düğün & Etkinlik Akış Planlaması:</span>
+6534: ➕ | ➕ Yeni Akış Maddesi Ekle
+6573: ✕ | ✕
+6583: 📝 | <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📝 8. Operasyonel Ek Notlar & Özel İstekler:</span>
+6597: ⚠ | {editError && <span className="text-red-500 font-bold">⚠️ Müşteri adı ve telefonu zorunludur!</span>}
+6619: 💾 | 💾 Değişiklikleri Kaydet
+6645: 📅 | 📅
+6656: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+6663: 🏛 | 🏛️ Salon Doluluk & Seans Çakışma Analizi
+6692: ✅⚠ | {isOccupied ? `⚠️ ${venueRes.length} Organizasyon Yapılacak` : '✅ TAMAMEN MÜSAİT'}
+6715: ⏰ | <span>⏰ Seans: <strong className="text-amber-800 dark:text-gold-300">{r.timeSlot}</strong></span>
+6716: 👥 | <span>• 👥 {r.guestCount} Davetli</span>
+6723: 🔍 | <span className="text-xs text-amber-700 dark:text-gold-400">Detay 🔍</span>
+6730: 💡 | 💡 Bu salon için {formattedDate} tarihinde henüz hiç rezervasyon yapılmamıştır. Gündüz veya Gece seansı hemen rezerve edilebilir!
+6748: ➕ | <span>➕</span>
+6793: 💡 | 💡 Günün üzerine tıklayarak tüm salon doluluklarını inceleyebilir veya kartı sürükleyerek başka güne taşıyabilirsiniz.
+6800: 📅 | <span>📅</span>
+6908: ➕ | <span>➕</span>
+6918: 🧠 | <ThemeIcon icon="brain" fallbackEmoji="🧠" className="w-5 h-5 shrink-0" />
+6939: ✨ | <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3 h-3 shrink-0" />
+6944: 🎯 | <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+6955: 🚀 | <ThemeIcon icon="sparkles" fallbackEmoji="🚀" className="w-3.5 h-3.5 shrink-0" />
+6964: 💰 | <ThemeIcon icon="money" fallbackEmoji="💰" className="w-3.5 h-3.5 shrink-0" />
+6976: 🎁 | <ThemeIcon icon="campaign" fallbackEmoji="🎁" className="w-5 h-5 text-amber-500 shrink-0" />
+6996: ✨ | ✨ AI Üretimi
+7012: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+7102: 💰 | <ThemeIcon icon="money" fallbackEmoji="💰" className="w-4 h-4 shrink-0" />
+7184: 🏛 | <ThemeIcon icon="venue" fallbackEmoji="🏛️" className="w-4 h-4 shrink-0" />
+7228: 🧠 | <ThemeIcon icon="brain" fallbackEmoji="🧠" className="w-6 h-6 shrink-0" />
+7249: ✨ | {rec.badge || '✨ AI Önerisi'}
+7267: 🚀 | <ThemeIcon icon="sparkles" fallbackEmoji="🚀" className="w-4 h-4 shrink-0" />
+7276: 💰 | <ThemeIcon icon="money" fallbackEmoji="💰" className="w-4 h-4 shrink-0" />
+7360: ⚠ | showLocalToast('⚠️ Lütfen geçerli açıklama ve tutar giriniz.');
+7378: ✅ | showLocalToast(`✅ Gider kaydı başarıyla eklendi: ${formatCurrency(newExp.amount)}`);
+7383: 🗑 | showLocalToast('🗑️ Gider kaydı silindi.');
+7392: 💰 | <ThemeIcon icon="money" fallbackEmoji="💰" className="w-7 h-7 text-amber-500 shrink-0" />
+7401: ➕ | <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-4 h-4 shrink-0" />
+7410: ✕ | <button onClick={() => setLocalToast(null)} className="text-slate-400 hover:text-white font-bold ml-4">✕</button>
+7442: ⚠✓ | {netProfit >= 0 ? '✓ Pozitif Bakiye' : '⚠ Negatif Bakiye'}
+7492: 🔍 | <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+7556: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+7576: 💸 | <ThemeIcon icon="money" fallbackEmoji="💸" className="w-5 h-5 text-amber-500 shrink-0" />
+7583: ✕ | ✕
+7686: 👥 | <ThemeIcon icon="user" fallbackEmoji="👥" className="w-6 h-6 text-amber-500 shrink-0" />
+7690: 👤 | <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3.5 h-3.5 shrink-0" />
+7704: ✏ | <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+7708: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+7731: 🛡 | <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-6 h-6 text-amber-500 shrink-0" />
+7735: ➕ | <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 shrink-0" />
+7754: ✏ | <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+7758: 🗑 | <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+7786: 📸 | showToast('📸 Medya Görseli Başarıyla Yüklendi ve Önizlemeye Alındı!');
+7789: 📸 | placeholderIcon="📸"
+7821: 👤 | showToast('👤 Profil ve Hesap Bilgileriniz Başarıyla Güncellendi!');
+7846: 👤 | <span>👤 Profil & Güvenlik Ayarlarını Düzenle</span>
+7889: 👤 | placeholderIcon="👤"
+7930: 🔔 | <label className="font-bold text-slate-800 dark:text-gray-200 block mb-1">🔔 Otomatik Bildirim Tercihleri:</label>
+7934: 💬 | <ThemeIcon icon="whatsapp" fallbackEmoji="💬" className="w-4 h-4 text-[#25D366] shrink-0" />
+7950: ✓ | Değişiklikleri Kaydet ✓
+7990: ⚠ | showToast('⚠️ Bu rol Kimliği (ID) zaten mevcut!');
+7996: 🎉 | showToast(`🎉 Yeni Rol "${newRoleName}" Başarıyla Oluşturuldu!`);
+8000: 👑 | { id: 'gold', name: '👑 Altın & Şampanya (Varsayılan)', primary: '#d97706', hover: '#b45309', radiusBadge: 'rounded-2xl' },
+8001: 💎 | { id: 'emerald', name: '💎 Zümrüt Yeşili (Royal Emerald)', primary: '#059669', hover: '#047857', radiusBadge: 'rounded-xl' },
+8002: 🔷 | { id: 'sapphire', name: '🔷 Gece Mavisi (Deep Sapphire)', primary: '#2563eb', hover: '#1d4ed8', radiusBadge: 'rounded-xl' },
+8003: 🌸 | { id: 'rose', name: '🌸 Gül Altını (Rose Gold)', primary: '#e11d48', hover: '#be123c', radiusBadge: 'rounded-2xl' },
+8004: 🍇 | { id: 'violet', name: '🍇 Gece Moru (Midnight Violet)', primary: '#7c3aed', hover: '#6d28d9', radiusBadge: 'rounded-xl' },
+8005: ⬛ | { id: 'obsidian', name: '⬛ Obsidian Gold (Kurumsal Siyah & Altın)', primary: '#18181b', hover: '#09090b', radiusBadge: 'rounded-none' },
+8006: 💎 | { id: 'sapphire_clean', name: '💎 Sapphire Clean (Safir Mavisi Minimal)', primary: '#0284c7', hover: '#0369a1', radiusBadge: 'rounded-md' },
+8007: 🪙 | { id: 'platinum', name: '🪙 Platinum Silver (Platin Gümüş VIP)', primary: '#475569', hover: '#334155', radiusBadge: 'rounded-lg' },
+8008: 🌲 | { id: 'emerald_royal', name: '🌲 Emerald Royal (Kraliyet Zümrütü)', primary: '#047857', hover: '#065f46', radiusBadge: 'rounded-2xl' },
+8009: ⚡ | { id: 'titanium', name: '⚡ Titanium Tech (Titanyum Koyu Metal)', primary: '#3b82f6', hover: '#1d4ed8', radiusBadge: 'rounded-md' }
+8068: 🎨 | <ThemeIcon icon="paint" fallbackEmoji="🎨" className="w-5 h-5 text-amber-500 shrink-0" />
+8092: 👑 | <span className="text-2xl">👑</span>
+8127: 👑🖤 | <span className="text-2xl">🖤👑</span>
+8197: ⚡🔷 | <span className="text-2xl">🔷⚡</span>
+8232: 🏰🌿 | <span className="text-2xl">🌿🏰</span>
+8277: 🎨 | showToast(`🎨 Tasarım Konsepti Başarıyla Değiştirildi ve Uygulandı! (${draftTheme})`);
+8281: 💾✓ | <span>💾 Değişiklikleri Kaydet & Tüm Sistemde Uygula ✓</span>
+8294: ⚡ | <span>⚡ Önbellekleme (Caching Engine) Yönetimi</span>
+8312: ⚡⚠ | showToast(e.target.checked ? '⚡ Önbellekleme AKTİF Edildi' : '⚠️ Önbellekleme DEVRE DIŞI Bırakıldı');
+8317: ✕✓ | {isCacheEnabled ? 'AÇIK ✓' : 'KAPALI ✕'}
+8331: ⚠ | title: '⚠️ ÖNBELLEK VE SİSTEM VERİSİ SIFIRLANACAK',
+8336: 🗑 | showToast('🗑️ Yerel Önbellek Tamamen Sıfırlandı!');
+8342: 🗑 | 🗑️ Önbelleği Temizle & Sıfırla
+8355: ➕ | <span>➕ Yeni Kullanıcı Rolü Tanımla</span>
+8375: 📊 | placeholder="Örn: Muhasebe Sorumlusu 📊"
+8395: 🛡 | 🛡️ Rol Tabanlı Sayfa İzin Matrisi (RBAC Matrix)
+8447: 🚨 | <span>🚨 Özel Hata & Yönlendirme Sayfaları Canlı Simülasyon Paneli</span>
+8542: ✕ | <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white" aria-label="Modalı Kapat">✕</button>
+8555: 📋 | <h4 className="font-bold text-amber-700 dark:text-gold-400">📋 Etkinlik Akış Planlaması ({res.flowPlan.length} Adım):</h4>
+8568: 💳 | <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400">💳 Ödeme ve Kapora Güncelleme</h4>
+8589: 📄 | <span>📄</span><span>Yazdır</span>
+8593: ✉ | <span>✉️</span><span>E-Posta Önizle</span>
+8781: ▼▲ | <span>{showDetails ? '▲ Gizle' : '▼ Göster'}</span>

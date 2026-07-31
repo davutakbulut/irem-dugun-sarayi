@@ -1,13 +1,18 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { formatCurrency, formatDate, formatPhoneNumber } from '../utils/formatters';
 import { ThemeIcon } from '../components/ThemeIcon';
 
     export function ReservationsListPage({
       reservations = [],
+      draftReservations = [],
+      setDraftReservations,
+      currentUser,
       venues = [],
       services = [],
       customers = [],
       campaigns = [],
+      navigateTo,
       onNewResClick,
       onUpdateReservation,
       onDeleteReservation,
@@ -16,6 +21,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
     }) {
       const [viewMode, setViewMode] = useState('table');
       const [isFilterOpen, setIsFilterOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+      const [isDraftPanelOpen, setIsDraftPanelOpen] = useState(true);
 
       const [searchQuery, setSearchQuery] = useState('');
       const [venueFilter, setVenueFilter] = useState('ALL');
@@ -34,27 +40,9 @@ import { ThemeIcon } from '../components/ThemeIcon';
       const handleOpenEdit = (res) => {
         setSelectedResForPreview(null);
         setSelectedDayInspector(null);
-        setEditingRes(res);
-        setEditForm({
-          ...res,
-          venuePrice: res.venuePrice || 85000,
-          guestCount: res.guestCount || 500,
-          startDate: res.startDate || res.eventDate || res.date || '',
-          endDate: res.endDate || res.eventDate || res.date || '',
-          startTime: res.startTime || '18:00',
-          endTime: res.endTime || '23:00',
-          selectedServices: res.selectedServices ? [...res.selectedServices] : [],
-          customerName: res.customerName || '',
-          customerEmail: res.customerEmail || '',
-          customerPhone: res.customerPhone || '',
-          customerSecondaryPhone: res.customerSecondaryPhone || '',
-          depositPaid: res.depositPaid || 0,
-          paymentStatus: res.paymentStatus || 'Bekliyor',
-          isInvoiced: res.isInvoiced || false,
-          notes: res.notes || '',
-          flowPlan: res.flowPlan ? JSON.parse(JSON.stringify(res.flowPlan)) : []
-        });
-        setEditError(false);
+        if (res && res.id) {
+          window.location.hash = `#/rezervasyon-olustur?editId=${res.id}`;
+        }
       };
 
       const filteredReservations = (reservations || []).filter(r => {
@@ -242,6 +230,154 @@ import { ThemeIcon } from '../components/ThemeIcon';
             </div>
           </div>
 
+          
+          {/* DRAFT / UNCOMPLETED RESERVATIONS DEDICATED PANEL (TOP OF PAGE) */}
+          <div className="glass-panel p-5 sm:p-6 rounded-3xl border-2 border-amber-500/40 bg-amber-500/5 dark:bg-amber-950/20 space-y-4 shadow-lg animate-fade-in">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-amber-500/20 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-lg shrink-0">
+                  <ThemeIcon icon="sparkles" fallbackEmoji="⏳" className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>Tamamlanmamış Taslak Rezervasyonlar</span>
+                    <span className="bg-amber-500 text-white font-mono text-xs px-2.5 py-0.5 rounded-full font-bold">
+                      {(draftReservations || []).length} Adet
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+                    Form doldurulurken otomatik kaydedilmiş, yarım kalmış veya onay bekleyen taslaklar.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDraftPanelOpen(!isDraftPanelOpen)}
+                className="text-xs font-bold text-amber-700 dark:text-gold-400 hover:underline inline-flex items-center space-x-1 shrink-0 cursor-pointer"
+              >
+                <span>{isDraftPanelOpen ? 'Taslak Paneli Gizle ▲' : 'Taslak Paneli Göster ▼'}</span>
+              </button>
+            </div>
+
+            {isDraftPanelOpen && (
+              <>
+                {(!draftReservations || draftReservations.length === 0) ? (
+                  <div className="bg-white/60 dark:bg-brand-dark/40 p-4 rounded-2xl border border-dashed border-amber-500/30 text-center space-y-2">
+                    <p className="text-xs text-slate-600 dark:text-gray-300 font-semibold">
+                      Henüz yarım kalmış bir taslak rezervasyonunuz bulunmuyor.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => navigateTo && navigateTo('create-reservation')}
+                      className="gold-button font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-sm inline-flex items-center space-x-1 cursor-pointer"
+                    >
+                      <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 mr-1" />
+                      <span>Yeni Rezervasyon Başlat</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+                    {draftReservations.map((draft, idx) => {
+                      const custName = draft.customerInfo?.name || draft.formData?.newCustName || 'İsimsiz Müşteri';
+                      const custPhone = draft.customerInfo?.phone || draft.formData?.newCustPhone || '-';
+                      const venueName = draft.customerInfo?.venueName || (venues.find(v => v.id === draft.formData?.venueId)?.name) || 'Salon Seçilmedi';
+                      const eventDate = draft.customerInfo?.date || draft.formData?.startDate || 'Tarih Belirtilmedi';
+                      const percentage = draft.completionPercentage || 0;
+                      const updatedAtFormatted = draft.updatedAt ? new Date(draft.updatedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-';
+                      const lastLogger = draft.accessLogs && draft.accessLogs.length > 0 ? draft.accessLogs[draft.accessLogs.length - 1].userName : 'Sistem';
+
+                      return (
+                        <div key={draft.refKey || idx} className="bg-white dark:bg-brand-card border border-amber-500/30 rounded-2xl p-4 space-y-3 shadow-md hover:shadow-lg transition flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono text-xs font-extrabold bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/30 px-2.5 py-1 rounded-lg inline-flex items-center">
+                                <ThemeIcon icon="shield" fallbackEmoji="🔑" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                                <span>{draft.refKey}</span>
+                              </span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-gold-400">
+                                TASLAK (%{percentage})
+                              </span>
+                            </div>
+
+                            <div>
+                              <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                                <ThemeIcon icon="user" fallbackEmoji="👤" className="w-4 h-4 text-amber-700 dark:text-gold-400 shrink-0" />
+                                <span>{custName}</span>
+                              </h4>
+                              <p className="text-xs text-slate-500 dark:text-gray-400 font-mono mt-0.5 flex items-center space-x-1">
+                                <ThemeIcon icon="phone" fallbackEmoji="📞" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{custPhone}</span>
+                              </p>
+                            </div>
+
+                            <div className="text-xs text-slate-600 dark:text-gray-300 space-y-1 bg-slate-50 dark:bg-brand-dark p-2.5 rounded-xl border border-slate-200 dark:border-brand-border">
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400">Salon:</span>
+                                <span className="font-semibold">{venueName}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400">Tarih:</span>
+                                <span className="font-semibold">{eventDate}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-[11px] pt-1 border-t border-slate-200/50 dark:border-brand-border">
+                                <span className="text-slate-400">Son İşlem:</span>
+                                <span className="font-mono">{updatedAtFormatted} ({lastLogger})</span>
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                                <span>Form Doluluğu</span>
+                                <span>%{percentage}</span>
+                              </div>
+                              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                                <div
+                                  className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 flex items-center gap-2 border-t border-slate-100 dark:border-brand-border">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                window.location.hash = `#/rezervasyon-olustur?ref=${draft.refKey}`;
+                                if (navigateTo) navigateTo('create-reservation', { ref: draft.refKey });
+                              }}
+                              className="flex-1 gold-button font-bold py-2.5 px-3 rounded-xl text-xs shadow text-center flex items-center justify-center space-x-1.5 cursor-pointer"
+                            >
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                              <span>Devam Et & Tamamla</span>
+                            </button>
+                            
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`${draft.refKey} referanslı taslağı silmek istediğinize emin misiniz?`)) {
+                                  if (setDraftReservations) {
+                                    setDraftReservations(prev => prev.filter(d => d.refKey !== draft.refKey));
+                                  }
+                                }
+                              }}
+                              className="p-2.5 bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-200 rounded-xl text-xs transition flex items-center justify-center cursor-pointer"
+                              title="Taslağı Sil"
+                            >
+                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+
           {/* COLLAPSIBLE FILTER PANEL */}
           {isFilterOpen && (
             <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 animate-fade-in shadow-md">
@@ -373,13 +509,27 @@ import { ThemeIcon } from '../components/ThemeIcon';
                               {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
                             </td>
                             <td className="py-3.5 px-3">
-                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? 'bg-emerald-500/20 text-emerald-600' :
-                                res.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-600' :
-                                'bg-slate-200 text-slate-700'
-                              }`}>
-                                {res.paymentStatus}
-                              </span>
+                              {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
+                                  <ThemeIcon icon="check-circle" fallbackEmoji="✅" className="w-3.5 h-3.5 mr-1 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                  <span>Ödeme Tamamlandı</span>
+                                </span>
+                              ) : res.paymentStatus === 'Kapora Alındı' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-gold-400 border border-amber-500/40 shadow-xs">
+                                  <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                                  <span>Kapora Alındı</span>
+                                </span>
+                              ) : res.paymentStatus === 'İptal' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shadow-xs">
+                                  <ThemeIcon icon="x-circle" fallbackEmoji="❌" className="w-3.5 h-3.5 mr-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                                  <span>İptal Edildi</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 shadow-xs">
+                                  <ThemeIcon icon="clock" fallbackEmoji="🕒" className="w-3.5 h-3.5 mr-1 shrink-0 text-blue-600 dark:text-blue-400" />
+                                  <span>{res.paymentStatus || 'Ödeme Bekliyor'}</span>
+                                </span>
+                              )}
                             </td>
                             <td className="py-3.5 px-3 text-right">
                               <div className="flex items-center justify-end space-x-1.5">
@@ -399,9 +549,10 @@ import { ThemeIcon } from '../components/ThemeIcon';
                                 </button>
                                 <button
                                   onClick={() => setDeletingRes(res)}
-                                  className="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-xs hover:bg-red-500/30 transition flex items-center space-x-1"
+                                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 font-bold text-xs transition flex items-center space-x-1 border border-red-500/20"
+                                  title="Rezervasyonu Sil"
                                 >
-                                  <ThemeIcon icon="delete" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400" />
                                   <span>Sil</span>
                                 </button>
                               </div>
@@ -612,8 +763,8 @@ import { ThemeIcon } from '../components/ThemeIcon';
           )}
 
           {/* HOURLY TIMELINE SCHEDULE FLOW MODAL (GÜNE TIKLAYINCA SAAT AKIŞI GÖRÜNÜMÜ) */}
-          {selectedDayInspector && (
-            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          {selectedDayInspector && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
               <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
                   <div>
@@ -697,15 +848,17 @@ import { ThemeIcon } from '../components/ThemeIcon';
                             <div className="flex justify-end space-x-2 pt-1 border-t border-slate-200 dark:border-brand-border/40">
                               <button
                                 onClick={() => setSelectedResForPreview(r)}
-                                className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-200 rounded-xl font-bold text-xs"
+                                className="px-3 py-1.5 bg-slate-200 dark:bg-brand-card text-slate-700 dark:text-gray-200 rounded-xl font-bold text-xs inline-flex items-center space-x-1"
                               >
-                                👁️ Detay Önizle
+                                <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                                <span>Detay Önizle</span>
                               </button>
                               <button
                                 onClick={() => handleOpenEdit(r)}
-                                className="gold-button px-4 py-1.5 rounded-xl font-bold text-xs shadow"
+                                className="gold-button px-4 py-1.5 rounded-xl font-bold text-xs shadow inline-flex items-center space-x-1"
                               >
-                                ✏️ Rezervasyonu Düzenle
+                                <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                                <span>Rezervasyonu Düzenle</span>
                               </button>
                             </div>
                           </div>
@@ -723,17 +876,18 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     }}
                     className="gold-button px-4 py-2 rounded-xl shadow"
                   >
-                    ➕ Bu Tarihe Yeni Rezervasyon Ekle
+                    <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3.5 h-3.5 inline mr-1.5" /> Bu Tarihe Yeni Rezervasyon Ekle
                   </button>
                   <button onClick={() => setSelectedDayInspector(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">Kapat</button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* 5. RICH DETAILED PREVIEW MODAL */}
-          {selectedResForPreview && (
-            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          {selectedResForPreview && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
               <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 
                 {/* PREVIEW HEADER */}
@@ -763,27 +917,27 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   {/* SECTION A: MÜŞTERİ İLETİŞİM & SALON ZAMAN BİLGİLERİ */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
-                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">👤 Müşteri İletişim Bilgileri:</span>
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="user" fallbackEmoji="👤" className="w-3 h-3 inline mr-1" /> Müşteri İletişim Bilgileri:</span>
                       <div className="font-extrabold text-sm text-slate-900 dark:text-white">{selectedResForPreview.customerName}</div>
-                      <div>📞 Birincil Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerPhone}</strong></div>
-                      <div>📱 İkinci Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerSecondaryPhone || 'İkinci Tel Belirtilmedi'}</strong></div>
-                      <div>✉️ E-Posta: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.customerEmail || 'E-Posta Girilmedi'}</strong></div>
+                      <div><ThemeIcon icon="phone" fallbackEmoji="📞" className="w-3 h-3 inline mr-1" /> Birincil Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerPhone}</strong></div>
+                      <div><ThemeIcon icon="mobile" fallbackEmoji="📱" className="w-3 h-3 inline mr-1" /> İkinci Tel: <strong className="font-mono text-slate-800 dark:text-gray-200">{selectedResForPreview.customerSecondaryPhone || 'İkinci Tel Belirtilmedi'}</strong></div>
+                      <div><ThemeIcon icon="email" fallbackEmoji="✉️" className="w-3 h-3 inline mr-1" /> E-Posta: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.customerEmail || 'E-Posta Girilmedi'}</strong></div>
                     </div>
 
                     <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
-                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏰 Etkinlik & Salon Detayı:</span>
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-3 h-3 inline mr-1" /> Etkinlik & Salon Detayı:</span>
                       <div className="font-extrabold text-sm text-slate-900 dark:text-white">
                         {(venues.find(v => v.id === selectedResForPreview.venueId))?.name || selectedResForPreview.venueId}
                       </div>
-                      <div>📅 Tarih: <strong className="font-mono text-slate-800 dark:text-gray-200">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</strong></div>
-                      <div>⏰ Saat Aralığı: <strong className="font-mono text-emerald-600">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'}</strong></div>
-                      <div>👥 Davetli Sayısı: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.guestCount} Davetli Kişi</strong></div>
+                      <div><ThemeIcon icon="calendar" fallbackEmoji="📅" className="w-3 h-3 inline mr-1" /> Tarih: <strong className="font-mono text-slate-800 dark:text-gray-200">{formatDate(selectedResForPreview.eventDate || selectedResForPreview.date)}</strong></div>
+                      <div><ThemeIcon icon="clock" fallbackEmoji="⏰" className="w-3 h-3 inline mr-1" /> Saat Aralığı: <strong className="font-mono text-emerald-600">{selectedResForPreview.startTime || '18:00'} - {selectedResForPreview.endTime || '23:00'}</strong></div>
+                      <div><ThemeIcon icon="users" fallbackEmoji="👥" className="w-3 h-3 inline mr-1" /> Davetli Sayısı: <strong className="text-slate-800 dark:text-gray-200">{selectedResForPreview.guestCount} Davetli Kişi</strong></div>
                     </div>
                   </div>
 
                   {/* SECTION B: DÜĞÜN AKIŞ PLANLAMASI (HANGİ BİLGİLER / AKIŞ VERİLDİ) */}
                   <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
-                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 Organizasyon & Zaman Akış Programı:</span>
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="document" fallbackEmoji="📜" className="w-3 h-3 inline mr-1" /> Organizasyon & Zaman Akış Programı:</span>
                     {(!selectedResForPreview.flowPlan || selectedResForPreview.flowPlan.length === 0) ? (
                       <div className="text-slate-400 italic">Standart akış programı uygulanacaktır. Özel akış bilgisi eklenmedi.</div>
                     ) : (
@@ -810,7 +964,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
                   {/* SECTION C: VERİLEN PAKETLER & EK HİZMETLER */}
                   <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
-                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🎁 Verilen Hizmetler & Dahili Paketler:</span>
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="gift" fallbackEmoji="🎁" className="w-3 h-3 inline mr-1" /> Verilen Hizmetler & Dahili Paketler:</span>
                     {(!selectedResForPreview.selectedServices || selectedResForPreview.selectedServices.length === 0) ? (
                       <div className="text-slate-400 italic">Dahili temel salon paketi dâhildir. Ek paket seçilmedi.</div>
                     ) : (
@@ -837,7 +991,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
                   {/* SECTION D: ÖDEMELER NE DURUMDA & HANGİLERİNİN ÖDEMELERİ YAPILDI */}
                   <div className="bg-amber-50/60 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-300 dark:border-amber-700/50 space-y-3">
-                    <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider">💰 Detaylı Ödeme Durumları & Finansal Döküm:</span>
+                    <span className="text-amber-900 dark:text-amber-300 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="money" fallbackEmoji="💰" className="w-3 h-3 inline mr-1" /> Detaylı Ödeme Durumları & Finansal Döküm:</span>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                       <div className="p-2 bg-white dark:bg-brand-card rounded-xl border">
@@ -862,7 +1016,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
                     {/* HANGİ ÖDEMELER YAPILDI DÖKÜMÜ */}
                     <div className="p-3 bg-white dark:bg-brand-card rounded-xl border space-y-2">
-                      <span className="font-bold block text-slate-800 dark:text-gray-200">💳 Gerçekleşen Ödemeler Geçmişi:</span>
+                      <span className="font-bold block text-slate-800 dark:text-gray-200"><ThemeIcon icon="card" fallbackEmoji="💳" className="w-3 h-3 inline mr-1" /> Gerçekleşen Ödemeler Geçmişi:</span>
                       <div className="space-y-1 text-[11px]">
                         <div className="flex justify-between items-center text-emerald-600 font-bold">
                           <span>✓ 1. Ödeme (Kapora Tahsilatı):</span>
@@ -886,7 +1040,7 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   {/* SECTION E: OPERASYONEL NOTLAR */}
                   {selectedResForPreview.notes && (
                     <div className="bg-slate-50 dark:bg-brand-dark p-3.5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-1">
-                      <span className="text-slate-400 font-bold block">📝 Operasyonel Notlar & Özel İstekler:</span>
+                      <span className="text-slate-400 font-bold block"><ThemeIcon icon="note" fallbackEmoji="📝" className="w-3 h-3 inline mr-1" /> Operasyonel Notlar & Özel İstekler:</span>
                       <p className="text-slate-700 dark:text-gray-300 italic">{selectedResForPreview.notes}</p>
                     </div>
                   )}
@@ -897,10 +1051,16 @@ import { ThemeIcon } from '../components/ThemeIcon';
                 <div className="pt-2 border-t border-slate-200 dark:border-brand-border flex justify-between items-center gap-2">
                   <div className="flex space-x-2">
                     {onPrintInvoice && (
-                      <button onClick={() => onPrintInvoice(selectedResForPreview)} className="bg-slate-800 text-white px-3 py-2 rounded-xl font-bold text-xs">📄 Fatura Yazdır</button>
+                      <button onClick={() => onPrintInvoice(selectedResForPreview)} className="bg-slate-800 text-white px-3 py-2 rounded-xl font-bold text-xs inline-flex items-center space-x-1">
+                        <ThemeIcon icon="document" fallbackEmoji="📄" className="w-3.5 h-3.5 shrink-0" />
+                        <span>Fatura Yazdır</span>
+                      </button>
                     )}
                     {onShowEmail && (
-<button onClick={() => onShowEmail(selectedResForPreview)} className="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-xs">✉️ E-Posta Önizle</button>
+                      <button onClick={() => onShowEmail(selectedResForPreview)} className="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-xs inline-flex items-center space-x-1">
+                        <ThemeIcon icon="email" fallbackEmoji="✉️" className="w-3.5 h-3.5 shrink-0" />
+                        <span>E-Posta Önizle</span>
+                      </button>
                     )}
                   </div>
 
@@ -908,22 +1068,26 @@ import { ThemeIcon } from '../components/ThemeIcon';
                     <button onClick={() => setSelectedResForPreview(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl text-xs font-bold">Kapat</button>
                     <button
                       onClick={() => { handleOpenEdit(selectedResForPreview); setSelectedResForPreview(null); }}
-                      className="gold-button font-bold px-5 py-2 rounded-xl text-xs shadow"
+                      className="gold-button font-bold px-5 py-2 rounded-xl text-xs shadow inline-flex items-center space-x-1"
                     >
-                      ✏️ Rezervasyonu Düzenle
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Rezervasyonu Düzenle</span>
                     </button>
                   </div>
                 </div>
 
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* DELETE CONFIRMATION MODAL */}
-          {deletingRes && (
-            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          {deletingRes && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
               <div className="bg-white dark:bg-brand-card border-2 border-red-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-center my-auto">
-                <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">🗑️</div>
+                <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center text-2xl font-bold mx-auto border border-red-500/30">
+                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-6 h-6 shrink-0 text-red-600 dark:text-red-400" />
+                </div>
                 <h3 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
                   Rezervasyon Silinsin Mi?
                 </h3>
@@ -943,20 +1107,22 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* 7. FULL EDIT RESERVATION MODAL (REZERVASYON OLUŞTURURKEN YAPILABİLEN HER ŞEYİ DÜZENLEME) */}
-          {editingRes && editForm && (
-            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+          {editingRes && editForm && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
               <div className="bg-white dark:bg-brand-card border border-amber-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 
                 {/* EDIT HEADER */}
                 <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
                   <div>
                     <span className="text-[10px] font-bold text-amber-600 uppercase font-mono">Sözleşme Düzenleme Modu — ID: {editForm.id}</span>
-                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-0.5">
-                      ✏️ Rezervasyon Tüm Bilgilerini Düzenle
+                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-white mt-0.5 flex items-center space-x-1.5">
+                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Rezervasyon Tüm Bilgilerini Düzenle</span>
                     </h3>
                   </div>
                   <button onClick={() => setEditingRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold text-xs hover:bg-red-500 hover:text-white transition">✕</button>
@@ -966,7 +1132,10 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   
                   {/* SECTION 1: SALON & KAPASİTE BİLGİLERİ */}
                   <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
-                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">🏰 1. Salon & Kapasite Seçimi:</span>
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                      <ThemeIcon icon="venue" fallbackEmoji="🏰" className="w-3.5 h-3.5 shrink-0" />
+                      <span>1. Salon & Kapasite Seçimi:</span>
+                    </span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Düğün Salonu:</label>
@@ -1010,7 +1179,10 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   {/* SECTION 2: TARİH, SEANS & SAAT DÜZENLEME */}
                   <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">⏰ 2. Etkinlik Tarihi & Hızlı Seans Seçimi:</span>
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                        <ThemeIcon icon="clock" fallbackEmoji="⏰" className="w-3.5 h-3.5 shrink-0" />
+                        <span>2. Etkinlik Tarihi & Hızlı Seans Seçimi:</span>
+                      </span>
                       
                       {/* HIZLI SEANS BUTONLARI */}
                       <div className="flex gap-1">
@@ -1290,7 +1462,10 @@ import { ThemeIcon } from '../components/ThemeIcon';
                   {/* SECTION 7: DÜĞÜN & ETKİNLİK AKIŞ PLANLAMASI */}
                   <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📜 7. Düğün & Etkinlik Akış Planlaması:</span>
+                      <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                        <ThemeIcon icon="flow" fallbackEmoji="📜" className="w-3.5 h-3.5 shrink-0" />
+                        <span>7. Düğün & Etkinlik Akış Planlaması:</span>
+                      </span>
                       <button
                         type="button"
                         onClick={() => {
@@ -1298,9 +1473,10 @@ import { ThemeIcon } from '../components/ThemeIcon';
                           newPlan.push({ time: '20:00', title: 'Yeni Akış Maddesi', description: 'Açıklama giriniz', responsible: 'Müdür' });
                           setEditForm({ ...editForm, flowPlan: newPlan });
                         }}
-                        className="px-2.5 py-1 bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[11px] hover:bg-amber-500/30 transition"
+                        className="px-2.5 py-1 bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold rounded-lg text-[11px] hover:bg-amber-500/30 transition flex items-center space-x-1"
                       >
-                        ➕ Yeni Akış Maddesi Ekle
+                        <ThemeIcon icon="plus" fallbackEmoji="➕" className="w-3 h-3 shrink-0" />
+                        <span>Yeni Akış Maddesi Ekle</span>
                       </button>
                     </div>
 
@@ -1349,7 +1525,10 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
                   {/* SECTION 8: OPERASYONEL NOTLAR */}
                   <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-2">
-                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider">📝 8. Operasyonel Ek Notlar & Özel İstekler:</span>
+                    <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider flex items-center space-x-1">
+                      <ThemeIcon icon="notes" fallbackEmoji="📝" className="w-3.5 h-3.5 shrink-0" />
+                      <span>8. Operasyonel Ek Notlar & Özel İstekler:</span>
+                    </span>
                     <textarea
                       rows="3"
                       value={editForm.notes || ''}
@@ -1363,7 +1542,12 @@ import { ThemeIcon } from '../components/ThemeIcon';
 
                 {/* EDIT MODAL FOOTER */}
                 <div className="pt-3 border-t flex justify-between items-center text-xs font-bold">
-                  {editError && <span className="text-red-500 font-bold">⚠️ Müşteri adı ve telefonu zorunludur!</span>}
+                  {editError && (
+                    <span className="text-red-500 font-bold flex items-center space-x-1">
+                      <ThemeIcon icon="warning" fallbackEmoji="⚠️" className="w-3.5 h-3.5 shrink-0 text-red-500" />
+                      <span>Müşteri adı ve telefonu zorunludur!</span>
+                    </span>
+                  )}
                   <div className="flex space-x-3 ml-auto">
                     <button onClick={() => setEditingRes(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark rounded-xl">İptal</button>
                     <button
@@ -1383,18 +1567,18 @@ import { ThemeIcon } from '../components/ThemeIcon';
                         if (onUpdateReservation) onUpdateReservation(finalObj);
                         setEditingRes(null);
                       }}
-                      className="gold-button px-6 py-2.5 rounded-xl shadow"
+                      className="gold-button px-6 py-2.5 rounded-xl shadow inline-flex items-center space-x-1.5"
                     >
-                      💾 Değişiklikleri Kaydet
+                      <ThemeIcon icon="check" fallbackEmoji="💾" className="w-4 h-4 shrink-0" />
+                      <span>Değişiklikleri Kaydet</span>
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
         </div>
       );
     }
-
-    // --- CALENDAR DAY SCHEDULE & TIME CONFLICT INSPECTOR MODAL ---

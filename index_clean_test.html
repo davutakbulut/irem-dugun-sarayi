@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İrem Düğün Sarayı - Yönetim Paneli</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0b0f19',
+              card: '#151c2c',
+              border: '#232f48',
+              accent: '#d97706',
+              gold: '#f59e0b'
+            }
+          },
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel Standalone CDN -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-button {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #ffffff;
+      transition: all 0.2s ease-in-out;
+    }
+    .gold-button:hover {
+      box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+      transform: translateY(-1px);
+    }
+    .glass-panel {
+      background: rgba(21, 28, 44, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(217, 119, 6, 0.4);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body className="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen">
+  <div id="root"></div>
+
+  <!-- UMD Module Compatibility bridge -->
+  <script>
+    window.exports = window;
+    var exports = window;
+  </script>
+
+  <!-- Modular React Page Scripts -->
+  <script type="text/babel" src="./src/utils/formatters.js"></script>
+  <script type="text/babel" src="./src/constants/mockData.js"></script>
+  <script type="text/babel" src="./src/components/ThemeIcon.jsx"></script>
+  <script type="text/babel" src="./src/components/OptimizedImage.jsx"></script>
+  <script type="text/babel" src="./src/components/Navigation.jsx"></script>
+  <script type="text/babel" src="./src/components/MobileBottomSummaryBar.jsx"></script>
+  <script type="text/babel" src="./src/components/NotificationPopup.jsx"></script>
+  <script type="text/babel" src="./src/components/PageErrorBoundary.jsx"></script>
+
+  <!-- Page Components -->
+  <script type="text/babel" src="./src/pages/DashboardPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/CreateReservationPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/ReservationsListPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/VenuesPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/ServicesPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/CustomersPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/CampaignsPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/ReportsPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/UsersPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/SettingsPage.jsx"></script>
+  <script type="text/babel" src="./src/pages/ErrorPages.jsx"></script>
+
+  <!-- Main Application Entry Point -->
+  <script type="text/babel" src="./src/App.jsx"></script>
+  <script type="text/babel" src="./src/main.jsx"></script>
+</body>
+</html>

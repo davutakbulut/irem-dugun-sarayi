@@ -18,6 +18,8 @@ import {
 import { DashboardPage } from './pages/DashboardPage';
 import { CreateReservationPage } from './pages/CreateReservationPage';
 import { ReservationsListPage } from './pages/ReservationsListPage';
+import { CalendarPage } from './pages/CalendarPage';
+import { FinancePage } from './pages/FinancePage';
 import { CustomersPage } from './pages/CustomersPage';
 import { CampaignsPage } from './pages/CampaignsPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -25,14 +27,27 @@ import { SettingsPage } from './pages/SettingsPage';
 import { VenuesPage } from './pages/VenuesPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { UsersPage } from './pages/UsersPage';
+import { MediaPage } from './pages/MediaPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { MindMapPage } from './pages/MindMapPage';
 import { Page404, Page301, Page403, Page500 } from './pages/ErrorPages';
 
 export default function App() {
   // Global State
-  const [activeTab, setActiveTab] = useState('create-reservation');
+  const [activeTab, setActiveTab] = useState(() => {
+    const hash = window.location.hash.replace('#/', '').replace('#', '').split('?')[0];
+    if (hash === 'zihin-haritasi' || hash === 'mind-map') return 'mind-map';
+    return 'create-reservation';
+  });
   const [activeRole, setActiveRole] = useState('SuperAdmin');
   const [currentTheme, setCurrentTheme] = useState('obsidian-gold');
-  const [buttonStyle, setButtonStyle] = useState('rounded-xl');
+  const [currentUser, setCurrentUser] = useState({
+    id: 'u-admin',
+    name: 'Davut Akbulut',
+    email: 'davut@iremdugunsarayi.com',
+    phone: '+90 532 123 4567',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+  });
 
   const [venues, setVenues] = useState(INITIAL_VENUES);
   const [services, setServices] = useState(INITIAL_SERVICES);
@@ -67,6 +82,46 @@ export default function App() {
     }
   }, [currentTheme]);
 
+  // Sync Hash Route Changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#/', '').replace('#', '').split('?')[0];
+      if (hash === 'zihin-haritasi' || hash === 'mind-map' || hash === 'zihinharitasi') {
+        setActiveTab('mind-map');
+      } else if (hash === 'anasayfa') {
+        setActiveTab('dashboard');
+      } else if (hash === 'yeni-rezervasyon' || hash === 'rezervasyon-olustur') {
+        setActiveTab('create-reservation');
+      } else if (hash === 'dugun-salonlari') {
+        setActiveTab('venues');
+      } else if (hash === 'ek-hizmetler') {
+        setActiveTab('services');
+      } else if (hash === 'rezervasyonlar') {
+        setActiveTab('reservations');
+      } else if (hash === 'takvim') {
+        setActiveTab('calendar');
+      } else if (hash === 'kampanyalar') {
+        setActiveTab('campaigns');
+      } else if (hash === 'finans') {
+        setActiveTab('finance');
+      } else if (hash === 'musteri-rehberi') {
+        setActiveTab('customers');
+      } else if (hash === 'kullanici-yonetimi') {
+        setActiveTab('users');
+      } else if (hash === 'raporlar-ai') {
+        setActiveTab('reports');
+      } else if (hash === 'medya-yukle') {
+        setActiveTab('media');
+      } else if (hash === 'profil') {
+        setActiveTab('profile');
+      } else if (hash.startsWith('ayarlar')) {
+        setActiveTab(hash.replace('/', '-'));
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   // Reservation Handlers
   const handleSaveReservation = (newRes, newCustObj) => {
     if (newCustObj) {
@@ -87,6 +142,11 @@ export default function App() {
     showAlert('🗑️ REZERVASYON SİLİNDİ', `${resId} sözleşme kodlu rezervasyon başarıyla silindi.`);
   };
 
+  const handleRescheduleReservation = (resId, newDate) => {
+    setReservations(prev => prev.map(r => r.id === resId ? { ...r, date: newDate, eventDate: newDate, startDate: newDate, endDate: newDate } : r));
+    showAlert('📅 Rezervasyon Tarihi Değiştirildi', `${resId} kodlu rezervasyon ${newDate} tarihine başarıyla taşındı.`);
+  };
+
   // Venue Handlers
   const handleAddVenue = (vObj) => {
     setVenues(prev => [vObj, ...prev]);
@@ -96,6 +156,11 @@ export default function App() {
   const handleEditVenue = (vObj) => {
     setVenues(prev => prev.map(x => x.id === vObj.id ? vObj : x));
     showAlert('✏️ Salon Düzenlendi', `${vObj.name} güncellendi.`);
+  };
+
+  const handleUpdateVenuePrice = (venueId, newPrice) => {
+    setVenues(prev => prev.map(v => v.id === venueId ? { ...v, price: newPrice } : v));
+    showAlert('💰 Salon Fiyatı Güncellendi', `Salon paket fiyatı ${newPrice.toLocaleString('tr-TR')} ₺ olarak güncellendi.`);
   };
 
   // Service Handlers
@@ -136,12 +201,12 @@ export default function App() {
       id: 'cmp-' + Date.now(),
       code: aiObj.code,
       title: aiObj.title,
-      discountType: aiObj.discountType,
-      discountValue: aiObj.discountValue,
+      discountType: aiObj.discountType || 'percentage',
+      discountValue: aiObj.discountValue || 10,
       minGuest: 300,
       validUntil: '2026-12-31',
       active: true,
-      description: aiObj.recommendation
+      description: aiObj.description || aiObj.title
     };
     setCampaigns(prev => [newCmp, ...prev]);
     showAlert('🚀 AI Kampanyası Oluşturuldu!', `${aiObj.code} koduyla kampanya tanımlandı.`);
@@ -210,6 +275,7 @@ export default function App() {
                 reservations={reservations}
                 onSaveReservation={handleSaveReservation}
                 onCancel={() => setActiveTab('reservations')}
+                showToast={(msg) => showAlert('ℹ️ Bilgi', msg)}
               />
             </PageErrorBoundary>
           )}
@@ -225,6 +291,27 @@ export default function App() {
                 onNewResClick={() => setActiveTab('create-reservation')}
                 onUpdateReservation={handleUpdateReservation}
                 onDeleteReservation={handleDeleteReservation}
+              />
+            </PageErrorBoundary>
+          )}
+
+          {activeTab === 'calendar' && (
+            <PageErrorBoundary pageName="Takvim Görünümü" onNavigateHome={setActiveTab}>
+              <CalendarPage
+                reservations={reservations}
+                venues={venues}
+                onResClick={() => setActiveTab('reservations')}
+                onReschedule={handleRescheduleReservation}
+                onCreateNewForDate={(dStr) => setActiveTab('create-reservation')}
+              />
+            </PageErrorBoundary>
+          )}
+
+          {activeTab === 'finance' && (
+            <PageErrorBoundary pageName="Finans & Kasa" onNavigateHome={setActiveTab}>
+              <FinancePage
+                financialStats={{ totalRev: reservations.reduce((a, b) => a + Number(b.totalAmount || 0), 0), totalDeposit: 45000 }}
+                reservations={reservations}
               />
             </PageErrorBoundary>
           )}
@@ -274,7 +361,9 @@ export default function App() {
               <ReportsPage
                 reservations={reservations}
                 venues={venues}
+                services={services}
                 onConvertToCampaign={handleConvertToCampaign}
+                onUpdateVenuePrice={handleUpdateVenuePrice}
               />
             </PageErrorBoundary>
           )}
@@ -289,14 +378,52 @@ export default function App() {
             </PageErrorBoundary>
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === 'media' && (
+            <PageErrorBoundary pageName="Medya Galerisi" onNavigateHome={setActiveTab}>
+              <MediaPage
+                reservations={reservations}
+                showToast={(msg) => showAlert('📸 Medya Galerisi', msg)}
+              />
+            </PageErrorBoundary>
+          )}
+
+          {activeTab === 'profile' && (
+            <PageErrorBoundary pageName="Profilim & Güvenlik" onNavigateHome={setActiveTab}>
+              <ProfilePage
+                currentUser={currentUser}
+                activeRole={activeRole}
+                onSaveProfile={(pData) => {
+                  setCurrentUser(prev => ({ ...prev, ...pData }));
+                  showAlert('👤 Profil Güncellendi', `${pData.name} bilgileri başarıyla kaydedildi.`);
+                }}
+                showToast={(msg) => showAlert('👤 Profil', msg)}
+                onRoleChange={setActiveRole}
+              />
+            </PageErrorBoundary>
+          )}
+
+          {activeTab === 'mind-map' && (
+            <PageErrorBoundary pageName="Zihin Haritası" onNavigateHome={setActiveTab}>
+              <MindMapPage navigateTo={setActiveTab} />
+            </PageErrorBoundary>
+          )}
+
+          {(activeTab === 'settings' || activeTab.startsWith('settings-')) && (
             <PageErrorBoundary pageName="Ayarlar" onNavigateHome={setActiveTab}>
               <SettingsPage
-                currentTheme={currentTheme}
-                onThemeChange={setCurrentTheme}
-                buttonStyle={buttonStyle}
-                onButtonStyleChange={setButtonStyle}
+                activeRole={activeRole}
+                roles={roles}
+                tabPermissions={tabPermissions}
+                onAddRole={handleAddRole}
+                onToggleTabPermission={handleToggleTabPermission}
+                themeColor={currentTheme}
+                onThemeColorChange={setCurrentTheme}
+                isCacheEnabled={true}
+                onToggleCache={() => {}}
+                onClearCache={() => {}}
+                showToast={(msg) => showAlert('⚙️ Ayarlar', msg)}
                 onNavigate={setActiveTab}
+                initialSubTab={activeTab === 'settings-rbac' ? 'rbac' : activeTab === 'settings-errors' ? 'error-sim' : 'appearance'}
               />
             </PageErrorBoundary>
           )}
@@ -330,7 +457,7 @@ export default function App() {
           )}
 
           {/* FALLBACK 404 ROUTE */}
-          {(!['dashboard', 'create-reservation', 'reservations', 'venues', 'services', 'customers', 'campaigns', 'reports', 'users', 'settings', '301', '403', '500'].includes(activeTab) || activeTab === '404') && (
+          {(!['dashboard', 'create-reservation', 'reservations', 'calendar', 'finance', 'venues', 'services', 'customers', 'campaigns', 'reports', 'users', 'media', 'profile', 'settings', '301', '403', '500'].includes(activeTab) || activeTab === '404') && (
             <PageErrorBoundary pageName="Sayfa Bulunamadı" onNavigateHome={setActiveTab}>
               <Page404 onNavigate={setActiveTab} />
             </PageErrorBoundary>

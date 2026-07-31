@@ -1,19 +1,153 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } from '../utils/formatters';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ThemeIcon } from '../components/ThemeIcon';
+import { formatCurrency } from '../utils/formatters';
 
-    export function CreateReservationPage({ venues, services, customers, campaigns, reservations = [], prefilledDate, onSaveReservation, onCancel }) {
+export function CreateReservationPage({ venues, services, customers, campaigns, reservations = [], draftReservations = [], setDraftReservations, currentUser, prefilledDate, onSaveReservation, onCancel, showToast, navigateTo }) {
       // 1. Venue, Start/End Date & Time
       const venueCarouselRef = useRef(null);
       const [selectedVenueForDetail, setSelectedVenueForDetail] = useState(null);
       const [isMobileSummaryDrawerOpen, setIsMobileSummaryDrawerOpen] = useState(false);
       const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '', targetInputId: null });
 
-      const [venueId, setVenueId] = useState(venues[0]?.id || 'v1');
-      const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 65000);
+      // DRAFT AUTOMATION & AUTO-SAVE (650ms DEBOUNCE, 12-CHAR REFKEY, USER AUDIT LOGS, CONFLICT MODAL)
+      const initialRefKey = useMemo(() => {
+        const hashData = parseHashRoute();
+        return hashData.refKey || generateDraftRefKey();
+      }, []);
+
+      const [activeRefKey, setActiveRefKey] = useState(initialRefKey);
+      const [lastSavedTime, setLastSavedTime] = useState(null);
+      const [conflictModal, setConflictModal] = useState({ isOpen: false, draft: null });
+      const autoSaveTimerRef = useRef(null);
+      const isInitialMountRef = useRef(true);
+
+      // Synchronize activeRefKey with URL hash and preserve existing draft refKeys
+      useEffect(() => {
+        const syncRef = () => {
+          const hashData = parseHashRoute();
+          if (hashData.tab !== 'create-reservation') return;
+          if (hashData.refKey && hashData.refKey !== activeRefKey) {
+            setActiveRefKey(hashData.refKey);
+          } else if (!hashData.refKey && activeRefKey && !hashData.editId) {
+            const tabSlug = TAB_TO_SLUG['create-reservation'] || 'rezervasyon-olustur';
+            const newUrl = `${window.location.pathname}#/${tabSlug}?ref=${activeRefKey}`;
+            window.history.replaceState({ tab: 'create-reservation', refKey: activeRefKey }, '', newUrl);
+          }
+        };
+
+        syncRef();
+        window.addEventListener('hashchange', syncRef);
+        window.addEventListener('popstate', syncRef);
+        return () => {
+          window.removeEventListener('hashchange', syncRef);
+          window.removeEventListener('popstate', syncRef);
+        };
+      }, [activeRefKey]);
+
+      const [venueId, setVenueId] = useState(venues[0]?.id || '');
+      const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price || 0);
       const [startDate, setStartDate] = useState(prefilledDate || '2026-08-25');
       const [startTime, setStartTime] = useState('19:00');
       const [endDate, setEndDate] = useState(prefilledDate || '2026-08-25');
       const [endTime, setEndTime] = useState('23:00');
+
+      const editingResFromUrl = useMemo(() => {
+        const hashData = parseHashRoute();
+        if (!hashData.editId) return null;
+        return (reservations || []).find(r => r.id === hashData.editId || r.contractNo === hashData.editId);
+      }, [reservations, window.location.hash]);
+
+      const isEditMode = !!editingResFromUrl;
+
+      // Pre-fill form when editingResFromUrl is detected
+      useEffect(() => {
+        if (editingResFromUrl) {
+          setVenueId(editingResFromUrl.venueId || venues[0]?.id || '');
+          setCustomVenuePrice(editingResFromUrl.venuePrice || editingResFromUrl.customVenuePrice || venues[0]?.price || 0);
+          setStartDate(editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.date || '2026-08-25');
+          setEndDate(editingResFromUrl.endDate || editingResFromUrl.eventDate || editingResFromUrl.date || '2026-08-25');
+
+          const timeParts = (editingResFromUrl.timeSlot || '').split('-');
+          if (timeParts.length === 2) {
+            setStartTime(timeParts[0].trim() || '19:00');
+            setEndTime(timeParts[1].trim() || '23:00');
+          } else {
+            setStartTime(editingResFromUrl.startTime || '19:00');
+            setEndTime(editingResFromUrl.endTime || '23:00');
+          }
+
+          setGuestCount(editingResFromUrl.guestCount || 500);
+
+          if (editingResFromUrl.customerId && customers.some(c => c.id === editingResFromUrl.customerId)) {
+            setCustomerMode('existing');
+            setSelectedCustomerId(editingResFromUrl.customerId);
+          } else {
+            setCustomerMode('new');
+            setNewCustName(editingResFromUrl.customerName || '');
+            setNewCustPhone(editingResFromUrl.customerPhone || '');
+            setNewCustSecondaryPhone(editingResFromUrl.customerSecondaryPhone || editingResFromUrl.secondaryPhone || '');
+            setNewCustEmail(editingResFromUrl.customerEmail || '');
+          }
+
+          if (editingResFromUrl.selectedServices && Array.isArray(editingResFromUrl.selectedServices)) {
+            setSelectedServices([...editingResFromUrl.selectedServices]);
+          }
+
+          setReferrerName(editingResFromUrl.referrerName || '');
+          setCampaignCode(editingResFromUrl.campaignCode || '');
+          setHasDeposit((editingResFromUrl.depositPaid || 0) > 0);
+          setDepositPaid(editingResFromUrl.depositPaid || 0);
+          setPaymentStatus(editingResFromUrl.paymentStatus || 'Bekliyor');
+
+          setIsInvoiced(editingResFromUrl.isInvoiced || false);
+          setInvoiceType(editingResFromUrl.invoiceType || 'individual');
+          if (editingResFromUrl.tcNo) setTcNo(editingResFromUrl.tcNo);
+          if (editingResFromUrl.vknNo) setVknNo(editingResFromUrl.vknNo);
+          if (editingResFromUrl.taxOffice) setTaxOffice(editingResFromUrl.taxOffice);
+          if (editingResFromUrl.invoiceAddress) setInvoiceAddress(editingResFromUrl.invoiceAddress);
+
+          if (editingResFromUrl.flowPlan && Array.isArray(editingResFromUrl.flowPlan) && editingResFromUrl.flowPlan.length > 0) {
+            setFlowPlan(JSON.parse(JSON.stringify(editingResFromUrl.flowPlan)));
+          }
+          if (editingResFromUrl.notes) {
+            setNotes(editingResFromUrl.notes);
+          }
+        }
+      }, [editingResFromUrl, venues, customers]);
+
+      // Load existing draft if present for activeRefKey
+      useEffect(() => {
+        if (!activeRefKey) return;
+        const existing = (draftReservations || []).find(d => d.refKey === activeRefKey);
+        if (existing && existing.formData) {
+          const f = existing.formData;
+          if (f.venueId) setVenueId(f.venueId);
+          if (f.customVenuePrice !== undefined) setCustomVenuePrice(f.customVenuePrice);
+          if (f.startDate) setStartDate(f.startDate);
+          if (f.startTime) setStartTime(f.startTime);
+          if (f.endDate) setEndDate(f.endDate);
+          if (f.endTime) setEndTime(f.endTime);
+          if (f.guestCount !== undefined) setGuestCount(f.guestCount);
+          if (f.customerMode) setCustomerMode(f.customerMode);
+          if (f.selectedCustomerId) setSelectedCustomerId(f.selectedCustomerId);
+          if (f.newCustName !== undefined) setNewCustName(f.newCustName);
+          if (f.newCustEmail !== undefined) setNewCustEmail(f.newCustEmail);
+          if (f.newCustPhone !== undefined) setNewCustPhone(f.newCustPhone);
+          if (f.newCustSecondaryPhone !== undefined) setNewCustSecondaryPhone(f.newCustSecondaryPhone);
+          if (f.selectedServices) setSelectedServices(f.selectedServices);
+          if (f.referrerName !== undefined) setReferrerName(f.referrerName);
+          if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
+          if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
+          if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
+          if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
+          if (f.notes !== undefined) setNotes(f.notes);
+          if (f.flowPlan) setFlowPlan(f.flowPlan);
+          if (existing.updatedAt) {
+            const dt = new Date(existing.updatedAt);
+            setLastSavedTime(`${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}:${String(dt.getSeconds()).padStart(2, '0')}`);
+          }
+        }
+      }, [activeRefKey, draftReservations]);
 
       // Dynamic 14-day preview offset around selected startDate
       const [calendarOffsetDays, setCalendarOffsetDays] = useState(0);
@@ -232,8 +366,147 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
         return reservations.some(r => r.venueId === venueId && r.date === eventDate && r.timeSlot === activeSlot);
       }, [reservations, venueId, eventDate, activeSlot]);
 
+      // 650ms DEBOUNCED LIVE AUTO-SAVE EFFECT
+      useEffect(() => {
+        if (isInitialMountRef.current) {
+          isInitialMountRef.current = false;
+          return;
+        }
+
+        if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+
+        autoSaveTimerRef.current = setTimeout(() => {
+          let filledCount = 0;
+          let totalCount = 8;
+          const currentCustName = customerMode === 'existing'
+            ? (customers.find(c => c.id === selectedCustomerId)?.name || '')
+            : newCustName;
+          const currentPhone = customerMode === 'existing'
+            ? (customers.find(c => c.id === selectedCustomerId)?.phone || '')
+            : newCustPhone;
+
+          if (currentCustName) filledCount++;
+          if (currentPhone && currentPhone.replace(/\D/g, '').length >= 10) filledCount++;
+          if (venueId) filledCount++;
+          if (startDate) filledCount++;
+          if (guestCount > 0) filledCount++;
+          if (depositPaid > 0) filledCount++;
+          if (selectedServices && selectedServices.length > 0) filledCount++;
+          if (notes && notes.length > 5) filledCount++;
+
+          const percentage = Math.min(100, Math.round((filledCount / totalCount) * 100));
+
+          const updatedDraft = {
+            refKey: activeRefKey,
+            status: 'DRAFT',
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            completionPercentage: percentage,
+            createdBy: {
+              id: currentUser?.id || 'u-admin',
+              name: currentUser?.name || 'Davut Akbulut',
+              role: currentUser?.role || 'admin'
+            },
+            customerInfo: {
+              name: currentCustName || 'İsimsiz Müşteri',
+              phone: currentPhone || '',
+              venueName: venues.find(v => v.id === venueId)?.name || 'Salon Seçilmedi',
+              date: startDate
+            },
+            accessLogs: [
+              {
+                userId: currentUser?.id || 'u-admin',
+                userName: currentUser?.name || 'Davut Akbulut',
+                action: 'AUTO_SAVE',
+                timestamp: new Date().toISOString()
+              }
+            ],
+            formData: {
+              venueId, customVenuePrice, startDate, startTime, endDate, endTime, guestCount,
+              customerMode, selectedCustomerId, newCustName, newCustEmail, newCustPhone,
+              newCustSecondaryPhone, selectedServices, referrerName, campaignCode,
+              hasDeposit, depositPaid, paymentStatus, isInvoiced, invoiceType, tcNo, vknNo,
+              taxOffice, invoiceAddress, notes, flowPlan
+            }
+          };
+
+          if (setDraftReservations) {
+            setDraftReservations(prev => {
+              const existingIdx = (prev || []).findIndex(d => d.refKey === activeRefKey);
+              if (existingIdx >= 0) {
+                const copy = [...prev];
+                const existing = copy[existingIdx];
+                const combinedLogs = [
+                  ...(existing.accessLogs || []),
+                  {
+                    userId: currentUser?.id || 'u-admin',
+                    userName: currentUser?.name || 'Davut Akbulut',
+                    action: 'AUTO_SAVE',
+                    timestamp: new Date().toISOString()
+                  }
+                ].slice(-25);
+
+                copy[existingIdx] = {
+                  ...updatedDraft,
+                  createdAt: existing.createdAt || updatedDraft.createdAt,
+                  createdBy: existing.createdBy || updatedDraft.createdBy,
+                  accessLogs: combinedLogs
+                };
+                return copy;
+              }
+              return [updatedDraft, ...(prev || [])];
+            });
+          }
+
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+          setLastSavedTime(timeStr);
+        }, 650);
+
+        return () => {
+          if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        };
+      }, [
+        activeRefKey, venueId, customVenuePrice, startDate, startTime, endDate, endTime,
+        guestCount, customerMode, selectedCustomerId, newCustName, newCustEmail,
+        newCustPhone, newCustSecondaryPhone, selectedServices, referrerName,
+        campaignCode, hasDeposit, depositPaid, paymentStatus, isInvoiced, invoiceType,
+        tcNo, vknNo, taxOffice, invoiceAddress, notes, flowPlan
+      ]);
+
+      // CUSTOMER DRAFT CONFLICT POPUP DETECTOR
+      useEffect(() => {
+        const checkPhone = customerMode === 'existing'
+          ? (customers.find(c => c.id === selectedCustomerId)?.phone || '')
+          : newCustPhone;
+        const cleanPhone = checkPhone ? checkPhone.replace(/\D/g, '') : '';
+
+        if ((cleanPhone.length >= 10 || (customerMode === 'existing' && selectedCustomerId)) && draftReservations) {
+          const matchingConflict = draftReservations.find(d => 
+            d.status === 'DRAFT' &&
+            d.refKey !== activeRefKey &&
+            ((cleanPhone && d.customerInfo?.phone && d.customerInfo.phone.replace(/\D/g, '') === cleanPhone) ||
+             (cleanPhone && d.formData?.newCustPhone && d.formData.newCustPhone.replace(/\D/g, '') === cleanPhone) ||
+             (customerMode === 'existing' && d.formData?.selectedCustomerId === selectedCustomerId))
+          );
+
+          if (matchingConflict && (!conflictModal.isOpen || conflictModal.draft?.refKey !== matchingConflict.refKey)) {
+            setConflictModal({ isOpen: true, draft: matchingConflict });
+          }
+        }
+      }, [newCustPhone, selectedCustomerId, customerMode]);
+
       const selectedVenue = venues.find(v => v.id === venueId);
       const existingCustomer = customers.find(c => c.id === selectedCustomerId);
+
+      // Filter available extra services based on selected venue (Etkinlik Mekanı)
+      const availableServicesForVenue = useMemo(() => {
+        if (!selectedVenue) return services;
+        if (!selectedVenue.availableServices || selectedVenue.availableServices.length === 0) {
+          return services;
+        }
+        return services.filter(s => selectedVenue.availableServices.includes(s.id));
+      }, [selectedVenue, services]);
 
       // Financial Calculation with Paid Services Breakdown & Deduction
       const calculations = useMemo(() => {
@@ -246,7 +519,8 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
           const s = services.find(x => x.id === item.serviceId);
           if (!s) return null;
           const unitPrice = item.customUnitPrice !== undefined ? Number(item.customUnitPrice) : s.price;
-          const qty = s.pricingType === 'per_person' ? item.quantity : 1;
+          const defaultQty = s.pricingType === 'per_person' ? guestCount : 1;
+          const qty = item.quantity !== undefined ? Number(item.quantity) : defaultQty;
           const cost = unitPrice * qty;
           servTotal += cost;
 
@@ -260,8 +534,23 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
 
         const sub = vPrice + servTotal;
         let disc = 0;
-        if (campaignCode === 'IREM2026') disc = sub * 0.10;
-        else if (campaignCode === 'VIP5000') disc = 5000;
+        const activeCampaign = (campaigns || []).find(c =>
+          (c.code || '').toUpperCase() === campaignCode.trim().toUpperCase() && c.status === 'Aktif'
+        );
+        if (activeCampaign) {
+          if (activeCampaign.discountType === 'percent' || activeCampaign.discountRate || activeCampaign.discountPercent) {
+            const rate = activeCampaign.discountRate || activeCampaign.discountPercent || 0;
+            disc = sub * (rate / 100);
+          } else if (activeCampaign.discountAmount) {
+            disc = Number(activeCampaign.discountAmount);
+          } else if (typeof activeCampaign.discount === 'number') {
+            disc = activeCampaign.discount;
+          }
+        } else if (campaignCode.trim().toUpperCase() === 'IREM2026') {
+          disc = sub * 0.10;
+        } else if (campaignCode.trim().toUpperCase() === 'VIP5000') {
+          disc = 5000;
+        }
 
         const afterDisc = Math.max(0, sub - disc);
         const vat = isInvoiced ? afterDisc * 0.20 : 0;
@@ -347,7 +636,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
         }
 
         const newRes = {
-          id: `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          id: editingResFromUrl?.id || `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
           venueId,
           customerId: custId,
           customerName: custName,
@@ -355,6 +644,11 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
           customerPhone: custPhone,
           secondaryPhone: custSecondaryPhone,
           date: eventDate,
+          eventDate,
+          startDate,
+          endDate,
+          startTime,
+          endTime,
           timeSlot: activeSlot,
           guestCount,
           selectedServices: calculations.mappedServices,
@@ -375,10 +669,10 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
           invoiceAddress,
           notes,
           flowPlan,
-          mediaGallery: []
+          mediaGallery: editingResFromUrl?.mediaGallery || []
         };
 
-        onSaveReservation(newRes, newCustomerObj);
+        onSaveReservation(newRes, newCustomerObj, isEditMode ? null : activeRefKey, isEditMode);
       };
 
       useEffect(() => {
@@ -399,6 +693,104 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
       return (
         <div className="space-y-6 max-w-7xl mx-auto pb-24 sm:pb-12 relative">
           
+          {/* CUSTOMER DRAFT CONFLICT POPUP WARNING MODAL */}
+          {conflictModal.isOpen && conflictModal.draft && (
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[999999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border-2 border-amber-500/80 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-6 space-y-4 animate-scale-up text-left">
+                
+                {/* Header */}
+                <div className="flex items-center space-x-3 text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-brand-border pb-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
+                    ⚠️
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
+                      Müşteriye Ait Tamamlanmamış Taslak Bulundu!
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">
+                      Bu müşteriye ait arka planda otomatik kaydedilmiş yarım kalan bir rezervasyon mevcut.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Draft Card Info */}
+                <div className="bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 rounded-2xl p-4 space-y-2 text-xs text-slate-700 dark:text-gray-200">
+                  <div className="flex justify-between items-center font-bold">
+                    <span>Müşteri: {conflictModal.draft.customerInfo?.name || conflictModal.draft.formData?.newCustName || 'Müşteri'}</span>
+                    <span className="font-mono bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded text-[11px]">
+                      Ref: {conflictModal.draft.refKey}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-500 dark:text-gray-400">
+                    <span>Salon: {conflictModal.draft.customerInfo?.venueName || 'Seçilen Salon'}</span>
+                    <span>Tarih: {conflictModal.draft.customerInfo?.date || 'Belirtilmedi'}</span>
+                  </div>
+                  
+                  {/* Completion Bar */}
+                  <div className="pt-2">
+                    <div className="flex justify-between text-[11px] font-bold mb-1">
+                      <span>Form Doluluk Oranı</span>
+                      <span>%{conflictModal.draft.completionPercentage || 0}</span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${conflictModal.draft.completionPercentage || 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      const d = conflictModal.draft;
+                      if (d && d.formData) {
+                        const f = d.formData;
+                        if (f.venueId) setVenueId(f.venueId);
+                        if (f.customVenuePrice !== undefined) setCustomVenuePrice(f.customVenuePrice);
+                        if (f.startDate) setStartDate(f.startDate);
+                        if (f.startTime) setStartTime(f.startTime);
+                        if (f.endDate) setEndDate(f.endDate);
+                        if (f.endTime) setEndTime(f.endTime);
+                        if (f.guestCount !== undefined) setGuestCount(f.guestCount);
+                        if (f.customerMode) setCustomerMode(f.customerMode);
+                        if (f.selectedCustomerId) setSelectedCustomerId(f.selectedCustomerId);
+                        if (f.newCustName !== undefined) setNewCustName(f.newCustName);
+                        if (f.newCustEmail !== undefined) setNewCustEmail(f.newCustEmail);
+                        if (f.newCustPhone !== undefined) setNewCustPhone(f.newCustPhone);
+                        if (f.newCustSecondaryPhone !== undefined) setNewCustSecondaryPhone(f.newCustSecondaryPhone);
+                        if (f.selectedServices) setSelectedServices(f.selectedServices);
+                        if (f.referrerName !== undefined) setReferrerName(f.referrerName);
+                        if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
+                        if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
+                        if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
+                        if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
+                        if (f.notes !== undefined) setNotes(f.notes);
+                        if (f.flowPlan) setFlowPlan(f.flowPlan);
+                      }
+                      setActiveRefKey(d.refKey);
+                      setConflictModal({ isOpen: false, draft: null });
+                      showToast(`📂 ${d.refKey} Referanslı Tamamlanmamış Taslak Yüklendi!`);
+                    }}
+                    className="flex-1 gold-button font-extrabold py-3 px-4 rounded-xl text-xs shadow-lg text-center flex items-center justify-center space-x-2"
+                  >
+                    <span>📂 Kaldığı Yerden Devam Et</span>
+                  </button>
+
+                  <button
+                    onClick={() => setConflictModal({ isOpen: false, draft: null })}
+                    className="py-3 px-4 bg-slate-200 dark:bg-brand-dark text-slate-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-slate-300 text-center"
+                  >
+                    ✨ Yeni Rezervasyona Devam Et
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
           {/* STANDALONE FLOATING TOP-RIGHT NOTIFICATION POPUP */}
           {alertModal.isOpen && (
             <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-down sm:animate-slide-left">
@@ -444,6 +836,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
           {selectedVenueForDetail && (
             <VenueDetailModalComponent
               venue={selectedVenueForDetail}
+              services={services}
               onClose={() => setSelectedVenueForDetail(null)}
               onSelectVenue={(v) => {
                 setVenueId(v.id);
@@ -455,10 +848,29 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
           {/* PAGE HEADER */}
           <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
             <div className="flex flex-col items-start gap-1">
-              <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border">
-                <svg className="w-3.5 h-3.5 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                <span>Rezervasyon Oluşturma & Kiralama</span>
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border">
+                  <svg className="w-3.5 h-3.5 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  <span>Rezervasyon Oluşturma & Kiralama</span>
+                </span>
+
+                {/* DRAFT REF KEY & LIVE SAVE BADGES */}
+                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-mono font-bold inline-flex items-center space-x-1">
+                  <span>🔑 Ref:</span>
+                  <span className="tracking-wider">{activeRefKey}</span>
+                </span>
+                {lastSavedTime ? (
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold inline-flex items-center space-x-1">
+                    <span>💾 Taslak Kaydedildi</span>
+                    <span className="text-[10px] font-mono">({lastSavedTime})</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1">
+                    <span>⏱️ Canlı Otomatik Kayıt Aktif</span>
+                  </span>
+                )}
+              </div>
+
               <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-1">
                 Hayalinizdeki Düğünü Birlikte Planlayalım!
               </h2>
@@ -474,7 +886,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
             {/* LEFT COLUMN: FORM SECTIONS (8 Cols) */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* SECTION 1: DÜĞÜN SALONU SEÇİN (TAKVİM & SEANS SEÇİMİ İLE) */}
+              {/* SECTION 1: ETKİNLİK MEKANI SEÇİN (TAKVİM & SEANS SEÇİMİ İLE) */}
               <div className="glass-panel p-3.5 sm:p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
 
                 {/* VISUAL HORIZONTAL SCROLLABLE VENUE CAROUSEL WITH ARROW CONTROLS */}
@@ -482,7 +894,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                   <div className="flex justify-between items-center mb-2 px-1">
                     <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
                       <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H7m4 0v5"></path></svg>
-                      <span>1. Düğün Salonu Seçin:</span>
+                      <span>1. Etkinlik Mekanı Seçin:</span>
                     </h3>
                     
                     {/* Interactive Arrow Navigation Buttons */}
@@ -492,7 +904,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                         onClick={scrollVenueCarouselLeft}
                         className="w-7 h-7 rounded-full border border-amber-500/40 bg-white dark:bg-brand-card text-amber-800 dark:text-gold-400 hover:bg-amber-500 hover:text-white font-bold text-xs shadow flex items-center justify-center transition active:scale-95 cursor-pointer"
                         title="Sola Kaydır"
-                        aria-label="Salonları Sola Kaydır"
+                        aria-label="Etkinlik Mekanlarını Sola Kaydır"
                       >
                         ❮
                       </button>
@@ -501,7 +913,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                         onClick={scrollVenueCarouselRight}
                         className="w-7 h-7 rounded-full border border-amber-500/40 bg-white dark:bg-brand-card text-amber-800 dark:text-gold-400 hover:bg-amber-500 hover:text-white font-bold text-xs shadow flex items-center justify-center transition active:scale-95 cursor-pointer"
                         title="Sağa Kaydır"
-                        aria-label="Salonları Sağa Kaydır"
+                        aria-label="Etkinlik Mekanlarını Sağa Kaydır"
                       >
                         ❯
                       </button>
@@ -509,7 +921,19 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                   </div>
 
                   <div ref={venueCarouselRef} className="flex overflow-x-auto gap-3.5 pb-3 pt-1 no-scrollbar snap-x snap-mandatory scroll-smooth px-1">
-                    {venues.map(v => {
+                    {venues.length === 0 ? (
+                      <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-gold-400 text-xs font-bold text-center space-y-2.5 w-full">
+                        <div>⚠️ Sistemde henüz tanımlı bir etkinlik mekanı bulunmamaktadır.</div>
+                        <button
+                          type="button"
+                          onClick={() => navigateTo && navigateTo('dugun-salonlari')}
+                          className="gold-button px-4 py-2 rounded-xl font-extrabold shadow hover:scale-105 transition cursor-pointer inline-flex items-center space-x-2"
+                        >
+                          <span>🏰 Yeni Düğün Salonu Ekle</span>
+                        </button>
+                      </div>
+                    ) : (
+                      venues.map(v => {
                       const isSelected = venueId === v.id;
                       return (
                         <div
@@ -545,10 +969,10 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                                 setSelectedVenueForDetail(v);
                               }}
                               className="absolute bottom-2 right-2 bg-slate-900/90 hover:bg-slate-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/30 transition flex items-center space-x-1 shadow z-10"
-                              title="Salon Detaylarını Göster"
+                              title="Mekan Detaylarını Göster"
                             >
                               <svg className="w-3 h-3 text-white inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                              <span>Detaylar</span>
+                              <span>Mekan Detayları</span>
                             </button>
                           </div>
 
@@ -567,13 +991,13 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                           </div>
                         </div>
                       );
-                    })}
+                    }))}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
                   <div>
-                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Bu Rezervasyona Özel Salon Kiralama Fiyatı (TL):</label>
+                    <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Bu Rezervasyona Özel Mekan Kiralama Fiyatı (TL):</label>
                     <input
                       type="number"
                       value={customVenuePrice}
@@ -584,7 +1008,19 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
 
                   <div>
                     <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">Davetli Sayısı (Kişi):</label>
-                    <input type="number" value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
+                    <input
+                      type="number"
+                      value={guestCount}
+                      onChange={e => {
+                        const val = Number(e.target.value);
+                        setGuestCount(val);
+                        setSelectedServices(prev => prev.map(item => {
+                          const sObj = (services || []).find(x => x.id === item.serviceId);
+                          return (sObj && sObj.pricingType === 'per_person') ? { ...item, quantity: val } : item;
+                        }));
+                      }}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                    />
                   </div>
                 </div>
 
@@ -799,44 +1235,73 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
 
               {/* SECTION 2: EK HİZMETLER */}
               <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
-                <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
-                  <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                  <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">2. Ek Hizmetler:</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-brand-border pb-3 gap-2">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">2. Ek Hizmetler:</h3>
+                  </div>
+                  {selectedVenue && (
+                    <span className="text-xs font-bold text-amber-800 dark:text-gold-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                      🎯 {selectedVenue.name} Mekanıyla Uyumlu ({availableServicesForVenue.length} Hizmet)
+                    </span>
+                  )}
                 </div>
 
                 <div className="space-y-3">
-                  {services.map(s => {
+                  {availableServicesForVenue.length === 0 ? (
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-gold-400 text-xs font-bold text-center">
+                      Bu etkinlik mekanı için seçilebilir ek hizmet bulunmamaktadır.
+                    </div>
+                  ) : (
+                    availableServicesForVenue.map(s => {
                     const found = selectedServices.find(x => x.serviceId === s.id);
                     const isSelected = !!found;
-                    const qty = found ? found.quantity : (s.pricingType === 'per_person' ? guestCount : 1);
+                    const unitPrice = found && found.customUnitPrice !== undefined ? Number(found.customUnitPrice) : s.price;
+                    const defaultQty = s.pricingType === 'per_person' ? guestCount : 1;
+                    const qty = found && found.quantity !== undefined ? Number(found.quantity) : defaultQty;
                     const isPaid = found ? found.isPaid : false;
 
+                    const isPerPerson = s.pricingType === 'per_person';
+                    const isPerUnit = s.pricingType === 'per_unit' || s.pricingType === 'unit';
+                    const isFlat = !isPerPerson && !isPerUnit;
+
+                    const calculatedCost = unitPrice * qty;
+
                     return (
-                      <div key={s.id} className={`p-4 rounded-2xl border transition space-y-2 ${isSelected ? 'bg-amber-500/10 border-amber-500/50' : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'}`}>
+                      <div key={s.id} className={`p-4 rounded-2xl border transition space-y-3 ${isSelected ? 'bg-amber-500/10 border-amber-500/50 shadow-sm' : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'}`}>
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                          <label className="flex items-center space-x-3 cursor-pointer">
+                          <label className="flex items-start sm:items-center space-x-3 cursor-pointer">
                             <input
                               type="checkbox"
                               checked={isSelected}
                               onChange={e => {
                                 if (e.target.checked) {
-                                  setSelectedServices(prev => [...prev, { serviceId: s.id, quantity: s.pricingType === 'per_person' ? guestCount : 1, isPaid: false }]);
+                                  setSelectedServices(prev => [...prev, { serviceId: s.id, quantity: defaultQty, isPaid: false }]);
                                 } else {
                                   setSelectedServices(prev => prev.filter(x => x.serviceId !== s.id));
                                 }
                               }}
-                              className="w-5 h-5 accent-amber-600 rounded"
+                              className="w-5 h-5 accent-amber-600 rounded mt-0.5 sm:mt-0 shrink-0"
                             />
                             <div>
-                              <div className="font-bold text-xs text-slate-800 dark:text-gray-200">{s.name}</div>
-                              <div className="text-[10px] text-slate-500">{s.description} | {formatCurrency(s.price)} {s.pricingType === 'per_person' ? '/Kişi' : '/Paket'}</div>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-xs text-slate-800 dark:text-gray-200">{s.name}</span>
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                                  isPerPerson ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30' :
+                                  isPerUnit ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30' :
+                                  'bg-amber-500/10 text-amber-800 dark:text-gold-400 border-amber-500/30'
+                                }`}>
+                                  {isPerPerson ? '👥 Kişi Başı' : isPerUnit ? '🔢 Adet Başı' : '📦 Sabit Paket'}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 dark:text-gray-400 mt-0.5">{s.description} | Birim: {formatCurrency(s.price)} {isPerPerson ? '/Kişi' : isPerUnit ? '/Adet' : '/Paket'}</div>
                             </div>
                           </label>
 
                           {isSelected && (
-                            <div className="flex flex-wrap items-center gap-3 text-xs">
+                            <div className="flex flex-wrap items-center gap-3 text-xs w-full sm:w-auto justify-end">
                               <div className="flex items-center space-x-1">
-                                <span className="font-bold">Özel Birim Fiyat (TL):</span>
+                                <span className="font-bold text-slate-700 dark:text-gray-300">Özel Birim Fiyat:</span>
                                 <input
                                   type="number"
                                   value={found.customUnitPrice !== undefined ? found.customUnitPrice : s.price}
@@ -848,22 +1313,23 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                                 />
                               </div>
 
-                              {s.pricingType === 'per_person' && (
-                                <div className="flex items-center space-x-1">
-                                  <span className="font-bold">Kişi Sayısı:</span>
-                                  <input
-                                    type="number"
-                                    value={qty}
-                                    onChange={e => {
-                                      const val = Number(e.target.value);
-                                      setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, quantity: val } : x));
-                                    }}
-                                    className="w-20 bg-white dark:bg-brand-card border border-slate-200 rounded-lg p-1 font-bold text-center"
-                                  />
-                                </div>
-                              )}
+                              <div className="flex items-center space-x-1">
+                                <span className="font-bold text-slate-700 dark:text-gray-300">
+                                  {isPerPerson ? 'Kişi Sayısı:' : isPerUnit ? 'Adet Sayısı:' : 'Paket Adedi:'}
+                                </span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={qty}
+                                  onChange={e => {
+                                    const val = Math.max(1, Number(e.target.value));
+                                    setSelectedServices(prev => prev.map(x => x.serviceId === s.id ? { ...x, quantity: val } : x));
+                                  }}
+                                  className="w-20 bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-1 font-bold text-center"
+                                />
+                              </div>
 
-                              <label className={`flex items-center space-x-1 font-bold cursor-pointer ${isPaid ? 'text-emerald-600' : 'text-slate-500 dark:text-gray-400'}`}>
+                              <label className={`flex items-center space-x-1 font-bold cursor-pointer select-none ${isPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-gray-400'}`}>
                                 <input
                                   type="checkbox"
                                   checked={isPaid}
@@ -878,9 +1344,28 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                             </div>
                           )}
                         </div>
+
+                        {isSelected && (
+                          <div className="pt-2 border-t border-amber-500/20 flex flex-wrap justify-between items-center text-xs">
+                            <div className="flex items-center space-x-1.5 text-[11px] text-slate-600 dark:text-gray-300">
+                              <span className="font-bold text-amber-700 dark:text-gold-400">⚡ Hesaplama Formülü:</span>
+                              <span className="font-mono">
+                                {isPerPerson
+                                  ? `${qty} Kişi × ${formatCurrency(unitPrice)}/Kişi`
+                                  : isPerUnit
+                                  ? `${qty} Adet × ${formatCurrency(unitPrice)}/Adet`
+                                  : `${qty} Paket × ${formatCurrency(unitPrice)} (Sabit Paket)`}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1.5 font-extrabold text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30">
+                              <span>Hizmet Tutarı:</span>
+                              <span className="text-sm">{formatCurrency(calculatedCost)}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
-                  })}
+                  }))}
                 </div>
               </div>
 
@@ -949,8 +1434,8 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                 </div>
               </div>
 
-              {/* SECTION 4: MÜŞTERİ İLETİŞİM BİLGİLERİ */}
-              <div id="customer-section" className={`glass-panel p-6 rounded-3xl space-y-4 shadow-sm border transition ${customerError ? 'border-2 border-red-500 shadow-red-500/20 bg-red-500/5' : 'border-slate-200 dark:border-brand-border'}`}>
+              {/* SECTION 4: MÜŞTERİ İLETİŞİM BİLGİLERİ (Z-30 STACKING LAYER TO FLOAT OVER SECTION 5) */}
+              <div id="customer-section" className={`glass-panel p-6 rounded-3xl space-y-4 shadow-sm border transition relative z-30 ${customerError ? 'border-2 border-red-500 shadow-red-500/20 bg-red-500/5' : 'border-slate-200 dark:border-brand-border'}`}>
                 <div className="border-b border-slate-200 dark:border-brand-border pb-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -1065,7 +1550,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="relative">
+                      <div className="relative z-50">
                         <label className="font-bold block mb-1">Birincil Telefon (+90) <span className="text-red-500">*</span>:</label>
                         <input
                           id="new-cust-phone-input"
@@ -1093,7 +1578,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                           }).slice(0, 4);
                           if (matches.length === 0) return null;
                           return (
-                            <div className="absolute left-0 right-0 top-full mt-1.5 z-40 bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
+                            <div className="absolute left-0 right-0 top-full mt-1.5 z-[9999] bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
                               <div className="bg-amber-500/15 px-3 py-2 border-b border-amber-500/30 text-[11px] font-extrabold text-amber-800 dark:text-gold-400 flex items-center justify-between">
                                 <span className="flex items-center space-x-1">
                                   <span>⚡ Kayıtlı Müşteri Eşleşti ({matches.length}):</span>
@@ -1110,7 +1595,7 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                                       setCustomerSearchQuery('');
                                       setCustomerMode('existing');
                                       setCustomerError(false);
-                                      showToast(`👥 "${cust.name}" Kayıtlı Müşteri Olarak Seçildi ve Aktarıldı!`);
+                                      if (showToast) showToast(`👥 "${cust.name}" Kayıtlı Müşteri Olarak Seçildi ve Aktarıldı!`);
                                     }}
                                     className="p-3 hover:bg-amber-500/10 dark:hover:bg-slate-800/80 cursor-pointer transition flex items-center justify-between text-left group"
                                   >
@@ -1198,8 +1683,8 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
                 )}
               </div>
 
-              {/* SECTION 5: FATURA BİLGİLERİ */}
-              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border">
+              {/* SECTION 5: FATURA BİLGİLERİ (Z-10 LOWER STACKING LAYER) */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm border border-slate-200 dark:border-brand-border relative z-10">
                 <div className="border-b border-slate-200 dark:border-brand-border pb-3 space-y-2">
                   <div className="flex items-center space-x-2">
                     <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -1452,5 +1937,3 @@ import { formatCurrency, formatDate, formatPhoneNumber, isValidPhoneNumber } fro
         </div>
       );
     }
-
-    // --- CUSTOMER FORM MODAL ---
