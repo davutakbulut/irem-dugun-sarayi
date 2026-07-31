@@ -4886,8 +4886,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
         const hash = window.location.hash || '';
-        return !!guestMediaKeyMatch || hash.includes('mode=guest') || hash.includes('key=');
-      }, [activeTab, guestMediaKeyMatch]);
+        return hash.includes('medya/') || hash.includes('m/') || hash.includes('key=') || hash.includes('mode=guest');
+      }, [activeTab]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
         try {
@@ -5517,7 +5517,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             <div className="flex-1 flex min-h-0 w-full max-w-full overflow-x-hidden">
             
             {/* SIDEBAR (VERTICAL MODE ONLY) */}
-            {!isErrorPage && menuLayout === 'vertical' && (
+            {!isErrorPage && !isPublicGuestRoute && menuLayout === 'vertical' && (
               <aside aria-label="Ana Gezinti Menüsü" className="w-64 glass-panel p-4 hidden lg:flex flex-col justify-between border-r border-slate-200 dark:border-brand-border/40 shrink-0 sticky top-0 h-[calc(100vh-105px)] overflow-hidden">
                 <nav className="space-y-3 custom-scrollbar overflow-y-auto flex-1 min-h-0 pr-1">
                   {[
