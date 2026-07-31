@@ -5029,12 +5029,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           fetch('/api/system-settings')
             .then(res => res.json())
             .then(data => {
-              if (data && data.themeColor) {
-                setThemeColor(data.themeColor);
-                if (data.themeColor !== 'gold' && data.themeColor !== 'classic_gold') {
-                  document.documentElement.setAttribute('data-ui-theme', data.themeColor);
-                } else {
-                  document.documentElement.removeAttribute('data-ui-theme');
+              if (data) {
+                if (data.themeColor) {
+                  setThemeColor(data.themeColor);
+                  if (data.themeColor !== 'gold' && data.themeColor !== 'classic_gold') {
+                    document.documentElement.setAttribute('data-ui-theme', data.themeColor);
+                  } else {
+                    document.documentElement.removeAttribute('data-ui-theme');
+                  }
+                }
+                if (data.menuLayout) {
+                  setMenuLayout(data.menuLayout);
+                  if (typeof document !== 'undefined') {
+                    document.documentElement.setAttribute('data-menu-layout', data.menuLayout);
+                  }
                 }
               }
             }).catch(() => {});
