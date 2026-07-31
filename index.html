@@ -4008,11 +4008,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE & DISPATCH CUSTOM SYNC EVENT
           setReservations(prev => {
             const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
-            const updated = prev.map(r => {
-              if (r.mediaKey === targetResKey || r.id === targetResKey || r.mediaKey === selectedResKey || r.id === selectedResKey) {
+            const targetResId = currentRes?.id;
+
+            const updated = prev.map((r, idx) => {
+              const isMatch = (r.mediaKey && r.mediaKey === targetResKey) ||
+                              (r.id && r.id === targetResKey) ||
+                              (targetResId && r.id === targetResId) ||
+                              (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey)) ||
+                              (prev.length === 1 || idx === 0 && !selectedResKey);
+
+              if (isMatch) {
                 const existingList = r.mediaFiles || [];
                 return {
                   ...r,
+                  mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
                   mediaFiles: [newMediaObj, ...existingList]
                 };
               }
@@ -4610,7 +4619,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [services, setServices] = useState(() => CacheService.get('services', INITIAL_SERVICES));
       const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', INITIAL_CAMPAIGNS));
       const [customers, setCustomers] = useState(() => CacheService.get('customers', INITIAL_CUSTOMERS));
-      const [reservations, setReservations] = useState(() => CacheService.get('reservations', INITIAL_RESERVATIONS));
+      // Auto-normalize mediaKey on all reservations (Ensures older cached items have mediaKeys)
+      const normalizeReservationsMediaKeys = (list) => {
+        if (!Array.isArray(list)) return [];
+        return list.map((r, idx) => ({
+          ...r,
+          mediaKey: r.mediaKey || ('MEDIA-' + (r.id || 'RES-' + idx).replace(/[^A-Za-z0-9]/g, ''))
+        }));
+      };
+
+      const [reservations, setReservations] = useState(() => {
+        const cached = CacheService.get('reservations', INITIAL_RESERVATIONS);
+        return normalizeReservationsMediaKeys(cached);
+      });
       const [draftReservations, setDraftReservations] = useState(() => CacheService.get('draft_reservations', []));
       const [users, setUsers] = useState(() => CacheService.get('users', INITIAL_USERS));
 
