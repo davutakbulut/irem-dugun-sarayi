@@ -14947,7 +14947,16 @@ function MindMapPageComponent({ navigateTo }) {
     function VersionHistoryModalComponent({ isOpen, onClose, systemVersion, versionHistory }) {
       if (!isOpen) return null;
 
-      const releases = [
+      const dynamicReleases = (versionHistory && versionHistory.length > 0) ? versionHistory.map((item, idx) => ({
+        version: item.version,
+        tag: idx === 0 ? 'CANLI SON SÜRÜM' : 'SÜRÜM GÜNCELLEMESİ',
+        date: item.date,
+        title: item.title,
+        color: idx === 0 ? 'bg-amber-500 font-extrabold shadow-md' : 'bg-emerald-500',
+        changes: [item.desc]
+      })) : [];
+
+      const staticReleases = [
         {
           version: 'v1.5.0 (Yol Haritası)',
           tag: 'YAKINDA GELECEK',
