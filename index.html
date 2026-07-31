@@ -4862,6 +4862,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [redAlertModalData, setRedAlertModalData] = useState(null);
       const [prefilledCreateDate, setPrefilledCreateDate] = useState(null);
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+      // Check if current route is a Public Guest Link (e.g. #/medya-yukle?key=MEDIA-8X92M1KP or ?mode=guest)
+      const isPublicGuestRoute = useMemo(() => {
+        if (typeof window === 'undefined') return false;
+        const hash = window.location.hash || '';
+        return hash.includes('key=') || hash.includes('mode=guest');
+      }, [activeTab]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
         try {
@@ -5304,7 +5311,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           )}
 
           {/* HEADER */}
-          {!isErrorPage && (
+          {!isErrorPage && !isPublicGuestRoute && (
             <header role="banner" className="sticky top-0 z-30 bg-white dark:bg-brand-card border-b border-slate-200 dark:border-brand-border/40 shadow-md flex flex-col">
               {/* ROW 1: TOP MAIN HEADER BAR */}
               <div className="h-16 px-4 sm:px-6 flex items-center justify-between">
@@ -5407,7 +5414,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               {/* ROW 2: DEDICATED SUB-HEADER BAR (ALWAYS PRESENT BETWEEN MAIN HEADER & NAVIGATION MENU) */}
-              {!isErrorPage && (
+              {!isErrorPage && !isPublicGuestRoute && (
                 <div className="bg-slate-50/90 dark:bg-brand-dark/90 border-t border-b border-slate-200/80 dark:border-brand-border/60 px-4 sm:px-6 py-1.5 flex items-center justify-between text-xs font-bold z-30">
                   {/* LEFT: ROLE SWITCHER BUTTONS */}
                   <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar">
@@ -5653,7 +5660,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             )}
 
             {/* PAGE MAIN CONTENT */}
-            <main role="main" className="flex-1 p-3 pb-4 sm:p-6 sm:pb-6 lg:p-8 lg:pb-6 min-w-0 w-full max-w-full overflow-x-hidden">
+            <main role="main" className={`flex-1 p-3 pb-4 sm:p-6 sm:pb-6 lg:p-8 lg:pb-6 min-w-0 w-full max-w-full overflow-x-hidden ${isPublicGuestRoute ? "pt-20" : ""}`}>
               
               {toast && (
                 <div role="status" aria-live="polite" className="fixed top-4 left-4 right-4 sm:top-20 sm:left-auto sm:right-6 z-[99999] px-5 py-3 rounded-2xl sm:rounded-xl bg-slate-900/95 dark:bg-slate-900/95 text-slate-100 border border-amber-500/50 shadow-2xl font-bold text-xs flex items-center justify-between sm:justify-start space-x-2 animate-slide-down sm:animate-fade-in">
