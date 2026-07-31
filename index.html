@@ -9188,7 +9188,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     // --- GLOBAL FOOTER COMPONENT ---
-    function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal, isPublicGuestRoute }) {
+    function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal, isPublicGuestRoute, systemVersion }) {
       const activeCampaign = campaigns.length > 0 ? campaigns[0] : { title: 'Erken Rezervasyon Fırsatı', code: 'IREM2026', discount: '%20 İndirim' };
       const currentYear = new Date().getFullYear();
 
