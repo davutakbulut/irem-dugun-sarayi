@@ -1,6 +1,39 @@
-import time
+import os
+import sys
+import json
 import re
+import time
 import subprocess
+
+# Automatically Auto-Increment System Version in db_system_settings.json on build
+try:
+    db_path = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+    if os.path.exists(db_path):
+        with open(db_path, 'r', encoding='utf-8') as dbf:
+            db_data = json.load(dbf)
+        cur_v = db_data.get('systemVersion', 'v1.4.48')
+        v_match = re.search(r'v?(\d+)\.(\d+)\.(\d+)', cur_v)
+        if v_match:
+            major, minor, patch = v_match.groups()
+            new_v = f"v{major}.{minor}.{int(patch) + 1}"
+            db_data['systemVersion'] = new_v
+            db_data['lastUpdated'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+            
+            # Add automatic changelog entry
+            history = db_data.get('versionHistory', [])
+            history.insert(0, {
+                "version": new_v,
+                "date": time.strftime('%d Ağustos %Y', time.localtime()),
+                "title": f"Otomatik Sürüm Güncellemesi ({new_v})",
+                "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+            })
+            db_data['versionHistory'] = history[:15] # Keep last 15 entries
+            
+            with open(db_path, 'w', encoding='utf-8') as dbf:
+                json.dump(db_data, dbf, indent=2, ensure_ascii=False)
+            print(f"🚀 AUTO-INCREMENTED SYSTEM VERSION IN BACKEND DB: {cur_v} -> {new_v}")
+except Exception as e:
+    print("Auto-increment warning:", e)
 
 with open('index.html', 'r', encoding='utf-8') as f:
     html = f.read()
@@ -43,7 +76,7 @@ if not compiled_js or "BABEL BUILD ERROR" in compiled_js or len(compiled_js) < 1
 
 print(f"Pre-compilation SUCCESS! Compiled JS length: {len(compiled_js)} bytes")
 
-# Save precompiled js to assets/app.compiled.js
+# Save precompiled js to src/app.compiled.js
 with open('src/app.compiled.js', 'w', encoding='utf-8') as f:
     f.write(compiled_js)
 
@@ -53,7 +86,7 @@ prod_html = html
 # Remove babel.min.js script tag
 prod_html = prod_html.replace('<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.2/babel.min.js"></script>', '')
 
-# Replace <script type="text/babel">...</script> with <script src="src/app.compiled.js" defer></script>
+# Replace <script type="text/babel">...</script> with <script src="src/app.compiled.js?v=timestamp" defer></script>
 old_tag_pattern = r'<script type="text/babel">.*?</script>'
 new_script_tag = '<script src="src/app.compiled.js?v=' + str(int(time.time())) + '" defer></script>'
 

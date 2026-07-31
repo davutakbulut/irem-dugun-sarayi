@@ -5281,6 +5281,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const cached = CacheService.get('tab_permissions', TAB_PERMISSIONS);
         return { ...cached, 'mind-map': ['admin'] };
       });
+      const [systemVersion, setSystemVersion] = useState('v1.4.48');
+      const [versionHistoryState, setVersionHistoryState] = useState([]);
       const [themeColor, setThemeColor] = useState(() => {
         const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
         const cachedTheme = typeof window !== 'undefined' ? (CacheService.get('theme_color') || CacheService.get('selected_theme')) : null;
@@ -5297,7 +5299,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             .then(res => res.json())
             .then(data => {
               if (data) {
-                if (data.themeColor) {
+                if (data.systemVersion) {
+              setSystemVersion(data.systemVersion);
+            }
+            if (data.versionHistory) {
+              setVersionHistoryState(data.versionHistory);
+            }
+            if (data.themeColor) {
                   setThemeColor(data.themeColor);
                   if (data.themeColor !== 'gold' && data.themeColor !== 'classic_gold') {
                     document.documentElement.setAttribute('data-ui-theme', data.themeColor);
@@ -6107,7 +6115,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       title="Sistem Sürüm Geçmişini Göster"
                     >
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span>Canlı Sistem (v1.4.0)</span>
+                      <span>Canlı Sistem ({systemVersion || 'v1.4.48'})</span>
                       <span className="text-[9px] opacity-70">📋</span>
                     </button>
                   </div>
@@ -9380,7 +9388,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             <div className="flex items-center space-x-4 font-semibold text-[11px]">
               <button onClick={() => onNavigate('settings-appearance')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Görünüm Ayarları</button>
               <span>•</span>
-              <button onClick={onOpenVersionModal} className="hover:text-amber-600 dark:hover:text-gold-400 transition font-bold text-amber-600 dark:text-gold-400">📋 Sistem Sürüm Geçmişi (v1.4.0)</button>
+              <button onClick={onOpenVersionModal} className="hover:text-amber-600 dark:hover:text-gold-400 transition font-bold text-amber-600 dark:text-gold-400">📋 Sistem Sürüm Geçmişi ({systemVersion || 'v1.4.48'})</button>
               <span>•</span>
               <button onClick={() => showToast('🛡️ Gizlilik ve Güvenlik Sözleşmesi Onaylıdır')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Gizlilik Politikası</button>
             </div>
@@ -14936,7 +14944,7 @@ function MindMapPageComponent({ navigateTo }) {
     }
 
     // --- VERSION HISTORY & RELEASE LOG MODAL ---
-    function VersionHistoryModalComponent({ isOpen, onClose }) {
+    function VersionHistoryModalComponent({ isOpen, onClose, systemVersion, versionHistory }) {
       if (!isOpen) return null;
 
       const releases = [

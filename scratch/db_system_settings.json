@@ -1,6 +1,6 @@
 {
   "themeColor": "nordic-light",
-  "appName": "\u0130rem D\u00fc\u011f\u00fcn Saray\u0131 & Organizasyon",
+  "appName": "İrem Düğün Sarayı & Organizasyon",
   "cacheEnabled": true,
   "duplicateImagePrevention": true,
   "maxUploadSizeMB": 50,
@@ -14,5 +14,45 @@
   ],
   "updatedAt": "2026-07-31T23:42:17.692Z",
   "updatedBy": "admin",
-  "menuLayout": "vertical"
+  "menuLayout": "vertical",
+  "systemVersion": "v1.4.49",
+  "lastUpdated": "2026-07-31T23:45:32Z",
+  "versionHistory": [
+    {
+      "version": "v1.4.49",
+      "date": "01 Ağustos 2026",
+      "title": "Otomatik Sürüm Güncellemesi (v1.4.49)",
+      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+    },
+    {
+      "version": "v1.4.48",
+      "date": "1 Ağustos 2026",
+      "title": "Otomatik Veritabanı Sürüm Güncelleyici",
+      "desc": "Sistemdeki her geliştirmede sürümün sunucu veritabanında (db_system_settings.json) otomatik yükselmesi ve canlı çekilmesi sağlandı."
+    },
+    {
+      "version": "v1.4.47",
+      "date": "1 Ağustos 2026",
+      "title": "Sistem Master Kılavuzu & Mimarisi Sayfası",
+      "desc": "Navigasyon menüsünün en altına 16 sayfa, 11 tema ve 10 Vercel yeteneğini içeren interaktif kılavuz eklendi."
+    },
+    {
+      "version": "v1.4.45",
+      "date": "1 Ağustos 2026",
+      "title": "Vercel Labs Agent Skills Entegrasyonu",
+      "desc": "10 adet resmi Vercel Yeteneği (.skills/) projeye entegre edildi."
+    },
+    {
+      "version": "v1.4.43",
+      "date": "1 Ağustos 2026",
+      "title": "Ağ İstekleri Auto-Retry Mekanizması",
+      "desc": "fetchWithRetry fonksiyonu ile mikro kesintilerde isteklerin 3 kez otomatik tekrar denenmesi sağlandı."
+    },
+    {
+      "version": "v1.4.41",
+      "date": "1 Ağustos 2026",
+      "title": "%100 Tek Sunucu Veritabanı Mimarisi",
+      "desc": "Tema ve Menü seçimleri 0ms server HTML attribute injection ile veritabanına bağlandı."
+    }
+  ]
 }
