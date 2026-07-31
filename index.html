@@ -9289,7 +9289,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 title="Sistem Sürüm Geçmişi ve Güncelleme Günlüğünü Göster"
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Canlı Sistem v1.4.0 (Sürüm Notları 📋)</span>
+                <span>Canlı Sistem ({systemVersion || 'v1.4.56'}) (Sürüm Notları 📋)</span>
               </button>
             </div>
 
@@ -15128,7 +15128,7 @@ function MindMapPageComponent({ navigateTo }) {
 
             <div className="p-4 border-t border-slate-200 dark:border-brand-border bg-slate-50/50 dark:bg-brand-dark/50 flex justify-between items-center text-xs">
               <span className="text-slate-500 dark:text-gray-400 font-bold">
-                Mevcut Aktif Sürüm: <strong className="text-emerald-700 dark:text-emerald-400 font-extrabold">v1.4.0 (Canlı)</strong>
+                Mevcut Aktif Sürüm: <strong className="text-emerald-700 dark:text-emerald-400 font-extrabold">{systemVersion || "v1.4.56"} (Canlı)</strong>
               </span>
               <button
                 onClick={onClose}
