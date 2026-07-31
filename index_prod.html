@@ -44,10 +44,12 @@
     }
   </script>
   
-    <!-- INSTANT THEME RESTORE SCRIPT (0ms INSTANT PAINT - ALL 8 THEMES SUPPORTED) -->
+    <!-- INSTANT THEME RESTORE SCRIPT (READS DIRECTLY FROM SERVER INJECTED DOM ATTRIBUTE) -->
   <script>
     (function() {
       try {
+        var domTheme = document.documentElement.getAttribute('data-ui-theme');
+        if (domTheme) return; // Server already injected active theme into HTML!
         var getVal = function(k) {
           try {
             var v = localStorage.getItem(k);
@@ -56,11 +58,9 @@
             return v;
           } catch(e) { return localStorage.getItem(k); }
         };
-        var theme = getVal('irem_cache_theme_color') || getVal('irem_cache_selected_theme') || getVal('theme_color') || getVal('selected_theme') || 'nordic-light';
-        if (theme && theme !== 'gold' && theme !== 'classic_gold') {
+        var theme = getVal('irem_cache_theme_color') || getVal('selected_theme');
+        if (theme) {
           document.documentElement.setAttribute('data-ui-theme', theme);
-        } else {
-          document.documentElement.removeAttribute('data-ui-theme');
         }
       } catch(e) {}
     })();

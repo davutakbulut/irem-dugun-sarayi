@@ -44,10 +44,12 @@
     }
   </script>
   
-    <!-- INSTANT THEME RESTORE SCRIPT (0ms INSTANT PAINT - ALL 8 THEMES SUPPORTED) -->
+    <!-- INSTANT THEME RESTORE SCRIPT (READS DIRECTLY FROM SERVER INJECTED DOM ATTRIBUTE) -->
   <script>
     (function() {
       try {
+        var domTheme = document.documentElement.getAttribute('data-ui-theme');
+        if (domTheme) return; // Server already injected active theme into HTML!
         var getVal = function(k) {
           try {
             var v = localStorage.getItem(k);
@@ -56,11 +58,9 @@
             return v;
           } catch(e) { return localStorage.getItem(k); }
         };
-        var theme = getVal('irem_cache_theme_color') || getVal('irem_cache_selected_theme') || getVal('theme_color') || getVal('selected_theme') || 'nordic-light';
-        if (theme && theme !== 'gold' && theme !== 'classic_gold') {
+        var theme = getVal('irem_cache_theme_color') || getVal('selected_theme');
+        if (theme) {
           document.documentElement.setAttribute('data-ui-theme', theme);
-        } else {
-          document.documentElement.removeAttribute('data-ui-theme');
         }
       } catch(e) {}
     })();
@@ -1733,7 +1733,7 @@
     function ThemeIcon({ icon, fallbackEmoji, activeTheme, className = "w-4 h-4" }) {
       const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
       const savedTheme = typeof window !== 'undefined' ? (CacheService.get('theme_color') || CacheService.get('selected_theme') || localStorage.getItem('irem_cache_theme_color') || localStorage.getItem('selected_theme')) : null;
-      const rawTheme = activeTheme || domTheme || savedTheme || 'classic_gold';
+      const rawTheme = activeTheme || domTheme || savedTheme || '';
 
       useEffect(() => {
         if (rawTheme && rawTheme !== 'gold' && rawTheme !== 'classic_gold') {
@@ -5016,8 +5016,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       });
       const [themeColor, setThemeColor] = useState(() => {
         const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
-        const cachedTheme = CacheService.get('theme_color') || CacheService.get('selected_theme');
-        return domTheme || cachedTheme || 'nordic-light';
+        const cachedTheme = typeof window !== 'undefined' ? (CacheService.get('theme_color') || CacheService.get('selected_theme')) : null;
+        return domTheme || cachedTheme || '';
       });
       const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
       const [isCacheEnabledState, setIsCacheEnabledState] = useState(() => CacheService.get('cache_enabled', true));
@@ -15317,7 +15317,7 @@ function MindMapPageComponent({ navigateTo }) {
       const [settingsTab, setSettingsTab] = useState(initialSubTab);
       const [draftTheme, setDraftTheme] = useState(() => {
         const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
-        return themeColor || domTheme || 'nordic-light';
+        return themeColor || domTheme || '';
       });
 
       useEffect(() => {
