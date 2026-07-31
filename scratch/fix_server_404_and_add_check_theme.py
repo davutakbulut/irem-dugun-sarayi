@@ -1,4 +1,9 @@
-import http.server
+import os
+import json
+import sys
+
+# 1. Rewrite scratch/serve_fast_3g.py with a clean, rock-solid Fast3GHandler having SINGLE do_GET and SINGLE do_POST
+server_code = """import http.server
 import socketserver
 import gzip
 import io
@@ -64,7 +69,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                         active_t = sys_cfg.get('themeColor', 'nordic-light')
                         if active_t and active_t != 'gold' and active_t != 'classic_gold':
                             content = content.replace(b'<html lang="tr"', f'<html lang="tr" data-ui-theme="{active_t}"'.encode('utf-8'))
-                            content = content.replace(b'<html lang=\"tr\"', f'<html lang="tr" data-ui-theme="{active_t}"'.encode('utf-8'))
+                            content = content.replace(b'<html lang=\\"tr\\"', f'<html lang="tr" data-ui-theme="{active_t}"'.encode('utf-8'))
 
                     self.send_response(200)
                     self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -169,7 +174,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             try:
                 payload = json.loads(post_data.decode('utf-8'))
-                res_id = payload.get('resId', 'GENERAL').replace('/', '_').replace('\\', '_')
+                res_id = payload.get('resId', 'GENERAL').replace('/', '_').replace('\\\\', '_')
                 file_name = payload.get('fileName', 'uploaded_file.jpg')
                 base64_data = payload.get('base64Data', '')
 
@@ -212,3 +217,47 @@ print(f"Server starting on port {PORT} with REST API System Settings DB & Video 
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("0.0.0.0", PORT), Fast3GHandler) as httpd:
     httpd.serve_forever()
+"""
+
+with open('scratch/serve_fast_3g.py', 'w', encoding='utf-8') as f:
+    f.write(server_code)
+print("Rewrote scratch/serve_fast_3g.py with clean REST API endpoints for GET/POST /api/system-settings!")
+
+# 2. Add checkTheme() console diagnostic tool in index.html
+with open('index.html', 'r', encoding='utf-8') as f:
+    html = f.read()
+
+check_theme_script = """
+  <!-- THEME DIAGNOSTIC CONSOLE TOOL: Type checkTheme() in browser F12 console -->
+  <script>
+    window.checkTheme = function() {
+      console.log('🔍 SYSTEM THEME DIAGNOSTIC REPORT:');
+      console.log('----------------------------------------');
+      var domTheme = document.documentElement.getAttribute('data-ui-theme') || 'classic_gold (default)';
+      var localTheme = localStorage.getItem('irem_cache_theme_color') || localStorage.getItem('selected_theme') || 'None';
+      console.log('1. HTML DOM Attribute (data-ui-theme):', domTheme);
+      console.log('2. LocalStorage Cache:', localTheme);
+      
+      fetch('/api/system-settings')
+        .then(r => r.json())
+        .then(data => {
+          console.log('3. Server Backend DB Theme (/api/system-settings):', data.themeColor || 'Unknown');
+          console.log('----------------------------------------');
+          if (data.themeColor === domTheme || (domTheme === 'classic_gold (default)' && data.themeColor === 'gold')) {
+            console.log('✅ RESULT: THEME IS 100% MATCHED AND PERSISTENT IN BACKEND DB!');
+          } else {
+            console.warn('⚠️ WARNING: DOM theme does not match Backend DB theme.');
+          }
+        }).catch(err => console.error('❌ Failed to fetch backend DB theme:', err));
+    };
+  </script>
+"""
+
+if "window.checkTheme" not in html:
+    html = html.replace('</head>', check_theme_script + '\n</head>')
+    print("Added checkTheme() console diagnostic tool to index.html!")
+
+with open('index.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print("Updated server 404 fix and checkTheme console tool successfully!")

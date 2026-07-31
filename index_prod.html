@@ -66,6 +66,30 @@
     })();
   </script>
 
+  <!-- THEME DIAGNOSTIC CONSOLE TOOL: Type checkTheme() in browser F12 console -->
+  <script>
+    window.checkTheme = function() {
+      console.log('🔍 SYSTEM THEME DIAGNOSTIC REPORT:');
+      console.log('----------------------------------------');
+      var domTheme = document.documentElement.getAttribute('data-ui-theme') || 'classic_gold (default)';
+      var localTheme = localStorage.getItem('irem_cache_theme_color') || localStorage.getItem('selected_theme') || 'None';
+      console.log('1. HTML DOM Attribute (data-ui-theme):', domTheme);
+      console.log('2. LocalStorage Cache:', localTheme);
+      
+      fetch('/api/system-settings')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          console.log('3. Server Backend DB Theme (/api/system-settings):', data.themeColor || 'Unknown');
+          console.log('----------------------------------------');
+          if (data.themeColor === domTheme || (domTheme === 'classic_gold (default)' && data.themeColor === 'gold')) {
+            console.log('✅ RESULT: THEME IS 100% MATCHED AND PERSISTENT IN BACKEND DB!');
+          } else {
+            console.warn('⚠️ WARNING: DOM theme (' + domTheme + ') does not match Backend DB theme (' + data.themeColor + ').');
+          }
+        }).catch(function(err) { console.error('❌ Failed to fetch backend DB theme:', err); });
+    };
+  </script>
+
   <!-- Lucide Icons (Direct Immutable CDN - Zero 302 Redirect Delay) -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.min.js" defer></script>
 
@@ -1084,6 +1108,9 @@
       animation: shimmer 1.5s infinite linear;
     }
   </style>
+
+
+
 
 </head>
   <div id="root">

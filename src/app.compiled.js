@@ -85,7 +85,10 @@ const handlePrintInvoice=res=>{const venue=venues.find(v=>v.id===res.venueId);co
               .signatures { display: flex; justify-content: space-between; margin-top: 50px; font-size: 13px; }
               .sig-box { border-top: 1px solid #94a3b8; width: 200px; text-align: center; padding-top: 8px; }
             </style>
-          </head>
+          
+
+
+</head>
           <body>
             <div class="header">
               <div>
