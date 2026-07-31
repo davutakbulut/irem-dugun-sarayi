@@ -876,9 +876,9 @@ export function CreateReservationPageComponent({ venues, services, customers, ca
           <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm overflow-hidden w-full max-w-full">
             <div className="flex flex-col items-start gap-2 min-w-0 flex-1 max-w-full">
               
-              {/* BADGES ROW WITH FLEX-WRAP TO PREVENT HORIZONTAL OVERFLOW */}
-              <div className="flex flex-wrap items-center gap-2 max-w-full">
-                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border shrink-0">
+              {/* BADGES ROW HORIZONTALLY SCROLLABLE ON MOBILE */}
+              <div className="w-full flex items-center space-x-2 overflow-x-auto whitespace-nowrap no-scrollbar snap-x snap-mandatory py-1 max-w-full shrink-0">
+                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border shrink-0 whitespace-nowrap snap-start">
                   <svg className="w-3.5 h-3.5 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   <span>Rezervasyon Oluşturma & Kiralama</span>
                 </span>
@@ -892,7 +892,7 @@ export function CreateReservationPageComponent({ venues, services, customers, ca
                       if (showToast) showToast('Sözleşme referans kodu kopyalandı! 🔑', 'success');
                     }
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30 text-xs font-mono font-bold inline-flex items-center space-x-1 shrink-0 cursor-pointer transition"
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30 text-xs font-mono font-bold inline-flex items-center space-x-1 shrink-0 cursor-pointer transition whitespace-nowrap snap-start"
                   title="Referans kodunu kopyalamak için tıklayın"
                 >
                   <span>🔑 Ref:</span>
@@ -901,12 +901,12 @@ export function CreateReservationPageComponent({ venues, services, customers, ca
                 </button>
 
                 {lastSavedTime ? (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold inline-flex items-center space-x-1 shrink-0">
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap snap-start">
                     <span>💾 Taslak Kaydedildi</span>
                     <span className="text-[10px] font-mono">({lastSavedTime})</span>
                   </span>
                 ) : (
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1 shrink-0">
+                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap snap-start">
                     <span>⏱️ Canlı Otomatik Kayıt</span>
                   </span>
                 )}
