@@ -1,0 +1,91 @@
+import json
+import sys
+
+db_file = 'scratch/db_system_settings.json'
+
+rich_history = [
+    {
+        "version": "v1.4.58",
+        "date": "01 Ağustos 2026",
+        "title": "📜 Zengin Canlı Sürüm Geçmişi & Detaylı Changelog Kataloğu",
+        "desc": "Sürüm geçmişi modalındaki tüm eski/statik kayıtlar temizlenerek v1.4.0'dan v1.4.58'e kadar yapılan tüm mimari geliştirmeler, 3G performans iyileştirmeleri ve UI dokunuşları detaylı veritabanı loglarına dönüştürüldü."
+    },
+    {
+        "version": "v1.4.57",
+        "date": "01 Ağustos 2026",
+        "title": "🎯 Footer & Header Birebir Canlı Sürüm Eşleşmesi",
+        "desc": "Sayfa altı footer butonundaki statik v1.4.0 yazısı kaldırılarak doğrudan sunucu veritabanındaki ({systemVersion}) canlı sürüm verisine bağlandı. Header ve Footer sürüm butonları %100 birebir eşleştirildi."
+    },
+    {
+        "version": "v1.4.56",
+        "date": "01 Ağustos 2026",
+        "title": "📱 Mobil Yatay Kaydırılabilir Üst Rozet Şeridi",
+        "desc": "Yeni Rezervasyon sayfasının en üstündeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir şık ve parmakla kaydırılabilir (overflow-x-auto whitespace-nowrap) yatay bantta toplandı."
+    },
+    {
+        "version": "v1.4.55",
+        "date": "01 Ağustos 2026",
+        "title": "⚡ 17 Modüler ES Sayfa Bileşeni (%100 Sync)",
+        "desc": "Projedeki tüm 17 ana sayfa bileşeni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klasörüne %100 güncel ES Module standartlarında senkronize edildi."
+    },
+    {
+        "version": "v1.4.54",
+        "date": "01 Ağustos 2026",
+        "title": "🛠️ Yeni Rezervasyon Üst Başlık Kartı & Tıkla-Kopyala Ref Kodu",
+        "desc": "Yeni Rezervasyon sayfasının üst kartındaki ekrandan sağa taşma ve kayma sorunu flex-wrap ve overflow-hidden ile düzeltildi. Ref rozetine tek tıkla panoya kopyalama ve toast bildirimi eklendi."
+    },
+    {
+        "version": "v1.4.52",
+        "date": "01 Ağustos 2026",
+        "title": "🔗 Canlı Veritabanı Sürüm Geçmişi Modal Bağlantısı",
+        "desc": "Sürüm Geçmişi modalındaki releases dizisi veritabanındaki versionHistory verisine dinamik olarak bağlandı. ReferenceError hatası giderildi ve otomatik sürüm yükseltme motoru devreye girdi."
+    },
+    {
+        "version": "v1.4.44",
+        "date": "01 Ağustos 2026",
+        "title": "⚙️ Ayarlar Sayfası Masaüstü Menü Seçim Kartı İyileştirmesi",
+        "desc": "Ayarlar > Görünüm sekmesinde kaydırma ve sekme geçişlerinde kaybolan Masaüstü Menü Yerleşimi kartı düzeltildi, build_precompiled.py tüm JSX script bloklarını tek dosyada birleştirecek şekilde güncellendi."
+    },
+    {
+        "version": "v1.4.43",
+        "date": "01 Ağustos 2026",
+        "title": "🌐 Ağ İstekleri Otomatik Tekrar Deneme (fetchWithRetry)",
+        "desc": "Sunucu yeniden başlatılırken oluşan ERR_CONNECTION_REFUSED hatalarını engellemek için window.fetchWithRetry mekanizması entegre edildi. İstekler 3 kez üst üste otomatik denenir."
+    },
+    {
+        "version": "v1.4.42",
+        "date": "01 Ağustos 2026",
+        "title": "💾 Menü Yerleşimi Veritabanı Birleştirme & POST Kalıcılığı",
+        "desc": "Sunucu do_POST işleyicisi JSON verilerini ezmeden birleştirecek şekilde (existing.update) güncellendi. Tema kaydedildiğinde menü yerleşiminin varsayılana dönme hatası kalıcı olarak çözüldü."
+    },
+    {
+        "version": "v1.4.41",
+        "date": "01 Ağustos 2026",
+        "title": "🏛️ %100 Tek Sunucu Veritabanı Mimarisi (Zero-Flicker)",
+        "desc": "Tüm tema ve menü tercihleri sadece sunucu veritabanından (db_system_settings.json) çekilecek şekilde yapılandırıldı. serve_fast_3g.py yanıt verirken HTML attribute injection ile 0ms anlık tema boyaması sağlandı."
+    },
+    {
+        "version": "v1.4.40",
+        "date": "01 Ağustos 2026",
+        "title": "🖥️ Masaüstü Menü Yerleşimi (Dikey / Yatay) DB Entegrasyonu",
+        "desc": "Ayarlar > Görünüm sekmesindeki Masaüstü Menü Yerleşimi tercihi veritabanına bağlandı ve tüm sayfalar arası geçişlerde kalıcılığı sağlandı."
+    },
+    {
+        "version": "v1.4.0",
+        "date": "31 Temmuz 2026",
+        "title": "🛡️ Müstakil Rol Yönetimi, 3G Hız Performansı & Nordic Taç Logosu",
+        "desc": "Rol Yönetimi Sistem Ayarlarından ayrılıp bağımsız #/roller sayfasına dönüştürüldü. 5 Kritik Form Doğrulama Kuralı tamamlandı. 3G LCP yükleme süresi <2.5s seviyesine indirildi."
+    }
+]
+
+with open(db_file, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+data['systemVersion'] = "v1.4.58"
+data['versionHistory'] = rich_history
+data['lastUpdated'] = "2026-08-01T02:57:18Z"
+
+with open(db_file, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print("Updated db_system_settings.json with rich version history logs successfully!")

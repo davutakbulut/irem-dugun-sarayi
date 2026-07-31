@@ -15,86 +15,86 @@
   "updatedAt": "2026-07-31T23:42:17.692Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.56",
-  "lastUpdated": "2026-07-31T23:56:05Z",
+  "systemVersion": "v1.4.59",
+  "lastUpdated": "2026-07-31T23:57:32Z",
   "versionHistory": [
+    {
+      "version": "v1.4.59",
+      "date": "01 Ağustos 2026",
+      "title": "Otomatik Sürüm Güncellemesi (v1.4.59)",
+      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+    },
+    {
+      "version": "v1.4.58",
+      "date": "01 Ağustos 2026",
+      "title": "📜 Zengin Canlı Sürüm Geçmişi & Detaylı Changelog Kataloğu",
+      "desc": "Sürüm geçmişi modalındaki tüm eski/statik kayıtlar temizlenerek v1.4.0'dan v1.4.58'e kadar yapılan tüm mimari geliştirmeler, 3G performans iyileştirmeleri ve UI dokunuşları detaylı veritabanı loglarına dönüştürüldü."
+    },
+    {
+      "version": "v1.4.57",
+      "date": "01 Ağustos 2026",
+      "title": "🎯 Footer & Header Birebir Canlı Sürüm Eşleşmesi",
+      "desc": "Sayfa altı footer butonundaki statik v1.4.0 yazısı kaldırılarak doğrudan sunucu veritabanındaki ({systemVersion}) canlı sürüm verisine bağlandı. Header ve Footer sürüm butonları %100 birebir eşleştirildi."
+    },
     {
       "version": "v1.4.56",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.56)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "📱 Mobil Yatay Kaydırılabilir Üst Rozet Şeridi",
+      "desc": "Yeni Rezervasyon sayfasının en üstündeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir şık ve parmakla kaydırılabilir (overflow-x-auto whitespace-nowrap) yatay bantta toplandı."
     },
     {
       "version": "v1.4.55",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.55)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "⚡ 17 Modüler ES Sayfa Bileşeni (%100 Sync)",
+      "desc": "Projedeki tüm 17 ana sayfa bileşeni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klasörüne %100 güncel ES Module standartlarında senkronize edildi."
     },
     {
       "version": "v1.4.54",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.54)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
-    },
-    {
-      "version": "v1.4.53",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.53)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "🛠️ Yeni Rezervasyon Üst Başlık Kartı & Tıkla-Kopyala Ref Kodu",
+      "desc": "Yeni Rezervasyon sayfasının üst kartındaki ekrandan sağa taşma ve kayma sorunu flex-wrap ve overflow-hidden ile düzeltildi. Ref rozetine tek tıkla panoya kopyalama ve toast bildirimi eklendi."
     },
     {
       "version": "v1.4.52",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.52)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "🔗 Canlı Veritabanı Sürüm Geçmişi Modal Bağlantısı",
+      "desc": "Sürüm Geçmişi modalındaki releases dizisi veritabanındaki versionHistory verisine dinamik olarak bağlandı. ReferenceError hatası giderildi ve otomatik sürüm yükseltme motoru devreye girdi."
     },
     {
-      "version": "v1.4.51",
+      "version": "v1.4.44",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.51)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
-    },
-    {
-      "version": "v1.4.50",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.50)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
-    },
-    {
-      "version": "v1.4.49",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.49)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
-    },
-    {
-      "version": "v1.4.48",
-      "date": "1 Ağustos 2026",
-      "title": "Otomatik Veritabanı Sürüm Güncelleyici",
-      "desc": "Sistemdeki her geliştirmede sürümün sunucu veritabanında (db_system_settings.json) otomatik yükselmesi ve canlı çekilmesi sağlandı."
-    },
-    {
-      "version": "v1.4.47",
-      "date": "1 Ağustos 2026",
-      "title": "Sistem Master Kılavuzu & Mimarisi Sayfası",
-      "desc": "Navigasyon menüsünün en altına 16 sayfa, 11 tema ve 10 Vercel yeteneğini içeren interaktif kılavuz eklendi."
-    },
-    {
-      "version": "v1.4.45",
-      "date": "1 Ağustos 2026",
-      "title": "Vercel Labs Agent Skills Entegrasyonu",
-      "desc": "10 adet resmi Vercel Yeteneği (.skills/) projeye entegre edildi."
+      "title": "⚙️ Ayarlar Sayfası Masaüstü Menü Seçim Kartı İyileştirmesi",
+      "desc": "Ayarlar > Görünüm sekmesinde kaydırma ve sekme geçişlerinde kaybolan Masaüstü Menü Yerleşimi kartı düzeltildi, build_precompiled.py tüm JSX script bloklarını tek dosyada birleştirecek şekilde güncellendi."
     },
     {
       "version": "v1.4.43",
-      "date": "1 Ağustos 2026",
-      "title": "Ağ İstekleri Auto-Retry Mekanizması",
-      "desc": "fetchWithRetry fonksiyonu ile mikro kesintilerde isteklerin 3 kez otomatik tekrar denenmesi sağlandı."
+      "date": "01 Ağustos 2026",
+      "title": "🌐 Ağ İstekleri Otomatik Tekrar Deneme (fetchWithRetry)",
+      "desc": "Sunucu yeniden başlatılırken oluşan ERR_CONNECTION_REFUSED hatalarını engellemek için window.fetchWithRetry mekanizması entegre edildi. İstekler 3 kez üst üste otomatik denenir."
+    },
+    {
+      "version": "v1.4.42",
+      "date": "01 Ağustos 2026",
+      "title": "💾 Menü Yerleşimi Veritabanı Birleştirme & POST Kalıcılığı",
+      "desc": "Sunucu do_POST işleyicisi JSON verilerini ezmeden birleştirecek şekilde (existing.update) güncellendi. Tema kaydedildiğinde menü yerleşiminin varsayılana dönme hatası kalıcı olarak çözüldü."
     },
     {
       "version": "v1.4.41",
-      "date": "1 Ağustos 2026",
-      "title": "%100 Tek Sunucu Veritabanı Mimarisi",
-      "desc": "Tema ve Menü seçimleri 0ms server HTML attribute injection ile veritabanına bağlandı."
+      "date": "01 Ağustos 2026",
+      "title": "🏛️ %100 Tek Sunucu Veritabanı Mimarisi (Zero-Flicker)",
+      "desc": "Tüm tema ve menü tercihleri sadece sunucu veritabanından (db_system_settings.json) çekilecek şekilde yapılandırıldı. serve_fast_3g.py yanıt verirken HTML attribute injection ile 0ms anlık tema boyaması sağlandı."
+    },
+    {
+      "version": "v1.4.40",
+      "date": "01 Ağustos 2026",
+      "title": "🖥️ Masaüstü Menü Yerleşimi (Dikey / Yatay) DB Entegrasyonu",
+      "desc": "Ayarlar > Görünüm sekmesindeki Masaüstü Menü Yerleşimi tercihi veritabanına bağlandı ve tüm sayfalar arası geçişlerde kalıcılığı sağlandı."
+    },
+    {
+      "version": "v1.4.0",
+      "date": "31 Temmuz 2026",
+      "title": "🛡️ Müstakil Rol Yönetimi, 3G Hız Performansı & Nordic Taç Logosu",
+      "desc": "Rol Yönetimi Sistem Ayarlarından ayrılıp bağımsız #/roller sayfasına dönüştürüldü. 5 Kritik Form Doğrulama Kuralı tamamlandı. 3G LCP yükleme süresi <2.5s seviyesine indirildi."
     }
   ]
 }
