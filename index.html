@@ -1323,6 +1323,8 @@
     };
 
     const SLUG_TO_TAB = {
+      'medya': 'media',
+      'm': 'media',
       'anasayfa': 'dashboard',
       'yeni-rezervasyon': 'create-reservation',
       'rezervasyon-olustur': 'create-reservation',
@@ -2031,7 +2033,15 @@
       const rawHash = window.location.hash.replace('#/', '').replace('#', '');
       const [routePart, queryPart] = rawHash.split('?');
       const slug = routePart || 'dashboard';
-      const tab = (slug === 'anasayfa' ? 'dashboard' : (SLUG_TO_TAB[slug] || 'simulasyon-404'));
+      let targetTab = 'simulasyon-404';
+      if (slug === 'anasayfa') {
+        targetTab = 'dashboard';
+      } else if (cleanHash.startsWith('medya/') || cleanHash.startsWith('m/')) {
+        targetTab = 'media';
+      } else {
+        targetTab = SLUG_TO_TAB[slug] || 'simulasyon-404';
+      }
+      const tab = targetTab;
       
       const params = new URLSearchParams(queryPart || '');
       const refKey = params.get('ref') || null;
@@ -5698,7 +5708,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               {/* RBAC PERMISSION GUARD & ERROR BOUNDARY WRAPPER */}
               {isPageTabLoading ? (
                 <PageSkeletonLoader tab={activeTab} title={TAB_LABELS[activeTab] || activeTab} />
-              ) : !(activeRole === 'admin' || (tabPermissionsState[activeTab] || tabPermissionsState[activeTab.split('-')[0]] || ['admin']).includes(activeRole)) ? (
+              ) : (!isPublicGuestRoute && !(activeRole === 'admin' || (tabPermissionsState[activeTab] || tabPermissionsState[activeTab.split('-')[0]] || ['admin']).includes(activeRole))) ? (
                 <UnauthorizedAccessScreen
                   pageTitle={TAB_LABELS[activeTab] || activeTab}
                   activeRoleName={rolesState[activeRole] || activeRole}
