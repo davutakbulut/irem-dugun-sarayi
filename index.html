@@ -3738,17 +3738,43 @@
 // --- MEDIA COMPONENT ---
 
 function MediaComponent({ reservations = [], setReservations = () => {}, activeRole = 'admin', currentUserState = null, showToast = () => {} }) {
+  // Extract URL search param key (e.g. #/medya-yukle?key=MEDIA-8X92M1KP or #/medya-yukle?resId=RES-2026-001)
   const getUrlKey = () => {
     if (typeof window === 'undefined') return '';
     const hash = window.location.hash || '';
-    const match = hash.match(/key=([A-Za-z0-9_-]+)/);
-    return match ? match[1] : '';
+    const match = hash.match(/[?&](key|resId)=([A-Za-z0-9_-]+)/);
+    return match ? match[2] : '';
   };
 
-  const publicGuestKey = getUrlKey();
-  const isPublicGuestMode = !!publicGuestKey;
+  const urlKey = getUrlKey();
+  
+  // Public guest mode is active ONLY if accessed via key parameter from outside without staff navigation
+  const [isPublicGuestMode, setIsPublicGuestMode] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const hash = window.location.hash || '';
+    return hash.includes('key=MEDIA-') || hash.includes('mode=guest');
+  });
 
-  // Selected reservation key state (null means overview grid view)
+  // Active selected reservation key (Preserved in URL Hash on click & refresh)
+  const [selectedResKey, setSelectedResKey] = useState(() => {
+    if (urlKey) return urlKey;
+    return null;
+  });
+
+  // Sync selectedResKey with browser URL Hash dynamically without full reload
+  const selectReservation = (key) => {
+    setSelectedResKey(key);
+    if (typeof window !== 'undefined') {
+      if (key) {
+        const prefix = isPublicGuestMode ? 'mode=guest&key=' : 'key=';
+        window.history.replaceState(null, '', `#/medya-yukle?${prefix}${key}`);
+      } else {
+        window.history.replaceState(null, '', `#/medya-yukle`);
+      }
+    }
+  };
+
+  // Filter reservations by customer email/ID if activeRole === 'customer'
   const userReservations = useMemo(() => {
     if (activeRole === 'customer') {
       return reservations.filter(r => {
@@ -3760,15 +3786,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     return reservations;
   }, [reservations, activeRole, currentUserState]);
 
-  const [selectedResKey, setSelectedResKey] = useState(() => {
-    if (publicGuestKey) return publicGuestKey;
-    return null; // Show event cards grid first on main Media page
-  });
-
   const currentRes = useMemo(() => {
-    if (!selectedResKey) return null;
-    return reservations.find(r => r.mediaKey === selectedResKey || r.id === selectedResKey) || null;
-  }, [reservations, selectedResKey]);
+    if (!selectedResKey) return userReservations[0] || reservations[0] || null;
+    return reservations.find(r => r.mediaKey === selectedResKey || r.id === selectedResKey) || userReservations[0] || reservations[0] || null;
+  }, [reservations, userReservations, selectedResKey]);
+
+  // Guaranteed fallback key for link sharing
+  const activeMediaKey = useMemo(() => {
+    if (!currentRes) return 'MEDIA-8X92M1KP';
+    return currentRes.mediaKey || currentRes.id || 'MEDIA-8X92M1KP';
+  }, [currentRes]);
 
   const [filterType, setFilterType] = useState('all');
   const [activeTabSub, setActiveTabSub] = useState('gallery');
@@ -3785,6 +3812,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     try { localStorage.setItem('banned_ips', JSON.stringify(bannedIPs)); } catch(e){}
   }, [bannedIPs]);
 
+  // Guest Session Uploads for Privacy
   const [guestSessionUploadIds, setGuestSessionUploadIds] = useState(() => {
     if (typeof window === 'undefined') return [];
     try {
@@ -3796,6 +3824,22 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
   useEffect(() => {
     try { sessionStorage.setItem('guest_uploaded_ids', JSON.stringify(guestSessionUploadIds)); } catch(e){}
   }, [guestSessionUploadIds]);
+
+  // REAL-TIME SYNC ACROSS TABS / ADMIN PANEL
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'irem_cache_reservations' || e.key === 'reservations') {
+        try {
+          const freshReservations = JSON.parse(e.newValue);
+          if (Array.isArray(freshReservations)) {
+            setReservations(freshReservations);
+          }
+        } catch(err){}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [setReservations]);
 
   const [uploadQueue, setUploadQueue] = useState([]);
   const [isUploadingQueue, setIsUploadingQueue] = useState(false);
@@ -3830,7 +3874,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
   }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType]);
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
-  const handleFilesSelect = async (e) => {
+  const handleFilesSelect = (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
@@ -3845,7 +3889,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return;
     }
 
-    // Check duplicate file metadata (name + size + type + lastModified)
     const existingFiles = currentRes ? (currentRes.mediaFiles || []) : [];
     const validFiles = [];
     let duplicateDetectedCount = 0;
@@ -3931,15 +3974,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             uploaderIp: '195.175.22.' + Math.floor(Math.random() * 50 + 1)
           };
 
-          setReservations(prev => prev.map(r => {
-            if (r.mediaKey === selectedResKey || r.id === selectedResKey) {
-              return {
-                ...r,
-                mediaFiles: [newMediaObj, ...(r.mediaFiles || [])]
-              };
-            }
-            return r;
-          }));
+          // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE (PERSISTENCE FIX)
+          setReservations(prev => {
+            const updated = prev.map(r => {
+              if (r.mediaKey === activeMediaKey || r.id === currentRes?.id) {
+                return {
+                  ...r,
+                  mediaFiles: [newMediaObj, ...(r.mediaFiles || [])]
+                };
+              }
+              return r;
+            });
+
+            // Save to CacheService and trigger LocalStorage event for real-time admin sync
+            try {
+              if (typeof CacheService !== 'undefined') {
+                CacheService.set('reservations', updated);
+              } else {
+                localStorage.setItem('irem_cache_reservations', JSON.stringify(updated));
+              }
+            } catch(e){}
+
+            return updated;
+          });
 
           if (isPublicGuestMode) {
             setGuestSessionUploadIds(prev => [newMediaId, ...prev]);
@@ -3948,6 +4005,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
           setUploadedCountSession(prev => prev + 1);
           setIsUploadingQueue(false);
+          showToast('📸 Dosya başarıyla yüklendi ve albüme kaydedildi!');
         };
         reader.readAsDataURL(pendingItem.file);
       } else {
@@ -3955,10 +4013,40 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }
     }, 150);
 
-  }, [uploadQueue, isUploadingQueue, selectedResKey, isPublicGuestMode]);
+  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, setReservations, showToast]);
 
+  // DELETE MEDIA ITEM FUNCTION
+  const handleDeleteMediaItem = (mediaId, e) => {
+    if (e) e.stopPropagation();
+    if (confirm('Bu fotoğrafı/videoyu albümden silmek istediğinize emin misiniz?')) {
+      setReservations(prev => {
+        const updated = prev.map(r => {
+          if (r.mediaKey === activeMediaKey || r.id === currentRes?.id) {
+            return {
+              ...r,
+              mediaFiles: (r.mediaFiles || []).filter(m => m.id !== mediaId)
+            };
+          }
+          return r;
+        });
+
+        try {
+          if (typeof CacheService !== 'undefined') {
+            CacheService.set('reservations', updated);
+          } else {
+            localStorage.setItem('irem_cache_reservations', JSON.stringify(updated));
+          }
+        } catch(err){}
+
+        return updated;
+      });
+      showToast('🗑️ İçerik albümden başarıyla silindi.');
+    }
+  };
+
+  // GUARANTEED SHAREABLE LINK COPY FUNCTION
   const handleCopyLink = () => {
-    const shareUrl = window.location.origin + window.location.pathname + '#/medya-yukle?key=' + (currentRes ? currentRes.mediaKey : selectedResKey);
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/medya-yukle?mode=guest&key=${activeMediaKey}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
       showToast('🔗 Davetli Yükleme Bağlantısı Panoya Kopyalandı!');
@@ -3969,7 +4057,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const handleBulkDownload = () => {
     showToast('📦 Tüm fotoğraf ve videolar paketleniyor... Arşiv indirmesi başlatıldı!');
-    const text = 'İrem Düğün Sarayı - Medya Arşivi\nToplam ' + mediaList.length + ' dosya.';
+    const text = 'İrem Düğün Sarayı - Medya Arşivi\nEtkinlik: ' + (currentRes ? currentRes.customerName : 'Davet') + '\nToplam ' + mediaList.length + ' dosya.';
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -3979,33 +4067,49 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   return (
     <div className="w-full space-y-6 animate-fade-in pb-16">
-      {/* HEADER BAR */}
-      <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <ThemeIcon icon="camera" fallbackEmoji="" className="w-6 h-6 text-amber-500 shrink-0" />
-            <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">
-              {isPublicGuestMode ? (currentRes ? currentRes.customerName : 'Davetli Medya Yükleme Paneli') : (selectedResKey ? (currentRes ? currentRes.customerName : 'Etkinlik Medya Galerisi') : 'Medya & Etkinlik Albümleri Yönetimi')}
-            </h2>
+      {/* PUBLIC GUEST MODE HEADER */}
+      {isPublicGuestMode ? (
+        <div className="glass-panel p-6 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-amber-500/10 text-center space-y-3 shadow-md">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white mx-auto shadow-lg">
+            <ThemeIcon icon="camera" fallbackEmoji="" className="w-7 h-7 text-white" />
           </div>
-          <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
-            {isPublicGuestMode ? 'Çektiğiniz özel kareleri gelin & damat ile paylaşın.' : (selectedResKey ? 'Etkinliğe ait medya yükleyin, link kopyalayın veya A4 QR Masakartı baskısı alın.' : 'Tüm rezervasyonların medya albümlerini kart formatında inceleyin ve yönetin.')}
-          </p>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">
+              {currentRes ? currentRes.customerName : 'Düğün & Balo Daveti'}
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-gray-300 font-medium mt-1">
+              Çektiğiniz en özel fotoğraf ve videoları gelin & damat ile anında paylaşın!
+            </p>
+          </div>
         </div>
+      ) : (
+        /* ADMIN / STAFF HEADER BAR */
+        <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <ThemeIcon icon="camera" fallbackEmoji="" className="w-6 h-6 text-amber-500 shrink-0" />
+              <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text">
+                {selectedResKey ? (currentRes ? currentRes.customerName : 'Etkinlik Medya Galerisi') : 'Medya & Etkinlik Albümleri Yönetimi'}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+              {selectedResKey ? 'Etkinliğe ait medya yükleyin, link kopyalayın veya A4 QR Masakartı baskısı alın.' : 'Tüm rezervasyonların medya albümlerini kart formatında inceleyin ve yönetin.'}
+            </p>
+          </div>
 
-        {/* BACK TO EVENTS GRID BUTTON */}
-        {!isPublicGuestMode && selectedResKey && (
-          <button
-            type="button"
-            onClick={() => setSelectedResKey(null)}
-            className="px-4 py-2 bg-slate-100 dark:bg-brand-card hover:bg-amber-500 hover:text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0"
-          >
-            <span>← Tüm Etkinlik Kartlarına Dön</span>
-          </button>
-        )}
-      </div>
+          {selectedResKey && (
+            <button
+              type="button"
+              onClick={() => selectReservation(null)}
+              className="px-4 py-2 bg-slate-100 dark:bg-brand-card hover:bg-amber-500 hover:text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0"
+            >
+              <span>← Tüm Etkinlik Kartlarına Dön</span>
+            </button>
+          )}
+        </div>
+      )}
 
-      {/* VIEW LEVEL 1: EVENT CARDS GRID (When no event is open) */}
+      {/* VIEW LEVEL 1: EVENT CARDS GRID (When no event is open & not in public guest mode) */}
       {!isPublicGuestMode && !selectedResKey && (
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
@@ -4027,7 +4131,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               return (
                 <div
                   key={r.id}
-                  onClick={() => setSelectedResKey(r.mediaKey || r.id)}
+                  onClick={() => selectReservation(r.mediaKey || r.id)}
                   className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border/60 hover:border-amber-500/60 shadow-sm hover:shadow-xl transition cursor-pointer space-y-4 group relative overflow-hidden flex flex-col justify-between"
                 >
                   <div className="space-y-2">
@@ -4054,7 +4158,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     </div>
                   </div>
 
-                  {/* BOTTOM ACTION BAR ON CARD */}
                   <div className="pt-3 border-t border-slate-200 dark:border-brand-border/40 flex justify-between items-center text-xs font-bold text-amber-600 dark:text-gold-400">
                     <span>Albümü ve QR Kodunu Yönet</span>
                     <span className="group-hover:translate-x-1 transition">→</span>
@@ -4066,16 +4169,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         </div>
       )}
 
-      {/* VIEW LEVEL 2: DETAILED EVENT MEDIA PAGE (When an event is selected or in public guest mode) */}
+      {/* VIEW LEVEL 2: DETAILED EVENT MEDIA PAGE */}
       {(selectedResKey || isPublicGuestMode) && currentRes && (
         <div className="space-y-6">
 
-          {/* ACTION BUTTONS BAR (Copy Link, A4 PDF, Zip Download) */}
+          {/* ACTION BUTTONS BAR */}
           {!isPublicGuestMode && (
             <div className="glass-panel p-4 rounded-2xl border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-bold text-slate-700 dark:text-gray-200 font-mono">
-                  🔑 Key: {currentRes.mediaKey || currentRes.id}
+                  🔑 Key: {activeMediaKey}
                 </span>
               </div>
 
@@ -4118,7 +4221,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <span>Yeni Fotoğraf veya Video Yükleyin</span>
               </h3>
               <span className="text-[10px] font-mono text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 font-bold">
-                Mükerrer (Tekrarlı) Görsel Koruması Aktif
+                Mükerrer Görsel Engeli Aktif
               </span>
             </div>
 
@@ -4141,7 +4244,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 Fotoğraf veya Videoları Seçmek İçin Tıklayın
               </div>
               <div className="text-[10px] text-slate-500 dark:text-gray-400">
-                Aynı anda çoklu seçim yapabilirsiniz. Önceden yüklenmiş aynı dosyalar otomatik engellenir.
+                Aynı anda çoklu seçim yapabilirsiniz. Yüklenen veriler anında kaydedilir ve senkronize olur.
               </div>
             </div>
 
@@ -4251,8 +4354,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <img src={item.url} alt="Galeri Fotoğrafı" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     )}
 
+                    {/* OVERLAY INFORMATION WITH DELETE BUTTON */}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2.5 flex flex-col justify-between text-white text-[10px]">
-                      <div className="flex justify-end">
+                      <div className="flex justify-between items-center">
+                        {/* DELETE BUTTON */}
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteMediaItem(item.id, e)}
+                          className="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded-md font-bold text-[9px] shadow transition flex items-center space-x-1 cursor-pointer"
+                          title="İçeriği Sil"
+                        >
+                          <ThemeIcon icon="trash" fallbackEmoji="" className="w-3 h-3 shrink-0" />
+                          <span>Sil</span>
+                        </button>
+
                         {!isPublicGuestMode && (
                           <button
                             type="button"
@@ -4263,7 +4378,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                                 showToast('🚫 ' + item.uploaderIp + ' adresi engellendi!');
                               }
                             }}
-                            className="px-2 py-1 bg-red-600/80 hover:bg-red-600 text-white rounded-md font-bold text-[9px]"
+                            className="px-2 py-1 bg-slate-800/90 hover:bg-red-700 text-white rounded-md font-bold text-[9px]"
                             title="Yükleyen IP Adresini Engelle"
                           >
                             IP Ban
@@ -4420,6 +4535,33 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* GUEST PROMOTION FOOTER BANNER (Visible ONLY in Public Guest Mode) */}
+      {isPublicGuestMode && (
+        <div className="glass-panel p-6 rounded-3xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-950 text-white text-center space-y-4 shadow-xl mt-8">
+          <div className="max-w-md mx-auto space-y-2">
+            <h4 className="font-heading font-black text-lg text-amber-400">
+              Kendi Düğün veya Nişanınız İçin Denemek İster Mısınız?
+            </h4>
+            <p className="text-xs text-slate-300 leading-relaxed font-medium">
+              Siz de kendi etkinliğinizde davetlilerinizin çektiği tüm fotoğraf ve videoları anında tek tıkla toplamak ister misiniz? İrem Düğün Sarayı Dijital Anı Albümü ile anılarınızı ölümsüzleştirin.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.href = 'tel:+905321112233';
+              }
+            }}
+            className="px-6 py-3 gold-button text-slate-950 font-black text-xs rounded-xl shadow-lg hover:scale-105 transition inline-flex items-center space-x-2 cursor-pointer"
+          >
+            <ThemeIcon icon="phone" fallbackEmoji="" className="w-4 h-4 shrink-0" />
+            <span>📞 Bilgi Al & İletişime Geç (+90 532 111 2233)</span>
+          </button>
         </div>
       )}
     </div>
