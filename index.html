@@ -6466,19 +6466,19 @@ function MediaComponent({ reservations = [], showToast = () => {} }) {
           {/* PAGE HEADER */}
           <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
             <div className="flex flex-col items-start gap-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border">
+              <div className="w-full flex items-center space-x-2 overflow-x-auto whitespace-nowrap custom-scrollbar pb-1.5 shrink-0">
+                <span className="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 text-xs font-bold px-3 py-1 rounded-full border border-slate-200 dark:border-brand-border shrink-0 whitespace-nowrap">
                   <svg className="w-3.5 h-3.5 text-slate-600 dark:text-gray-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   <span>Rezervasyon Oluşturma & Kiralama</span>
                 </span>
 
                 {/* DRAFT REF KEY & LIVE SAVE BADGES */}
-                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-mono font-bold inline-flex items-center space-x-1">
+                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-mono font-bold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap">
                   <span>🔑 Ref:</span>
                   <span className="tracking-wider">{activeRefKey}</span>
                 </span>
                 {lastSavedTime ? (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold inline-flex items-center space-x-1">
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap">
                     <span>💾 Taslak Kaydedildi</span>
                     <span className="text-[10px] font-mono">({lastSavedTime})</span>
                   </span>
