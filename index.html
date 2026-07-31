@@ -3771,18 +3771,32 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     return null;
   });
 
-  // Sync selectedResKey with browser URL Hash dynamically without full reload
+  // Sync selectedResKey with browser URL Hash (Pushes new history entry so Back button returns to #/medya-yukle cards list)
   const selectReservation = (key) => {
     setSelectedResKey(key);
     if (typeof window !== 'undefined') {
       if (key) {
         const prefix = isPublicGuestMode ? 'mode=guest&key=' : 'key=';
-        window.history.replaceState(null, '', `#/medya-yukle?${prefix}${key}`);
+        window.location.hash = `#/medya-yukle?${prefix}${key}`;
       } else {
-        window.history.replaceState(null, '', `#/medya-yukle`);
+        window.location.hash = `#/medya-yukle`;
       }
     }
   };
+
+  // Listen for browser Back / Forward button clicks (popstate & hashchange)
+  useEffect(() => {
+    const handleUrlHashSync = () => {
+      const freshUrlKey = getUrlKey();
+      setSelectedResKey(freshUrlKey || null);
+    };
+    window.addEventListener('hashchange', handleUrlHashSync);
+    window.addEventListener('popstate', handleUrlHashSync);
+    return () => {
+      window.removeEventListener('hashchange', handleUrlHashSync);
+      window.removeEventListener('popstate', handleUrlHashSync);
+    };
+  }, []);
 
   // Filter reservations by customer email/ID if activeRole === 'customer'
   const userReservations = useMemo(() => {
