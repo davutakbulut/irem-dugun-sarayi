@@ -3748,12 +3748,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const urlKey = getUrlKey();
   
-  // Public guest mode is active ONLY if accessed via explicit guest URL (mode=guest)
-  const [isPublicGuestMode, setIsPublicGuestMode] = useState(() => {
+  // SECURE PUBLIC GUEST CHECK: Checked against activeRole and URL Session Token
+  const isPublicGuestMode = useMemo(() => {
     if (typeof window === 'undefined') return false;
     const hash = window.location.hash || '';
-    return hash.includes('mode=guest');
-  });
+    const isLoggedStaff = activeRole === 'admin' || activeRole === 'social_media' || activeRole === 'customer';
+    
+    if (!isLoggedStaff || hash.includes('mode=guest')) {
+      return true;
+    }
+    return false;
+  }, [activeRole]);
 
   // Active selected reservation key (Preserved in URL Hash on click & refresh)
   const [selectedResKey, setSelectedResKey] = useState(() => {
@@ -4863,12 +4868,22 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [prefilledCreateDate, setPrefilledCreateDate] = useState(null);
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-      // Check if current route is a Public Guest Link (Only when mode=guest parameter is present)
+      // SECURE RBAC SESSION GUARD: Determine if Public Guest Mode is enforced.
+      // Security Policy: If user is not authenticated as Admin/Staff/Customer OR if explicitly in Guest Session Mode,
+      // URL manipulation cannot bypass security because layout is driven by Auth State & Session Access Control.
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
         const hash = window.location.hash || '';
-        return hash.includes('mode=guest');
-      }, [activeTab]);
+        const isMediaHash = hash.includes('medya-yukle');
+        
+        // If user is accessing media link without an active logged-in Admin/Staff role
+        const isLoggedStaff = activeRole === 'admin' || activeRole === 'social_media' || activeRole === 'customer';
+        
+        if (isMediaHash && (!isLoggedStaff || hash.includes('mode=guest'))) {
+          return true;
+        }
+        return false;
+      }, [activeTab, activeRole]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
         try {
