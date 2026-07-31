@@ -52,7 +52,7 @@
         var domTheme = document.documentElement.getAttribute('data-ui-theme');
         var domMenu = document.documentElement.getAttribute('data-menu-layout');
         if (!domTheme || !domMenu) {
-          fetch('/api/system-settings')
+          window.fetchWithRetry('/api/system-settings')
             .then(function(r) { return r.json(); })
             .then(function(d) {
               if (d.themeColor && !domTheme) document.documentElement.setAttribute('data-ui-theme', d.themeColor);
@@ -73,7 +73,7 @@
       console.log('1. HTML DOM Attribute (data-ui-theme):', domTheme);
       console.log('2. LocalStorage Cache:', localTheme);
       
-      fetch('/api/system-settings')
+      window.fetchWithRetry('/api/system-settings')
         .then(function(r) { return r.json(); })
         .then(function(data) {
           console.log('3. Server Backend DB Theme (/api/system-settings):', data.themeColor || 'Unknown');
@@ -1108,6 +1108,23 @@
 
 
 
+
+
+  <!-- SYSTEM API RETRY & RESILIENCE UTILITY -->
+  <script>
+    window.fetchWithRetry = function(url, options, retries, delay) {
+      retries = retries || 3;
+      delay = delay || 600;
+      return fetch(url, options).catch(function(err) {
+        if (retries <= 1) throw err;
+        return new Promise(function(resolve) {
+          setTimeout(resolve, delay);
+        }).then(function() {
+          return window.fetchWithRetry(url, options, retries - 1, delay * 1.5);
+        });
+      });
+    };
+  </script>
 
 </head>
   <div id="root">
