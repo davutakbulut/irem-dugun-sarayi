@@ -3760,18 +3760,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const urlKey = getUrlKey();
   
+  // Active selected reservation key (Preserved in URL Hash on click & refresh)
+  const [selectedResKey, setSelectedResKey] = useState(() => {
+    if (urlKey) return urlKey;
+    return null;
+  });
+
   // STRICT GUEST MODE: Active on standalone guest links (#/medya/:key or ?mode=guest)
   const isPublicGuestMode = useMemo(() => {
     if (typeof window === 'undefined') return false;
     const hash = window.location.hash || '';
     return /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
   }, [selectedResKey]);
-
-  // Active selected reservation key (Preserved in URL Hash on click & refresh)
-  const [selectedResKey, setSelectedResKey] = useState(() => {
-    if (urlKey) return urlKey;
-    return null;
-  });
 
   // Sync selectedResKey with browser URL Hash (Pushes new history entry so Back button returns to #/medya-yukle cards list)
   const selectReservation = (key) => {
