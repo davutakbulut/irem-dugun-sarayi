@@ -15318,6 +15318,12 @@ function MindMapPageComponent({ navigateTo }) {
       const [draftTheme, setDraftTheme] = useState(themeColor || 'gold');
 
       useEffect(() => {
+        if (themeColor) {
+          setDraftTheme(themeColor);
+        }
+      }, [themeColor]);
+
+      useEffect(() => {
         if (initialSubTab) setSettingsTab(initialSubTab);
       }, [initialSubTab]);
 
