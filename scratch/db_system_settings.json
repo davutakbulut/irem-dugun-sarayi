@@ -1,0 +1,17 @@
+{
+  "themeColor": "nordic-light",
+  "appName": "\u0130rem D\u00fc\u011f\u00fcn Saray\u0131 & Organizasyon",
+  "cacheEnabled": true,
+  "duplicateImagePrevention": true,
+  "maxUploadSizeMB": 50,
+  "defaultLanguage": "tr",
+  "allowedFileTypes": [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "video/mp4",
+    "video/quicktime"
+  ],
+  "updatedAt": "2026-08-01T01:28:00Z",
+  "updatedBy": "admin"
+}

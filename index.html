@@ -4999,7 +4999,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => { CacheService.set('tab_permissions', tabPermissionsState); }, [tabPermissionsState]);
       useEffect(() => {
         try {
-          fetch('/api/system-config')
+          fetch('/api/system-settings')
             .then(res => res.json())
             .then(data => {
               if (data && data.themeColor && data.themeColor !== themeColor) {
