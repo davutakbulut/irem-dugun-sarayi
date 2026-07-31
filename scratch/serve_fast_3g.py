@@ -56,15 +56,17 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     with open(target_html, 'rb') as f:
                         content = f.read()
                     
-                    # 0ms Server HTML data-ui-theme Injection from db_system_settings.json
+                                        # 0ms Server HTML System Settings Injection (data-ui-theme & data-menu-layout) from db_system_settings.json
                     db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
                     if os.path.exists(db_file):
                         with open(db_file, 'r', encoding='utf-8') as dbf:
                             sys_cfg = json.load(dbf)
                         active_t = sys_cfg.get('themeColor', 'nordic-light')
-                        if active_t and active_t != 'gold' and active_t != 'classic_gold':
-                            content = content.replace(b'<html lang="tr"', f'<html lang="tr" data-ui-theme="{active_t}"'.encode('utf-8'))
-                            content = content.replace(b'<html lang=\"tr\"', f'<html lang="tr" data-ui-theme="{active_t}"'.encode('utf-8'))
+                        active_m = sys_cfg.get('menuLayout', 'vertical')
+                        inject_tag = f'<html lang="tr" class="light" data-ui-theme="{active_t}" data-menu-layout="{active_m}">'
+                        content_str = content.decode('utf-8', errors='ignore')
+                        content_str = re.sub(r'<html[^>]*>', inject_tag, content_str, count=1)
+                        content = content_str.encode('utf-8')
 
                     self.send_response(200)
                     self.send_header('Content-Type', 'text/html; charset=utf-8')

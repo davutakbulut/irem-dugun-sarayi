@@ -44,23 +44,20 @@
     }
   </script>
   
-    <!-- INSTANT THEME RESTORE SCRIPT (READS DIRECTLY FROM SERVER INJECTED DOM ATTRIBUTE) -->
+    <!-- INSTANT SYSTEM SETTINGS RESTORE SCRIPT (100% SERVER DB DOM INJECTED) -->
   <script>
     (function() {
       try {
+        // Synchronously check server-injected DOM attributes on HTML element
         var domTheme = document.documentElement.getAttribute('data-ui-theme');
-        if (domTheme) return; // Server already injected active theme into HTML!
-        var getVal = function(k) {
-          try {
-            var v = localStorage.getItem(k);
-            if (!v) return null;
-            if (v.startsWith('"') || v.startsWith('{') || v.startsWith('[')) return JSON.parse(v);
-            return v;
-          } catch(e) { return localStorage.getItem(k); }
-        };
-        var theme = getVal('irem_cache_theme_color') || getVal('selected_theme');
-        if (theme) {
-          document.documentElement.setAttribute('data-ui-theme', theme);
+        var domMenu = document.documentElement.getAttribute('data-menu-layout');
+        if (!domTheme || !domMenu) {
+          fetch('/api/system-settings')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+              if (d.themeColor && !domTheme) document.documentElement.setAttribute('data-ui-theme', d.themeColor);
+              if (d.menuLayout && !domMenu) document.documentElement.setAttribute('data-menu-layout', d.menuLayout);
+            }).catch(function() {});
         }
       } catch(e) {}
     })();
