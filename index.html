@@ -4465,15 +4465,17 @@ function MediaComponent({ reservations = [], showToast = () => {} }) {
                           <ThemeIcon icon="user" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" /><span>Profilimi Düzenle</span>
                         </button>
 
-                        <button
-                          onClick={() => {
-                            navigateTo('settings');
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left"
-                        >
-                          <ThemeIcon icon="settings" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" /><span>Sistem Ayarları</span>
-                        </button>
+                        {activeRole === 'admin' && (
+                          <button
+                            onClick={() => {
+                              navigateTo('settings');
+                              setIsProfileDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left"
+                          >
+                            <ThemeIcon icon="settings" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" /><span>Sistem Ayarları</span>
+                          </button>
+                        )}
 
                         <button
                           onClick={() => {
