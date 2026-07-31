@@ -3825,20 +3825,51 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     try { sessionStorage.setItem('guest_uploaded_ids', JSON.stringify(guestSessionUploadIds)); } catch(e){}
   }, [guestSessionUploadIds]);
 
-  // REAL-TIME SYNC ACROSS TABS / ADMIN PANEL
+  // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (POLLING + BROADCAST + STORAGE EVENT)
   useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'irem_cache_reservations' || e.key === 'reservations') {
-        try {
-          const freshReservations = JSON.parse(e.newValue);
-          if (Array.isArray(freshReservations)) {
-            setReservations(freshReservations);
+    const syncFromCache = () => {
+      try {
+        const raw = localStorage.getItem('irem_cache_reservations');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setReservations(prev => {
+              // Only update state if JSON strings differ to avoid infinite re-render loop
+              if (JSON.stringify(prev) !== raw) {
+                return parsed;
+              }
+              return prev;
+            });
           }
-        } catch(err){}
+        }
+      } catch(e){}
+    };
+
+    const handleStorageChange = (e) => {
+      if (!e.key || e.key === 'irem_cache_reservations' || e.key === 'reservations') {
+        syncFromCache();
       }
     };
+
+    const handleCustomSync = (e) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setReservations(e.detail);
+      } else {
+        syncFromCache();
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('irem_media_sync', handleCustomSync);
+
+    // Fast 1-second polling fallback so guest uploads appear on Admin panel in under 1 second without page refresh
+    const pollTimer = setInterval(syncFromCache, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('irem_media_sync', handleCustomSync);
+      clearInterval(pollTimer);
+    };
   }, [setReservations]);
 
   const [uploadQueue, setUploadQueue] = useState([]);
@@ -3974,25 +4005,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             uploaderIp: '195.175.22.' + Math.floor(Math.random() * 50 + 1)
           };
 
-          // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE (PERSISTENCE FIX)
+          // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE & DISPATCH CUSTOM SYNC EVENT
           setReservations(prev => {
+            const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
             const updated = prev.map(r => {
-              if (r.mediaKey === activeMediaKey || r.id === currentRes?.id) {
+              if (r.mediaKey === targetResKey || r.id === targetResKey || r.mediaKey === selectedResKey || r.id === selectedResKey) {
+                const existingList = r.mediaFiles || [];
                 return {
                   ...r,
-                  mediaFiles: [newMediaObj, ...(r.mediaFiles || [])]
+                  mediaFiles: [newMediaObj, ...existingList]
                 };
               }
               return r;
             });
 
-            // Save to CacheService and trigger LocalStorage event for real-time admin sync
+            // Save to CacheService & LocalStorage
             try {
+              const jsonStr = JSON.stringify(updated);
+              localStorage.setItem('irem_cache_reservations', jsonStr);
               if (typeof CacheService !== 'undefined') {
                 CacheService.set('reservations', updated);
-              } else {
-                localStorage.setItem('irem_cache_reservations', JSON.stringify(updated));
               }
+              // Dispatch instant custom sync event for all active components in same tab/window
+              window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
             } catch(e){}
 
             return updated;
