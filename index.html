@@ -3826,16 +3826,22 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     };
   }, []);
 
-  // Filter reservations by customer email/ID if activeRole === 'customer'
+  // Filter reservations by customer email/ID if activeRole === 'customer' and SORT FROM NEWEST TO OLDEST BY DATE
   const userReservations = useMemo(() => {
+    let list = reservations;
     if (activeRole === 'customer') {
-      return reservations.filter(r => {
+      list = reservations.filter(r => {
         const matchesEmail = currentUserState?.email && r.customerEmail && r.customerEmail.toLowerCase() === currentUserState.email.toLowerCase();
         const matchesId = currentUserState?.id && r.customerId === currentUserState.id;
         return matchesEmail || matchesId;
       });
     }
-    return reservations;
+    // SORT BY EVENT DATE FROM NEWEST TO OLDEST (Yeniden Eskiye Azalan Sıralama)
+    return [...list].sort((a, b) => {
+      const dateA = new Date(a.date || a.eventDate || 0).getTime();
+      const dateB = new Date(b.date || b.eventDate || 0).getTime();
+      return dateB - dateA;
+    });
   }, [reservations, activeRole, currentUserState]);
 
   // Strict MediaKey / Reference Number Validation
