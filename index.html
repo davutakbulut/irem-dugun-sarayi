@@ -15047,6 +15047,8 @@ function MindMapPageComponent({ navigateTo }) {
         }
       ];
 
+      const releases = [...dynamicReleases, ...staticReleases];
+
       return (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
           <div className="bg-white dark:bg-brand-card w-full max-w-2xl rounded-3xl shadow-2xl border border-amber-500/30 overflow-hidden flex flex-col max-h-[85vh]">
