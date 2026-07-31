@@ -3748,11 +3748,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const urlKey = getUrlKey();
   
-  // Public guest mode is active ONLY if accessed via key parameter from outside without staff navigation
+  // Public guest mode is active ONLY if accessed via explicit guest URL (mode=guest)
   const [isPublicGuestMode, setIsPublicGuestMode] = useState(() => {
     if (typeof window === 'undefined') return false;
     const hash = window.location.hash || '';
-    return hash.includes('key=MEDIA-') || hash.includes('mode=guest');
+    return hash.includes('mode=guest');
   });
 
   // Active selected reservation key (Preserved in URL Hash on click & refresh)
@@ -4863,11 +4863,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [prefilledCreateDate, setPrefilledCreateDate] = useState(null);
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-      // Check if current route is a Public Guest Link (e.g. #/medya-yukle?key=MEDIA-8X92M1KP or ?mode=guest)
+      // Check if current route is a Public Guest Link (Only when mode=guest parameter is present)
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
         const hash = window.location.hash || '';
-        return hash.includes('key=') || hash.includes('mode=guest');
+        return hash.includes('mode=guest');
       }, [activeTab]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
