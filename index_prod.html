@@ -56,7 +56,7 @@
             return v;
           } catch(e) { return localStorage.getItem(k); }
         };
-        var theme = getVal('irem_cache_theme_color') || getVal('irem_cache_selected_theme') || getVal('theme_color') || getVal('selected_theme');
+        var theme = getVal('irem_cache_theme_color') || getVal('irem_cache_selected_theme') || getVal('theme_color') || getVal('selected_theme') || 'nordic-light';
         if (theme && theme !== 'gold' && theme !== 'classic_gold') {
           document.documentElement.setAttribute('data-ui-theme', theme);
         } else {
