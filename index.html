@@ -1765,7 +1765,10 @@
       eyeOff: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.05 10.05 0 013.98.937c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.21 5.485M3 3l18 18M9.88 9.88a3 3 0 104.24 4.24" /></svg>,
       helpCircle: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
       checkCircle: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-      xCircle: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      xCircle: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      star: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>,
+      mapPin: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+      shieldCheck: (props) => <svg className={props.className || "w-4 h-4 inline-block"} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
     };
 
     function WhatsAppButton({ phone, customerName = '', text = 'WhatsApp İle Mesaj At', className = '' }) {
@@ -5424,12 +5427,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <button
                     type="button"
                     onClick={() => setLoginMethod('email')}
-                    className={`relative pb-3 transition cursor-pointer ${
+                    className={`relative pb-3 flex items-center space-x-2 transition cursor-pointer ${
                       loginMethod === 'email'
                         ? 'text-orange-600 dark:text-orange-400 font-extrabold'
                         : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white font-semibold'
                     }`}
                   >
+                    <ThemeIcon icon="mail" fallbackEmoji="" className="w-4 h-4 shrink-0" />
                     <span>E-Posta Adresi</span>
                     {loginMethod === 'email' && (
                       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full animate-fade-in" />
@@ -5442,12 +5446,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <button
                     type="button"
                     onClick={() => setLoginMethod('phone')}
-                    className={`relative pb-3 flex items-center space-x-1.5 transition cursor-pointer ${
+                    className={`relative pb-3 flex items-center space-x-2 transition cursor-pointer ${
                       loginMethod === 'phone'
                         ? 'text-orange-600 dark:text-orange-400 font-extrabold'
                         : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white font-semibold'
                     }`}
                   >
+                    <ThemeIcon icon="phone" fallbackEmoji="" className="w-4 h-4 shrink-0" />
                     <span>Telefon Numarası</span>
                     <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-orange-500/20">
                       Yeni
@@ -5466,8 +5471,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 {/* DYNAMIC IDENTITY INPUT (EMAIL OR PHONE) */}
                 {loginMethod === 'email' ? (
                   <div>
-                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5">
-                      E-Posta Adresi <span className="text-red-500">*</span>
+                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5">
+                      <ThemeIcon icon="mail" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
+                      <span>E-Posta Adresi</span>
+                      <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -5489,11 +5496,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                     {emailInput && (
                       <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                        <span className={`font-bold ${inputValidation.isValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-                          {inputValidation.message}
+                        <span className={`font-bold flex items-center space-x-1 ${inputValidation.isValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                          <ThemeIcon icon={inputValidation.isValid ? 'checkCircle' : 'xCircle'} fallbackEmoji="" className="w-3 h-3 shrink-0" />
+                          <span>{inputValidation.message}</span>
                         </span>
                         <span className="text-slate-400 text-[9px] font-mono flex items-center space-x-1">
-                          <ThemeIcon icon="lock" fallbackEmoji="" className="w-3 h-3 text-slate-400 inline" />
+                          <ThemeIcon icon="shieldCheck" fallbackEmoji="" className="w-3 h-3 text-emerald-500 inline" />
                           <span>Sanitized Auth</span>
                         </span>
                       </div>
@@ -5501,8 +5509,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5">
-                      Telefon Numarası <span className="text-red-500">*</span>
+                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5">
+                      <ThemeIcon icon="phone" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
+                      <span>Telefon Numarası</span>
+                      <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -5524,11 +5534,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                     {phoneInput && (
                       <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                        <span className={`font-bold ${inputValidation.isValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-                          {inputValidation.message}
+                        <span className={`font-bold flex items-center space-x-1 ${inputValidation.isValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                          <ThemeIcon icon={inputValidation.isValid ? 'checkCircle' : 'xCircle'} fallbackEmoji="" className="w-3 h-3 shrink-0" />
+                          <span>{inputValidation.message}</span>
                         </span>
                         <span className="text-slate-400 text-[9px] font-mono flex items-center space-x-1">
-                          <ThemeIcon icon="lock" fallbackEmoji="" className="w-3 h-3 text-slate-400 inline" />
+                          <ThemeIcon icon="shieldCheck" fallbackEmoji="" className="w-3 h-3 text-emerald-500 inline" />
                           <span>Sanitized Auth</span>
                         </span>
                       </div>
@@ -5538,8 +5549,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                 {/* PASSWORD INPUT */}
                 <div>
-                  <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5">
-                    Şifre <span className="text-red-500">*</span>
+                  <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5">
+                    <ThemeIcon icon="lock" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
+                    <span>Şifre</span>
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -5576,9 +5589,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
+                    className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer flex items-center space-x-1"
                   >
-                    Şifremi Unuttum
+                    <ThemeIcon icon="key" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                    <span>Şifremi Unuttum</span>
                   </button>
                 </div>
 
@@ -5594,7 +5608,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <span>Doğrulanıyor...</span>
                     </>
                   ) : (
-                    <span>Giriş Yap</span>
+                    <>
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 shrink-0" />
+                      <span>Giriş Yap</span>
+                    </>
                   )}
                 </button>
 
