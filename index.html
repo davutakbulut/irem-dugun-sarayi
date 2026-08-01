@@ -1325,10 +1325,7 @@
         id: 'RES-2026-002',
         mediaKey: 'MEDIA-7K34P9LV',
         mediaRetentionDays: 30,
-        mediaFiles: [
-          { id: 'mf201', type: 'image', url: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=80', thumbnail: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=400&q=80', uploaderName: 'Davetli - Selin Y.', tableNo: 'Masa 1', timestamp: '2026-08-20 19:45', isGuest: true, uploaderIp: '195.175.40.8' },
-          { id: 'mf202', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', thumbnail: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=400&q=80', uploaderName: 'Sosyal Medya Sorumlusu', tableNo: 'Balo Giriş', timestamp: '2026-08-20 20:10', isGuest: false, uploaderIp: '195.175.40.1' }
-        ],
+        mediaFiles: [],
         venueId: 'v2',
         customerId: 'cust2',
         customerName: 'Mehmet Demir (Demir İnşaat)',
@@ -5957,9 +5954,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         };
         return list.map((r, idx) => {
           const knownKey = initialMap[r.id] || r.mediaKey;
+          const cleanMediaFiles = (r.mediaFiles || []).filter(f => f && f.url && f.url.startsWith('/uploads/'));
           return {
             ...r,
-            mediaKey: knownKey || ('MEDIA-' + (r.id || 'RES-' + idx).replace(/[^A-Za-z0-9]/g, ''))
+            mediaKey: knownKey || ('MEDIA-' + (r.id || 'RES-' + idx).replace(/[^A-Za-z0-9]/g, '')),
+            mediaFiles: cleanMediaFiles
           };
         });
       };
@@ -6063,11 +6062,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       const rKey = r.mediaKey || r.id;
                       const serverFiles = data.storedMedia[rKey] || data.storedMedia[r.id] || [];
                       if (serverFiles.length > 0) {
-                        const currentFiles = r.mediaFiles || [];
+                        const currentFiles = (r.mediaFiles || []).filter(f => f && f.url && f.url.startsWith('/uploads/'));
                         const fileMap = new Map();
                         currentFiles.forEach(f => fileMap.set(f.id || f.url, f));
                         serverFiles.forEach(f => {
-                          if (!fileMap.has(f.id) && !fileMap.has(f.url)) {
+                          if (f && f.url && f.url.startsWith('/uploads/') && !fileMap.has(f.id) && !fileMap.has(f.url)) {
                             fileMap.set(f.id || f.url, f);
                             hasMerged = true;
                           }
