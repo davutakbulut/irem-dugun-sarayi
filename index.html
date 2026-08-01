@@ -6596,7 +6596,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           <VersionHistoryModalComponent
             isOpen={isVersionModalOpen}
             onClose={() => setIsVersionModalOpen(false)}
-            systemVersion={systemVersionState || systemSettings?.systemVersion || 'v1.4.59'}
+            systemVersion={systemVersion || systemSettings?.systemVersion || 'v1.4.60'}
             versionHistory={versionHistoryState && versionHistoryState.length > 0 ? versionHistoryState : systemSettings?.versionHistory}
           />
 
