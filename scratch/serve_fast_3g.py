@@ -121,16 +121,54 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 content_len = int(self.headers.get('Content-Length', 0))
                 body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
+                
+                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                existing = {}
+                if os.path.exists(db_file):
+                    try:
+                        with open(db_file, 'r', encoding='utf-8') as f:
+                            existing = json.load(f)
+                    except Exception: pass
+                
+                if 'reservations' in data and isinstance(data['reservations'], list):
+                    existing['reservations'] = data['reservations']
+                elif 'resId' in data and 'mediaObj' in data:
+                    res_id = data['resId']
+                    media_obj = data['mediaObj']
+                    res_list = existing.get('reservations', [])
+                    found = False
+                    for r in res_list:
+                        if r.get('id') == res_id or r.get('mediaKey') == res_id:
+                            if 'mediaFiles' not in r: r['mediaFiles'] = []
+                            r['mediaFiles'].insert(0, media_obj)
+                            found = True
+                            break
+                    if not found:
+                        res_list.insert(0, {
+                            "id": res_id,
+                            "mediaKey": res_id,
+                            "customerName": "Özel Düğün & Balo Daveti",
+                            "eventType": "Balo / Düğün Daveti",
+                            "date": "2026-08-01",
+                            "venueId": "v1",
+                            "mediaFiles": [media_obj]
+                        })
+                    existing['reservations'] = res_list
+                
+                with open(db_file, 'w', encoding='utf-8') as f:
+                    json.dump(existing, f, indent=2)
+                    
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b'{"status":"ok","message":"File upload received successfully"}')
+                self.wfile.write(b'{"status":"ok","message":"Media uploaded and saved to backend DB"}')
                 return
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b'{"error":"Upload failed"}')
+                self.wfile.write(f'{{"error":"Upload failed: {str(e)}"}}'.encode('utf-8'))
                 return
 
         self.send_response(404)

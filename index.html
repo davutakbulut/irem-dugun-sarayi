@@ -4120,29 +4120,42 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     try { sessionStorage.setItem('guest_uploaded_ids', JSON.stringify(guestSessionUploadIds)); } catch(e){}
   }, [guestSessionUploadIds]);
 
-  // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (POLLING + BROADCAST + STORAGE EVENT)
+  // REAL-TIME INSTANT SYNC ACROSS TABS, BROWSERS AND INCOGNITO WINDOWS (BACKEND API + POLLING + LOCALSTORAGE)
   useEffect(() => {
-    const syncFromCache = () => {
-      try {
-        const raw = localStorage.getItem('irem_cache_reservations');
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setReservations(prev => {
-              // Only update state if JSON strings differ to avoid infinite re-render loop
-              if (JSON.stringify(prev) !== raw) {
-                return parsed;
+    const syncFromBackendAndCache = () => {
+      // 1. Fetch live reservations from backend server DB
+      if (typeof window !== 'undefined' && window.fetchWithRetry) {
+        window.fetchWithRetry('/api/system-settings')
+          .then(res => res.json())
+          .then(data => {
+            if (data && Array.isArray(data.reservations) && data.reservations.length > 0) {
+              setReservations(prev => {
+                if (JSON.stringify(prev) !== JSON.stringify(data.reservations)) {
+                  try { localStorage.setItem('irem_cache_reservations', JSON.stringify(data.reservations)); } catch(e){}
+                  return data.reservations;
+                }
+                return prev;
+              });
+            }
+          })
+          .catch(() => {
+            // Fallback to localStorage
+            try {
+              const raw = localStorage.getItem('irem_cache_reservations');
+              if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  setReservations(prev => JSON.stringify(prev) !== raw ? parsed : prev);
+                }
               }
-              return prev;
-            });
-          }
-        }
-      } catch(e){}
+            } catch(e){}
+          });
+      }
     };
 
     const handleStorageChange = (e) => {
       if (!e.key || e.key === 'irem_cache_reservations' || e.key === 'reservations') {
-        syncFromCache();
+        syncFromBackendAndCache();
       }
     };
 
@@ -4150,15 +4163,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       if (e.detail && Array.isArray(e.detail)) {
         setReservations(e.detail);
       } else {
-        syncFromCache();
+        syncFromBackendAndCache();
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    // Fast 1-second polling fallback so guest uploads appear on Admin panel in under 1 second without page refresh
-    const pollTimer = setInterval(syncFromCache, 1000);
+    // Initial sync
+    syncFromBackendAndCache();
+
+    // 1-Second Fast Polling for instant updates across devices / windows without page refresh
+    const pollTimer = setInterval(syncFromBackendAndCache, 1000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -4325,37 +4341,64 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             uploaderIp: '195.175.22.' + Math.floor(Math.random() * 50 + 1)
           };
 
-          // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE & DISPATCH CUSTOM SYNC EVENT
+          // Update reservations state & IMMEDIATELY PERSIST TO SERVER DB, CACHESERVICE, LOCALSTORAGE & DISPATCH SYNC EVENT
           setReservations(prev => {
-            const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
+            const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'MEDIA-8X92M1KP';
             const targetResId = currentRes?.id;
+            const cleanKey = targetResKey.replace(/[^A-Za-z0-9]/g, '').toLowerCase();
 
+            let found = false;
             const updated = prev.map((r, idx) => {
-              const isMatch = (r.mediaKey && r.mediaKey === targetResKey) ||
+              const k1 = (r.mediaKey || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+              const k2 = (r.id || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+              const isMatch = k1 === cleanKey || k2 === cleanKey ||
+                              (r.mediaKey && r.mediaKey === targetResKey) ||
                               (r.id && r.id === targetResKey) ||
                               (targetResId && r.id === targetResId) ||
-                              (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey)) ||
-                              (prev.length === 1 || idx === 0 && !selectedResKey);
+                              (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey));
 
               if (isMatch) {
+                found = true;
                 const existingList = r.mediaFiles || [];
                 return {
                   ...r,
-                  mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
+                  mediaKey: r.mediaKey || targetResKey,
                   mediaFiles: [newMediaObj, ...existingList]
                 };
               }
               return r;
             });
 
-            // Save to CacheService & LocalStorage
+            if (!found) {
+              updated.unshift({
+                id: targetResKey,
+                mediaKey: targetResKey,
+                customerName: 'Özel Düğün & Balo Daveti',
+                eventType: 'Balo / Düğün Daveti',
+                date: new Date().toISOString().split('T')[0],
+                venueId: 'v1',
+                mediaFiles: [newMediaObj]
+              });
+            }
+
+            // Persist to Server DB via API, LocalStorage, and dispatch Custom Event
             try {
               const jsonStr = JSON.stringify(updated);
               localStorage.setItem('irem_cache_reservations', jsonStr);
               if (typeof CacheService !== 'undefined') {
                 CacheService.set('reservations', updated);
               }
-              // Dispatch instant custom sync event for all active components in same tab/window
+
+              fetch('/api/upload-media', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  resId: targetResKey,
+                  mediaObj: newMediaObj,
+                  reservations: updated
+                })
+              }).catch(e => console.warn('POST /api/upload-media error:', e));
+
               window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
             } catch(e){}
 
@@ -5307,6 +5350,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             }
             if (data.versionHistory) {
               setVersionHistoryState(data.versionHistory);
+            }
+            if (data.reservations && Array.isArray(data.reservations) && data.reservations.length > 0) {
+              setReservations(prev => {
+                if (JSON.stringify(prev) !== JSON.stringify(data.reservations)) {
+                  return data.reservations;
+                }
+                return prev;
+              });
             }
             if (data.themeColor) {
                   setThemeColor(data.themeColor);

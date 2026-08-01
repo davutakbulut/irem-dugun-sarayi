@@ -1,6 +1,6 @@
 {
   "themeColor": "nordic-light",
-  "appName": "İrem Düğün Sarayı & Organizasyon",
+  "appName": "\u0130rem D\u00fc\u011f\u00fcn Saray\u0131 & Organizasyon",
   "cacheEnabled": true,
   "duplicateImagePrevention": true,
   "maxUploadSizeMB": 50,
@@ -15,98 +15,115 @@
   "updatedAt": "2026-07-31T23:42:17.692Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.68",
-  "lastUpdated": "2026-08-01T00:16:12Z",
+  "systemVersion": "v1.4.69",
+  "lastUpdated": "2026-08-01T00:18:57Z",
   "versionHistory": [
     {
+      "version": "v1.4.69",
+      "date": "01 A\u011fustos 2026",
+      "title": "S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.69)",
+      "desc": "Sistem mimarisi, UI/UX d\u00fczenlemeleri ve kod optimizasyonlar\u0131 yap\u0131ld\u0131."
+    },
+    {
       "version": "v1.4.68",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ Header ve Footer Sürüm Verilerinin 100% Eşzamanlanması & Statik Metin Temizliği",
-      "desc": "Header, Footer ve Sürüm Notları modalı arasındaki sürüm uyumsuzluğu giderildi. Statik yedek metinler (v1.4.48, v1.4.56, v1.4.62) temizlenerek sunucu HTML enjeksiyonu ve API state eşleşmesi ile Header ve Footer 100% eşitlendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 Header ve Footer S\u00fcr\u00fcm Verilerinin 100% E\u015fzamanlanmas\u0131 & Statik Metin Temizli\u011fi",
+      "desc": "Header, Footer ve S\u00fcr\u00fcm Notlar\u0131 modal\u0131 aras\u0131ndaki s\u00fcr\u00fcm uyumsuzlu\u011fu giderildi. Statik yedek metinler (v1.4.48, v1.4.56, v1.4.62) temizlenerek sunucu HTML enjeksiyonu ve API state e\u015fle\u015fmesi ile Header ve Footer 100% e\u015fitlendi."
     },
     {
       "version": "v1.4.67",
-      "date": "01 Ağustos 2026",
-      "title": "🛡️ Rol Yönetimi Popupları Sistem Kurallarına Tam Uyumlu Hale Getirildi",
-      "desc": "Roller (/#/roller) sayfasındaki yerel tarayıcı confirm() uyarısı kaldırıldı. Rol silme işlemlerine RedAlertConfirmModal kırmız uyarısı, rol düzenleme işlemine ise Glassmorphism kurumsal modal mimarisi entegre edildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udee1\ufe0f Rol Y\u00f6netimi Popuplar\u0131 Sistem Kurallar\u0131na Tam Uyumlu Hale Getirildi",
+      "desc": "Roller (/#/roller) sayfas\u0131ndaki yerel taray\u0131c\u0131 confirm() uyar\u0131s\u0131 kald\u0131r\u0131ld\u0131. Rol silme i\u015flemlerine RedAlertConfirmModal k\u0131rm\u0131z uyar\u0131s\u0131, rol d\u00fczenleme i\u015flemine ise Glassmorphism kurumsal modal mimarisi entegre edildi."
     },
     {
       "version": "v1.4.66",
-      "date": "01 Ağustos 2026",
-      "title": "📝 Özelleştirilmiş Sürüm Geçmişi & Açıklama Motoru Entegrasyonu",
-      "desc": "Sürüm geçmişi modalında ve veritabanında otomatik jenerik metin kullanımı kaldırıldı. Tüm geçmiş ve gelecek sürümler yapılan gerçek geliştirmeye, düzeltilen hataya ve düzenlenen modül detaylarına göre dinamikleştirildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcdd \u00d6zelle\u015ftirilmi\u015f S\u00fcr\u00fcm Ge\u00e7mi\u015fi & A\u00e7\u0131klama Motoru Entegrasyonu",
+      "desc": "S\u00fcr\u00fcm ge\u00e7mi\u015fi modal\u0131nda ve veritaban\u0131nda otomatik jenerik metin kullan\u0131m\u0131 kald\u0131r\u0131ld\u0131. T\u00fcm ge\u00e7mi\u015f ve gelecek s\u00fcr\u00fcmler yap\u0131lan ger\u00e7ek geli\u015ftirmeye, d\u00fczeltilen hataya ve d\u00fczenlenen mod\u00fcl detaylar\u0131na g\u00f6re dinamikle\u015ftirildi."
     },
     {
       "version": "v1.4.65",
-      "date": "01 Ağustos 2026",
-      "title": "🧹 Sistem Kılavuzu (`#/sistem-kilavuzu`) `find-skills` Temizliği",
-      "desc": "Sistem Kılavuzu sayfasındaki Vercel Ajan Yetenekleri listesinden artık kullanılmayan find-skills kartı kaldırıldı ve aktif yetenek sayısı 9 adede güncellendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83e\uddf9 Sistem K\u0131lavuzu (`#/sistem-kilavuzu`) `find-skills` Temizli\u011fi",
+      "desc": "Sistem K\u0131lavuzu sayfas\u0131ndaki Vercel Ajan Yetenekleri listesinden art\u0131k kullan\u0131lmayan find-skills kart\u0131 kald\u0131r\u0131ld\u0131 ve aktif yetenek say\u0131s\u0131 9 adede g\u00fcncellendi."
     },
     {
       "version": "v1.4.64",
-      "date": "01 Ağustos 2026",
-      "title": "🧼 Footer Mükerrer Sürüm Geçmişi Bağlantısı Temizliği",
-      "desc": "Footer telif barındaki mükerrer Sürüm Geçmişi metin linki kaldırıldı, kurumsal sol sütundaki tekil yeşil Canlı Sistem rozeti korundu."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83e\uddfc Footer M\u00fckerrer S\u00fcr\u00fcm Ge\u00e7mi\u015fi Ba\u011flant\u0131s\u0131 Temizli\u011fi",
+      "desc": "Footer telif bar\u0131ndaki m\u00fckerrer S\u00fcr\u00fcm Ge\u00e7mi\u015fi metin linki kald\u0131r\u0131ld\u0131, kurumsal sol s\u00fctundaki tekil ye\u015fil Canl\u0131 Sistem rozeti korundu."
     },
     {
       "version": "v1.4.63",
-      "date": "01 Ağustos 2026",
-      "title": "📖 Sistem Kılavuzu Rota & RBAC İzin Entegrasyonu",
-      "desc": "sistem-kilavuzu ve system-guide rotaları SLUG_TO_TAB haritasına, RBAC izin matrisine ve App render bloğuna eklenerek 404 hatası tamamen çözüldü."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcd6 Sistem K\u0131lavuzu Rota & RBAC \u0130zin Entegrasyonu",
+      "desc": "sistem-kilavuzu ve system-guide rotalar\u0131 SLUG_TO_TAB haritas\u0131na, RBAC izin matrisine ve App render blo\u011funa eklenerek 404 hatas\u0131 tamamen \u00e7\u00f6z\u00fcld\u00fc."
     },
     {
       "version": "v1.4.62",
-      "date": "01 Ağustos 2026",
-      "title": "🐛 VersionHistoryModal Tanımsız Değişken ReferenceError Tamiri",
-      "desc": "App bileşeni içerisindeki VersionHistoryModalComponent çağrısında kalan tanımsız systemSettings değişkeni temizlendi, canlı sürüm aktarımı sağlandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udc1b VersionHistoryModal Tan\u0131ms\u0131z De\u011fi\u015fken ReferenceError Tamiri",
+      "desc": "App bile\u015feni i\u00e7erisindeki VersionHistoryModalComponent \u00e7a\u011fr\u0131s\u0131nda kalan tan\u0131ms\u0131z systemSettings de\u011fi\u015fkeni temizlendi, canl\u0131 s\u00fcr\u00fcm aktar\u0131m\u0131 sa\u011fland\u0131."
     },
     {
       "version": "v1.4.61",
-      "date": "01 Ağustos 2026",
-      "title": "⚙️ React App systemVersionState Eşleşme Bağlantısı",
-      "desc": "systemVersionState ReferenceError hatası düzeltildi, canlı sürüm state binding systemVersion prop'u ile bağlandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u2699\ufe0f React App systemVersionState E\u015fle\u015fme Ba\u011flant\u0131s\u0131",
+      "desc": "systemVersionState ReferenceError hatas\u0131 d\u00fczeltildi, canl\u0131 s\u00fcr\u00fcm state binding systemVersion prop'u ile ba\u011fland\u0131."
     },
     {
       "version": "v1.4.60",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ VersionHistoryModal Dynamic Props Aktarımı",
-      "desc": "App bileşenindeki VersionHistoryModalComponent çağrısına systemVersion ve versionHistory prop'ları dinamik veritabanı state'inden aktarıldı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 VersionHistoryModal Dynamic Props Aktar\u0131m\u0131",
+      "desc": "App bile\u015fenindeki VersionHistoryModalComponent \u00e7a\u011fr\u0131s\u0131na systemVersion ve versionHistory prop'lar\u0131 dinamik veritaban\u0131 state'inden aktar\u0131ld\u0131."
     },
     {
       "version": "v1.4.59",
-      "date": "01 Ağustos 2026",
-      "title": "📜 Veritabanı Canlı Sürüm Geçmişi Kataloğu Entegrasyonu",
-      "desc": "db_system_settings.json içerisine v1.4.0'dan bu yana yapılan tüm mimari yeniliklerin detaylı changelog kataloğu işlendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcdc Veritaban\u0131 Canl\u0131 S\u00fcr\u00fcm Ge\u00e7mi\u015fi Katalo\u011fu Entegrasyonu",
+      "desc": "db_system_settings.json i\u00e7erisine v1.4.0'dan bu yana yap\u0131lan t\u00fcm mimari yeniliklerin detayl\u0131 changelog katalo\u011fu i\u015flendi."
     },
     {
       "version": "v1.4.58",
-      "date": "01 Ağustos 2026",
-      "title": "📜 Zengin Canlı Sürüm Geçmişi & Detaylı Changelog Kataloğu",
-      "desc": "Sürüm geçmişi modalındaki tüm eski/statik kayıtlar temizlenerek v1.4.0'dan v1.4.58'e kadar yapılan tüm mimari geliştirmeler, 3G performans iyileştirmeleri ve UI dokunuşları detaylı veritabanı loglarına dönüştürüldü."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcdc Zengin Canl\u0131 S\u00fcr\u00fcm Ge\u00e7mi\u015fi & Detayl\u0131 Changelog Katalo\u011fu",
+      "desc": "S\u00fcr\u00fcm ge\u00e7mi\u015fi modal\u0131ndaki t\u00fcm eski/statik kay\u0131tlar temizlenerek v1.4.0'dan v1.4.58'e kadar yap\u0131lan t\u00fcm mimari geli\u015ftirmeler, 3G performans iyile\u015ftirmeleri ve UI dokunu\u015flar\u0131 detayl\u0131 veritaban\u0131 loglar\u0131na d\u00f6n\u00fc\u015ft\u00fcr\u00fcld\u00fc."
     },
     {
       "version": "v1.4.57",
-      "date": "01 Ağustos 2026",
-      "title": "🎯 Footer & Header Birebir Canlı Sürüm Eşleşmesi",
-      "desc": "Sayfa altı footer butonundaki statik v1.4.0 yazısı kaldırılarak doğrudan sunucu veritabanındaki ({systemVersion}) canlı sürüm verisine bağlandı. Header ve Footer sürüm butonları %100 birebir eşleştirildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83c\udfaf Footer & Header Birebir Canl\u0131 S\u00fcr\u00fcm E\u015fle\u015fmesi",
+      "desc": "Sayfa alt\u0131 footer butonundaki statik v1.4.0 yaz\u0131s\u0131 kald\u0131r\u0131larak do\u011frudan sunucu veritaban\u0131ndaki ({systemVersion}) canl\u0131 s\u00fcr\u00fcm verisine ba\u011fland\u0131. Header ve Footer s\u00fcr\u00fcm butonlar\u0131 %100 birebir e\u015fle\u015ftirildi."
     },
     {
       "version": "v1.4.56",
-      "date": "01 Ağustos 2026",
-      "title": "📱 Mobil Yatay Kaydırılabilir Üst Rozet Şeridi",
-      "desc": "Yeni Rezervasyon sayfasının en üstündeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir şık ve parmakla kaydırılabilir (overflow-x-auto whitespace-nowrap) yatay bantta toplandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcf1 Mobil Yatay Kayd\u0131r\u0131labilir \u00dcst Rozet \u015eeridi",
+      "desc": "Yeni Rezervasyon sayfas\u0131n\u0131n en \u00fcst\u00fcndeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir \u015f\u0131k ve parmakla kayd\u0131r\u0131labilir (overflow-x-auto whitespace-nowrap) yatay bantta topland\u0131."
     },
     {
       "version": "v1.4.55",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ 17 Modüler ES Sayfa Bileşeni (%100 Sync)",
-      "desc": "Projedeki tüm 17 ana sayfa bileşeni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klasörüne %100 güncel ES Module standartlarında senkronize edildi."
-    },
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 17 Mod\u00fcler ES Sayfa Bile\u015feni (%100 Sync)",
+      "desc": "Projedeki t\u00fcm 17 ana sayfa bile\u015feni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klas\u00f6r\u00fcne %100 g\u00fcncel ES Module standartlar\u0131nda senkronize edildi."
+    }
+  ],
+  "reservations": [
     {
-      "version": "v1.4.54",
-      "date": "01 Ağustos 2026",
-      "title": "🛠️ Yeni Rezervasyon Üst Başlık Kartı & Tıkla-Kopyala Ref Kodu",
-      "desc": "Yeni Rezervasyon sayfasının üst kartındaki ekrandan sağa taşma ve kayma sorunu flex-wrap ve overflow-hidden ile düzeltildi. Ref rozetine tek tıkla panoya kopyalama ve toast bildirimi eklendi."
+      "id": "MEDIA-RES2026004",
+      "mediaKey": "MEDIA-RES2026004",
+      "customerName": "\u00d6zel D\u00fc\u011f\u00fcn & Balo Daveti",
+      "eventType": "Balo / D\u00fc\u011f\u00fcn Daveti",
+      "date": "2026-08-01",
+      "venueId": "v1",
+      "mediaFiles": [
+        {
+          "id": "mf_test99",
+          "fileName": "guest_photo_test.jpg",
+          "uploadedAt": "2026-08-01T03:19:40Z"
+        }
+      ]
     }
   ]
 }
