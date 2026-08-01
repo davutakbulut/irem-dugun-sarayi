@@ -15,104 +15,110 @@
   "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.85",
-  "lastUpdated": "2026-08-01T18:16:00Z",
+  "systemVersion": "v1.4.86",
+  "lastUpdated": "2026-08-01T18:20:00Z",
   "versionHistory": [
     {
-      "version": "v1.4.85",
+      "version": "v1.4.86",
       "date": "01 Ağustos 2026",
-      "title": "⚡ Canlı Dosya Yükleme & Modül Düzeltmesi (Live File Upload & Server Import Fix)",
-      "desc": "İndirilenler klasöründeki deneme.png (39.8 KB) dosyası MEDIA-RES2026004 rezervasyonuna doğrudan yüklenerek fiziki disk sunucusuna kaydedildi. Sunucu tarafında (serve_fast_3g.py) eksik olan import time kütüphanesi entegre edilerek /api/media-files klasör tarama servisinin %100 canlı çalışması sağlandı. deneme.png ve tüm fiziki medya dosyaları Yönetim Paneli ve Davetli Albümüne başarıyla yansıdı."
+      "title": "🔒 Kesin Davetli Mahremiyeti (Strict Guest Isolation Rule)",
+      "desc": "Davetliler (isPublicGuestMode) bir albüm bağlantısına (/medya/MEDIA-8X92M1KP veya diğer anahtarlar) ilk kez girdiklerinde veya kendi oturumlarında henüz dosya yüklemediklerinde önceden başkaları tarafından yüklenmiş hiçbir ögeyi kesinlikle göremez. Sayfa 0 içerik ile başlar ve davetli sadece kendi yüklediği ögeleri görüntüleyebilir. Yönetim Paneli (/yonetim/medya) yetkilileri ise tüm yüklemeleri 1:1 canlı görmeye ve yönetmeye devam eder."
+    },
+    {
+      "version": "v1.4.85",
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 Canl\u0131 Dosya Y\u00fckleme & Mod\u00fcl D\u00fczeltmesi (Live File Upload & Server Import Fix)",
+      "desc": "\u0130ndirilenler klas\u00f6r\u00fcndeki deneme.png (39.8 KB) dosyas\u0131 MEDIA-RES2026004 rezervasyonuna do\u011frudan y\u00fcklenerek fiziki disk sunucusuna kaydedildi. Sunucu taraf\u0131nda (serve_fast_3g.py) eksik olan import time k\u00fct\u00fcphanesi entegre edilerek /api/media-files klas\u00f6r tarama servisinin %100 canl\u0131 \u00e7al\u0131\u015fmas\u0131 sa\u011fland\u0131. deneme.png ve t\u00fcm fiziki medya dosyalar\u0131 Y\u00f6netim Paneli ve Davetli Alb\u00fcm\u00fcne ba\u015far\u0131yla yans\u0131d\u0131."
     },
     {
       "version": "v1.4.84",
-      "date": "01 Ağustos 2026",
-      "title": "🧹 Örnek Demo Veri Temizliği (Purging Legacy Mock SVG Placeholders)",
-      "desc": "Ekran görüntüsündeki 3 adet koyu mavi \"ÖNİZLEME\" kutucuğunun, sistem varsayılan örnek verisinden (INITIAL_RESERVATIONS mf1, mf2, mf3) kaynaklanan sahte ikon önizlemeleri olduğu tespit edilerek tamamen temizlendi. Gerçekten fiziksel fotoğraf yüklenmemiş bir rezervasyon veya davetli albümü açıldığında albümün %100 boş (0 içerik) olarak başlaması ve sahte kartların gösterilmemesi sağlandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83e\uddf9 \u00d6rnek Demo Veri Temizli\u011fi (Purging Legacy Mock SVG Placeholders)",
+      "desc": "Ekran g\u00f6r\u00fcnt\u00fcs\u00fcndeki 3 adet koyu mavi \"\u00d6N\u0130ZLEME\" kutucu\u011funun, sistem varsay\u0131lan \u00f6rnek verisinden (INITIAL_RESERVATIONS mf1, mf2, mf3) kaynaklanan sahte ikon \u00f6nizlemeleri oldu\u011fu tespit edilerek tamamen temizlendi. Ger\u00e7ekten fiziksel foto\u011fraf y\u00fcklenmemi\u015f bir rezervasyon veya davetli alb\u00fcm\u00fc a\u00e7\u0131ld\u0131\u011f\u0131nda alb\u00fcm\u00fcn %100 bo\u015f (0 i\u00e7erik) olarak ba\u015flamas\u0131 ve sahte kartlar\u0131n g\u00f6sterilmemesi sa\u011fland\u0131."
     },
     {
       "version": "v1.4.83",
-      "date": "01 Ağustos 2026",
-      "title": "📁 Doğrudan Fiziki Disk Klasör Servisi (GET /api/media-files) & Kayıpsız Medya Yükleme",
-      "desc": "Karmaşık oturum filtreleri ve geçici kimlik mekanizmaları tamamen kaldırılarak yüklenen tüm görsellerin sunucu diskindeki uploads/<res_id>/ klasörüne doğrudan kaydedilmesi sağlandı. Rezervasyon veya davetli albümü açıldığında /api/media-files servisi sunucu diskindeki fiziki dosyaları 1:1 tarayarak ekrana getirir. Tarayıcı geçmişi veya önbelleği temizlense dahi veriler %100 doğrudan çekilir."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcc1 Do\u011frudan Fiziki Disk Klas\u00f6r Servisi (GET /api/media-files) & Kay\u0131ps\u0131z Medya Y\u00fckleme",
+      "desc": "Karma\u015f\u0131k oturum filtreleri ve ge\u00e7ici kimlik mekanizmalar\u0131 tamamen kald\u0131r\u0131larak y\u00fcklenen t\u00fcm g\u00f6rsellerin sunucu diskindeki uploads/<res_id>/ klas\u00f6r\u00fcne do\u011frudan kaydedilmesi sa\u011fland\u0131. Rezervasyon veya davetli alb\u00fcm\u00fc a\u00e7\u0131ld\u0131\u011f\u0131nda /api/media-files servisi sunucu diskindeki fiziki dosyalar\u0131 1:1 tarayarak ekrana getirir. Taray\u0131c\u0131 ge\u00e7mi\u015fi veya \u00f6nbelle\u011fi temizlense dahi veriler %100 do\u011frudan \u00e7ekilir."
     },
     {
       "version": "v1.4.82",
-      "date": "01 Ağustos 2026",
-      "title": "🔗 Davetli Oturum Eşleşme Düzeltmesi & Multi-Identifier Guest Session Tracking",
-      "desc": "Davetli oturum kayıtlarına (guestSessionUploadIds) dosya kimliğinin (ID) yanı sıra URL ve dosya adı da eklenerek sunucu diski taramasından dönen disk_... kimlikli medya nesnelerinin davetli ekranında yenileme ve senkronizasyon sonrasında %100 eşleşmesi ve görünür kalması sağlandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udd17 Davetli Oturum E\u015fle\u015fme D\u00fczeltmesi & Multi-Identifier Guest Session Tracking",
+      "desc": "Davetli oturum kay\u0131tlar\u0131na (guestSessionUploadIds) dosya kimli\u011finin (ID) yan\u0131 s\u0131ra URL ve dosya ad\u0131 da eklenerek sunucu diski taramas\u0131ndan d\u00f6nen disk_... kimlikli medya nesnelerinin davetli ekran\u0131nda yenileme ve senkronizasyon sonras\u0131nda %100 e\u015fle\u015fmesi ve g\u00f6r\u00fcn\u00fcr kalmas\u0131 sa\u011fland\u0131."
     },
     {
       "version": "v1.4.81",
-      "date": "01 Ağustos 2026",
-      "title": "💾 Fiziksel Disk Otomatik Taraması, Davetli Gizlilik Kuralı & Anlık Yönetim Senkronizasyonu",
-      "desc": "1. Disk Uploads Scanner: Sunucu tarafında (/api/system-settings) uploads/<res_id>/ fiziksel disk klasörünü otomatik tarayan tazeleme mekanizması entegre edildi. Kullanıcı tarayıcı geçmişini, önbelleğini ve çerezleri sıfırlasa dahi tüm görseller fiziksel diskten kayıpsız yüklenir.\n2. Guest Privacy Isolation: Davetliler (isPublicGuestMode) diğer davetlilerin yüklediği içerikleri göremez, sadece kendilerine ait fotoğrafları görüntüler.\n3. Realtime Admin Sync: Davetli yüklemeleri Admin/Personel oturumlarına ve Yönetim Paneline (/yonetim/medya) tüm cihazlardan anında ve eksiksiz yansır."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcbe Fiziksel Disk Otomatik Taramas\u0131, Davetli Gizlilik Kural\u0131 & Anl\u0131k Y\u00f6netim Senkronizasyonu",
+      "desc": "1. Disk Uploads Scanner: Sunucu taraf\u0131nda (/api/system-settings) uploads/<res_id>/ fiziksel disk klas\u00f6r\u00fcn\u00fc otomatik tarayan tazeleme mekanizmas\u0131 entegre edildi. Kullan\u0131c\u0131 taray\u0131c\u0131 ge\u00e7mi\u015fini, \u00f6nbelle\u011fini ve \u00e7erezleri s\u0131f\u0131rlasa dahi t\u00fcm g\u00f6rseller fiziksel diskten kay\u0131ps\u0131z y\u00fcklenir.\n2. Guest Privacy Isolation: Davetliler (isPublicGuestMode) di\u011fer davetlilerin y\u00fckledi\u011fi i\u00e7erikleri g\u00f6remez, sadece kendilerine ait foto\u011fraflar\u0131 g\u00f6r\u00fcnt\u00fcler.\n3. Realtime Admin Sync: Davetli y\u00fcklemeleri Admin/Personel oturumlar\u0131na ve Y\u00f6netim Paneline (/yonetim/medya) t\u00fcm cihazlardan an\u0131nda ve eksiksiz yans\u0131r."
     },
     {
       "version": "v1.4.80",
-      "date": "01 Ağustos 2026",
-      "title": "🖼️ Sayfa Yenilemede Görsel Kaybolma Düzeltmesi & Permanent Media Persistence",
-      "desc": "Davetli sayfasındaki oturum filtresi kısıtı (guestSessionUploadIds) kaldırılarak düğün albümüne yüklenen görsellerin yenileme (F5) sonrasında da ekranda %100 görünür kalması sağlandı. Arka planda sunucu veritabanı senkronizasyonu (storedMedia in db_system_settings.json) aktif edilerek yüklenen medya meta verilerinin hem diske hem de veritabanına kalıcı yazılması ve sayfa açılışında otomatik yüklenmesi sağlandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\uddbc\ufe0f Sayfa Yenilemede G\u00f6rsel Kaybolma D\u00fczeltmesi & Permanent Media Persistence",
+      "desc": "Davetli sayfas\u0131ndaki oturum filtresi k\u0131s\u0131t\u0131 (guestSessionUploadIds) kald\u0131r\u0131larak d\u00fc\u011f\u00fcn alb\u00fcm\u00fcne y\u00fcklenen g\u00f6rsellerin yenileme (F5) sonras\u0131nda da ekranda %100 g\u00f6r\u00fcn\u00fcr kalmas\u0131 sa\u011fland\u0131. Arka planda sunucu veritaban\u0131 senkronizasyonu (storedMedia in db_system_settings.json) aktif edilerek y\u00fcklenen medya meta verilerinin hem diske hem de veritaban\u0131na kal\u0131c\u0131 yaz\u0131lmas\u0131 ve sayfa a\u00e7\u0131l\u0131\u015f\u0131nda otomatik y\u00fcklenmesi sa\u011fland\u0131."
     },
     {
       "version": "v1.4.79",
-      "date": "01 Ağustos 2026",
-      "title": "🖼️ 1 Saniyelik Görsel Kaybolma Düzeltmesi & Non-Destructive Önbellek Senkronizasyonu",
-      "desc": "Fotoğraf ve video yüklemesi tamamlandıktan 1 saniye sonra arka planda çalışan önbellek zamanlayıcısının (pollTimer / syncFromCache) RAM'deki yeni yüklenen medya listesini eski verilerle ezmesi ve görselin ekrandan kaybolması engellendi. syncFromCache mekanizmasına tahribatsız birleştirme (merge by unique ID) entegre edilerek hem yerel hem de canlı önizleme kararlılığı %100 sağlandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\uddbc\ufe0f 1 Saniyelik G\u00f6rsel Kaybolma D\u00fczeltmesi & Non-Destructive \u00d6nbellek Senkronizasyonu",
+      "desc": "Foto\u011fraf ve video y\u00fcklemesi tamamland\u0131ktan 1 saniye sonra arka planda \u00e7al\u0131\u015fan \u00f6nbellek zamanlay\u0131c\u0131s\u0131n\u0131n (pollTimer / syncFromCache) RAM'deki yeni y\u00fcklenen medya listesini eski verilerle ezmesi ve g\u00f6rselin ekrandan kaybolmas\u0131 engellendi. syncFromCache mekanizmas\u0131na tahribats\u0131z birle\u015ftirme (merge by unique ID) entegre edilerek hem yerel hem de canl\u0131 \u00f6nizleme kararl\u0131l\u0131\u011f\u0131 %100 sa\u011fland\u0131."
     },
     {
       "version": "v1.4.78",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ Realtime FileReader İlerleme Takibi & Fiziksel Disk Medya Depolama Mimarisi",
-      "desc": "Yükleme kuyruğundaki %90 takılmasına neden olan suni sayaç döngüsü kaldırılıp FileReader.onprogress ile gerçek bayt okuma oranını (%10->%100) anlık yansıtan akıcı ilerleme barı entegre edildi. Sunucu tarafında (/api/upload-media) dosya yüklemeleri için fiziksel disk kaydı (uploads/<res_id>/<file_name>) ve statik dosya sunucusu aktif edilerek base64 bellek kotası sınırı ve galeri önizleme görsel kaybı tam çözüldü."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 Realtime FileReader \u0130lerleme Takibi & Fiziksel Disk Medya Depolama Mimarisi",
+      "desc": "Y\u00fckleme kuyru\u011fundaki %90 tak\u0131lmas\u0131na neden olan suni saya\u00e7 d\u00f6ng\u00fcs\u00fc kald\u0131r\u0131l\u0131p FileReader.onprogress ile ger\u00e7ek bayt okuma oran\u0131n\u0131 (%10->%100) anl\u0131k yans\u0131tan ak\u0131c\u0131 ilerleme bar\u0131 entegre edildi. Sunucu taraf\u0131nda (/api/upload-media) dosya y\u00fcklemeleri i\u00e7in fiziksel disk kayd\u0131 (uploads/<res_id>/<file_name>) ve statik dosya sunucusu aktif edilerek base64 bellek kotas\u0131 s\u0131n\u0131r\u0131 ve galeri \u00f6nizleme g\u00f6rsel kayb\u0131 tam \u00e7\u00f6z\u00fcld\u00fc."
     },
     {
       "version": "v1.4.77",
-      "date": "01 Ağustos 2026",
-      "title": "🖼️ Geçersiz Medya Bağlantısı (net::ERR_INVALID_URL) Düzeltmesi & Önbellek SVG Kurtarma",
-      "desc": "CacheService içerisinde yerel depolama kotasını aşan base64 görselleri kırpılırken kırpılmış bozuk veri adresi (data:...[cached_in_memory]) yerine geçerli bir SVG görsel yer tutucusu (VALID_SVG_PLACEHOLDER) tanımlandı. CacheService.get servisinde önceden kalan bozuk önbellek adresleri otomatik temizlendi ve galeri <img /> etiketlerine onError otomatik kurtarma eklendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\uddbc\ufe0f Ge\u00e7ersiz Medya Ba\u011flant\u0131s\u0131 (net::ERR_INVALID_URL) D\u00fczeltmesi & \u00d6nbellek SVG Kurtarma",
+      "desc": "CacheService i\u00e7erisinde yerel depolama kotas\u0131n\u0131 a\u015fan base64 g\u00f6rselleri k\u0131rp\u0131l\u0131rken k\u0131rp\u0131lm\u0131\u015f bozuk veri adresi (data:...[cached_in_memory]) yerine ge\u00e7erli bir SVG g\u00f6rsel yer tutucusu (VALID_SVG_PLACEHOLDER) tan\u0131mland\u0131. CacheService.get servisinde \u00f6nceden kalan bozuk \u00f6nbellek adresleri otomatik temizlendi ve galeri <img /> etiketlerine onError otomatik kurtarma eklendi."
     },
     {
       "version": "v1.4.76",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ Tarayıcı Hafıza Limiti Düzeltmesi & LocalStorage Kotası Otomatik Budama",
-      "desc": "CacheService.set içerisindeki medya temizleyici dizisi mediaFiles olarak güncellendi. Yüksek boyutlu base64 medya verileri önbelleğe yazılırken otomatik budanarak tarayıcının 5MB LocalStorage kotasını doldurması ve konsol uyarı/hataları engellendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 Taray\u0131c\u0131 Haf\u0131za Limiti D\u00fczeltmesi & LocalStorage Kotas\u0131 Otomatik Budama",
+      "desc": "CacheService.set i\u00e7erisindeki medya temizleyici dizisi mediaFiles olarak g\u00fcncellendi. Y\u00fcksek boyutlu base64 medya verileri \u00f6nbelle\u011fe yaz\u0131l\u0131rken otomatik budanarak taray\u0131c\u0131n\u0131n 5MB LocalStorage kotas\u0131n\u0131 doldurmas\u0131 ve konsol uyar\u0131/hatalar\u0131 engellendi."
     },
     {
       "version": "v1.4.75",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ React ReferenceError (TDZ) Düzeltmesi & SessionUser State İyileştirmesi",
-      "desc": "App bileşeni içerisindeki sessionUser state tanımı isPublicGuestRoute kullanımının üstüne taşınarak JavaScript Temporal Dead Zone (TDZ) hatası %100 çözüldü."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 React ReferenceError (TDZ) D\u00fczeltmesi & SessionUser State \u0130yile\u015ftirmesi",
+      "desc": "App bile\u015feni i\u00e7erisindeki sessionUser state tan\u0131m\u0131 isPublicGuestRoute kullan\u0131m\u0131n\u0131n \u00fcst\u00fcne ta\u015f\u0131narak JavaScript Temporal Dead Zone (TDZ) hatas\u0131 %100 \u00e7\u00f6z\u00fcld\u00fc."
     },
     {
       "version": "v1.4.74",
-      "date": "01 Ağustos 2026",
-      "title": "📸 Bağımsız Davetli Medya Yükleme Adresi (/medya/:key) & Public Albüm Mimarisi",
-      "desc": "Üye girişi yapmamış davetliler için yönetim paneli başlığı (header), yan menü (sidebar), profil menüsü ve yetkili kontrolleri tamamen gizlendi. Sayfa 100% bağımsız, sade ve sadece ilgili rezervasyona fotoğraf/video yükleme amaçlı halka açık (public) davetli albümü haline getirildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcf8 Ba\u011f\u0131ms\u0131z Davetli Medya Y\u00fckleme Adresi (/medya/:key) & Public Alb\u00fcm Mimarisi",
+      "desc": "\u00dcye giri\u015fi yapmam\u0131\u015f davetliler i\u00e7in y\u00f6netim paneli ba\u015fl\u0131\u011f\u0131 (header), yan men\u00fc (sidebar), profil men\u00fcs\u00fc ve yetkili kontrolleri tamamen gizlendi. Sayfa 100% ba\u011f\u0131ms\u0131z, sade ve sadece ilgili rezervasyona foto\u011fraf/video y\u00fckleme ama\u00e7l\u0131 halka a\u00e7\u0131k (public) davetli alb\u00fcm\u00fc haline getirildi."
     },
     {
       "version": "v1.4.73",
-      "date": "01 Ağustos 2026",
-      "title": "🎨 Giriş Sayfası Görsel Temizliği & Nordic SVG İkon Kütüphanesi Yenilemesi",
-      "desc": "Giriş sayfasındaki yardım bağlantıları ve demo test butonları temizlendi. NordicSvgMap kütüphanesine eksik SVG ikonlar (mail, lock, eye, eyeOff, helpCircle vb.) eklendi ve tüm giriş bileşenleri anlamsal SVG ikonlarla donatıldı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83c\udfa8 Giri\u015f Sayfas\u0131 G\u00f6rsel Temizli\u011fi & Nordic SVG \u0130kon K\u00fct\u00fcphanesi Yenilemesi",
+      "desc": "Giri\u015f sayfas\u0131ndaki yard\u0131m ba\u011flant\u0131lar\u0131 ve demo test butonlar\u0131 temizlendi. NordicSvgMap k\u00fct\u00fcphanesine eksik SVG ikonlar (mail, lock, eye, eyeOff, helpCircle vb.) eklendi ve t\u00fcm giri\u015f bile\u015fenleri anlamsal SVG ikonlarla donat\u0131ld\u0131."
     },
     {
       "version": "v1.4.72",
-      "date": "01 Ağustos 2026",
-      "title": "🚀 Rota 404 Hata Sayfası Yönlendirmesi & Simülasyon Ekranları (404/301/403/500)",
-      "desc": "Tanımlanmayan ve eşleşmeyen tüm rotalar için otomatik 404 Hata Sayfası (simulasyon-404) yönlendirmesi sağlandı. Ayrıca 404, 301, 403 ve 500 HTTP durum kodları için interaktif simülasyon test ekranları sisteme eklendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\ude80 Rota 404 Hata Sayfas\u0131 Y\u00f6nlendirmesi & Sim\u00fclasyon Ekranlar\u0131 (404/301/403/500)",
+      "desc": "Tan\u0131mlanmayan ve e\u015fle\u015fmeyen t\u00fcm rotalar i\u00e7in otomatik 404 Hata Sayfas\u0131 (simulasyon-404) y\u00f6nlendirmesi sa\u011fland\u0131. Ayr\u0131ca 404, 301, 403 ve 500 HTTP durum kodlar\u0131 i\u00e7in interaktif sim\u00fclasyon test ekranlar\u0131 sisteme eklendi."
     },
     {
       "version": "v1.4.71",
-      "date": "01 Ağustos 2026",
-      "title": "🛡️ Arama Motoru İndeksleme Güvenliği Modülü & Dinamik Meta Robots Kalkanı",
-      "desc": "Yönetim ayarlarında /yonetim/ayarlar/seo-indeksleme modülü devreye alındı. Arama motoru botlarına karşı hassas yönetim sayfalarını koruyan Dinamik Meta Robots Kalkanı entegre edildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udee1\ufe0f Arama Motoru \u0130ndeksleme G\u00fcvenli\u011fi Mod\u00fcl\u00fc & Dinamik Meta Robots Kalkan\u0131",
+      "desc": "Y\u00f6netim ayarlar\u0131nda /yonetim/ayarlar/seo-indeksleme mod\u00fcl\u00fc devreye al\u0131nd\u0131. Arama motoru botlar\u0131na kar\u015f\u0131 hassas y\u00f6netim sayfalar\u0131n\u0131 koruyan Dinamik Meta Robots Kalkan\u0131 entegre edildi."
     },
     {
       "version": "v1.4.70",
-      "date": "01 Ağustos 2026",
-      "title": "🔑 Temiz URL Yönlendirme, Oturum Bekçisi & Nordic Light Giriş Sayfası",
-      "desc": "/yonetim ve /giris temiz URL yönlendirmeleri ile yetkisiz erişimleri engelleyen Oturum Bekçisi (Session Gatekeeper) ve Nordic Light temalı modern Giriş Sayfası mimarisi aktif edildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udd11 Temiz URL Y\u00f6nlendirme, Oturum Bek\u00e7isi & Nordic Light Giri\u015f Sayfas\u0131",
+      "desc": "/yonetim ve /giris temiz URL y\u00f6nlendirmeleri ile yetkisiz eri\u015fimleri engelleyen Oturum Bek\u00e7isi (Session Gatekeeper) ve Nordic Light temal\u0131 modern Giri\u015f Sayfas\u0131 mimarisi aktif edildi."
     },
     {
       "version": "v1.4.65",
@@ -204,5 +210,121 @@
       "title": "\ud83c\udf10 A\u011f \u0130stekleri Otomatik Tekrar Deneme (fetchWithRetry)",
       "desc": "Sunucu yeniden ba\u015flat\u0131l\u0131rken olu\u015fan ERR_CONNECTION_REFUSED hatalar\u0131n\u0131 engellemek i\u00e7in window.fetchWithRetry mekanizmas\u0131 entegre edildi. \u0130stekler 3 kez \u00fcst \u00fcste otomatik denenir."
     }
-  ]
+  ],
+  "storedMedia": {
+    "MEDIA-RES2026003": [
+      {
+        "id": "mf_1785597409225",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-06-30_at_15.22.58.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-06-30_at_15.22.58.jpeg",
+        "fileName": "WhatsApp Image 2026-06-30 at 15.22.58.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597402659",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
+        "fileName": "WhatsApp Image 2026-05-11 at 16.28.27.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597401374",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-03_at_00.48.52.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-03_at_00.48.52.jpeg",
+        "fileName": "WhatsApp Image 2026-03-03 at 00.48.52.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597398288",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
+        "fileName": "WhatsApp Image 2026-03-02 at 21.32.31.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597396372",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
+        "fileName": "WhatsApp Image 2026-02-16 at 16.58.26.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597395005",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
+        "fileName": "WhatsApp Image 2026-07-01 at 16.17.52.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      }
+    ],
+    "MEDIA-8X92M1KP": [
+      {
+        "id": "mf_1785597494923",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
+        "fileName": "Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597489507",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
+        "fileName": "Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597484998",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/fircakullanimlanlari.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/fircakullanimlanlari.jpg",
+        "fileName": "fircakullanimlanlari.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597482876",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Davye_Medikal_Genject_Beslenme_S__r_ngas_.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Davye_Medikal_Genject_Beslenme_S__r_ngas_.jpg",
+        "fileName": "Davye Medikal Genject Beslenme S\u0327\u0131r\u0131ngas\u0131.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      }
+    ]
+  }
 }
