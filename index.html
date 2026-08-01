@@ -4368,10 +4368,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (!currentRes) return [];
     let files = currentRes.mediaFiles || [];
 
+    // GUEST PRIVACY RULE: Guests ONLY see photos uploaded by themselves in their current session!
+    // Authorized Users / Admins see ALL uploaded photos across all devices in real-time!
+    if (isPublicGuestMode) {
+      files = files.filter(f => guestSessionUploadIds.includes(f.id));
+    }
+
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, filterType]);
+  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType]);
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
   const handleFilesSelect = (e) => {

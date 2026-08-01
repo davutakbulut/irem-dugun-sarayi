@@ -32,18 +32,69 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed_path = urllib.parse.urlparse(self.path)
         
-        # 1. API: System Settings GET
+        # 1. API: System Settings GET (Scans physical uploads/ folder on disk so clearing browser history NEVER loses files)
         if parsed_path.path in ['/api/system-settings', '/api/system-config']:
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
-            if os.path.exists(db_file):
-                with open(db_file, 'rb') as f:
-                    self.wfile.write(f.read())
-            else:
+            try:
+                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                cfg_data = {}
+                if os.path.exists(db_file):
+                    try:
+                        with open(db_file, 'r', encoding='utf-8') as f:
+                            cfg_data = json.load(f)
+                    except Exception: pass
+
+                # Scan physical disk uploads directory dynamically
+                uploads_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
+                disk_media = {}
+                if os.path.exists(uploads_base):
+                    for res_id in os.listdir(uploads_base):
+                        res_dir = os.path.join(uploads_base, res_id)
+                        if os.path.isdir(res_dir):
+                            file_list = []
+                            for fname in sorted(os.listdir(res_dir), key=lambda x: os.path.getmtime(os.path.join(res_dir, x)) if not x.startswith('.') else 0, reverse=True):
+                                if fname.startswith('.'): continue
+                                fpath = os.path.join(res_dir, fname)
+                                if os.path.isfile(fpath):
+                                    ext = os.path.splitext(fname)[1].lower()
+                                    rel_url = f'/uploads/{res_id}/{fname}'
+                                    mtime = os.path.getmtime(fpath)
+                                    timestamp = time.strftime('%Y-%m-%d %H:%M', time.localtime(mtime))
+                                    file_list.append({
+                                        'id': f'disk_{res_id}_{re.sub(r"[^A-Za-z0-9]", "_", fname)}',
+                                        'type': 'video' if ext in ['.mp4', '.mov', '.avi', '.mkv'] else 'image',
+                                        'url': rel_url,
+                                        'thumbnail': rel_url,
+                                        'fileName': fname,
+                                        'uploaderName': 'Davetli Konuk',
+                                        'tableNo': 'Masa Davetlisi',
+                                        'timestamp': timestamp,
+                                        'isGuest': True
+                                    })
+                            disk_media[res_id] = file_list
+
+                # Merge disk scanned media into storedMedia
+                existing_stored = cfg_data.get('storedMedia', {})
+                for k, v in disk_media.items():
+                    existing_list = existing_stored.get(k, [])
+                    existing_urls = {m.get('url') for m in existing_list if isinstance(m, dict)}
+                    for disk_item in v:
+                        if disk_item['url'] not in existing_urls:
+                            existing_list.append(disk_item)
+                    existing_stored[k] = existing_list
+                cfg_data['storedMedia'] = existing_stored
+
+                res_json = json.dumps(cfg_data, indent=2).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(res_json)
+                return
+            except Exception as e:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
                 self.wfile.write(b'{"themeColor":"nordic-light","menuLayout":"vertical"}')
-            return
+                return
 
         # 2. API: Ping GET
         if parsed_path.path == '/api/ping':
