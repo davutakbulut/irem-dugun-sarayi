@@ -4284,11 +4284,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     };
 
     fetchDiskFolderFiles();
-    const diskInterval = setInterval(fetchDiskFolderFiles, 2000);
-    return () => clearInterval(diskInterval);
-  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, setReservations]);
 
-  // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (POLLING + BROADCAST + STORAGE EVENT)
+    // PUBLIC GUEST MODE: 0 Background Polling! Guests do NOT need continuous server requests.
+    if (isPublicGuestMode) return;
+
+    // ADMIN / MANAGEMENT MODE: Lightweight 10-second background polling for live updates
+    const diskInterval = setInterval(fetchDiskFolderFiles, 10000);
+    return () => clearInterval(diskInterval);
+  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, isPublicGuestMode, setReservations]);
+
+  // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (EVENT DRIVEN)
   useEffect(() => {
     const syncFromCache = () => {
       try {
@@ -4373,14 +4378,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    const pollTimer = setInterval(syncFromCache, 1000);
+    // PUBLIC GUEST MODE: 0 Polling! Admin Mode: Lightweight 10-second sync
+    let pollTimer = null;
+    if (!isPublicGuestMode) {
+      pollTimer = setInterval(syncFromCache, 10000);
+    }
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
-      clearInterval(pollTimer);
+      if (pollTimer) clearInterval(pollTimer);
     };
-  }, [setReservations]);
+  }, [isPublicGuestMode, setReservations]);
 
   const [uploadQueue, setUploadQueue] = useState([]);
   const [isUploadingQueue, setIsUploadingQueue] = useState(false);
@@ -5608,7 +5617,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.92 Canlı
+                v1.4.93 Canlı
               </span>
             </div>
 
