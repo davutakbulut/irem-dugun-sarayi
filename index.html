@@ -5875,6 +5875,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const cachedTheme = typeof window !== 'undefined' ? (CacheService.get('theme_color') || CacheService.get('selected_theme')) : null;
         return domTheme || cachedTheme || '';
       });
+      const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
       const [isCacheEnabledState, setIsCacheEnabledState] = useState(() => CacheService.get('cache_enabled', true));
 
       // SEARCH ENGINE INDEXING SECURITY CONFIG
