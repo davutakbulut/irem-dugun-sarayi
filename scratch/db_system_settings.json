@@ -12,12 +12,54 @@
     "video/mp4",
     "video/quicktime"
   ],
-  "updatedAt": "2026-08-01T17:18:42.000Z",
+  "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.72",
-  "lastUpdated": "2026-08-01T17:18:42Z",
+  "systemVersion": "v1.4.79",
+  "lastUpdated": "2026-08-01T17:55:00Z",
   "versionHistory": [
+    {
+      "version": "v1.4.79",
+      "date": "01 Ağustos 2026",
+      "title": "🖼️ 1 Saniyelik Görsel Kaybolma Düzeltmesi & Non-Destructive Önbellek Senkronizasyonu",
+      "desc": "Fotoğraf ve video yüklemesi tamamlandıktan 1 saniye sonra arka planda çalışan önbellek zamanlayıcısının (pollTimer / syncFromCache) RAM'deki yeni yüklenen medya listesini eski verilerle ezmesi ve görselin ekrandan kaybolması engellendi. syncFromCache mekanizmasına tahribatsız birleştirme (merge by unique ID) entegre edilerek hem yerel hem de canlı önizleme kararlılığı %100 sağlandı."
+    },
+    {
+      "version": "v1.4.78",
+      "date": "01 Ağustos 2026",
+      "title": "⚡ Realtime FileReader İlerleme Takibi & Fiziksel Disk Medya Depolama Mimarisi",
+      "desc": "Yükleme kuyruğundaki %90 takılmasına neden olan suni sayaç döngüsü kaldırılıp FileReader.onprogress ile gerçek bayt okuma oranını (%10->%100) anlık yansıtan akıcı ilerleme barı entegre edildi. Sunucu tarafında (/api/upload-media) dosya yüklemeleri için fiziksel disk kaydı (uploads/<res_id>/<file_name>) ve statik dosya sunucusu aktif edilerek base64 bellek kotası sınırı ve galeri önizleme görsel kaybı tam çözüldü."
+    },
+    {
+      "version": "v1.4.77",
+      "date": "01 Ağustos 2026",
+      "title": "🖼️ Geçersiz Medya Bağlantısı (net::ERR_INVALID_URL) Düzeltmesi & Önbellek SVG Kurtarma",
+      "desc": "CacheService içerisinde yerel depolama kotasını aşan base64 görselleri kırpılırken kırpılmış bozuk veri adresi (data:...[cached_in_memory]) yerine geçerli bir SVG görsel yer tutucusu (VALID_SVG_PLACEHOLDER) tanımlandı. CacheService.get servisinde önceden kalan bozuk önbellek adresleri otomatik temizlendi ve galeri <img /> etiketlerine onError otomatik kurtarma eklendi."
+    },
+    {
+      "version": "v1.4.76",
+      "date": "01 Ağustos 2026",
+      "title": "⚡ Tarayıcı Hafıza Limiti Düzeltmesi & LocalStorage Kotası Otomatik Budama",
+      "desc": "CacheService.set içerisindeki medya temizleyici dizisi mediaFiles olarak güncellendi. Yüksek boyutlu base64 medya verileri önbelleğe yazılırken otomatik budanarak tarayıcının 5MB LocalStorage kotasını doldurması ve konsol uyarı/hataları engellendi."
+    },
+    {
+      "version": "v1.4.75",
+      "date": "01 Ağustos 2026",
+      "title": "⚡ React ReferenceError (TDZ) Düzeltmesi & SessionUser State İyileştirmesi",
+      "desc": "App bileşeni içerisindeki sessionUser state tanımı isPublicGuestRoute kullanımının üstüne taşınarak JavaScript Temporal Dead Zone (TDZ) hatası %100 çözüldü."
+    },
+    {
+      "version": "v1.4.74",
+      "date": "01 Ağustos 2026",
+      "title": "📸 Bağımsız Davetli Medya Yükleme Adresi (/medya/:key) & Public Albüm Mimarisi",
+      "desc": "Üye girişi yapmamış davetliler için yönetim paneli başlığı (header), yan menü (sidebar), profil menüsü ve yetkili kontrolleri tamamen gizlendi. Sayfa 100% bağımsız, sade ve sadece ilgili rezervasyona fotoğraf/video yükleme amaçlı halka açık (public) davetli albümü haline getirildi."
+    },
+    {
+      "version": "v1.4.73",
+      "date": "01 Ağustos 2026",
+      "title": "🎨 Giriş Sayfası Görsel Temizliği & Nordic SVG İkon Kütüphanesi Yenilemesi",
+      "desc": "Giriş sayfasındaki yardım bağlantıları ve demo test butonları temizlendi. NordicSvgMap kütüphanesine eksik SVG ikonlar (mail, lock, eye, eyeOff, helpCircle vb.) eklendi ve tüm giriş bileşenleri anlamsal SVG ikonlarla donatıldı."
+    },
     {
       "version": "v1.4.72",
       "date": "01 Ağustos 2026",
