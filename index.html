@@ -4388,7 +4388,21 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const mediaList = useMemo(() => {
     if (!currentRes) return [];
-    let files = (currentRes.mediaFiles || []).filter(f => f && f.url && !f.url.includes('svg+xml') && !f.url.includes('VALID_SVG') && !f.url.includes('[cached_in_memory]'));
+    let files = (currentRes.mediaFiles || []).filter(f => {
+      if (!f || !f.url) return false;
+      if (f.url.includes('svg+xml') || f.url.includes('VALID_SVG') || f.url.includes('[cached_in_memory]')) return false;
+
+      // STRICT RESERVATION KEY ISOLATION: Prevent files from other reservations from leaking into this view!
+      if (f.url.startsWith('/uploads/')) {
+        const pathParts = f.url.split('/');
+        const fileResKey = pathParts[2];
+        const activeKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
+        if (fileResKey && activeKey && fileResKey !== activeKey && fileResKey !== currentRes?.id && fileResKey !== currentRes?.mediaKey) {
+          return false;
+        }
+      }
+      return true;
+    });
 
     // GUEST PRIVACY RULE: Guests ONLY see photos uploaded by themselves in their current session!
     // If guest uploaded 0 items, they see 0 items (no previous items from other guests!).
@@ -4406,7 +4420,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType]);
+  }, [currentRes, activeMediaKey, isPublicGuestMode, guestSessionUploadIds, filterType]);
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
   const handleFilesSelect = (e) => {
