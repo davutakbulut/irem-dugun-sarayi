@@ -4234,14 +4234,27 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     try { localStorage.setItem('banned_ips', JSON.stringify(bannedIPs)); } catch(e){}
   }, [bannedIPs]);
 
-  // Guest Session Uploads for Privacy
+  // Guest Session & Local Storage Uploads for Privacy & Refresh Persistence
   const [guestSessionUploadIds, setGuestSessionUploadIds] = useState(() => {
     if (typeof window === 'undefined') return [];
     try {
-      const saved = sessionStorage.getItem('guest_uploaded_ids');
-      return saved ? JSON.parse(saved) : [];
+      const activeKey = getUrlKey() || 'default';
+      const savedLocal = localStorage.getItem(`guest_uploaded_ids_${activeKey}`);
+      const savedSession = sessionStorage.getItem('guest_uploaded_ids');
+      const listLocal = savedLocal ? JSON.parse(savedLocal) : [];
+      const listSession = savedSession ? JSON.parse(savedSession) : [];
+      return Array.from(new Set([...listLocal, ...listSession]));
     } catch(e) { return []; }
   });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const activeKey = activeMediaKey || selectedResKey || getUrlKey() || 'default';
+      localStorage.setItem(`guest_uploaded_ids_${activeKey}`, JSON.stringify(guestSessionUploadIds));
+      sessionStorage.setItem('guest_uploaded_ids', JSON.stringify(guestSessionUploadIds));
+    } catch(e){}
+  }, [guestSessionUploadIds, activeMediaKey, selectedResKey]);
 
   // DIRECT DISK FOLDER LOADER: Fetches physical files directly from uploads/<resId>/ folder on server disk
   useEffect(() => {
@@ -5563,7 +5576,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.90 Canlı
+                v1.4.91 Canlı
               </span>
             </div>
 
