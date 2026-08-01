@@ -7,6 +7,7 @@ import sys
 import json
 import urllib.parse
 import re
+import time
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8008
 
@@ -132,10 +133,11 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(res_json)
                 return
             except Exception as e:
+                print("Error in /api/media-files:", e)
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b'{"success":true,"files":[]}')
+                self.wfile.write(json.dumps({'success': False, 'error': str(e), 'files': []}).encode('utf-8'))
                 return
 
         # 2. API: Ping GET
@@ -162,8 +164,9 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(f.read())
                 return
 
-        # 4. Main HTML & Routing
-        is_html_route = (
+        # 4. Main HTML & Routing (Excluding /api/ routes)
+        is_api_route = self.path.startswith('/api/')
+        is_html_route = not is_api_route and (
             self.path == '/' or
             self.path.startswith('/yonetim') or
             self.path.startswith('/giris') or
