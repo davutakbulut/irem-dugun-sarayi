@@ -5877,7 +5877,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       });
       const [isCacheEnabledState, setIsCacheEnabledState] = useState(() => CacheService.get('cache_enabled', true));
 
-      // SEARCH ENGINE INDEXING SECURITY CONFIG & DYNAMIC META ROBOTS EFFECT
+      // SEARCH ENGINE INDEXING SECURITY CONFIG
       const [indexingConfig, setIndexingConfig] = useState(() => CacheService.get('indexing_config', {
         blockAdminIndexing: true,
         blockSearchBots: true,
@@ -5885,29 +5885,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         publicRobotsHeader: 'index, follow',
         blockPublicIndexing: false
       }));
-
-      useEffect(() => {
-        CacheService.set('indexing_config', indexingConfig);
-        if (typeof document === 'undefined') return;
-
-        let metaRobots = document.querySelector('meta[name="robots"]');
-        if (!metaRobots) {
-          metaRobots = document.createElement('meta');
-          metaRobots.name = 'robots';
-          document.head.appendChild(metaRobots);
-        }
-
-        const path = typeof window !== 'undefined' ? window.location.pathname : '/';
-        const isAdminPage = path.startsWith('/yonetim') || path === '/giris' || (activeTab && activeTab !== 'simulasyon-404');
-
-        if (indexingConfig.blockPublicIndexing || (indexingConfig.blockAdminIndexing && isAdminPage)) {
-          metaRobots.setAttribute('content', indexingConfig.adminRobotsHeader || 'noindex, nofollow, noarchive, nosnippet');
-          document.documentElement.setAttribute('data-indexing', 'blocked');
-        } else {
-          metaRobots.setAttribute('content', indexingConfig.publicRobotsHeader || 'index, follow');
-          document.documentElement.setAttribute('data-indexing', 'allowed');
-        }
-      }, [activeTab, indexingConfig]);
 
       useEffect(() => { CacheService.set('roles', rolesState); }, [rolesState]);
       useEffect(() => { CacheService.set('tab_permissions', tabPermissionsState); }, [tabPermissionsState]);
@@ -6040,6 +6017,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [activeRole, setActiveRole] = useState('admin');
       const [activeTab, setActiveTabState] = useState(getHashTab);
       const isErrorPage = activeTab.startsWith('simulasyon-') || ['404', '301', '403', '500'].includes(activeTab);
+
+      // DYNAMIC META ROBOTS SECURITY EFFECT
+      useEffect(() => {
+        CacheService.set('indexing_config', indexingConfig);
+        if (typeof document === 'undefined') return;
+
+        let metaRobots = document.querySelector('meta[name="robots"]');
+        if (!metaRobots) {
+          metaRobots = document.createElement('meta');
+          metaRobots.name = 'robots';
+          document.head.appendChild(metaRobots);
+        }
+
+        const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+        const isAdminPage = path.startsWith('/yonetim') || path === '/giris' || (activeTab && activeTab !== 'simulasyon-404');
+
+        if (indexingConfig.blockPublicIndexing || (indexingConfig.blockAdminIndexing && isAdminPage)) {
+          metaRobots.setAttribute('content', indexingConfig.adminRobotsHeader || 'noindex, nofollow, noarchive, nosnippet');
+          document.documentElement.setAttribute('data-indexing', 'blocked');
+        } else {
+          metaRobots.setAttribute('content', indexingConfig.publicRobotsHeader || 'index, follow');
+          document.documentElement.setAttribute('data-indexing', 'allowed');
+        }
+      }, [activeTab, indexingConfig]);
 
       const [toast, setToast] = useState(null);
       const [globalAlerts, setGlobalAlerts] = useState([]);
