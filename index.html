@@ -1649,16 +1649,17 @@
           let stringified = JSON.stringify(value);
           
           // Smart quota guard: If saving reservations with heavy base64 media, strip heavy base64 data for localStorage
-          if (key === 'reservations' && stringified.length > 2000000) {
+          if (key === 'reservations' && stringified.length > 300000) {
             try {
               const sanitizedReservations = value.map(r => {
-                if (!r.media || !Array.isArray(r.media)) return r;
+                const list = r.mediaFiles || r.media || [];
+                if (!Array.isArray(list)) return r;
                 return {
                   ...r,
-                  media: r.media.slice(0, 50).map(m => {
+                  mediaFiles: list.slice(0, 30).map(m => {
                     // Keep metadata intact, truncate huge raw base64 if needed for localStorage
-                    if (m.url && m.url.length > 200000 && m.url.startsWith('data:')) {
-                      return { ...m, url: m.url.substring(0, 100) + '...[cached_in_memory]' };
+                    if (m.url && m.url.length > 30000 && m.url.startsWith('data:')) {
+                      return { ...m, url: m.url.substring(0, 150) + '...[cached_in_memory]' };
                     }
                     return m;
                   })
@@ -1673,9 +1674,15 @@
             localStorage.setItem('selected_theme', value);
           }
         } catch (e) {
-          // Graceful QuotaExceededError fallback without breaking app execution
+          // Graceful QuotaExceededError fallback: silently clear old temporary caches
           if (e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014)) {
-            console.info('💾 LocalStorage limitine ulaşıldı; medya içerikleri bellek üzerinde (RAM) sorunsuz tutuluyor.');
+            try {
+              Object.keys(localStorage).forEach(k => {
+                if (k.startsWith('irem_cache_temp_') || k.startsWith('guest_upload_')) {
+                  localStorage.removeItem(k);
+                }
+              });
+            } catch(err) {}
           }
         }
       },
@@ -5428,7 +5435,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.74 Canlı
+                v1.4.75 Canlı
               </span>
             </div>
 
