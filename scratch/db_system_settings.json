@@ -15,9 +15,15 @@
   "updatedAt": "2026-07-31T23:42:17.692Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.61",
-  "lastUpdated": "2026-08-01T00:01:15Z",
+  "systemVersion": "v1.4.62",
+  "lastUpdated": "2026-08-01T00:02:25Z",
   "versionHistory": [
+    {
+      "version": "v1.4.62",
+      "date": "01 Ağustos 2026",
+      "title": "Otomatik Sürüm Güncellemesi (v1.4.62)",
+      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+    },
     {
       "version": "v1.4.61",
       "date": "01 Ağustos 2026",
@@ -101,12 +107,6 @@
       "date": "01 Ağustos 2026",
       "title": "🖥️ Masaüstü Menü Yerleşimi (Dikey / Yatay) DB Entegrasyonu",
       "desc": "Ayarlar > Görünüm sekmesindeki Masaüstü Menü Yerleşimi tercihi veritabanına bağlandı ve tüm sayfalar arası geçişlerde kalıcılığı sağlandı."
-    },
-    {
-      "version": "v1.4.0",
-      "date": "31 Temmuz 2026",
-      "title": "🛡️ Müstakil Rol Yönetimi, 3G Hız Performansı & Nordic Taç Logosu",
-      "desc": "Rol Yönetimi Sistem Ayarlarından ayrılıp bağımsız #/roller sayfasına dönüştürüldü. 5 Kritik Form Doğrulama Kuralı tamamlandı. 3G LCP yükleme süresi <2.5s seviyesine indirildi."
     }
   ]
 }
