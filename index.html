@@ -4371,7 +4371,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     // GUEST PRIVACY RULE: Guests ONLY see photos uploaded by themselves in their current session!
     // Authorized Users / Admins see ALL uploaded photos across all devices in real-time!
     if (isPublicGuestMode) {
-      files = files.filter(f => guestSessionUploadIds.includes(f.id));
+      if (guestSessionUploadIds && guestSessionUploadIds.length > 0) {
+        files = files.filter(f => 
+          guestSessionUploadIds.includes(f.id) || 
+          guestSessionUploadIds.includes(f.url) || 
+          guestSessionUploadIds.includes(f.fileName)
+        );
+      }
     }
 
     if (filterType === 'image') return files.filter(f => f.type === 'image');
@@ -4544,7 +4550,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       });
 
       if (isPublicGuestMode) {
-        setGuestSessionUploadIds(prev => [newMediaId, ...prev]);
+        setGuestSessionUploadIds(prev => [newMediaId, finalMediaUrl, pendingItem.name, ...prev]);
       }
 
       setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
@@ -5508,7 +5514,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.80 Canlı
+                v1.4.81 Canlı
               </span>
             </div>
 
