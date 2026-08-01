@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.88",
-  "lastUpdated": "2026-08-01T18:23:14Z",
+  "systemVersion": "v1.4.89",
+  "lastUpdated": "2026-08-01T18:24:47Z",
   "versionHistory": [
+    {
+      "version": "v1.4.89",
+      "date": "01 Ağustos 2026",
+      "title": "🧹 Örnek Demo Medya Temizliği (Initial Reservations Demo Purge & Startup Sanitization)",
+      "desc": "INITIAL_RESERVATIONS nesnesi içerisinde RES-2026-002 kaydında yer alan 2 adet varsayılan Unsplash demo görsel ve video verisi tamamen temizlendi (mediaFiles: []). normalizeReservationsMediaKeys başlangıç fonksiyonuna eklenen süzgeç ile tarayıcı hafızasına (localStorage) önceden girmiş olan tüm demo ve sahte görseller otomatik olarak temizlendi. Artık sayfa ilk açıldığı micro-saniyeden itibaren 0 sahte görsel barındırır. Ekranda geçici sayı düşmesi yaşanması %100 engellendi."
+    },
     {
       "version": "v1.4.88",
       "date": "01 Ağustos 2026",
