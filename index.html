@@ -4368,14 +4368,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (!currentRes) return [];
     let files = currentRes.mediaFiles || [];
 
-    if (isPublicGuestMode) {
-      files = files.filter(f => guestSessionUploadIds.includes(f.id));
-    }
-
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType]);
+  }, [currentRes, filterType]);
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
   const handleFilesSelect = (e) => {
@@ -6012,6 +6008,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   if (typeof document !== 'undefined') {
                     document.documentElement.setAttribute('data-menu-layout', data.menuLayout);
                   }
+                }
+                if (data.storedMedia && typeof data.storedMedia === 'object') {
+                  setReservations(prev => {
+                    let hasMerged = false;
+                    const updated = prev.map(r => {
+                      const rKey = r.mediaKey || r.id;
+                      const serverFiles = data.storedMedia[rKey] || data.storedMedia[r.id] || [];
+                      if (serverFiles.length > 0) {
+                        const currentFiles = r.mediaFiles || [];
+                        const fileMap = new Map();
+                        currentFiles.forEach(f => fileMap.set(f.id || f.url, f));
+                        serverFiles.forEach(f => {
+                          if (!fileMap.has(f.id) && !fileMap.has(f.url)) {
+                            fileMap.set(f.id || f.url, f);
+                            hasMerged = true;
+                          }
+                        });
+                        return { ...r, mediaFiles: Array.from(fileMap.values()) };
+                      }
+                      return r;
+                    });
+                    return hasMerged ? updated : prev;
+                  });
                 }
               }
             }).catch(() => {});

@@ -168,11 +168,47 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                         f.write(base64.b64decode(b64_str))
 
                 rel_url = f'/uploads/{res_id}/{safe_name}'
+                ext = os.path.splitext(safe_name)[1].lower()
+
+                # Also record uploaded media item metadata in db_system_settings.json for 100% permanent persistence
+                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                existing_db = {}
+                if os.path.exists(db_file):
+                    try:
+                        with open(db_file, 'r', encoding='utf-8') as f:
+                            existing_db = json.load(f)
+                    except Exception: pass
+                
+                stored_media = existing_db.get('storedMedia', {})
+                res_media_list = stored_media.get(res_id, [])
+                
+                new_item_meta = {
+                    'id': f'mf_{int(time.time()*1000)}',
+                    'type': 'video' if ext in ['.mp4', '.mov'] else 'image',
+                    'url': rel_url,
+                    'thumbnail': rel_url,
+                    'fileName': file_name,
+                    'uploaderName': 'Davetli Konuk',
+                    'tableNo': 'Masa Davetlisi',
+                    'timestamp': time.strftime('%Y-%m-%d %H:%M'),
+                    'isGuest': True
+                }
+                
+                if not any(m.get('url') == rel_url for m in res_media_list):
+                    res_media_list.insert(0, new_item_meta)
+                
+                stored_media[res_id] = res_media_list
+                existing_db['storedMedia'] = stored_media
+                
+                with open(db_file, 'w', encoding='utf-8') as f:
+                    json.dump(existing_db, f, indent=2)
+
                 res_body = json.dumps({
                     'success': True,
                     'status': 'ok',
                     'url': rel_url,
-                    'message': 'File uploaded and saved to disk successfully'
+                    'item': new_item_meta,
+                    'message': 'File uploaded and saved to disk & database successfully'
                 }).encode('utf-8')
 
                 self.send_response(200)
