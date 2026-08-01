@@ -6060,13 +6060,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     let hasMerged = false;
                     const updated = prev.map(r => {
                       const rKey = r.mediaKey || r.id;
-                      const serverFiles = data.storedMedia[rKey] || data.storedMedia[r.id] || [];
+                      // Strictly match storedMedia files belonging to THIS reservation's upload folder only!
+                      const serverFiles = (data.storedMedia[rKey] || []).filter(f => f && f.url && f.url.startsWith(`/uploads/${rKey}/`));
                       if (serverFiles.length > 0) {
-                        const currentFiles = (r.mediaFiles || []).filter(f => f && f.url && f.url.startsWith('/uploads/'));
+                        const currentFiles = (r.mediaFiles || []).filter(f => f && f.url && f.url.startsWith(`/uploads/${rKey}/`));
                         const fileMap = new Map();
                         currentFiles.forEach(f => fileMap.set(f.id || f.url, f));
                         serverFiles.forEach(f => {
-                          if (f && f.url && f.url.startsWith('/uploads/') && !fileMap.has(f.id) && !fileMap.has(f.url)) {
+                          if (!fileMap.has(f.id) && !fileMap.has(f.url)) {
                             fileMap.set(f.id || f.url, f);
                             hasMerged = true;
                           }
