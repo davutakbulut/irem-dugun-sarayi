@@ -11,6 +11,14 @@ import time
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8008
 
+# ENTERPRISE SECURITY HARDENING ENGINE & RATE LIMITING
+IP_UPLOAD_TRACKER = {}  # { ip_address: [timestamp1, timestamp2, ...] }
+ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.mp4', '.mov', '.avi', '.mkv'}
+MAX_FILE_SIZE_BYTES = 35 * 1024 * 1024  # 35 MB Max File Size
+MAX_PAYLOAD_BYTES = 48 * 1024 * 1024    # 48 MB Max Request Body Size
+MAX_UPLOADS_PER_WINDOW = 50             # 50 files per 10 minutes per IP
+RATE_LIMIT_WINDOW_SEC = 600             # 10 minutes
+
 class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
@@ -240,33 +248,81 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(f'{{"error":"Failed to save settings: {str(e)}"}}'.encode('utf-8'))
                 return
 
-        # 2. API: Media Upload POST
+        # 2. API: Media Upload POST with Full Security Hardening
         if parsed_path.path == '/api/upload-media':
             try:
                 import base64
                 import time
+
+                client_ip = self.client_address[0] if hasattr(self, 'client_address') else '127.0.0.1'
                 content_len = int(self.headers.get('Content-Length', 0))
+
+                # 1. SECURITY SHIELD: Payload Size Cap Check (DoS Defense)
+                if content_len > MAX_PAYLOAD_BYTES:
+                    self.send_response(413)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(b'{"success":false,"error":"Payload Too Large: Maximum request size is 45MB"}')
+                    return
+
+                # 2. SECURITY SHIELD: Rate Limiting per IP Address (Flood Defense)
+                now = time.time()
+                ip_history = IP_UPLOAD_TRACKER.get(client_ip, [])
+                ip_history = [t for t in ip_history if now - t < RATE_LIMIT_WINDOW_SEC]
+                if len(ip_history) >= MAX_UPLOADS_PER_WINDOW:
+                    self.send_response(429)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(b'{"success":false,"error":"Too Many Requests: Rate limit exceeded (Max 50 uploads per 10 minutes)"}')
+                    return
+
                 body = self.rfile.read(content_len)
                 data = json.loads(body.decode('utf-8'))
 
-                res_id = data.get('resId', 'GENERAL')
-                file_name = data.get('fileName', f'file_{int(time.time())}.jpg')
+                raw_res_id = str(data.get('resId', 'GENERAL'))
+                raw_file_name = str(data.get('fileName', f'file_{int(now)}.jpg'))
                 file_data = data.get('fileData', '')
 
-                safe_name = re.sub(r'[^A-Za-z0-9_.-]', '_', file_name)
-                uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', res_id)
-                os.makedirs(uploads_dir, exist_ok=True)
-                dest_path = os.path.join(uploads_dir, safe_name)
+                # 3. SECURITY SHIELD: Strict Path Traversal & Name Sanitization
+                safe_res_id = re.sub(r'[^A-Za-z0-9_-]', '', raw_res_id) or 'GENERAL'
+                safe_file_name = os.path.basename(re.sub(r'[^A-Za-z0-9_.-]', '_', raw_file_name))
+                if safe_file_name.startswith('.'):
+                    safe_file_name = 'upload_' + safe_file_name.lstrip('.')
 
+                # 4. SECURITY SHIELD: Extension Whitelist & Code Execution Prevention
+                ext = os.path.splitext(safe_file_name)[1].lower()
+                if ext not in ALLOWED_EXTENSIONS:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(b'{"success":false,"error":"Security Block: Invalid file type! Only image and video files are permitted."}')
+                    return
+
+                uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', safe_res_id)
+                os.makedirs(uploads_dir, exist_ok=True)
+                dest_path = os.path.join(uploads_dir, safe_file_name)
+
+                # 5. SECURITY SHIELD: Binary Decoding & Size Verification
                 if file_data and 'base64,' in file_data:
                     b64_str = file_data.split('base64,')[1]
+                    raw_bytes = base64.b64decode(b64_str)
+                    if len(raw_bytes) > MAX_FILE_SIZE_BYTES:
+                        self.send_response(400)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(b'{"success":false,"error":"File size exceeds maximum allowed limit of 35MB."}')
+                        return
+
                     with open(dest_path, 'wb') as f:
-                        f.write(base64.b64decode(b64_str))
+                        f.write(raw_bytes)
 
-                rel_url = f'/uploads/{res_id}/{safe_name}'
-                ext = os.path.splitext(safe_name)[1].lower()
+                # Update IP Rate Limiting Tracker
+                ip_history.append(now)
+                IP_UPLOAD_TRACKER[client_ip] = ip_history
 
-                # Also record uploaded media item metadata in db_system_settings.json for 100% permanent persistence
+                rel_url = f'/uploads/{safe_res_id}/{safe_file_name}'
+
+                # Record uploaded media item metadata in db_system_settings.json
                 db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
                 existing_db = {}
                 if os.path.exists(db_file):
@@ -276,14 +332,14 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     except Exception: pass
                 
                 stored_media = existing_db.get('storedMedia', {})
-                res_media_list = stored_media.get(res_id, [])
+                res_media_list = stored_media.get(safe_res_id, [])
                 
                 new_item_meta = {
-                    'id': f'mf_{int(time.time()*1000)}',
-                    'type': 'video' if ext in ['.mp4', '.mov'] else 'image',
+                    'id': f'mf_{int(now*1000)}',
+                    'type': 'video' if ext in ['.mp4', '.mov', '.avi', '.mkv'] else 'image',
                     'url': rel_url,
                     'thumbnail': rel_url,
-                    'fileName': file_name,
+                    'fileName': raw_file_name,
                     'uploaderName': 'Davetli Konuk',
                     'tableNo': 'Masa Davetlisi',
                     'timestamp': time.strftime('%Y-%m-%d %H:%M'),
@@ -293,7 +349,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 if not any(m.get('url') == rel_url for m in res_media_list):
                     res_media_list.insert(0, new_item_meta)
                 
-                stored_media[res_id] = res_media_list
+                stored_media[safe_res_id] = res_media_list
                 existing_db['storedMedia'] = stored_media
                 
                 with open(db_file, 'w', encoding='utf-8') as f:
@@ -304,7 +360,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     'status': 'ok',
                     'url': rel_url,
                     'item': new_item_meta,
-                    'message': 'File uploaded and saved to disk & database successfully'
+                    'message': 'File uploaded and saved safely'
                 }).encode('utf-8')
 
                 self.send_response(200)
