@@ -6596,6 +6596,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           <VersionHistoryModalComponent
             isOpen={isVersionModalOpen}
             onClose={() => setIsVersionModalOpen(false)}
+            systemVersion={systemVersionState || systemSettings?.systemVersion || 'v1.4.59'}
+            versionHistory={versionHistoryState && versionHistoryState.length > 0 ? versionHistoryState : systemSettings?.versionHistory}
           />
 
           {/* MOBILE ONLY STICKY VIEWPORT ACTION BAR FOR REZERVASYON OLUŞTUR (OUTSIDE MAIN SCROLL CONTAINER) */}
