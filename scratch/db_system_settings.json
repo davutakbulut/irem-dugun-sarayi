@@ -12,12 +12,30 @@
     "video/mp4",
     "video/quicktime"
   ],
-  "updatedAt": "2026-08-01T14:04:44.383Z",
+  "updatedAt": "2026-08-01T17:18:42.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.65",
-  "lastUpdated": "2026-08-01T00:09:43Z",
+  "systemVersion": "v1.4.72",
+  "lastUpdated": "2026-08-01T17:18:42Z",
   "versionHistory": [
+    {
+      "version": "v1.4.72",
+      "date": "01 Ağustos 2026",
+      "title": "🚀 Rota 404 Hata Sayfası Yönlendirmesi & Simülasyon Ekranları (404/301/403/500)",
+      "desc": "Tanımlanmayan ve eşleşmeyen tüm rotalar için otomatik 404 Hata Sayfası (simulasyon-404) yönlendirmesi sağlandı. Ayrıca 404, 301, 403 ve 500 HTTP durum kodları için interaktif simülasyon test ekranları sisteme eklendi."
+    },
+    {
+      "version": "v1.4.71",
+      "date": "01 Ağustos 2026",
+      "title": "🛡️ Arama Motoru İndeksleme Güvenliği Modülü & Dinamik Meta Robots Kalkanı",
+      "desc": "Yönetim ayarlarında /yonetim/ayarlar/seo-indeksleme modülü devreye alındı. Arama motoru botlarına karşı hassas yönetim sayfalarını koruyan Dinamik Meta Robots Kalkanı entegre edildi."
+    },
+    {
+      "version": "v1.4.70",
+      "date": "01 Ağustos 2026",
+      "title": "🔑 Temiz URL Yönlendirme, Oturum Bekçisi & Nordic Light Giriş Sayfası",
+      "desc": "/yonetim ve /giris temiz URL yönlendirmeleri ile yetkisiz erişimleri engelleyen Oturum Bekçisi (Session Gatekeeper) ve Nordic Light temalı modern Giriş Sayfası mimarisi aktif edildi."
+    },
     {
       "version": "v1.4.65",
       "date": "01 A\u011fustos 2026",
