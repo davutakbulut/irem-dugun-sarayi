@@ -1601,7 +1601,15 @@
       'settings-appearance': '/yonetim/ayarlar/gorunum',
       'settings-performance': '/yonetim/ayarlar/onbellek',
       'settings-rbac': '/yonetim/ayarlar/rol-izinleri',
-      'settings-errors': '/yonetim/ayarlar/hata-simulasyonu'
+      'settings-errors': '/yonetim/ayarlar/hata-simulasyonu',
+      'simulasyon-404': '/yonetim/simulasyon-404',
+      'simulasyon-301': '/yonetim/simulasyon-301',
+      'simulasyon-403': '/yonetim/simulasyon-403',
+      'simulasyon-500': '/yonetim/simulasyon-500',
+      '404': '/yonetim/simulasyon-404',
+      '301': '/yonetim/simulasyon-301',
+      '403': '/yonetim/simulasyon-403',
+      '500': '/yonetim/simulasyon-500'
     };
 
     // ==========================================
@@ -2319,8 +2327,8 @@
       const searchStr = window.location.search || (queryPart ? '?' + queryPart : '');
       const params = new URLSearchParams(searchStr);
 
-      let targetTab = 'create-reservation';
-      let slug = routePart;
+      let targetTab = 'simulasyon-404';
+      let slug = routePart || pathname;
 
       if (pathname === '/giris' || pathname === '/login' || pathname === '/yonetim/giris' || routePart === 'giris' || routePart === 'login') {
         targetTab = 'login';
@@ -2334,12 +2342,19 @@
           targetTab = 'dashboard';
         } else if (sub.startsWith('medya/') || sub.startsWith('m/')) {
           targetTab = 'media';
+        } else if (SLUG_TO_TAB[sub]) {
+          targetTab = SLUG_TO_TAB[sub];
+        } else if (['404', '301', '403', '500', 'simulasyon-404', 'simulasyon-301', 'simulasyon-403', 'simulasyon-500'].includes(sub)) {
+          targetTab = sub.startsWith('simulasyon-') ? sub : 'simulasyon-' + sub;
         } else {
-          targetTab = SLUG_TO_TAB[sub] || (['404', '301', '403', '500', 'simulasyon-404'].includes(sub) ? sub : 'create-reservation');
+          targetTab = 'simulasyon-404';
         }
       } else if (pathname === '/' && !rawHash) {
         targetTab = 'dashboard';
         slug = 'dashboard';
+      } else {
+        targetTab = 'simulasyon-404';
+        slug = '404';
       }
 
       const refKey = params.get('ref') || null;
@@ -6372,8 +6387,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (typeof window === 'undefined') return;
         const path = window.location.pathname;
-        const isYonetimPath = path.startsWith('/yonetim') || (activeTab !== 'login' && activeTab !== 'simulasyon-404');
-        const isGirisPath = path === '/giris' || path === '/login' || activeTab === 'login';
+        const isError = activeTab.startsWith('simulasyon-') || ['404', '301', '403', '500'].includes(activeTab);
+        const isYonetimPath = (path.startsWith('/yonetim') || (activeTab !== 'login' && !isError)) && !isError;
+        const isGirisPath = (path === '/giris' || path === '/login' || activeTab === 'login') && !isError;
 
         // 1. Unauthenticated attempt to access /yonetim -> redirect to /giris
         if (isYonetimPath && !sessionUser) {
