@@ -1634,9 +1634,16 @@
             return parsed.map(r => {
               const list = r.mediaFiles || r.media || [];
               if (!Array.isArray(list)) return { ...r, mediaFiles: [] };
+              const fileMap = new Map();
+              list.forEach(m => {
+                if (m && m.url && !m.url.includes('svg+xml') && !m.url.includes('VALID_SVG') && !m.url.includes('[cached_in_memory]')) {
+                  const dedupeKey = m.url || m.fileName || m.id;
+                  if (!fileMap.has(dedupeKey)) fileMap.set(dedupeKey, m);
+                }
+              });
               return {
                 ...r,
-                mediaFiles: list.filter(m => m && m.url && !m.url.includes('svg+xml') && !m.url.includes('VALID_SVG') && !m.url.includes('[cached_in_memory]'))
+                mediaFiles: Array.from(fileMap.values())
               };
             });
           }
@@ -4412,6 +4419,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       );
     }
 
+    // DEDUPLICATE FILES BY URL & FILENAME: Guarantee 0 duplicates are ever rendered or counted!
+    const uniqueMap = new Map();
+    files.forEach(f => {
+      const key = f.url || f.fileName || f.id;
+      if (key && !uniqueMap.has(key)) {
+        uniqueMap.set(key, f);
+      }
+    });
+    files = Array.from(uniqueMap.values());
+
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
@@ -5546,7 +5563,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.89 Canlı
+                v1.4.90 Canlı
               </span>
             </div>
 
