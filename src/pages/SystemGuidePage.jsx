@@ -39,7 +39,6 @@ export function SystemGuidePageComponent({ navigateTo, activeRole, themeColor, m
         ];
 
         const vercelSkillsList = [
-          { name: 'find-skills', desc: 'Açık ajan ekosisteminden yeni yetenek arama ve bağlama.' },
           { name: 'web-design-guidelines', desc: 'Vercel UX/UI standartları, tipografi ve renk rehberi.' },
           { name: 'react-best-practices', desc: 'React & Next.js 0ms render ve performans optimizasyon kuralları.' },
           { name: 'composition-patterns', desc: 'İleri seviye bileşen mimarisi ve prop desenleri.' },
@@ -64,7 +63,7 @@ export function SystemGuidePageComponent({ navigateTo, activeRole, themeColor, m
                     </h2>
                   </div>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 font-medium leading-relaxed max-w-3xl">
-                    Bu sayfa, platform içerisindeki tüm sayfaların, modüllerin, 11 adet kurumsal temanın, veritabanı mimarisinin ve 10 adet Vercel Labs Ajan Yeteneğinin eksiksiz kütüphanesidir.
+                    Bu sayfa, platform içerisindeki tüm sayfaların, modüllerin, 11 adet kurumsal temanın, veritabanı mimarisinin ve 9 adet Vercel Labs Ajan Yeteneğinin eksiksiz kütüphanesidir.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -84,7 +83,7 @@ export function SystemGuidePageComponent({ navigateTo, activeRole, themeColor, m
                 { id: 'overview', label: '🏛️ Mimari Özeti', icon: 'settings' },
                 { id: 'pages', label: '📱 16 Sayfa & Modül', icon: 'list' },
                 { id: 'themes', label: '🎨 11 Kurumsal Tema', icon: 'sparkles' },
-                { id: 'skills', label: '🚀 10 Vercel Ajan Skills', icon: 'shield' }
+                { id: 'skills', label: '🚀 9 Vercel Ajan Skills', icon: 'shield' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -218,7 +217,7 @@ export function SystemGuidePageComponent({ navigateTo, activeRole, themeColor, m
               <div className="space-y-4 animate-fade-in">
                 <div className="flex justify-between items-center">
                   <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                    <span>🚀 10 Adet Vercel Labs Ajan Yeteneği (skills.sh)</span>
+                    <span>🚀 9 Adet Vercel Labs Ajan Yeteneği (skills.sh)</span>
                   </h3>
                   <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
                     Konum: .skills/

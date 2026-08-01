@@ -15,9 +15,15 @@
   "updatedAt": "2026-07-31T23:42:17.692Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.64",
-  "lastUpdated": "2026-08-01T00:08:44Z",
+  "systemVersion": "v1.4.65",
+  "lastUpdated": "2026-08-01T00:09:43Z",
   "versionHistory": [
+    {
+      "version": "v1.4.65",
+      "date": "01 Ağustos 2026",
+      "title": "Otomatik Sürüm Güncellemesi (v1.4.65)",
+      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+    },
     {
       "version": "v1.4.64",
       "date": "01 Ağustos 2026",
@@ -101,12 +107,6 @@
       "date": "01 Ağustos 2026",
       "title": "🌐 Ağ İstekleri Otomatik Tekrar Deneme (fetchWithRetry)",
       "desc": "Sunucu yeniden başlatılırken oluşan ERR_CONNECTION_REFUSED hatalarını engellemek için window.fetchWithRetry mekanizması entegre edildi. İstekler 3 kez üst üste otomatik denenir."
-    },
-    {
-      "version": "v1.4.42",
-      "date": "01 Ağustos 2026",
-      "title": "💾 Menü Yerleşimi Veritabanı Birleştirme & POST Kalıcılığı",
-      "desc": "Sunucu do_POST işleyicisi JSON verilerini ezmeden birleştirecek şekilde (existing.update) güncellendi. Tema kaydedildiğinde menü yerleşiminin varsayılana dönme hatası kalıcı olarak çözüldü."
     }
   ]
 }
