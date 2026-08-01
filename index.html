@@ -4071,40 +4071,50 @@
 // --- MEDIA COMPONENT ---
 
 function MediaComponent({ reservations = [], setReservations = () => {}, activeRole = 'admin', currentUserState = null, showToast = () => {} }) {
-  // Extract URL key from both path route (#/medya/MEDIA-8X92M1KP) and query param (?key=MEDIA-8X92M1KP)
+  // Extract URL key from Clean URL params (?key=MEDIA-...), Clean URL path (/yonetim/medya/...), or Hash
   const getUrlKey = () => {
     if (typeof window === 'undefined') return '';
-    const hash = window.location.hash || '';
-    const pathMatch = hash.match(/^#\/(?:medya|m)\/([A-Za-z0-9_-]+)/);
+    const searchParams = new URLSearchParams(window.location.search);
+    const keyFromSearch = searchParams.get('key') || searchParams.get('editKey') || searchParams.get('resId');
+    if (keyFromSearch) return keyFromSearch;
+
+    const pathname = window.location.pathname || '';
+    const pathMatch = pathname.match(/\/medya(?:-yukle)?\/([A-Za-z0-9_-]+)/);
     if (pathMatch) return pathMatch[1];
-    const queryMatch = hash.match(/[?&](key|resId)=([A-Za-z0-9_-]+)/);
-    return queryMatch ? queryMatch[2] : '';
+
+    const hash = window.location.hash || '';
+    const hashPathMatch = hash.match(/^#\/(?:medya|m|medya-yukle)\/([A-Za-z0-9_-]+)/);
+    if (hashPathMatch) return hashPathMatch[1];
+    const hashQueryMatch = hash.match(/[?&](key|editKey|resId)=([A-Za-z0-9_-]+)/);
+    return hashQueryMatch ? hashQueryMatch[2] : '';
   };
 
   const urlKey = getUrlKey();
   
-  // Active selected reservation key (Preserved in URL Hash on click & refresh)
+  // Active selected reservation key (Preserved in Clean URL & Hash on click & refresh)
   const [selectedResKey, setSelectedResKey] = useState(() => {
     if (urlKey) return urlKey;
     return null;
   });
 
-  // STRICT GUEST MODE: Active on standalone guest links (#/medya/:key or ?mode=guest)
+  // STRICT GUEST MODE: Active on standalone guest links (?mode=guest or #/medya/:key)
   const isPublicGuestMode = useMemo(() => {
     if (typeof window === 'undefined') return false;
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('mode') === 'guest') return true;
     const hash = window.location.hash || '';
     return /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
   }, [selectedResKey]);
 
-  // Sync selectedResKey with browser URL Hash (Pushes new history entry so Back button returns to #/medya-yukle cards list)
+  // Sync selectedResKey with Clean Browser URL (Pushes new History entry so Back button returns to cards list)
   const selectReservation = (key) => {
     setSelectedResKey(key);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
       if (key) {
         const prefix = isPublicGuestMode ? 'mode=guest&key=' : 'key=';
-        window.location.hash = `#/medya-yukle?${prefix}${key}`;
+        window.history.pushState({}, '', `/yonetim/medya-yukle?${prefix}${key}`);
       } else {
-        window.location.hash = `#/medya-yukle`;
+        window.history.pushState({}, '', `/yonetim/medya-yukle`);
       }
     }
   };
@@ -4501,9 +4511,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
   };
 
-  // GUARANTEED SHAREABLE LINK COPY FUNCTION
+  // GUARANTEED SHAREABLE LINK COPY FUNCTION (CLEAN URL)
   const handleCopyLink = () => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}#/medya/${activeMediaKey}`;
+    const shareUrl = `${window.location.origin}/yonetim/medya-yukle?key=${activeMediaKey}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
       showToast('🔗 Davetli Yükleme Bağlantısı Panoya Kopyalandı!');
@@ -5412,7 +5422,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.72 Canlı
+                v1.4.73 Canlı
               </span>
             </div>
 
