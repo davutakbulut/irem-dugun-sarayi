@@ -1280,12 +1280,7 @@
         id: 'RES-2026-001',
         mediaKey: 'MEDIA-8X92M1KP',
         mediaRetentionDays: 30,
-        mediaFiles: [
-          { id: 'mf1', type: 'image', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', thumbnail: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80', uploaderName: 'Davetli - Mehmet T.', tableNo: 'Masa 4', timestamp: '2026-08-15 20:14', isGuest: true, uploaderIp: '195.175.22.4' },
-          { id: 'mf2', type: 'image', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', thumbnail: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=400&q=80', uploaderName: 'Fotoğrafçı - Can S.', tableNo: 'Ana Sahne', timestamp: '2026-08-15 21:05', isGuest: false, uploaderIp: '195.175.22.1' },
-          { id: 'mf3', type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', thumbnail: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=400&q=80', uploaderName: 'Davetli - Elif K.', tableNo: 'Masa 8', timestamp: '2026-08-15 21:30', isGuest: true, uploaderIp: '195.175.22.12' },
-          { id: 'mf4', type: 'image', url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80', thumbnail: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=400&q=80', uploaderName: 'Davetli - Burak A.', tableNo: 'Masa 2', timestamp: '2026-08-15 22:00', isGuest: true, uploaderIp: '195.175.22.18' }
-        ],
+        mediaFiles: [],
         venueId: 'v1',
         customerId: 'cust1',
         customerName: 'Ahmet Yılmaz & Ayşe Kaya',
@@ -1641,15 +1636,10 @@
           if (key === 'reservations' && Array.isArray(parsed)) {
             return parsed.map(r => {
               const list = r.mediaFiles || r.media || [];
-              if (!Array.isArray(list)) return r;
+              if (!Array.isArray(list)) return { ...r, mediaFiles: [] };
               return {
                 ...r,
-                mediaFiles: list.map(m => {
-                  if (m.url && (m.url.includes('[cached_in_memory]') || (m.url.startsWith('data:') && !m.url.includes(';base64,') && !m.url.includes('image/svg+xml')))) {
-                    return { ...m, url: VALID_SVG_PLACEHOLDER };
-                  }
-                  return m;
-                })
+                mediaFiles: list.filter(m => m && m.url && !m.url.includes('svg+xml') && !m.url.includes('VALID_SVG') && !m.url.includes('[cached_in_memory]'))
               };
             });
           }
@@ -4398,7 +4388,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
   const mediaList = useMemo(() => {
     if (!currentRes) return [];
-    let files = currentRes.mediaFiles || [];
+    let files = (currentRes.mediaFiles || []).filter(f => f && f.url && !f.url.includes('svg+xml') && !f.url.includes('VALID_SVG') && !f.url.includes('[cached_in_memory]'));
 
     // GUEST PRIVACY RULE: Guests ONLY see photos uploaded by themselves in their current session!
     // Authorized Users / Admins see ALL uploaded photos across all devices in real-time!
