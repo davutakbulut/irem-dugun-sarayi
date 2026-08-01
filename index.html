@@ -4100,14 +4100,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     return null;
   });
 
-  // STRICT GUEST MODE: Active on standalone guest links (?mode=guest or #/medya/:key)
+  // STRICT GUEST MODE: Active on standalone guest links (/medya/:key or ?mode=guest or unauthenticated guest)
   const isPublicGuestMode = useMemo(() => {
     if (typeof window === 'undefined') return false;
+    const pathname = window.location.pathname || '';
+    if (pathname.startsWith('/medya') || pathname.startsWith('/m/')) return true;
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get('mode') === 'guest') return true;
+    if (!currentUserState) return true;
     const hash = window.location.hash || '';
     return /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
-  }, [selectedResKey]);
+  }, [selectedResKey, currentUserState]);
 
   // Sync selectedResKey with Clean Browser URL (Pushes new History entry so Back button returns to cards list)
   const selectReservation = (key) => {
@@ -6116,14 +6119,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [activeTab]);
 
       // STRICT PUBLIC GUEST ROUTE DETECTOR:
-      // Public guest mode is enforced ONLY for standalone guest URLs (#/medya/:key or #/m/:key or ?mode=guest).
-      // Internal staff navigation (#/medya-yukle?key=...) preserves full Admin/Customer layout on page refresh!
+      // Public guest mode is enforced for standalone guest URLs (/medya/:key or /m/:key or ?mode=guest or unauthenticated guest).
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
+        const pathname = window.location.pathname || '';
+        const search = window.location.search || '';
         const hash = window.location.hash || '';
-        const isStandaloneGuestUrl = /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
-        return isStandaloneGuestUrl;
-      }, [activeTab]);
+
+        const isPathGuest = pathname.startsWith('/medya') || pathname.startsWith('/m/');
+        const isSearchGuest = search.includes('mode=guest');
+        const isHashGuest = /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
+        const isUnauthenticatedMedia = activeTab === 'media' && !sessionUser;
+
+        return isPathGuest || isSearchGuest || isHashGuest || isUnauthenticatedMedia;
+      }, [activeTab, sessionUser]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
         const domMenu = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-menu-layout') : null;
