@@ -6594,7 +6594,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         setTimeout(() => printWin.print(), 500);
       };
 
-      if (activeTab === 'login' || (!sessionUser && !isPublicGuestRoute)) {
+      if (activeTab === 'login' || (!sessionUser && !isPublicGuestRoute && !isErrorPage)) {
         return (
           <LoginComponent
             onLoginSuccess={(userObj) => {
