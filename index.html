@@ -4604,52 +4604,109 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     const processUpload = async () => {
       try {
-        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: 40 } : item));
-        
-        // 1. SMART CLIENT-SIDE COMPRESSION OR ORIGINAL UNTOUCHED QUALITY
-        const compressedResult = enableCompression 
-          ? await compressImageFile(pendingItem.file)
-          : await (async () => {
-              const reader = new FileReader();
-              const dataUrl = await new Promise(res => {
-                reader.onload = (e) => res(e.target.result);
-                reader.onerror = () => res('');
-                reader.readAsDataURL(pendingItem.file);
-              });
-              return { dataUrl, originalSize: pendingItem.file.size, compressedSize: pendingItem.file.size, ratio: 0 };
-            })();
-
-        const fileDataUrl = compressedResult.dataUrl;
-
-        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { 
-          ...item, 
-          progress: 80, 
-          compressedSize: (compressedResult.compressedSize / (1024 * 1024)).toFixed(1),
-          ratio: compressedResult.ratio 
-        } : item));
-
         const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
-        let finalMediaUrl = fileDataUrl;
+        const fileObj = pendingItem.file;
+        const isLargeFile = fileObj && fileObj.size > 100 * 1024 * 1024; // Exceeds 100 MB -> Large Chunked Streaming Video Mode
 
-        // 2. PHYSICAL DISK STORAGE API INTEGRATION: Save compressed file to uploads/<res_id>/<file_name> on server disk
-        try {
-          const apiRes = await fetch('/api/upload-media', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              resId: targetResKey,
-              fileName: pendingItem.name,
-              fileData: fileDataUrl
-            })
-          });
-          if (apiRes.ok) {
-            const apiData = await apiRes.json();
-            if (apiData.success && apiData.url) {
-              finalMediaUrl = apiData.url;
+        let finalMediaUrl = '';
+        let finalFileSize = fileObj ? fileObj.size : 0;
+        let compressionRatio = 0;
+
+        if (isLargeFile) {
+          // LARGE VIDEO CHUNKED STREAMING UPLOAD ENGINE (Up to 2.2 GB in 5MB slices)
+          const chunkSize = 5 * 1024 * 1024; // 5MB per slice
+          const totalChunks = Math.ceil(fileObj.size / chunkSize);
+          const uploadId = 'vid_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(fileObj.size, start + chunkSize);
+            const blobChunk = fileObj.slice(start, end);
+
+            const reader = new FileReader();
+            const chunkBase64 = await new Promise((res, rej) => {
+              reader.onload = (e) => res(e.target.result);
+              reader.onerror = (e) => rej(e);
+              reader.readAsDataURL(blobChunk);
+            });
+
+            const currentProgress = Math.round(((i + 1) / totalChunks) * 95);
+            const uploadedMb = (end / (1024 * 1024)).toFixed(0);
+            const totalMb = (fileObj.size / (1024 * 1024)).toFixed(0);
+
+            setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? {
+              ...item,
+              progress: currentProgress,
+              statusText: `🎥 Parçalı Yükleniyor: ${uploadedMb} MB / ${totalMb} MB`
+            } : item));
+
+            const chunkRes = await fetch('/api/upload-video-chunk', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                uploadId: uploadId,
+                chunkIndex: i,
+                totalChunks: totalChunks,
+                resId: targetResKey,
+                fileName: pendingItem.name,
+                chunkData: chunkBase64
+              })
+            });
+
+            if (!chunkRes.ok) throw new Error(`Parça ${i+1} yüklenirken sunucu hatası oluştu.`);
+            const chunkDataRes = await chunkRes.json();
+            if (!chunkDataRes.success) throw new Error(chunkDataRes.error || 'Parçalı yükleme başarısız.');
+
+            if (i === totalChunks - 1 && chunkDataRes.url) {
+              finalMediaUrl = chunkDataRes.url;
             }
           }
-        } catch(err) {
-          console.warn('Physical disk upload API fallback:', err);
+        } else {
+          // STANDARD SINGLE PAYLOAD UPLOAD (Images & Videos <= 100 MB)
+          setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: 40 } : item));
+          
+          const compressedResult = enableCompression 
+            ? await compressImageFile(pendingItem.file)
+            : await (async () => {
+                const reader = new FileReader();
+                const dataUrl = await new Promise(res => {
+                  reader.onload = (e) => res(e.target.result);
+                  reader.onerror = () => res('');
+                  reader.readAsDataURL(pendingItem.file);
+                });
+                return { dataUrl, originalSize: pendingItem.file.size, compressedSize: pendingItem.file.size, ratio: 0 };
+              })();
+
+          const fileDataUrl = compressedResult.dataUrl;
+          finalFileSize = compressedResult.compressedSize || pendingItem.rawSize;
+          compressionRatio = compressedResult.ratio;
+
+          setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { 
+            ...item, 
+            progress: 80, 
+            compressedSize: (compressedResult.compressedSize / (1024 * 1024)).toFixed(1),
+            ratio: compressedResult.ratio 
+          } : item));
+
+          try {
+            const apiRes = await fetch('/api/upload-media', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                resId: targetResKey,
+                fileName: pendingItem.name,
+                fileData: fileDataUrl
+              })
+            });
+            if (apiRes.ok) {
+              const apiData = await apiRes.json();
+              if (apiData.success && apiData.url) {
+                finalMediaUrl = apiData.url;
+              }
+            }
+          } catch(err) {
+            console.warn('Physical disk upload API fallback:', err);
+          }
         }
 
         const newMediaId = 'mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
@@ -4660,7 +4717,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           url: finalMediaUrl,
           thumbnail: finalMediaUrl,
           fileName: pendingItem.name,
-          fileSize: compressedResult.compressedSize || pendingItem.rawSize,
+          fileSize: finalFileSize,
           fingerprint: pendingItem.fingerprint,
           uploaderName: isPublicGuestMode ? 'Davetli Konuk' : 'İşletme Yetkilisi',
           tableNo: 'Masa Davetlisi',
@@ -4706,20 +4763,22 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           ...item, 
           status: 'success', 
           progress: 100,
-          compressionRatio: compressedResult.ratio
+          compressionRatio: compressionRatio
         } : item));
 
         setUploadedCountSession(prev => prev + 1);
         setIsUploadingQueue(false);
 
-        const toastMsg = compressedResult.ratio > 0 
-          ? `📸 Görsel %${compressedResult.ratio} sıkıştırılarak başarıyla yüklendi! (${(pendingItem.rawSize / (1024*1024)).toFixed(1)}MB ➔ ${(compressedResult.compressedSize / (1024*1024)).toFixed(1)}MB)`
-          : '📸 Dosya başarıyla yüklendi ve albüme kaydedildi!';
+        const toastMsg = isLargeFile 
+          ? `🎥 Büyük Video (${(fileObj.size / (1024*1024)).toFixed(0)} MB) parçalı akış ile başarıyla yüklendi!`
+          : (compressionRatio > 0 
+              ? `📸 Görsel %${compressionRatio} sıkıştırılarak başarıyla yüklendi! (${(pendingItem.rawSize / (1024*1024)).toFixed(1)}MB ➔ ${(finalFileSize / (1024*1024)).toFixed(1)}MB)`
+              : '📸 Dosya başarıyla yüklendi ve albüme kaydedildi!');
         showToast(toastMsg);
       } catch(err) {
         setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'error', progress: 0 } : item));
         setIsUploadingQueue(false);
-        showToast('⚠️ Yükleme hatası oluştu!', 'error');
+        showToast(`⚠️ Yükleme hatası: ${err.message || 'Başarısız'}`, 'error');
       }
     };
 
@@ -5064,10 +5123,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       )}
 
                       {item.status === 'uploading' && (
-                        <div className="w-20 space-y-1 shrink-0">
-                          <div className="flex justify-between text-[9px] font-mono text-amber-500 font-bold">
-                            <span>Yükleniyor</span>
-                            <span>%{item.progress}</span>
+                        <div className="w-28 space-y-1 shrink-0">
+                          <div className="flex justify-between text-[9px] font-mono text-amber-500 font-bold truncate">
+                            <span className="truncate">{item.statusText || 'Yükleniyor'}</span>
+                            <span className="ml-1">%{item.progress}</span>
                           </div>
                           <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div className="h-full bg-amber-500 transition-all duration-150" style={{ width: item.progress + '%' }}></div>
@@ -5731,7 +5790,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.97 Canlı
+                v1.4.98 Canlı
               </span>
             </div>
 

@@ -14,10 +14,11 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8008
 # ENTERPRISE SECURITY HARDENING ENGINE & RATE LIMITING
 IP_UPLOAD_TRACKER = {}  # { ip_address: [timestamp1, timestamp2, ...] }
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.mp4', '.mov', '.avi', '.mkv'}
-MAX_FILE_SIZE_BYTES = 35 * 1024 * 1024  # 35 MB Max File Size
-MAX_PAYLOAD_BYTES = 48 * 1024 * 1024    # 48 MB Max Request Body Size
-MAX_UPLOADS_PER_WINDOW = 50             # 50 files per 10 minutes per IP
-RATE_LIMIT_WINDOW_SEC = 600             # 10 minutes
+MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024       # 100 MB Max Standard Single File Upload
+MAX_LARGE_VIDEO_SIZE_BYTES = 2200 * 1024 * 1024 # 2.2 GB Max Chunked Video Streaming Limit
+MAX_PAYLOAD_BYTES = 120 * 1024 * 1024         # 120 MB Max Single Payload Request
+MAX_UPLOADS_PER_WINDOW = 50                  # 50 files per 10 minutes per IP
+RATE_LIMIT_WINDOW_SEC = 600                  # 10 minutes
 
 class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -373,6 +374,138 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(f'{{"success":false,"error":"Upload failed: {str(e)}"}}'.encode('utf-8'))
+                return
+
+        # 3. API: Large Video Chunked Upload POST (/api/upload-video-chunk for 100MB up to 2.2GB videos)
+        if parsed_path.path == '/api/upload-video-chunk':
+            try:
+                import base64
+                import time
+
+                content_len = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
+
+                upload_id = re.sub(r'[^A-Za-z0-9_-]', '', str(data.get('uploadId', '')))
+                chunk_index = int(data.get('chunkIndex', 0))
+                total_chunks = int(data.get('totalChunks', 1))
+                raw_res_id = str(data.get('resId', 'GENERAL'))
+                raw_file_name = str(data.get('fileName', 'video.mp4'))
+                chunk_data = data.get('chunkData', '')
+
+                if not upload_id:
+                    upload_id = f'up_{int(time.time()*1000)}'
+
+                safe_res_id = re.sub(r'[^A-Za-z0-9_-]', '', raw_res_id) or 'GENERAL'
+                safe_file_name = os.path.basename(re.sub(r'[^A-Za-z0-9_.-]', '_', raw_file_name))
+
+                ext = os.path.splitext(safe_file_name)[1].lower()
+                if ext not in ALLOWED_EXTENSIONS:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(b'{"success":false,"error":"Security Block: Invalid file type!"}')
+                    return
+
+                temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', 'temp_chunks')
+                os.makedirs(temp_dir, exist_ok=True)
+                part_file_path = os.path.join(temp_dir, f'{upload_id}.part')
+
+                if chunk_data and 'base64,' in chunk_data:
+                    b64_str = chunk_data.split('base64,')[1]
+                    chunk_bytes = base64.b64decode(b64_str)
+                    
+                    # Append chunk bytes to part file
+                    mode = 'wb' if chunk_index == 0 else 'ab'
+                    with open(part_file_path, mode) as pf:
+                        pf.write(chunk_bytes)
+
+                # If last chunk, finalize completed video file!
+                if chunk_index == total_chunks - 1:
+                    final_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', safe_res_id)
+                    os.makedirs(final_dir, exist_ok=True)
+                    dest_path = os.path.join(final_dir, safe_file_name)
+
+                    if os.path.exists(part_file_path):
+                        final_size = os.path.getsize(part_file_path)
+                        if final_size > MAX_LARGE_VIDEO_SIZE_BYTES:
+                            os.remove(part_file_path)
+                            self.send_response(400)
+                            self.send_header('Content-Type', 'application/json')
+                            self.end_headers()
+                            self.wfile.write(b'{"success":false,"error":"Video size exceeds maximum 2.2 GB limit!"}')
+                            return
+
+                        os.replace(part_file_path, dest_path)
+
+                    rel_url = f'/uploads/{safe_res_id}/{safe_file_name}'
+
+                    # Register in db_system_settings.json
+                    db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                    existing_db = {}
+                    if os.path.exists(db_file):
+                        try:
+                            with open(db_file, 'r', encoding='utf-8') as f:
+                                existing_db = json.load(f)
+                        except Exception: pass
+                    
+                    stored_media = existing_db.get('storedMedia', {})
+                    res_media_list = stored_media.get(safe_res_id, [])
+                    now = time.time()
+                    
+                    new_item_meta = {
+                        'id': f'mf_{int(now*1000)}',
+                        'type': 'video',
+                        'url': rel_url,
+                        'thumbnail': rel_url,
+                        'fileName': raw_file_name,
+                        'uploaderName': 'Davetli Konuk',
+                        'tableNo': 'Masa Davetlisi',
+                        'timestamp': time.strftime('%Y-%m-%d %H:%M'),
+                        'isGuest': True
+                    }
+                    
+                    if not any(m.get('url') == rel_url for m in res_media_list):
+                        res_media_list.insert(0, new_item_meta)
+                    
+                    stored_media[safe_res_id] = res_media_list
+                    existing_db['storedMedia'] = stored_media
+                    
+                    with open(db_file, 'w', encoding='utf-8') as f:
+                        json.dump(existing_db, f, indent=2)
+
+                    res_body = json.dumps({
+                        'success': True,
+                        'status': 'completed',
+                        'url': rel_url,
+                        'item': new_item_meta,
+                        'message': 'Large video chunked streaming upload completed successfully'
+                    }).encode('utf-8')
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(res_body)
+                    return
+                else:
+                    # Intermediate chunk response
+                    res_body = json.dumps({
+                        'success': True,
+                        'status': 'chunk_saved',
+                        'chunkIndex': chunk_index,
+                        'totalChunks': total_chunks
+                    }).encode('utf-8')
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(res_body)
+                    return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(f'{{"success":false,"error":"Chunk upload failed: {str(e)}"}}'.encode('utf-8'))
                 return
 
         self.send_response(404)
