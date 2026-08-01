@@ -51,9 +51,25 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(b'{"status":"ok"}')
-            return
+        # 3. Static Uploads Serving
+        if parsed_path.path.startswith('/uploads/'):
+            filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', parsed_path.path.lstrip('/'))
+            if os.path.exists(filepath) and os.path.isfile(filepath):
+                self.send_response(200)
+                ext = os.path.splitext(filepath)[1].lower()
+                mime = 'image/jpeg'
+                if ext in ['.png']: mime = 'image/png'
+                elif ext in ['.gif']: mime = 'image/gif'
+                elif ext in ['.mp4', '.mov']: mime = 'video/mp4'
+                elif ext in ['.webp']: mime = 'image/webp'
+                self.send_header('Content-Type', mime)
+                self.send_header('Content-Length', str(os.path.getsize(filepath)))
+                self.end_headers()
+                with open(filepath, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
 
-        # 3. Main HTML & Routing
+        # 4. Main HTML & Routing
         is_html_route = (
             self.path == '/' or
             self.path.startswith('/yonetim') or
@@ -131,18 +147,44 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
         # 2. API: Media Upload POST
         if parsed_path.path == '/api/upload-media':
             try:
+                import base64
+                import time
                 content_len = int(self.headers.get('Content-Length', 0))
                 body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
+
+                res_id = data.get('resId', 'GENERAL')
+                file_name = data.get('fileName', f'file_{int(time.time())}.jpg')
+                file_data = data.get('fileData', '')
+
+                safe_name = re.sub(r'[^A-Za-z0-9_.-]', '_', file_name)
+                uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', res_id)
+                os.makedirs(uploads_dir, exist_ok=True)
+                dest_path = os.path.join(uploads_dir, safe_name)
+
+                if file_data and 'base64,' in file_data:
+                    b64_str = file_data.split('base64,')[1]
+                    with open(dest_path, 'wb') as f:
+                        f.write(base64.b64decode(b64_str))
+
+                rel_url = f'/uploads/{res_id}/{safe_name}'
+                res_body = json.dumps({
+                    'success': True,
+                    'status': 'ok',
+                    'url': rel_url,
+                    'message': 'File uploaded and saved to disk successfully'
+                }).encode('utf-8')
+
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b'{"status":"ok","message":"File upload received successfully"}')
+                self.wfile.write(res_body)
                 return
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b'{"error":"Upload failed"}')
+                self.wfile.write(f'{{"success":false,"error":"Upload failed: {str(e)}"}}'.encode('utf-8'))
                 return
 
         self.send_response(404)

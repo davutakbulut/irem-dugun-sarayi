@@ -4405,110 +4405,114 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (!pendingItem) return;
 
     setIsUploadingQueue(true);
-    setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'uploading', progress: 15 } : item));
+    setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'uploading', progress: 10 } : item));
 
-    let prog = 15;
-    const interval = setInterval(() => {
-      prog += 25;
-      if (prog >= 100) {
-        clearInterval(interval);
+    const reader = new FileReader();
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const fileDataUrl = e.target.result;
-          const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
-
-          let finalMediaUrl = fileDataUrl;
-
-          // PHYSICAL DISK STORAGE API INTEGRATION: Save physical file to uploads/<res_id>/<file_name> on server disk
-          try {
-            const apiRes = await fetch('/api/upload-media', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                resId: targetResKey,
-                fileName: pendingItem.name,
-                fileData: fileDataUrl
-              })
-            });
-            if (apiRes.ok) {
-              const apiData = await apiRes.json();
-              if (apiData.success && apiData.url) {
-                finalMediaUrl = apiData.url;
-              }
-            }
-          } catch(err) {
-            console.warn('Physical disk upload API fallback:', err);
-          }
-
-          const newMediaId = 'mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-
-          const newMediaObj = {
-            id: newMediaId,
-            type: pendingItem.type,
-            url: finalMediaUrl,
-            thumbnail: finalMediaUrl,
-            fileName: pendingItem.name,
-            fileSize: pendingItem.rawSize,
-            fingerprint: pendingItem.fingerprint,
-            uploaderName: isPublicGuestMode ? 'Davetli Konuk' : 'İşletme Yetkilisi',
-            tableNo: 'Masa Davetlisi',
-            timestamp: new Date().toISOString().replace('T', ' ').substr(0, 16),
-            isGuest: isPublicGuestMode,
-            uploaderIp: '195.175.22.' + Math.floor(Math.random() * 50 + 1)
-          };
-
-          // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE & DISPATCH CUSTOM SYNC EVENT
-          setReservations(prev => {
-            const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
-            const targetResId = currentRes?.id;
-
-            const updated = prev.map((r, idx) => {
-              const isMatch = (r.mediaKey && r.mediaKey === targetResKey) ||
-                              (r.id && r.id === targetResKey) ||
-                              (targetResId && r.id === targetResId) ||
-                              (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey)) ||
-                              (prev.length === 1 || idx === 0 && !selectedResKey);
-
-              if (isMatch) {
-                const existingList = r.mediaFiles || [];
-                return {
-                  ...r,
-                  mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
-                  mediaFiles: [newMediaObj, ...existingList]
-                };
-              }
-              return r;
-            });
-
-            // Save to CacheService & LocalStorage
-            try {
-              const jsonStr = JSON.stringify(updated);
-              localStorage.setItem('irem_cache_reservations', jsonStr);
-              if (typeof CacheService !== 'undefined') {
-                CacheService.set('reservations', updated);
-              }
-              // Dispatch instant custom sync event for all active components in same tab/window
-              window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
-            } catch(e){}
-
-            return updated;
-          });
-
-          if (isPublicGuestMode) {
-            setGuestSessionUploadIds(prev => [newMediaId, ...prev]);
-          }
-
-          setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
-          setUploadedCountSession(prev => prev + 1);
-          setIsUploadingQueue(false);
-          showToast('📸 Dosya başarıyla yüklendi ve albüme kaydedildi!');
-        };
-        reader.readAsDataURL(pendingItem.file);
-      } else {
-        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: prog } : item));
+    reader.onprogress = (evt) => {
+      if (evt.lengthComputable) {
+        const percent = Math.min(85, Math.max(15, Math.round((evt.loaded / evt.total) * 85)));
+        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: percent } : item));
       }
-    }, 150);
+    };
+
+    reader.onload = async (e) => {
+      setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: 92 } : item));
+      const fileDataUrl = e.target.result;
+      const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
+
+      let finalMediaUrl = fileDataUrl;
+
+      // PHYSICAL DISK STORAGE API INTEGRATION: Save physical file to uploads/<res_id>/<file_name> on server disk
+      try {
+        const apiRes = await fetch('/api/upload-media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resId: targetResKey,
+            fileName: pendingItem.name,
+            fileData: fileDataUrl
+          })
+        });
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.success && apiData.url) {
+            finalMediaUrl = apiData.url;
+          }
+        }
+      } catch(err) {
+        console.warn('Physical disk upload API fallback:', err);
+      }
+
+      const newMediaId = 'mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+
+      const newMediaObj = {
+        id: newMediaId,
+        type: pendingItem.type,
+        url: finalMediaUrl,
+        thumbnail: finalMediaUrl,
+        fileName: pendingItem.name,
+        fileSize: pendingItem.rawSize,
+        fingerprint: pendingItem.fingerprint,
+        uploaderName: isPublicGuestMode ? 'Davetli Konuk' : 'İşletme Yetkilisi',
+        tableNo: 'Masa Davetlisi',
+        timestamp: new Date().toISOString().replace('T', ' ').substr(0, 16),
+        isGuest: isPublicGuestMode,
+        uploaderIp: '195.175.22.' + Math.floor(Math.random() * 50 + 1)
+      };
+
+      // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE & DISPATCH CUSTOM SYNC EVENT
+      setReservations(prev => {
+        const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
+        const targetResId = currentRes?.id;
+
+        const updated = prev.map((r, idx) => {
+          const isMatch = (r.mediaKey && r.mediaKey === targetResKey) ||
+                          (r.id && r.id === targetResKey) ||
+                          (targetResId && r.id === targetResId) ||
+                          (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey)) ||
+                          (prev.length === 1 || idx === 0 && !selectedResKey);
+
+          if (isMatch) {
+            const existingList = r.mediaFiles || [];
+            return {
+              ...r,
+              mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
+              mediaFiles: [newMediaObj, ...existingList]
+            };
+          }
+          return r;
+        });
+
+        // Save safely to CacheService (Non-mutating persistence)
+        try {
+          if (typeof CacheService !== 'undefined') {
+            CacheService.set('reservations', updated);
+          }
+          // Dispatch instant custom sync event for all active components in same tab/window
+          window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
+        } catch(e){}
+
+        return updated;
+      });
+
+      if (isPublicGuestMode) {
+        setGuestSessionUploadIds(prev => [newMediaId, ...prev]);
+      }
+
+      setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
+      setUploadedCountSession(prev => prev + 1);
+      setIsUploadingQueue(false);
+      showToast('📸 Dosya başarıyla yüklendi ve albüme kaydedildi!');
+    };
+
+    reader.onerror = () => {
+      setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'error', progress: 0 } : item));
+      setIsUploadingQueue(false);
+      showToast('⚠️ Dosya okuma hatası oluştu!', 'error');
+    };
+
+    reader.readAsDataURL(pendingItem.file);
 
   }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, setReservations, showToast]);
 
@@ -5457,7 +5461,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.76 Canlı
+                v1.4.77 Canlı
               </span>
             </div>
 
