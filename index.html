@@ -7282,19 +7282,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     />
                   )}
 
-                  {activeTab === 'simulasyon-404' && (
-                    <NotFoundScreen onGoHome={() => navigateTo('dashboard')} onSearch={(q) => showToast(`Arama yapılıyor: ${q}`)} />
+                  {(activeTab === 'simulasyon-404' || activeTab === '404') && (
+                    <NotFoundScreen onGoHome={() => navigateTo('dashboard')} onNavigate={navigateTo} onSearch={(q) => showToast(`Arama yapılıyor: ${q}`)} />
                   )}
 
-                  {activeTab === 'simulasyon-301' && (
-                    <PermanentRedirectScreen targetPath="#/rezervasyonlar" targetName="Rezervasyonlarım & Takvim" onRedirect={() => navigateTo('reservations')} />
+                  {(activeTab === 'simulasyon-301' || activeTab === '301') && (
+                    <PermanentRedirectScreen targetTab="reservations" targetName="Rezervasyonlarım & Takvim" onRedirect={(tab) => navigateTo(tab || 'reservations')} />
                   )}
 
-                  {activeTab === 'simulasyon-403' && (
+                  {(activeTab === 'simulasyon-403' || activeTab === '403') && (
                     <UnauthorizedAccessScreen pageTitle="Simülasyon Paneli" activeRoleName={rolesState[activeRole] || activeRole} onGoHome={() => navigateTo('dashboard')} onRequestPermission={() => showToast('📩 Yöneticiye yetki talebi iletildi!')} />
                   )}
 
-                  {activeTab === 'simulasyon-500' && (
+                  {(activeTab === 'simulasyon-500' || activeTab === '500') && (
                     <ServerErrorScreen errorMessage="Internal Exception: Database Connection Timeout at ReservationPool" onRestart={() => window.location.reload()} />
                   )}
                 </ErrorBoundary>
@@ -17489,7 +17489,7 @@ Disallow: /yonetim/`}
     }
 
     // --- HTTP 404: NOT FOUND SCREEN ---
-    function NotFoundScreen({ onGoHome, onSearch }) {
+    function NotFoundScreen({ onGoHome, onNavigate, onSearch }) {
       const [searchQuery, setSearchQuery] = useState('');
       return (
         <div className="glass-panel p-8 max-w-xl mx-auto mt-12 rounded-3xl text-center space-y-5 border border-amber-500/40 shadow-2xl animate-fade-in">
@@ -17525,11 +17525,11 @@ Disallow: /yonetim/`}
               <ThemeIcon icon="dashboard" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
               <span>Anasayfaya Dön</span>
             </button>
-            <button onClick={() => window.location.hash = '#/yeni-rezervasyon'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
+            <button onClick={() => onNavigate ? onNavigate('create-reservation') : (window.location.href = '/yonetim/yeni-rezervasyon')} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
               <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
               <span>Rezervasyon Oluştur</span>
             </button>
-            <button onClick={() => window.location.hash = '#/rezervasyonlar'} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
+            <button onClick={() => onNavigate ? onNavigate('reservations') : (window.location.href = '/yonetim/rezervasyonlar')} className="bg-slate-100 dark:bg-brand-dark font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:bg-slate-200 flex items-center space-x-1.5 transition">
               <ThemeIcon icon="calendar" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
               <span>Rezervasyonlar & Takvim</span>
             </button>
@@ -17539,23 +17539,30 @@ Disallow: /yonetim/`}
     }
 
     // --- HTTP 301: PERMANENT REDIRECT SCREEN ---
-    function PermanentRedirectScreen({ targetPath = '#/rezervasyonlar', targetName = 'Rezervasyonlarım & Takvim', onRedirect }) {
+    function PermanentRedirectScreen({ targetTab = 'reservations', targetName = 'Rezervasyonlarım & Takvim', onRedirect }) {
       const [countdown, setCountdown] = useState(3);
+
+      const triggerRedirect = () => {
+        if (onRedirect) {
+          onRedirect(targetTab);
+        } else {
+          window.location.href = TAB_TO_PATH[targetTab] || '/yonetim/rezervasyonlar';
+        }
+      };
 
       useEffect(() => {
         const timer = setInterval(() => {
           setCountdown(prev => {
             if (prev <= 1) {
               clearInterval(timer);
-              if (onRedirect) onRedirect(targetPath);
-              else window.location.hash = targetPath;
+              triggerRedirect();
               return 0;
             }
             return prev - 1;
           });
         }, 1000);
         return () => clearInterval(timer);
-      }, [targetPath]);
+      }, [targetTab]);
 
       return (
         <div className="glass-panel p-8 max-w-lg mx-auto mt-12 rounded-3xl text-center space-y-5 border border-blue-500/40 shadow-2xl animate-fade-in">
@@ -17583,7 +17590,7 @@ Disallow: /yonetim/`}
           </div>
 
           <div className="pt-2">
-            <button onClick={() => { if (onRedirect) onRedirect(targetPath); else window.location.hash = targetPath; }} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition inline-flex items-center space-x-1.5">
+            <button onClick={triggerRedirect} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg transition inline-flex items-center space-x-1.5">
               <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 shrink-0" />
               <span>Beklemeden Hemen Yönlendir ({targetName})</span>
             </button>
