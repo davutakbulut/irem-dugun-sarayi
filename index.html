@@ -2343,6 +2343,9 @@
       if (pathname === '/giris' || pathname === '/login' || pathname === '/yonetim/giris' || routePart === 'giris' || routePart === 'login') {
         targetTab = 'login';
         slug = 'giris';
+      } else if (pathname.startsWith('/medya') || pathname.startsWith('/m/') || pathname.startsWith('/medya-yukle') || routePart.startsWith('medya') || routePart.startsWith('m/')) {
+        targetTab = 'media';
+        slug = 'media';
       } else if (pathname.startsWith('/yonetim') || rawHash.length > 0) {
         let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
         if (!sub && routePart) sub = routePart;
@@ -2350,7 +2353,7 @@
 
         if (!sub || sub === 'anasayfa' || sub === 'dashboard') {
           targetTab = 'dashboard';
-        } else if (sub.startsWith('medya/') || sub.startsWith('m/')) {
+        } else if (sub.startsWith('medya/') || sub.startsWith('m/') || sub === 'medya-yukle' || sub === 'medya') {
           targetTab = 'media';
         } else if (SLUG_TO_TAB[sub]) {
           targetTab = SLUG_TO_TAB[sub];
@@ -4511,12 +4514,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
   };
 
-  // GUARANTEED SHAREABLE LINK COPY FUNCTION (CLEAN URL)
+  // GUARANTEED SHAREABLE LINK COPY FUNCTION (STANDALONE PUBLIC GUEST LINK)
   const handleCopyLink = () => {
-    const shareUrl = `${window.location.origin}/yonetim/medya-yukle?key=${activeMediaKey}`;
+    const shareUrl = `${window.location.origin}/medya/${activeMediaKey}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
-      showToast('🔗 Davetli Yükleme Bağlantısı Panoya Kopyalandı!');
+      showToast('🔗 Bağımsız Davetli Yükleme Adresi Panoya Kopyalandı!');
     } else {
       prompt('Davetli Bağlantısını Kopyalayın:', shareUrl);
     }
@@ -6373,11 +6376,23 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (typeof window === 'undefined') return;
         const path = window.location.pathname;
+        const search = window.location.search;
+        const hash = window.location.hash;
+
+        const isPublicGuestRoute = activeTab === 'media' && (
+          path.startsWith('/medya') ||
+          path.startsWith('/m/') ||
+          search.includes('mode=guest') ||
+          search.includes('key=') ||
+          hash.includes('mode=guest') ||
+          hash.includes('key=')
+        );
+
         const isError = activeTab.startsWith('simulasyon-') || ['404', '301', '403', '500'].includes(activeTab);
-        const isYonetimPath = (path.startsWith('/yonetim') || (activeTab !== 'login' && !isError)) && !isError;
+        const isYonetimPath = (path.startsWith('/yonetim') || (activeTab !== 'login' && !isError && !isPublicGuestRoute)) && !isError && !isPublicGuestRoute;
         const isGirisPath = (path === '/giris' || path === '/login' || activeTab === 'login') && !isError;
 
-        // 1. Unauthenticated attempt to access /yonetim -> redirect to /giris
+        // 1. Unauthenticated attempt to access /yonetim -> redirect to /giris (EXCEPT public guest media routes)
         if (isYonetimPath && !sessionUser) {
           setActiveTabState('login');
           if (window.history && window.history.pushState) {
