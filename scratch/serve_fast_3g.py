@@ -24,6 +24,11 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.end_headers()
+
     def do_GET(self):
         parsed_path = urllib.parse.urlparse(self.path)
         
@@ -49,8 +54,16 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # 3. Main HTML & Routing
-        if self.path == '/' or self.path.startswith('/?') or not os.path.splitext(parsed_path.path)[1]:
-            target_html = 'index_prod.html' if os.path.exists('index_prod.html') else 'index.html'
+        is_html_route = (
+            self.path == '/' or
+            self.path.startswith('/yonetim') or
+            self.path.startswith('/giris') or
+            self.path.startswith('/?') or
+            not os.path.splitext(parsed_path.path)[1] or
+            parsed_path.path.endswith('.html')
+        )
+        if is_html_route:
+            target_html = 'index.html'
             if os.path.exists(target_html):
                 try:
                     with open(target_html, 'rb') as f:
@@ -135,10 +148,10 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(404)
         self.end_headers()
 
-def run(server_class=http.server.HTTPServer, handler_class=Fast3GHandler, port=8008):
+def run(server_class=http.server.ThreadingHTTPServer, handler_class=Fast3GHandler, port=8008):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
-    print(f"🚀 FAST 3G SIMULATED SERVER STARTED ON PORT {port} WITH REST API SYSTEM SETTINGS DB...")
+    print(f"🚀 FAST 3G SIMULATED THREADED SERVER STARTED ON PORT {port} WITH REST API SYSTEM SETTINGS DB...")
     httpd.serve_forever()
 
 if __name__ == '__main__':

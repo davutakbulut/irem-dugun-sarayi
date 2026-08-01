@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>İrem Düğün Sarayı & Organizasyon Yönetim Platformu</title>
   
+  <!-- SILENCE DEV CDN WARNINGS (Tailwind CDN, In-browser Babel & 500KB Deopt Note) -->
+  <script>
+    (function() {
+      var _w = console.warn, _i = console.info, _l = console.log, _e = console.error;
+      function isNoise(args) {
+        for (var k = 0; k < args.length; k++) {
+          var s = String(args[k] || '');
+          if (s.includes('BABEL') || s.includes('deoptimised') || s.includes('cdn.tailwindcss.com') || s.includes('in-browser Babel transformer') || s.includes('500KB')) return true;
+        }
+        return false;
+      }
+      console.warn = function() { if (!isNoise(arguments)) _w.apply(console, arguments); };
+      console.info = function() { if (!isNoise(arguments)) _i.apply(console, arguments); };
+      console.log = function() { if (!isNoise(arguments)) _l.apply(console, arguments); };
+      console.error = function() { if (!isNoise(arguments)) _e.apply(console, arguments); };
+    })();
+  </script>
+
   <!-- Inline SVG Favicon (Prevents 404 Delay on Slow Networks) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'><path d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5m-6 0h6'/></svg>">
 
@@ -622,8 +640,6 @@
       transform: translateY(-1px) !important;
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45) !important;
     }
-      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45) !important;
-    }
 
     /* ----------------------------------------------------------- */
     /*  APPLE (2026 HUMAN INTERFACE GUIDELINES DESIGN SYSTEM)    */
@@ -1148,7 +1164,7 @@
     </div>
   </div>
 
-  <script type="text/babel">
+  <script type="text/babel" data-presets="react" data-compact="true">
     const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
     const INITIAL_VENUES = [
@@ -1508,6 +1524,7 @@
       'settings-appearance': 'ayarlar/gorunum',
       'settings-performance': 'ayarlar/onbellek',
       'settings-rbac': 'ayarlar/rol-izinleri',
+      'settings-indexing': 'ayarlar/seo-indeksleme',
       'settings-errors': 'ayarlar/hata-simulasyonu',
       'simulasyon-404': 'simulasyon-404',
       'simulasyon-301': 'simulasyon-301',
@@ -1516,9 +1533,11 @@
     };
 
     const SLUG_TO_TAB = {
+      '': 'dashboard',
+      'dashboard': 'dashboard',
+      'anasayfa': 'dashboard',
       'medya': 'media',
       'm': 'media',
-      'anasayfa': 'dashboard',
       'yeni-rezervasyon': 'create-reservation',
       'rezervasyon-olustur': 'create-reservation',
       'dugun-salonlari': 'venues',
@@ -1544,6 +1563,9 @@
       'ayarlar/gorunum': 'settings-appearance',
       'ayarlar/onbellek': 'settings-performance',
       'ayarlar/rol-izinleri': 'settings-rbac',
+      'ayarlar/seo-indeksleme': 'settings-indexing',
+      'seo-indeksleme': 'settings-indexing',
+      'arama-motoru-ayarlari': 'settings-indexing',
       'ayarlar/hata-simulasyonu': 'settings-errors',
       'simulasyon-404': 'simulasyon-404',
       'simulasyon-301': 'simulasyon-301',
@@ -1552,7 +1574,34 @@
       '404': 'simulasyon-404',
       '301': 'simulasyon-301',
       '403': 'simulasyon-403',
-      '500': 'simulasyon-500'
+      '500': 'simulasyon-500',
+      'giris': 'login',
+      'login': 'login'
+    };
+
+    const TAB_TO_PATH = {
+      'login': '/giris',
+      'dashboard': '/yonetim',
+      'create-reservation': '/yonetim/yeni-rezervasyon',
+      'reservations': '/yonetim/rezervasyonlar',
+      'calendar': '/yonetim/takvim',
+      'finance': '/yonetim/finans',
+      'venues': '/yonetim/dugun-salonlari',
+      'services': '/yonetim/ek-hizmetler',
+      'customers': '/yonetim/musteri-rehberi',
+      'campaigns': '/yonetim/kampanyalar',
+      'reports': '/yonetim/raporlar-ai',
+      'users': '/yonetim/kullanici-yonetimi',
+      'roles': '/yonetim/roller',
+      'media': '/yonetim/medya',
+      'profile': '/yonetim/profil',
+      'mind-map': '/yonetim/zihin-haritasi',
+      'system-guide': '/yonetim/sistem-kilavuzu',
+      'settings': '/yonetim/ayarlar',
+      'settings-appearance': '/yonetim/ayarlar/gorunum',
+      'settings-performance': '/yonetim/ayarlar/onbellek',
+      'settings-rbac': '/yonetim/ayarlar/rol-izinleri',
+      'settings-errors': '/yonetim/ayarlar/hata-simulasyonu'
     };
 
     // ==========================================
@@ -2143,6 +2192,7 @@
       'settings-appearance': '🎨',
       'settings-performance': '⚡',
       'settings-rbac': '🛡️',
+      'settings-indexing': '🔍',
       'settings-errors': '🚨',
       'simulasyon-404': '🔍',
       'simulasyon-301': '🔄',
@@ -2170,6 +2220,7 @@
       'settings-appearance': 'Görünüm & Tema Ayarları',
       'settings-performance': 'Önbellek & Performans',
       'settings-rbac': 'Rol & İzin Yönetimi',
+      'settings-indexing': 'Arama Motoru & İndeksleme Güvenliği',
       'settings-errors': 'Hata & Yönlendirme Simülasyonu',
       'simulasyon-404': 'HTTP 404 - Sayfa Bulunamadı Simülasyonu',
       'simulasyon-301': 'HTTP 301 - Kalıcı Yönlendirme Simülasyonu',
@@ -2197,6 +2248,7 @@
       'settings-appearance': ['admin'],
       'settings-performance': ['admin'],
       'settings-rbac': ['admin'],
+      'settings-indexing': ['admin'],
       'settings-errors': ['admin'],
       'system-guide': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
       'simulasyon-404': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
@@ -2260,23 +2312,39 @@
     }
 
     function parseHashRoute() {
+      if (typeof window === 'undefined') return { tab: 'dashboard', slug: 'dashboard' };
+      const pathname = window.location.pathname || '/';
       const rawHash = window.location.hash.replace('#/', '').replace('#', '');
       const [routePart, queryPart] = rawHash.split('?');
-      const slug = routePart || 'dashboard';
-      let targetTab = 'simulasyon-404';
-      if (slug === 'anasayfa') {
+      const searchStr = window.location.search || (queryPart ? '?' + queryPart : '');
+      const params = new URLSearchParams(searchStr);
+
+      let targetTab = 'create-reservation';
+      let slug = routePart;
+
+      if (pathname === '/giris' || pathname === '/login' || pathname === '/yonetim/giris' || routePart === 'giris' || routePart === 'login') {
+        targetTab = 'login';
+        slug = 'giris';
+      } else if (pathname.startsWith('/yonetim') || rawHash.length > 0) {
+        let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
+        if (!sub && routePart) sub = routePart;
+        slug = sub || 'dashboard';
+
+        if (!sub || sub === 'anasayfa' || sub === 'dashboard') {
+          targetTab = 'dashboard';
+        } else if (sub.startsWith('medya/') || sub.startsWith('m/')) {
+          targetTab = 'media';
+        } else {
+          targetTab = SLUG_TO_TAB[sub] || (['404', '301', '403', '500', 'simulasyon-404'].includes(sub) ? sub : 'create-reservation');
+        }
+      } else if (pathname === '/' && !rawHash) {
         targetTab = 'dashboard';
-      } else if (slug.startsWith('medya/') || slug.startsWith('m/')) {
-        targetTab = 'media';
-      } else {
-        targetTab = SLUG_TO_TAB[slug] || 'simulasyon-404';
+        slug = 'dashboard';
       }
-      const tab = targetTab;
-      
-      const params = new URLSearchParams(queryPart || '');
+
       const refKey = params.get('ref') || null;
       const editId = params.get('editId') || params.get('edit') || null;
-      return { tab, slug, refKey, editId, params };
+      return { tab: targetTab, slug, refKey, editId, params };
     }
 
     function getHashTab() {
@@ -5230,7 +5298,523 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }
 
 
-      function App() {
+    // --- NORDIC LIGHT & FRESH LOGIN COMPONENT ---
+    function LoginComponent({ onLoginSuccess, showToast }) {
+      const [loginMethod, setLoginMethod] = useState('email'); // 'email' | 'phone'
+      const [emailInput, setEmailInput] = useState('davut@iremdugunsarayi.com');
+      const [phoneInput, setPhoneInput] = useState('0532 123 4567');
+      const [password, setPassword] = useState('••••••••');
+      const [showPassword, setShowPassword] = useState(false);
+      const [rememberMe, setRememberMe] = useState(true);
+      const [isLoading, setIsLoading] = useState(false);
+      const [showForgotModal, setShowForgotModal] = useState(false);
+      const [showHelpModal, setShowHelpModal] = useState(false);
+      const [forgotInput, setForgotInput] = useState('');
+
+      const activeValue = loginMethod === 'email' ? emailInput : phoneInput;
+
+      // ANLIK CANLI FORMAT VE GÜVENLİK KONTROLÜ (SYNTAX & SECURITY VALIDATOR)
+      const inputValidation = useMemo(() => {
+        const val = (activeValue || '').trim();
+        if (!val) return { isValid: false, message: '' };
+
+        if (loginMethod === 'email') {
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (emailRegex.test(val)) return { isValid: true, message: 'E-posta Formatı Geçerli' };
+          return { isValid: false, message: 'Lütfen geçerli bir e-posta adresi giriniz.' };
+        } else {
+          const digits = val.replace(/\D/g, '');
+          if ((digits.length === 11 && digits.startsWith('05')) || (digits.length === 10 && digits.startsWith('5'))) {
+            return { isValid: true, message: 'Telefon Numarası Formatı (TR) Geçerli' };
+          }
+          return { isValid: false, message: 'Lütfen geçerli bir 05xx... telefon numarası giriniz.' };
+        }
+      }, [loginMethod, emailInput, phoneInput]);
+
+      const handleFormSubmit = (e) => {
+        e.preventDefault();
+        if (!inputValidation.isValid) {
+          showToast(`Lütfen geçerli bir ${loginMethod === 'email' ? 'e-posta adresi' : 'telefon numarası'} giriniz.`, 'error');
+          return;
+        }
+        setIsLoading(true);
+        setTimeout(() => {
+          setIsLoading(false);
+          const user = {
+            id: 'u-admin',
+            name: loginMethod === 'phone' ? 'Yönetici (GSM)' : (emailInput.split('@')[0] || 'Yönetici'),
+            email: emailInput || 'davut@iremdugunsarayi.com',
+            phone: phoneInput || '0532 123 4567',
+            role: 'admin',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+          };
+          onLoginSuccess(user);
+        }, 500);
+      };
+
+      const handleDemoLogin = (roleId, name, email, avatar) => {
+        setIsLoading(true);
+        setTimeout(() => {
+          setIsLoading(false);
+          const user = {
+            id: `u-${roleId}`,
+            name,
+            email,
+            role: roleId,
+            avatar
+          };
+          onLoginSuccess(user);
+        }, 300);
+      };
+
+      return (
+        <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 flex font-sans text-slate-800 dark:text-gray-100">
+          {/* LEFT SIDE: FRESH NORDIC FORM PANEL */}
+          <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-12 md:p-16 bg-white dark:bg-brand-card">
+            
+            {/* BRAND HEADER */}
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-white font-extrabold text-base shadow-sm">
+                  <ThemeIcon icon="crown" fallbackEmoji="" className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="font-heading font-extrabold text-base text-slate-900 dark:text-white leading-tight">
+                    İrem Düğün Sarayı
+                  </h1>
+                  <span className="text-[10px] font-semibold text-amber-600 dark:text-gold-400">Balo & Organizasyon Tesisleri</span>
+                </div>
+              </div>
+
+              <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
+                v1.4.65 Canlı
+              </span>
+            </div>
+
+            {/* FORM CONTAINER */}
+            <div className="max-w-md w-full mx-auto my-auto py-8 space-y-6">
+              
+              {/* TOP METHOD SWITCHER TABS (E-POSTA ADRESİ | TELEFON NUMARASI) */}
+              <div className="border-b border-slate-200 dark:border-brand-border/60 pb-1">
+                <div className="flex items-center space-x-4 text-sm sm:text-base font-extrabold">
+                  
+                  {/* EMAIL TAB */}
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod('email')}
+                    className={`relative pb-3 transition cursor-pointer ${
+                      loginMethod === 'email'
+                        ? 'text-orange-600 dark:text-orange-400 font-extrabold'
+                        : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white font-semibold'
+                    }`}
+                  >
+                    <span>E-Posta Adresi</span>
+                    {loginMethod === 'email' && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full animate-fade-in" />
+                    )}
+                  </button>
+
+                  <span className="text-slate-300 dark:text-gray-600 pb-3 font-normal">|</span>
+
+                  {/* PHONE TAB */}
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod('phone')}
+                    className={`relative pb-3 flex items-center space-x-1.5 transition cursor-pointer ${
+                      loginMethod === 'phone'
+                        ? 'text-orange-600 dark:text-orange-400 font-extrabold'
+                        : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white font-semibold'
+                    }`}
+                  >
+                    <span>Telefon Numarası</span>
+                    <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-orange-500/20">
+                      Yeni
+                    </span>
+                    {loginMethod === 'phone' && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full animate-fade-in" />
+                    )}
+                  </button>
+
+                </div>
+              </div>
+
+              {/* FORM */}
+              <form onSubmit={handleFormSubmit} className="space-y-4 text-xs pt-1">
+                
+                {/* DYNAMIC IDENTITY INPUT (EMAIL OR PHONE) */}
+                {loginMethod === 'email' ? (
+                  <div>
+                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5">
+                      E-Posta Adresi <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        required
+                        value={emailInput}
+                        onChange={e => setEmailInput(e.target.value)}
+                        placeholder="E-Posta Adresinizi giriniz..."
+                        className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3 text-slate-800 dark:text-white font-medium focus:bg-white outline-none transition ${
+                          emailInput && !inputValidation.isValid
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-slate-200 dark:border-brand-border focus:border-orange-500'
+                        }`}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <ThemeIcon icon="mail" fallbackEmoji="" className="w-4 h-4" />
+                      </span>
+                    </div>
+
+                    {emailInput && (
+                      <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                        <span className={`font-bold ${inputValidation.isValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                          {inputValidation.message}
+                        </span>
+                        <span className="text-slate-400 text-[9px] font-mono flex items-center space-x-1">
+                          <ThemeIcon icon="lock" fallbackEmoji="" className="w-3 h-3 text-slate-400 inline" />
+                          <span>Sanitized Auth</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5">
+                      Telefon Numarası <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        required
+                        value={phoneInput}
+                        onChange={e => setPhoneInput(e.target.value)}
+                        placeholder="05XX XXX XX XX"
+                        className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3 text-slate-800 dark:text-white font-medium focus:bg-white outline-none transition ${
+                          phoneInput && !inputValidation.isValid
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-slate-200 dark:border-brand-border focus:border-orange-500'
+                        }`}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <ThemeIcon icon="phone" fallbackEmoji="" className="w-4 h-4" />
+                      </span>
+                    </div>
+
+                    {phoneInput && (
+                      <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                        <span className={`font-bold ${inputValidation.isValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                          {inputValidation.message}
+                        </span>
+                        <span className="text-slate-400 text-[9px] font-mono flex items-center space-x-1">
+                          <ThemeIcon icon="lock" fallbackEmoji="" className="w-3 h-3 text-slate-400 inline" />
+                          <span>Sanitized Auth</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* PASSWORD INPUT */}
+                <div>
+                  <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5">
+                    Şifre <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Şifrenizi giriniz..."
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-3 pr-10 text-slate-800 dark:text-white font-medium focus:bg-white focus:border-orange-500 outline-none transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                      title="Şifreyi Göster/Gizle"
+                    >
+                      <ThemeIcon icon={showPassword ? 'eyeOff' : 'eye'} fallbackEmoji="" className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* REMEMBER ME & FORGOT PASSWORD ROW */}
+                <div className="flex items-center justify-between pt-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={e => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
+                    />
+                    <span className="text-slate-600 dark:text-gray-300 font-medium text-xs">Beni Hatırla</span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
+                  >
+                    Şifremi Unuttum
+                  </button>
+                </div>
+
+                {/* MAIN ACTION BUTTON */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold py-3.5 rounded-xl text-sm shadow-md hover:shadow-lg transition transform active:scale-[0.99] flex items-center justify-center space-x-2 mt-3 cursor-pointer"
+                >
+                  {isLoading ? (
+                    <>
+                      <ThemeIcon icon="refresh" fallbackEmoji="" className="w-4 h-4 animate-spin shrink-0" />
+                      <span>Doğrulanıyor...</span>
+                    </>
+                  ) : (
+                    <span>Giriş Yap</span>
+                  )}
+                </button>
+
+                {/* HELPER LINK */}
+                <div className="pt-2 text-center space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowHelpModal(true)}
+                    className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline inline-flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <ThemeIcon icon="helpCircle" fallbackEmoji="" className="w-4 h-4" />
+                    <span>Nasıl Giriş Yapabilirim?</span>
+                  </button>
+
+                  {/* QUICK DEMO ROLE BUTTONS */}
+                  <div className="pt-4 border-t border-slate-100 dark:border-brand-border/40">
+                    <span className="text-[10px] font-bold text-slate-400 block mb-2 uppercase tracking-wider">
+                      Hızlı Demo Girişi (Test İçin 1-Tıkla):
+                    </span>
+                    <div className="flex flex-wrap justify-center gap-1.5 text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => handleDemoLogin('admin', 'Davut Akbulut', 'davut@iremdugunsarayi.com', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80')}
+                        className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 font-bold border border-amber-500/30 hover:bg-amber-100 transition cursor-pointer"
+                      >
+                        Süper Yönetici
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDemoLogin('satisci', 'Selim Kaya', 'selim@iremdugunsarayi.com', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80')}
+                        className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/30 hover:bg-blue-100 transition cursor-pointer"
+                      >
+                        Salon Müdürü
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDemoLogin('satisci', 'Ayşe Yılmaz', 'ayse@iremdugunsarayi.com', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80')}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/30 hover:bg-emerald-100 transition cursor-pointer"
+                      >
+                        Satış Temsilcisi
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDemoLogin('musteri', 'Ahmet Yılmaz', 'ahmet@gmail.com', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80')}
+                        className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-800 dark:text-purple-300 font-bold border border-purple-500/30 hover:bg-purple-100 transition cursor-pointer"
+                      >
+                        Müşteri Portalı
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+              </form>
+
+            </div>
+
+            {/* FOOTER */}
+            <div className="text-center text-[11px] text-slate-400 font-medium pt-4">
+              © 2026 İrem Düğün Sarayı & Balo Tesisleri. Tüm Hakları Saklıdır.
+            </div>
+
+          </div>
+
+          {/* RIGHT SIDE: NORDIC LIGHT LUXURY HERO SHOWCASE WITH HAPPY CUSTOMERS */}
+          <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#FFFBF5] via-[#F7F2EA] to-[#EFE8DC] dark:from-slate-950 dark:to-slate-900 text-slate-800 dark:text-white flex-col justify-between p-10 xl:p-14 overflow-hidden border-l border-amber-500/20">
+            
+            {/* BACKGROUND HIGH-RES BALLROOM IMAGE WITH LIGHT VIGNETTE */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
+                alt="İrem Düğün Sarayı Balo Salonu"
+                fetchPriority="high"
+                loading="eager"
+                className="w-full h-full object-cover object-center opacity-25 scale-105 transform transition duration-1000"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#F7F2EA] via-[#F7F2EA]/60 to-transparent dark:from-slate-950 dark:via-slate-950/70 dark:to-transparent" />
+            </div>
+
+            {/* TOP BADGE & BRAND TITLE */}
+            <div className="relative z-10 space-y-3">
+              <div className="inline-flex items-center space-x-2 bg-amber-500/10 backdrop-blur-md text-amber-800 dark:text-amber-300 text-xs font-extrabold px-4 py-1.5 rounded-full border border-amber-500/30 shadow-sm">
+                <ThemeIcon icon="crown" fallbackEmoji="" className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <span>İrem Düğün Sarayı & Balo Tesisleri</span>
+              </div>
+              <h2 className="text-3xl xl:text-4xl font-heading font-black tracking-tight leading-tight max-w-lg text-slate-900 dark:text-white">
+                Hayallerinizin Ötesinde Bir <span className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent">Düğün Deneyimi</span>
+              </h2>
+              <p className="text-xs xl:text-sm text-slate-600 dark:text-slate-300 max-w-md leading-relaxed font-medium">
+                Sapanca Göl Kenarında 4 farklı konsept balo salonu, canlı etkinlik akış takibi ve kusursuz organizasyon yönetimi.
+              </p>
+            </div>
+
+            {/* CENTER: HAPPY CUSTOMER METRICS GRID & TESTIMONIAL CARD */}
+            <div className="relative z-10 space-y-4 my-auto py-4">
+              
+              {/* LIVE STATS BADGES */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/25 text-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition">
+                  <div className="text-xl xl:text-2xl font-heading font-black text-amber-600 dark:text-amber-400">1,250+</div>
+                  <div className="text-[10px] text-slate-600 dark:text-slate-300 font-bold mt-0.5">Mutlu Çift</div>
+                </div>
+
+                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/25 text-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition">
+                  <div className="text-xl xl:text-2xl font-heading font-black text-orange-600 dark:text-orange-400">4.9 / 5.0</div>
+                  <div className="text-[10px] text-slate-600 dark:text-slate-300 font-bold mt-0.5 flex items-center justify-center space-x-1">
+                    <span>Müşteri Puanı</span>
+                    <ThemeIcon icon="star" fallbackEmoji="" className="w-3 h-3 text-amber-500 fill-current inline" />
+                  </div>
+                </div>
+
+                <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-4 rounded-2xl border border-emerald-500/25 text-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition">
+                  <div className="text-xl xl:text-2xl font-heading font-black text-emerald-600 dark:text-emerald-400">%99.8</div>
+                  <div className="text-[10px] text-slate-600 dark:text-slate-300 font-bold mt-0.5">Tavsiye Oranı</div>
+                </div>
+              </div>
+
+              {/* HAPPY CUSTOMER TESTIMONIAL CARD */}
+              <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 rounded-3xl border border-amber-500/30 shadow-xl space-y-3 relative overflow-hidden group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+                      alt="Selin & Mert Yılmaz"
+                      className="w-10 h-10 rounded-full border-2 border-amber-400 object-cover shadow"
+                    />
+                    <div>
+                      <div className="font-bold text-xs text-slate-900 dark:text-white">Selin & Mert Yılmaz</div>
+                      <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">15 Haziran 2025 • Safir Balo Salonu</div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-0.5 text-amber-500">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <ThemeIcon key={i} icon="star" fallbackEmoji="" className="w-3.5 h-3.5 fill-current text-amber-500" />
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-700 dark:text-slate-200 italic font-medium leading-relaxed">
+                  "Balo salonunun ihtişamı, masa süslemeleri ve organizasyon ekibinin ilgisi rüya gibi bir düğün yaşamamızı sağladı. Her detay mükemmeldi!"
+                </p>
+
+                {/* OVERLAPPING AVATARS BADGE */}
+                <div className="flex items-center space-x-2 pt-2 border-t border-amber-500/15 text-[10px] text-slate-600 dark:text-slate-300">
+                  <div className="flex -space-x-2 overflow-hidden">
+                    <img className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="" />
+                    <img className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="" />
+                    <img className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="" />
+                  </div>
+                  <span className="font-extrabold text-amber-800 dark:text-amber-300">+1,250 mutlu çift düğününü burada gerçekleştirdi</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* BOTTOM LOCATION & SUPPORT FOOTER */}
+            <div className="relative z-10 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pt-3 border-t border-amber-500/20 font-medium">
+              <div className="flex items-center space-x-1.5">
+                <ThemeIcon icon="mapPin" fallbackEmoji="" className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>Sapanca Balo Tesisleri, Sakarya</span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <ThemeIcon icon="phone" fallbackEmoji="" className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="font-mono text-amber-700 dark:text-amber-400 font-extrabold">0850 555 0 777</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* FORGOT PASSWORD MODAL */}
+          {showForgotModal && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="glass-panel p-6 rounded-3xl max-w-sm w-full space-y-4 border border-amber-500/40 bg-slate-900 text-white">
+                <h3 className="text-base font-bold text-amber-400 flex items-center space-x-2">
+                  <ThemeIcon icon="key" fallbackEmoji="" className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Şifre Sıfırlama Talebi</span>
+                </h3>
+                <p className="text-xs text-slate-300">
+                  Sistemde kayıtlı e-posta adresinizi veya telefon numaranızı giriniz. Tek kullanımlık doğrulama kodu iletilecektir.
+                </p>
+                <input
+                  type="text"
+                  placeholder="e-posta@iremdugunsarayi.com veya 05XX XXX XX XX"
+                  value={forgotInput}
+                  onChange={e => setForgotInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-500"
+                />
+                <div className="flex space-x-2 pt-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!forgotInput) return alert('Lütfen bilgilerinizi giriniz.');
+                      alert(`Şifre sıfırlama kuralı ${forgotInput} adresine/numarasına iletildi.`);
+                      setShowForgotModal(false);
+                    }}
+                    className="flex-1 gold-button font-bold py-2 rounded-xl cursor-pointer"
+                  >
+                    Sıfırlama Bağlantısı Gönder
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="px-4 bg-slate-800 hover:bg-slate-700 font-bold py-2 rounded-xl text-slate-300 cursor-pointer"
+                  >
+                    Kapat
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* HELP MODAL */}
+          {showHelpModal && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="glass-panel p-6 rounded-3xl max-w-md w-full space-y-4 border border-amber-500/40 bg-slate-900 text-white shadow-2xl">
+                <h3 className="text-base font-bold text-amber-400 flex items-center space-x-2">
+                  <ThemeIcon icon="helpCircle" fallbackEmoji="" className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Nasıl Giriş Yapabilirim?</span>
+                </h3>
+                <div className="text-xs text-slate-300 space-y-2 leading-relaxed">
+                  <p><strong>1. Giriş Yöntemi Seçimi:</strong> Üstteki sekmelerden E-Posta veya Telefon Numarası seçeneğini tıklayın.</p>
+                  <p><strong>2. Doğrulama:</strong> Sistemimiz yazdığınız e-posta veya telefon formatını anlık kontrol eder.</p>
+                  <p><strong>3. Test Girişi:</strong> Hızlı test için alt kısımdaki hazır <em>Süper Yönetici</em> veya <em>Salon Müdürü</em> butonlarına 1 kez tıklayabilirsiniz.</p>
+                </div>
+                <div className="pt-2 text-right">
+                  <button
+                    type="button"
+                    onClick={() => setShowHelpModal(false)}
+                    className="px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 font-bold py-2 text-xs rounded-xl text-white shadow-md cursor-pointer"
+                  >
+                    Anladım, Kapat
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
       const [venues, setVenues] = useState(() => CacheService.get('venues', INITIAL_VENUES));
       const [services, setServices] = useState(() => CacheService.get('services', INITIAL_SERVICES));
@@ -5291,8 +5875,39 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const cachedTheme = typeof window !== 'undefined' ? (CacheService.get('theme_color') || CacheService.get('selected_theme')) : null;
         return domTheme || cachedTheme || '';
       });
-      const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
       const [isCacheEnabledState, setIsCacheEnabledState] = useState(() => CacheService.get('cache_enabled', true));
+
+      // SEARCH ENGINE INDEXING SECURITY CONFIG & DYNAMIC META ROBOTS EFFECT
+      const [indexingConfig, setIndexingConfig] = useState(() => CacheService.get('indexing_config', {
+        blockAdminIndexing: true,
+        blockSearchBots: true,
+        adminRobotsHeader: 'noindex, nofollow, noarchive, nosnippet, noimageindex',
+        publicRobotsHeader: 'index, follow',
+        blockPublicIndexing: false
+      }));
+
+      useEffect(() => {
+        CacheService.set('indexing_config', indexingConfig);
+        if (typeof document === 'undefined') return;
+
+        let metaRobots = document.querySelector('meta[name="robots"]');
+        if (!metaRobots) {
+          metaRobots = document.createElement('meta');
+          metaRobots.name = 'robots';
+          document.head.appendChild(metaRobots);
+        }
+
+        const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+        const isAdminPage = path.startsWith('/yonetim') || path === '/giris' || (activeTab && activeTab !== 'simulasyon-404');
+
+        if (indexingConfig.blockPublicIndexing || (indexingConfig.blockAdminIndexing && isAdminPage)) {
+          metaRobots.setAttribute('content', indexingConfig.adminRobotsHeader || 'noindex, nofollow, noarchive, nosnippet');
+          document.documentElement.setAttribute('data-indexing', 'blocked');
+        } else {
+          metaRobots.setAttribute('content', indexingConfig.publicRobotsHeader || 'index, follow');
+          document.documentElement.setAttribute('data-indexing', 'allowed');
+        }
+      }, [activeTab, indexingConfig]);
 
       useEffect(() => { CacheService.set('roles', rolesState); }, [rolesState]);
       useEffect(() => { CacheService.set('tab_permissions', tabPermissionsState); }, [tabPermissionsState]);
@@ -5706,13 +6321,38 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const [isPageTabLoading, setIsPageTabLoading] = useState(false);
 
+      // SESSION USER STATE & CACHE
+      const [sessionUser, setSessionUser] = useState(() => CacheService.get('session_user', {
+        id: 'u-admin',
+        name: 'Davut Akbulut',
+        email: 'davut@iremdugunsarayi.com',
+        role: 'admin',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+      }));
+
+      useEffect(() => {
+        CacheService.set('session_user', sessionUser);
+      }, [sessionUser]);
+
+      const handleLogout = useCallback(() => {
+        setSessionUser(null);
+        CacheService.set('session_user', null);
+        setActiveTabState('login');
+        if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+          window.history.pushState({}, '', '/giris');
+        }
+        showToast('🚪 Güvenli Şekilde Oturum Kapatıldı');
+      }, []);
+
       const navigateTo = (tab, queryParams = null) => {
         if (tab !== activeTab) {
           setIsPageTabLoading(true);
           setTimeout(() => setIsPageTabLoading(false), 150);
         }
         setActiveTabState(tab);
-        const tabSlug = TAB_TO_SLUG[tab] || 'anasayfa';
+        let cleanPath = TAB_TO_PATH[tab] || `/yonetim/${tab}`;
+        if (tab === 'login') cleanPath = '/giris';
+
         let queryStr = '';
         if (queryParams && typeof queryParams === 'object') {
           const qp = new URLSearchParams(queryParams).toString();
@@ -5720,13 +6360,42 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         } else if (typeof queryParams === 'string' && queryParams) {
           queryStr = queryParams.startsWith('?') ? queryParams : '?' + queryParams;
         }
-        const newUrl = `${window.location.pathname}#/${tabSlug}${queryStr}`;
-        window.history.pushState({ tab, queryParams }, '', newUrl);
+        const newUrl = `${cleanPath}${queryStr}`;
+        if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+          window.history.pushState({ tab, queryParams }, '', newUrl);
+        }
       };
+
+      // BIDIRECTIONAL SESSION GATEKEEPER AUTOMATIC REDIRECT
+      useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const path = window.location.pathname;
+        const isYonetimPath = path.startsWith('/yonetim') || (activeTab !== 'login' && activeTab !== 'simulasyon-404');
+        const isGirisPath = path === '/giris' || path === '/login' || activeTab === 'login';
+
+        // 1. Unauthenticated attempt to access /yonetim -> redirect to /giris
+        if (isYonetimPath && !sessionUser) {
+          setActiveTabState('login');
+          if (window.history && window.history.pushState) {
+            window.history.pushState({}, '', '/giris');
+          }
+        }
+        // 2. Authenticated attempt to access /giris when session already active -> auto-redirect to /yonetim
+        else if (isGirisPath && sessionUser) {
+          const targetTab = activeTab === 'login' ? 'dashboard' : activeTab;
+          setActiveTabState(targetTab);
+          const targetPath = TAB_TO_PATH[targetTab] || '/yonetim';
+          if (window.history && window.history.pushState && path !== targetPath) {
+            window.history.pushState({}, '', targetPath);
+          }
+          showToast('Aktif Oturumunuz Bulunmaktadır, Yönetim Paneline Otomatik Yönlendirildiniz');
+        }
+      }, [activeTab, sessionUser]);
 
       useEffect(() => {
         const handlePopState = () => {
-          setActiveTabState(getHashTab());
+          const parsed = parseHashRoute();
+          setActiveTabState(parsed.tab);
         };
         window.addEventListener('popstate', handlePopState);
         window.addEventListener('hashchange', handlePopState);
@@ -5907,6 +6576,25 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         setTimeout(() => printWin.print(), 500);
       };
 
+      if (activeTab === 'login' || (!sessionUser && !isPublicGuestRoute)) {
+        return (
+          <LoginComponent
+            onLoginSuccess={(userObj) => {
+              setSessionUser(userObj);
+              CacheService.set('session_user', userObj);
+              setCurrentUserState(userObj);
+              setActiveRole(userObj.role || 'admin');
+              setActiveTabState('dashboard');
+              if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+                window.history.pushState({}, '', '/yonetim');
+              }
+              showToast(`✅ Hoş geldiniz ${userObj.name}! Yönetim paneline aktarılıyorsunuz...`);
+            }}
+            showToast={showToast}
+          />
+        );
+      }
+
       return (
         <div className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative w-full max-w-full overflow-x-hidden">
           
@@ -6064,8 +6752,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                         <button
                           onClick={() => {
-                            showToast('🚪 Hesabınızdan Güvenle Çıkış Yapıldı');
                             setIsProfileDropdownOpen(false);
+                            handleLogout();
                           }}
                           className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-500/10 font-bold transition text-left"
                         >
@@ -6285,6 +6973,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                                   >
                                     <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-3.5 h-3.5 shrink-0" />
                                     <span>Rol & İzin Matrisi</span>
+                                  </a>
+                                  <a
+                                    href="/yonetim/ayarlar/seo-indeksleme"
+                                    onClick={(e) => { e.preventDefault(); navigateTo('settings-indexing'); }}
+                                    className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                                      activeTab === 'settings-indexing' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                    }`}
+                                  >
+                                    <ThemeIcon icon="search" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                                    <span>Arama Motoru & İndeksleme</span>
                                   </a>
                                   <a
                                     href="#/ayarlar/simulasyon"
@@ -6550,6 +7248,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       onMenuLayoutChange={handleMenuLayoutChange}
                       isCacheEnabled={isCacheEnabledState}
                       onToggleCache={setIsCacheEnabledState}
+                      indexingConfig={indexingConfig}
+                      onIndexingConfigChange={setIndexingConfig}
                       onClearCache={handleClearCache}
                       onSeedDatabase={handleSeedDatabase}
                       showToast={showToast}
@@ -6558,6 +7258,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         activeTab === 'settings-appearance' ? 'appearance' :
                         activeTab === 'settings-performance' ? 'performance' :
                         activeTab === 'settings-rbac' ? 'rbac' :
+                        activeTab === 'settings-indexing' ? 'indexing' :
                         activeTab === 'settings-errors' ? 'errors' : 'appearance'
                       }
                     />
@@ -15643,6 +16344,8 @@ function MindMapPageComponent({ navigateTo }) {
       onMenuLayoutChange,
       isCacheEnabled,
       onToggleCache,
+      indexingConfig = { blockAdminIndexing: true, blockSearchBots: true, adminRobotsHeader: 'noindex, nofollow, noarchive, nosnippet, noimageindex', publicRobotsHeader: 'index, follow', blockPublicIndexing: false },
+      onIndexingConfigChange,
       onClearCache,
       onSeedDatabase,
       showToast,
@@ -15650,6 +16353,7 @@ function MindMapPageComponent({ navigateTo }) {
       initialSubTab = 'appearance'
     }) {
       const [settingsTab, setSettingsTab] = useState(initialSubTab);
+      const [testPathInput, setTestPathInput] = useState('/yonetim/rezervasyonlar');
       const [draftTheme, setDraftTheme] = useState(() => {
         const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
         return themeColor || domTheme || '';
@@ -15788,6 +16492,16 @@ function MindMapPageComponent({ navigateTo }) {
             </button>
 
 
+
+            <button
+              onClick={() => setSettingsTab('indexing')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 ${
+                settingsTab === 'indexing' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="search" fallbackEmoji="" className="w-4 h-4 shrink-0 text-amber-500" />
+              <span>Arama Motoru & İndeksleme</span>
+            </button>
 
             <button
               onClick={() => setSettingsTab('error-sim')}
@@ -16214,6 +16928,240 @@ function MindMapPageComponent({ navigateTo }) {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: SEARCH ENGINE & INDEXING SECURITY MODULE */}
+          {settingsTab === 'indexing' && (
+            <div className="space-y-6">
+              {/* STATUS BANNER */}
+              <div className={`glass-panel p-6 rounded-3xl border shadow-sm transition-all duration-300 ${
+                indexingConfig.blockAdminIndexing
+                  ? 'bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/30'
+                  : 'bg-amber-500/5 dark:bg-amber-950/20 border-amber-500/30'
+              }`}>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-3 rounded-2xl shrink-0 ${
+                      indexingConfig.blockAdminIndexing ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'
+                    }`}>
+                      <ThemeIcon icon="shield" fallbackEmoji="" className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100">
+                          Arama Motoru İndeksleme Güvenliği Kalkanı
+                        </h3>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          indexingConfig.blockAdminIndexing ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
+                        }`}>
+                          {indexingConfig.blockAdminIndexing ? 'KORUMA AKTİF ✓' : 'KORUMA DEVRE DIŞI ⚠️'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 leading-relaxed">
+                        Yönetim paneline ait tüm bağlantıların (<code className="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-amber-600 font-mono">/yonetim/*</code>) ve giriş sayfasının (<code className="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-amber-600 font-mono">/giris</code>) Google, Bing, Yandex ve diğer arama motoru botları tarafından indekslenmesi engellenmektedir.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 font-mono text-xs bg-slate-900 text-slate-100 px-3.5 py-2 rounded-xl border border-slate-700 shadow">
+                    noindex, nofollow, noarchive, nosnippet
+                  </div>
+                </div>
+              </div>
+
+              {/* CORE SETTINGS & TOGGLES */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* TOGGLE 1: ADMIN INDEXING GUARD */}
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                        <ThemeIcon icon="shield" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Yönetim Paneli İndeks Engelleme</span>
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                        Yönetim rotalarına girildiğinde HTML başlığına otomatik olarak <code className="text-amber-500 font-mono">meta name="robots" content="noindex"</code> ekler.
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                      <input
+                        type="checkbox"
+                        checked={indexingConfig.blockAdminIndexing}
+                        onChange={(e) => {
+                          const updated = { ...indexingConfig, blockAdminIndexing: e.target.checked };
+                          onIndexingConfigChange(updated);
+                          showToast(e.target.checked ? '🛡️ Yönetim Paneli İndeksleme Koruması AKTİF' : '⚠️ Yönetim İndeksleme Koruması Kaldırıldı!');
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl text-xs font-mono text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border/40">
+                    Etki Alanı: /yonetim, /yonetim/*, /giris
+                  </div>
+                </div>
+
+                {/* TOGGLE 2: BOT BLOCKING IN ROBOTS.TXT */}
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                        <ThemeIcon icon="search" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Arama Motoru Botlarını Filtrele</span>
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                        Googlebot, Bingbot, YandexBot gibi tarayıcılara robots.txt Disallow kuralları tanımlar.
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                      <input
+                        type="checkbox"
+                        checked={indexingConfig.blockSearchBots}
+                        onChange={(e) => {
+                          const updated = { ...indexingConfig, blockSearchBots: e.target.checked };
+                          onIndexingConfigChange(updated);
+                          showToast(e.target.checked ? '🤖 Arama Botu Filtresi AKTİF' : '⚠️ Arama Botu Filtresi Devre Dışı');
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl text-xs font-mono text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border/40">
+                    Botlar: Googlebot, Bingbot, YandexBot, DuckDuckBot
+                  </div>
+                </div>
+              </div>
+
+              {/* LIVE CODE INSPECTOR & ROBOTS.TXT GENERATOR */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* META ROBOTS CODE */}
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                  <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-gray-300 flex items-center space-x-2">
+                      <ThemeIcon icon="code" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Aktif HTML Meta Robots Etiketi (Canlı DOM)</span>
+                    </h4>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">LIVE</span>
+                  </div>
+                  <pre className="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-xs font-mono overflow-x-auto shadow-inner border border-slate-800 whitespace-pre-wrap">
+{`<meta name="robots" content="${indexingConfig.blockAdminIndexing ? indexingConfig.adminRobotsHeader : indexingConfig.publicRobotsHeader}" />`}
+                  </pre>
+                  <p className="text-[11px] text-slate-500 dark:text-gray-400">
+                    Bu etiket tarayıcı tarafından her sayfa geçişinde dinamik olarak güncellenir.
+                  </p>
+                </div>
+
+                {/* ROBOTS.TXT CODE */}
+                <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                  <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-gray-300 flex items-center space-x-2">
+                      <ThemeIcon icon="file" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Otomatik Üretilen Robots.txt Kuralları</span>
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const code = `# İrem Düğün Sarayı - Robots.txt\nUser-agent: *\nDisallow: /yonetim/\nDisallow: /yonetim/*\nDisallow: /giris\nDisallow: /api/\n\nUser-agent: Googlebot\nDisallow: /yonetim/`;
+                        navigator.clipboard.writeText(code);
+                        showToast('📋 Robots.txt Kuralları Panoya Kopyalandı');
+                      }}
+                      className="text-[10px] font-extrabold px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500 hover:text-slate-900 text-amber-600 transition border border-amber-500/30"
+                    >
+                      Kopyala 📋
+                    </button>
+                  </div>
+                  <pre className="bg-slate-900 text-slate-200 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto shadow-inner border border-slate-800 leading-relaxed">
+{`# İrem Düğün Sarayı - Robots.txt
+User-agent: *
+Disallow: /yonetim/
+Disallow: /yonetim/*
+Disallow: /giris
+Disallow: /api/
+
+User-agent: Googlebot
+Disallow: /yonetim/
+
+User-agent: Bingbot
+Disallow: /yonetim/`}
+                  </pre>
+                </div>
+              </div>
+
+              {/* INTERACTIVE PATH INDEXING TEST SIMULATOR */}
+              <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 space-y-4 shadow-sm">
+                <div>
+                  <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <ThemeIcon icon="search" fallbackEmoji="" className="w-5 h-5 text-amber-500 shrink-0" />
+                    <span>Googlebot İndeksleme & Erişim Simülatörü</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                    Sistemdeki herhangi bir sayfa yolunu yazarak Googlebot ve arama motorlarının o sayfayı indeksleyip indeksleyemeyeceğini test edin.
+                  </p>
+                </div>
+
+                {/* TEST PRESETS */}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <span className="text-slate-400 self-center font-bold">Hızlı Test Yolları:</span>
+                  {[
+                    '/yonetim',
+                    '/yonetim/rezervasyonlar',
+                    '/yonetim/finans',
+                    '/giris',
+                    '/medya/MEDIA-8X92M1KP'
+                  ].map(path => (
+                    <button
+                      key={path}
+                      type="button"
+                      onClick={() => setTestPathInput(path)}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-slate-700 dark:text-gray-300 font-mono font-bold transition border border-slate-200 dark:border-brand-border"
+                    >
+                      {path}
+                    </button>
+                  ))}
+                </div>
+
+                {/* INPUT & TEST RESULT */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={testPathInput}
+                    onChange={(e) => setTestPathInput(e.target.value)}
+                    placeholder="/yonetim/rezervasyonlar"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-brand-border bg-white dark:bg-brand-card text-slate-800 dark:text-gray-100 text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* TEST RESULT CARD */}
+                {(() => {
+                  const path = (testPathInput || '').trim();
+                  const isBlocked = indexingConfig.blockPublicIndexing || (indexingConfig.blockAdminIndexing && (path.startsWith('/yonetim') || path === '/giris'));
+
+                  return (
+                    <div className={`p-4 rounded-2xl border text-xs space-y-2 transition-all ${
+                      isBlocked
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-200'
+                        : 'bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-200'
+                    }`}>
+                      <div className="flex items-center justify-between font-bold text-sm">
+                        <span className="flex items-center space-x-2">
+                          <span>{isBlocked ? '🚫 ENGELLEDİ (DISALLOWED / NOINDEX)' : '🌐 İZİN VERİLDİ (INDEX, FOLLOW)'}</span>
+                        </span>
+                        <span className="font-mono text-xs opacity-80">Test Edilen Yol: {path || '/'}</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 border-t border-emerald-500/20">
+                        <div>
+                          <strong>Googlebot İndeks Kararı:</strong> {isBlocked ? 'Dizinlemeye Kapalı (Google Arama Sonuçlarına Giremez)' : 'Dizinlemeye Açık'}
+                        </div>
+                        <div>
+                          <strong>Güvenlik Durumu:</strong> {isBlocked ? '100% Korumalı (Yönetim Paneli Gizli)' : 'Halka Açık Sayfa'}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}

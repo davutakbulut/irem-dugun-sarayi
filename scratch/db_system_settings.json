@@ -1,6 +1,6 @@
 {
   "themeColor": "nordic-light",
-  "appName": "İrem Düğün Sarayı & Organizasyon",
+  "appName": "\u0130rem D\u00fc\u011f\u00fcn Saray\u0131 & Organizasyon",
   "cacheEnabled": true,
   "duplicateImagePrevention": true,
   "maxUploadSizeMB": 50,
@@ -12,7 +12,7 @@
     "video/mp4",
     "video/quicktime"
   ],
-  "updatedAt": "2026-07-31T23:42:17.692Z",
+  "updatedAt": "2026-08-01T14:04:44.383Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
   "systemVersion": "v1.4.65",
@@ -20,93 +20,93 @@
   "versionHistory": [
     {
       "version": "v1.4.65",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.65)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.65)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.64",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.64)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.64)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.63",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.63)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.63)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.62",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.62)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.62)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.61",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.61)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.61)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.60",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.60)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.60)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.59",
-      "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.59)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "Otomatik S\u00fcr\u00fcm G\u00fcncellemesi (v1.4.59)",
+      "desc": "Sistem veritaban\u0131nda (db_system_settings.json) otomatik s\u00fcr\u00fcm y\u00fckseltme ve canl\u0131 veri \u00e7ekme mekanizmas\u0131 devreye girdi."
     },
     {
       "version": "v1.4.58",
-      "date": "01 Ağustos 2026",
-      "title": "📜 Zengin Canlı Sürüm Geçmişi & Detaylı Changelog Kataloğu",
-      "desc": "Sürüm geçmişi modalındaki tüm eski/statik kayıtlar temizlenerek v1.4.0'dan v1.4.58'e kadar yapılan tüm mimari geliştirmeler, 3G performans iyileştirmeleri ve UI dokunuşları detaylı veritabanı loglarına dönüştürüldü."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcdc Zengin Canl\u0131 S\u00fcr\u00fcm Ge\u00e7mi\u015fi & Detayl\u0131 Changelog Katalo\u011fu",
+      "desc": "S\u00fcr\u00fcm ge\u00e7mi\u015fi modal\u0131ndaki t\u00fcm eski/statik kay\u0131tlar temizlenerek v1.4.0'dan v1.4.58'e kadar yap\u0131lan t\u00fcm mimari geli\u015ftirmeler, 3G performans iyile\u015ftirmeleri ve UI dokunu\u015flar\u0131 detayl\u0131 veritaban\u0131 loglar\u0131na d\u00f6n\u00fc\u015ft\u00fcr\u00fcld\u00fc."
     },
     {
       "version": "v1.4.57",
-      "date": "01 Ağustos 2026",
-      "title": "🎯 Footer & Header Birebir Canlı Sürüm Eşleşmesi",
-      "desc": "Sayfa altı footer butonundaki statik v1.4.0 yazısı kaldırılarak doğrudan sunucu veritabanındaki ({systemVersion}) canlı sürüm verisine bağlandı. Header ve Footer sürüm butonları %100 birebir eşleştirildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83c\udfaf Footer & Header Birebir Canl\u0131 S\u00fcr\u00fcm E\u015fle\u015fmesi",
+      "desc": "Sayfa alt\u0131 footer butonundaki statik v1.4.0 yaz\u0131s\u0131 kald\u0131r\u0131larak do\u011frudan sunucu veritaban\u0131ndaki ({systemVersion}) canl\u0131 s\u00fcr\u00fcm verisine ba\u011fland\u0131. Header ve Footer s\u00fcr\u00fcm butonlar\u0131 %100 birebir e\u015fle\u015ftirildi."
     },
     {
       "version": "v1.4.56",
-      "date": "01 Ağustos 2026",
-      "title": "📱 Mobil Yatay Kaydırılabilir Üst Rozet Şeridi",
-      "desc": "Yeni Rezervasyon sayfasının en üstündeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir şık ve parmakla kaydırılabilir (overflow-x-auto whitespace-nowrap) yatay bantta toplandı."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udcf1 Mobil Yatay Kayd\u0131r\u0131labilir \u00dcst Rozet \u015eeridi",
+      "desc": "Yeni Rezervasyon sayfas\u0131n\u0131n en \u00fcst\u00fcndeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir \u015f\u0131k ve parmakla kayd\u0131r\u0131labilir (overflow-x-auto whitespace-nowrap) yatay bantta topland\u0131."
     },
     {
       "version": "v1.4.55",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ 17 Modüler ES Sayfa Bileşeni (%100 Sync)",
-      "desc": "Projedeki tüm 17 ana sayfa bileşeni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klasörüne %100 güncel ES Module standartlarında senkronize edildi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u26a1 17 Mod\u00fcler ES Sayfa Bile\u015feni (%100 Sync)",
+      "desc": "Projedeki t\u00fcm 17 ana sayfa bile\u015feni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klas\u00f6r\u00fcne %100 g\u00fcncel ES Module standartlar\u0131nda senkronize edildi."
     },
     {
       "version": "v1.4.54",
-      "date": "01 Ağustos 2026",
-      "title": "🛠️ Yeni Rezervasyon Üst Başlık Kartı & Tıkla-Kopyala Ref Kodu",
-      "desc": "Yeni Rezervasyon sayfasının üst kartındaki ekrandan sağa taşma ve kayma sorunu flex-wrap ve overflow-hidden ile düzeltildi. Ref rozetine tek tıkla panoya kopyalama ve toast bildirimi eklendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udee0\ufe0f Yeni Rezervasyon \u00dcst Ba\u015fl\u0131k Kart\u0131 & T\u0131kla-Kopyala Ref Kodu",
+      "desc": "Yeni Rezervasyon sayfas\u0131n\u0131n \u00fcst kart\u0131ndaki ekrandan sa\u011fa ta\u015fma ve kayma sorunu flex-wrap ve overflow-hidden ile d\u00fczeltildi. Ref rozetine tek t\u0131kla panoya kopyalama ve toast bildirimi eklendi."
     },
     {
       "version": "v1.4.52",
-      "date": "01 Ağustos 2026",
-      "title": "🔗 Canlı Veritabanı Sürüm Geçmişi Modal Bağlantısı",
-      "desc": "Sürüm Geçmişi modalındaki releases dizisi veritabanındaki versionHistory verisine dinamik olarak bağlandı. ReferenceError hatası giderildi ve otomatik sürüm yükseltme motoru devreye girdi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udd17 Canl\u0131 Veritaban\u0131 S\u00fcr\u00fcm Ge\u00e7mi\u015fi Modal Ba\u011flant\u0131s\u0131",
+      "desc": "S\u00fcr\u00fcm Ge\u00e7mi\u015fi modal\u0131ndaki releases dizisi veritaban\u0131ndaki versionHistory verisine dinamik olarak ba\u011fland\u0131. ReferenceError hatas\u0131 giderildi ve otomatik s\u00fcr\u00fcm y\u00fckseltme motoru devreye girdi."
     },
     {
       "version": "v1.4.44",
-      "date": "01 Ağustos 2026",
-      "title": "⚙️ Ayarlar Sayfası Masaüstü Menü Seçim Kartı İyileştirmesi",
-      "desc": "Ayarlar > Görünüm sekmesinde kaydırma ve sekme geçişlerinde kaybolan Masaüstü Menü Yerleşimi kartı düzeltildi, build_precompiled.py tüm JSX script bloklarını tek dosyada birleştirecek şekilde güncellendi."
+      "date": "01 A\u011fustos 2026",
+      "title": "\u2699\ufe0f Ayarlar Sayfas\u0131 Masa\u00fcst\u00fc Men\u00fc Se\u00e7im Kart\u0131 \u0130yile\u015ftirmesi",
+      "desc": "Ayarlar > G\u00f6r\u00fcn\u00fcm sekmesinde kayd\u0131rma ve sekme ge\u00e7i\u015flerinde kaybolan Masa\u00fcst\u00fc Men\u00fc Yerle\u015fimi kart\u0131 d\u00fczeltildi, build_precompiled.py t\u00fcm JSX script bloklar\u0131n\u0131 tek dosyada birle\u015ftirecek \u015fekilde g\u00fcncellendi."
     },
     {
       "version": "v1.4.43",
-      "date": "01 Ağustos 2026",
-      "title": "🌐 Ağ İstekleri Otomatik Tekrar Deneme (fetchWithRetry)",
-      "desc": "Sunucu yeniden başlatılırken oluşan ERR_CONNECTION_REFUSED hatalarını engellemek için window.fetchWithRetry mekanizması entegre edildi. İstekler 3 kez üst üste otomatik denenir."
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83c\udf10 A\u011f \u0130stekleri Otomatik Tekrar Deneme (fetchWithRetry)",
+      "desc": "Sunucu yeniden ba\u015flat\u0131l\u0131rken olu\u015fan ERR_CONNECTION_REFUSED hatalar\u0131n\u0131 engellemek i\u00e7in window.fetchWithRetry mekanizmas\u0131 entegre edildi. \u0130stekler 3 kez \u00fcst \u00fcste otomatik denenir."
     }
   ]
 }
