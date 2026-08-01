@@ -96,6 +96,48 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(b'{"themeColor":"nordic-light","menuLayout":"vertical"}')
                 return
 
+        # 1.5. API: Direct Folder Files GET (/api/media-files?resId=...)
+        if parsed_path.path == '/api/media-files':
+            try:
+                query_params = urllib.parse.parse_qs(parsed_path.query)
+                res_id = query_params.get('resId', ['GENERAL'])[0]
+                
+                res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', res_id)
+                file_list = []
+                if os.path.exists(res_dir) and os.path.isdir(res_dir):
+                    for fname in sorted(os.listdir(res_dir), key=lambda x: os.path.getmtime(os.path.join(res_dir, x)) if not x.startswith('.') else 0, reverse=True):
+                        if fname.startswith('.'): continue
+                        fpath = os.path.join(res_dir, fname)
+                        if os.path.isfile(fpath):
+                            ext = os.path.splitext(fname)[1].lower()
+                            rel_url = f'/uploads/{res_id}/{fname}'
+                            mtime = os.path.getmtime(fpath)
+                            timestamp = time.strftime('%Y-%m-%d %H:%M', time.localtime(mtime))
+                            file_list.append({
+                                'id': fname,
+                                'fileName': fname,
+                                'type': 'video' if ext in ['.mp4', '.mov', '.avi', '.mkv'] else 'image',
+                                'url': rel_url,
+                                'thumbnail': rel_url,
+                                'uploaderName': 'Davetli Konuk',
+                                'tableNo': 'Masa Davetlisi',
+                                'timestamp': timestamp,
+                                'isGuest': True
+                            })
+
+                res_json = json.dumps({'success': True, 'resId': res_id, 'files': file_list}, indent=2).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(res_json)
+                return
+            except Exception as e:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"success":true,"files":[]}')
+                return
+
         # 2. API: Ping GET
         if parsed_path.path == '/api/ping':
             self.send_response(200)

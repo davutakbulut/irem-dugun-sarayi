@@ -4249,9 +4249,41 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     } catch(e) { return []; }
   });
 
+  // DIRECT DISK FOLDER LOADER: Fetches physical files directly from uploads/<resId>/ folder on server disk
   useEffect(() => {
-    try { sessionStorage.setItem('guest_uploaded_ids', JSON.stringify(guestSessionUploadIds)); } catch(e){}
-  }, [guestSessionUploadIds]);
+    const targetKey = activeMediaKey || selectedResKey || currentRes?.mediaKey || currentRes?.id;
+    if (!targetKey) return;
+
+    const fetchDiskFolderFiles = async () => {
+      try {
+        const res = await fetch(`/api/media-files?resId=${targetKey}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.files)) {
+            setReservations(prev => {
+              return prev.map(r => {
+                const isMatch = r.mediaKey === targetKey || r.id === targetKey || (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey));
+                if (isMatch) {
+                  const currentFiles = r.mediaFiles || [];
+                  const fileMap = new Map();
+                  currentFiles.forEach(f => fileMap.set(f.fileName || f.id || f.url, f));
+                  data.files.forEach(f => {
+                    fileMap.set(f.fileName || f.id || f.url, f);
+                  });
+                  return { ...r, mediaFiles: Array.from(fileMap.values()) };
+                }
+                return r;
+              });
+            });
+          }
+        }
+      } catch(e) {}
+    };
+
+    fetchDiskFolderFiles();
+    const diskInterval = setInterval(fetchDiskFolderFiles, 2000);
+    return () => clearInterval(diskInterval);
+  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, setReservations]);
 
   // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (POLLING + BROADCAST + STORAGE EVENT)
   useEffect(() => {
@@ -5514,7 +5546,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.81 Canlı
+                v1.4.82 Canlı
               </span>
             </div>
 
