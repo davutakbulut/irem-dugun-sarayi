@@ -15,9 +15,15 @@
   "updatedAt": "2026-07-31T23:42:17.692Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.66",
-  "lastUpdated": "2026-08-01T00:11:57Z",
+  "systemVersion": "v1.4.67",
+  "lastUpdated": "2026-08-01T00:12:55Z",
   "versionHistory": [
+    {
+      "version": "v1.4.67",
+      "date": "01 Ağustos 2026",
+      "title": "🛡️ Rol Yönetimi Popupları Sistem Kurallarına Tam Uyumlu Hale Getirildi",
+      "desc": "Roller (/#/roller) sayfasındaki yerel tarayıcı confirm() uyarısı kaldırıldı. Rol silme işlemlerine RedAlertConfirmModal kırmız uyarısı, rol düzenleme işlemine ise Glassmorphism kurumsal modal mimarisi entegre edildi."
+    },
     {
       "version": "v1.4.66",
       "date": "01 Ağustos 2026",
@@ -101,12 +107,6 @@
       "date": "01 Ağustos 2026",
       "title": "🔗 Canlı Veritabanı Sürüm Geçmişi Modal Bağlantısı",
       "desc": "Sürüm Geçmişi modalındaki releases dizisi veritabanındaki versionHistory verisine dinamik olarak bağlandı. ReferenceError hatası giderildi ve otomatik sürüm yükseltme motoru devreye girdi."
-    },
-    {
-      "version": "v1.4.44",
-      "date": "01 Ağustos 2026",
-      "title": "⚙️ Ayarlar Sayfası Masaüstü Menü Seçim Kartı İyileştirmesi",
-      "desc": "Ayarlar > Görünüm sekmesinde kaydırma ve sekme geçişlerinde kaybolan Masaüstü Menü Yerleşimi kartı düzeltildi, build_precompiled.py tüm JSX script bloklarını tek dosyada birleştirecek şekilde güncellendi."
     }
   ]
 }
