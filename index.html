@@ -4254,13 +4254,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               return prev.map(r => {
                 const isMatch = r.mediaKey === targetKey || r.id === targetKey || (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey));
                 if (isMatch) {
-                  const currentFiles = r.mediaFiles || [];
-                  const fileMap = new Map();
-                  currentFiles.forEach(f => fileMap.set(f.fileName || f.id || f.url, f));
-                  data.files.forEach(f => {
-                    fileMap.set(f.fileName || f.id || f.url, f);
-                  });
-                  return { ...r, mediaFiles: Array.from(fileMap.values()) };
+                  // Direct 1:1 disk folder state: data.files is the single source of truth for physical files!
+                  const diskFiles = data.files.filter(f => f && f.url && f.url.startsWith('/uploads/'));
+                  return { ...r, mediaFiles: diskFiles };
                 }
                 return r;
               });
@@ -4292,12 +4288,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 const pFiles = pRes.mediaFiles || [];
                 const cFiles = cRes.mediaFiles || [];
                 
-                // Merge by file ID preserving RAM items that have real image URLs
+                // Merge ONLY real physical files residing in /uploads/ on server disk
+                const validCFiles = cFiles.filter(f => f && f.url && f.url.startsWith('/uploads/'));
                 const fileMap = new Map();
-                cFiles.forEach(f => fileMap.set(f.id, f));
+                validCFiles.forEach(f => fileMap.set(f.url || f.id, f));
                 pFiles.forEach(f => {
-                  if (!fileMap.has(f.id) || (f.url && !f.url.includes('VALID_SVG'))) {
-                    fileMap.set(f.id, f);
+                  if (f && f.url && f.url.startsWith('/uploads/')) {
+                    fileMap.set(f.url || f.id, f);
                   }
                 });
                 
@@ -4333,11 +4330,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             const pFiles = pRes.mediaFiles || [];
             const cFiles = cRes.mediaFiles || [];
             
+            const validCFiles = cFiles.filter(f => f && f.url && f.url.startsWith('/uploads/'));
             const fileMap = new Map();
-            cFiles.forEach(f => fileMap.set(f.id, f));
+            validCFiles.forEach(f => fileMap.set(f.url || f.id, f));
             pFiles.forEach(f => {
-              if (!fileMap.has(f.id) || (f.url && !f.url.includes('VALID_SVG'))) {
-                fileMap.set(f.id, f);
+              if (f && f.url && f.url.startsWith('/uploads/')) {
+                fileMap.set(f.url || f.id, f);
               }
             });
             
