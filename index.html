@@ -1617,6 +1617,8 @@
     // ==========================================
 
     // LAYER 3: LOCALSTORAGE CACHE ENGINE
+    const VALID_SVG_PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="%231e293b"/><circle cx="150" cy="130" r="40" fill="%23d97706" opacity="0.3"/><text x="150" y="210" dominant-baseline="middle" text-anchor="middle" fill="%23f59e0b" font-family="sans-serif" font-size="14" font-weight="bold">%C3%96N%C4%B0ZLEME</text></svg>';
+
     const CacheService = {
       get: (key, fallback) => {
         try {
@@ -1635,6 +1637,22 @@
             try { localStorage.setItem(`irem_cache_${key}`, JSON.stringify(fallback)); } catch(e){}
             return fallback;
           }
+          // Sanitize corrupted cached URLs if any exist from previous session
+          if (key === 'reservations' && Array.isArray(parsed)) {
+            return parsed.map(r => {
+              const list = r.mediaFiles || r.media || [];
+              if (!Array.isArray(list)) return r;
+              return {
+                ...r,
+                mediaFiles: list.map(m => {
+                  if (m.url && (m.url.includes('[cached_in_memory]') || (m.url.startsWith('data:') && !m.url.includes(';base64,') && !m.url.includes('image/svg+xml')))) {
+                    return { ...m, url: VALID_SVG_PLACEHOLDER };
+                  }
+                  return m;
+                })
+              };
+            });
+          }
           return parsed;
         } catch (e) {
           return fallback;
@@ -1648,8 +1666,8 @@
           
           let stringified = JSON.stringify(value);
           
-          // Smart quota guard: If saving reservations with heavy base64 media, strip heavy base64 data for localStorage
-          if (key === 'reservations' && stringified.length > 300000) {
+          // Smart quota guard: Replace huge raw base64 data URLs with valid SVG placeholder ONLY for localStorage stringified payload
+          if (key === 'reservations' && stringified.length > 200000) {
             try {
               const sanitizedReservations = value.map(r => {
                 const list = r.mediaFiles || r.media || [];
@@ -1657,9 +1675,8 @@
                 return {
                   ...r,
                   mediaFiles: list.slice(0, 30).map(m => {
-                    // Keep metadata intact, truncate huge raw base64 if needed for localStorage
-                    if (m.url && m.url.length > 30000 && m.url.startsWith('data:')) {
-                      return { ...m, url: m.url.substring(0, 150) + '...[cached_in_memory]' };
+                    if (m.url && m.url.startsWith('data:') && m.url.length > 30000) {
+                      return { ...m, url: VALID_SVG_PLACEHOLDER };
                     }
                     return m;
                   })
@@ -4858,7 +4875,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         </span>
                       </div>
                     ) : (
-                      <img src={item.url} alt="Galeri Fotoğrafı" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      <img
+                        src={item.url}
+                        alt="Galeri Fotoğrafı"
+                        onError={(e) => { e.currentTarget.src = VALID_SVG_PLACEHOLDER; }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
                     )}
 
                     {/* OVERLAY INFORMATION WITH DELETE BUTTON */}
@@ -5435,7 +5457,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.75 Canlı
+                v1.4.76 Canlı
               </span>
             </div>
 
