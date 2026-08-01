@@ -5428,7 +5428,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.73 Canlı
+                v1.4.74 Canlı
               </span>
             </div>
 
@@ -5857,6 +5857,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => { CacheService.set('reservations', reservations); }, [reservations]);
       useEffect(() => { CacheService.set('draft_reservations', draftReservations); }, [draftReservations]);
       useEffect(() => { CacheService.set('users', users); }, [users]);
+
+      // SESSION USER STATE & CACHE
+      const [sessionUser, setSessionUser] = useState(() => CacheService.get('session_user', {
+        id: 'u-admin',
+        name: 'Davut Akbulut',
+        email: 'davut@iremdugunsarayi.com',
+        role: 'admin',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+      }));
+
+      useEffect(() => {
+        CacheService.set('session_user', sessionUser);
+      }, [sessionUser]);
 
       // CURRENT USER PROFILE STATE
       const [currentUserState, setCurrentUserState] = useState(() => CacheService.get('current_user', {
@@ -6335,19 +6348,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       const [isPageTabLoading, setIsPageTabLoading] = useState(false);
-
-      // SESSION USER STATE & CACHE
-      const [sessionUser, setSessionUser] = useState(() => CacheService.get('session_user', {
-        id: 'u-admin',
-        name: 'Davut Akbulut',
-        email: 'davut@iremdugunsarayi.com',
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-      }));
-
-      useEffect(() => {
-        CacheService.set('session_user', sessionUser);
-      }, [sessionUser]);
 
       const handleLogout = useCallback(() => {
         setSessionUser(null);
