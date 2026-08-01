@@ -1,0 +1,3586 @@
+[
+  {
+    "id": "RES-2026-AUG-01A",
+    "mediaKey": "MEDIA-AUG26-01A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_001",
+    "customerName": "Eren & Yasemin Bulut",
+    "customerEmail": "eren.bulut@example.com",
+    "customerPhone": "+90 532 235 1818",
+    "secondaryPhone": "+90 543 890 3857",
+    "date": "2026-08-01",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 450,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 450,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 14000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 105000,
+    "subtotal": 306000,
+    "campaignCode": "YAZ_FIRSATI_10",
+    "discountAmount": 30600,
+    "vatAmount": 55080,
+    "totalAmount": 330480,
+    "depositPaid": 82620,
+    "remainingBalance": 247860,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "36037945918",
+    "invoiceAddress": "Atatürk Mah. No:14 Sapanca / Sakarya",
+    "notes": "Özel Talep: YAZ_FIRSATI_10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-01B",
+    "mediaKey": "MEDIA-AUG26-01B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_002",
+    "customerName": "Gökhan & Damla Demir",
+    "customerEmail": "gökhan.demir@example.com",
+    "customerPhone": "+90 531 286 1402",
+    "secondaryPhone": "+90 546 750 8461",
+    "date": "2026-08-01",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 400,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 400,
+        "unitPrice": 480,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 65000,
+    "subtotal": 257000,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 51400,
+    "vatAmount": 41120,
+    "totalAmount": 246720,
+    "depositPaid": 246720,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "72401276966",
+    "invoiceAddress": "Atatürk Mah. No:56 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-02A",
+    "mediaKey": "MEDIA-AUG26-02A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_003",
+    "customerName": "Alper & Ceren Gül",
+    "customerEmail": "alper.gül@example.com",
+    "customerPhone": "+90 531 952 3294",
+    "secondaryPhone": "+90 547 469 3086",
+    "date": "2026-08-02",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 400,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 400,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 9000,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 13000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 62500,
+    "subtotal": 265500,
+    "campaignCode": "HAFTAICI_SURPRIZ_20",
+    "discountAmount": 53100,
+    "vatAmount": 42480,
+    "totalAmount": 254880,
+    "depositPaid": 254880,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "71847456142",
+    "invoiceAddress": "Atatürk Mah. No:59 Sapanca / Sakarya",
+    "notes": "Özel Talep: HAFTAICI_SURPRIZ_20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-02B",
+    "mediaKey": "MEDIA-AUG26-02B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_004",
+    "customerName": "Kaan & Dilek Koç",
+    "customerEmail": "kaan.koç@example.com",
+    "customerPhone": "+90 531 884 5591",
+    "secondaryPhone": "+90 549 201 4683",
+    "date": "2026-08-02",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 800,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 800,
+        "unitPrice": 420,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 24000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 12000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 77500,
+    "subtotal": 467500,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 70125,
+    "vatAmount": 79475,
+    "totalAmount": 476850,
+    "depositPaid": 0,
+    "remainingBalance": 476850,
+    "paymentStatus": "Beklemede",
+    "isInvoiced": false,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "52966551348",
+    "invoiceAddress": "Atatürk Mah. No:48 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-03",
+    "mediaKey": "MEDIA-AUG26-03",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_005",
+    "customerName": "Murat & Merve Özkan",
+    "customerEmail": "murat.özkan@example.com",
+    "customerPhone": "+90 533 171 7154",
+    "secondaryPhone": "+90 542 230 9252",
+    "date": "2026-08-03",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 400,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 400,
+        "unitPrice": 420,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 30000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 14000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 62500,
+    "subtotal": 292500,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 58500,
+    "vatAmount": 46800,
+    "totalAmount": 280800,
+    "depositPaid": 140400,
+    "remainingBalance": 140400,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "33267060803",
+    "invoiceAddress": "Atatürk Mah. No:17 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-04",
+    "mediaKey": "MEDIA-AUG26-04",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_006",
+    "customerName": "Sinan & Yasemin Kurt",
+    "customerEmail": "sinan.kurt@example.com",
+    "customerPhone": "+90 536 643 4387",
+    "secondaryPhone": "+90 545 696 1678",
+    "date": "2026-08-04",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 800,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 800,
+        "unitPrice": 320,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 28000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 10000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 82500,
+    "subtotal": 376500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 45180,
+    "vatAmount": 66264,
+    "totalAmount": 397584,
+    "depositPaid": 119275,
+    "remainingBalance": 278309,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "75764637138",
+    "invoiceAddress": "Atatürk Mah. No:63 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-05",
+    "mediaKey": "MEDIA-AUG26-05",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_007",
+    "customerName": "Mehmet & Derya Kaya",
+    "customerEmail": "mehmet.kaya@example.com",
+    "customerPhone": "+90 539 970 8097",
+    "secondaryPhone": "+90 547 291 7891",
+    "date": "2026-08-05",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 500,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 500,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 29000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 15000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 72500,
+    "subtotal": 296500,
+    "campaignCode": "YAZ_FIRSATI_10",
+    "discountAmount": 29650,
+    "vatAmount": 53370,
+    "totalAmount": 320220,
+    "depositPaid": 96066,
+    "remainingBalance": 224154,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "51635760679",
+    "invoiceAddress": "Atatürk Mah. No:19 Sapanca / Sakarya",
+    "notes": "Özel Talep: YAZ_FIRSATI_10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-06",
+    "mediaKey": "MEDIA-AUG26-06",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_008",
+    "customerName": "Mert & Ece Yılmaz",
+    "customerEmail": "mert.yılmaz@example.com",
+    "customerPhone": "+90 537 893 8619",
+    "secondaryPhone": "+90 541 478 5197",
+    "date": "2026-08-06",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 700,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 700,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 22000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 16000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 10000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 90000,
+    "subtotal": 390000,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 78000,
+    "vatAmount": 62400,
+    "totalAmount": 374400,
+    "depositPaid": 149760,
+    "remainingBalance": 224640,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "90376500691",
+    "invoiceAddress": "Atatürk Mah. No:59 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-07A",
+    "mediaKey": "MEDIA-AUG26-07A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_009",
+    "customerName": "Sinan & Fatma Bulut",
+    "customerEmail": "sinan.bulut@example.com",
+    "customerPhone": "+90 536 777 3487",
+    "secondaryPhone": "+90 543 754 6236",
+    "date": "2026-08-07",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 900,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 900,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 14500,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 75000,
+    "subtotal": 465500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 55860,
+    "vatAmount": 81928,
+    "totalAmount": 491568,
+    "depositPaid": 491568,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "32516597387",
+    "invoiceAddress": "Atatürk Mah. No:66 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-07B",
+    "mediaKey": "MEDIA-AUG26-07B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_010",
+    "customerName": "Mert & Yasemin Arslan",
+    "customerEmail": "mert.arslan@example.com",
+    "customerPhone": "+90 531 654 6639",
+    "secondaryPhone": "+90 545 750 4089",
+    "date": "2026-08-07",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 600,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 600,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 31000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 13000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 60000,
+    "subtotal": 434000,
+    "campaignCode": "DISCOUNT_%10",
+    "discountAmount": 43400,
+    "vatAmount": 78120,
+    "totalAmount": 468720,
+    "depositPaid": 140616,
+    "remainingBalance": 328104,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "68924138784",
+    "invoiceAddress": "Atatürk Mah. No:52 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-08A",
+    "mediaKey": "MEDIA-AUG26-08A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_011",
+    "customerName": "Batuhan & Gözde Kılıç",
+    "customerEmail": "batuhan.kılıç@example.com",
+    "customerPhone": "+90 536 652 3715",
+    "secondaryPhone": "+90 543 284 4670",
+    "date": "2026-08-08",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 600,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 600,
+        "unitPrice": 420,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 30000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 24000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 107500,
+    "subtotal": 413500,
+    "campaignCode": "VIP_DUGUN_SPECIAL",
+    "discountAmount": 15000,
+    "vatAmount": 79700,
+    "totalAmount": 478200,
+    "depositPaid": 143460,
+    "remainingBalance": 334740,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "37151652360",
+    "invoiceAddress": "Atatürk Mah. No:4 Sapanca / Sakarya",
+    "notes": "Özel Talep: VIP_DUGUN_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-08B",
+    "mediaKey": "MEDIA-AUG26-08B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_012",
+    "customerName": "Tayfun & Melis Yıldız",
+    "customerEmail": "tayfun.yıldız@example.com",
+    "customerPhone": "+90 532 354 4313",
+    "secondaryPhone": "+90 543 577 1482",
+    "date": "2026-08-08",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 400,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 400,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 13000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 82500,
+    "subtotal": 335500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 40260,
+    "vatAmount": 59048,
+    "totalAmount": 354288,
+    "depositPaid": 354288,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "12737966262",
+    "invoiceAddress": "Atatürk Mah. No:74 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-09A",
+    "mediaKey": "MEDIA-AUG26-09A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_013",
+    "customerName": "Oğuz & Elif Şahin",
+    "customerEmail": "oğuz.şahin@example.com",
+    "customerPhone": "+90 538 225 9571",
+    "secondaryPhone": "+90 548 635 8354",
+    "date": "2026-08-09",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 650,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 650,
+        "unitPrice": 320,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 14500,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 87500,
+    "subtotal": 350000,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 70000,
+    "vatAmount": 56000,
+    "totalAmount": 336000,
+    "depositPaid": 0,
+    "remainingBalance": 336000,
+    "paymentStatus": "Beklemede",
+    "isInvoiced": false,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "27679822882",
+    "invoiceAddress": "Atatürk Mah. No:32 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-09B",
+    "mediaKey": "MEDIA-AUG26-09B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_014",
+    "customerName": "Tayfun & Aslı Gündüz",
+    "customerEmail": "tayfun.gündüz@example.com",
+    "customerPhone": "+90 531 983 9495",
+    "secondaryPhone": "+90 541 821 1348",
+    "date": "2026-08-09",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 650,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 650,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 21000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 120000,
+    "subtotal": 375000,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 56250,
+    "vatAmount": 63750,
+    "totalAmount": 382500,
+    "depositPaid": 382500,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "95369800603",
+    "invoiceAddress": "Atatürk Mah. No:57 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-10",
+    "mediaKey": "MEDIA-AUG26-10",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_015",
+    "customerName": "Tolga & Defne Arslan",
+    "customerEmail": "tolga.arslan@example.com",
+    "customerPhone": "+90 534 155 8504",
+    "secondaryPhone": "+90 546 277 3442",
+    "date": "2026-08-10",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 350,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 350,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 27000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 77500,
+    "subtotal": 297000,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 59400,
+    "vatAmount": 47520,
+    "totalAmount": 285120,
+    "depositPaid": 71280,
+    "remainingBalance": 213840,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "67423367756",
+    "invoiceAddress": "Atatürk Mah. No:59 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-11",
+    "mediaKey": "MEDIA-AUG26-11",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_016",
+    "customerName": "Tarkan & Pınar Bulut",
+    "customerEmail": "tarkan.bulut@example.com",
+    "customerPhone": "+90 533 392 8852",
+    "secondaryPhone": "+90 545 980 7052",
+    "date": "2026-08-11",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 27000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 10000,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 11000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 80000,
+    "subtotal": 484500,
+    "campaignCode": "DISCOUNT_%10",
+    "discountAmount": 48450,
+    "vatAmount": 87210,
+    "totalAmount": 523260,
+    "depositPaid": 156978,
+    "remainingBalance": 366282,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "13853264934",
+    "invoiceAddress": "Atatürk Mah. No:59 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-12",
+    "mediaKey": "MEDIA-AUG26-12",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_017",
+    "customerName": "Sinan & Gamze Yılmaz",
+    "customerEmail": "sinan.yılmaz@example.com",
+    "customerPhone": "+90 532 753 1413",
+    "secondaryPhone": "+90 547 346 1436",
+    "date": "2026-08-12",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 600,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 600,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 28000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 22000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 16000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 112500,
+    "subtotal": 394500,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 78900,
+    "vatAmount": 63120,
+    "totalAmount": 378720,
+    "depositPaid": 378720,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "99780451531",
+    "invoiceAddress": "Atatürk Mah. No:91 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-13",
+    "mediaKey": "MEDIA-AUG26-13",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_018",
+    "customerName": "Zafer & Büşra Koç",
+    "customerEmail": "zafer.koç@example.com",
+    "customerPhone": "+90 532 672 7860",
+    "secondaryPhone": "+90 546 441 3927",
+    "date": "2026-08-13",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 250,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 250,
+        "unitPrice": 480,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 30000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 16000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 11000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 47500,
+    "subtotal": 224500,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 33675,
+    "vatAmount": 38165,
+    "totalAmount": 228990,
+    "depositPaid": 0,
+    "remainingBalance": 228990,
+    "paymentStatus": "Beklemede",
+    "isInvoiced": false,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "81819388171",
+    "invoiceAddress": "Atatürk Mah. No:66 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-14A",
+    "mediaKey": "MEDIA-AUG26-14A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_019",
+    "customerName": "Serkan & Defne Aslan",
+    "customerEmail": "serkan.aslan@example.com",
+    "customerPhone": "+90 532 943 4222",
+    "secondaryPhone": "+90 546 398 5201",
+    "date": "2026-08-14",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 250,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 250,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 24000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 77500,
+    "subtotal": 199000,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 29850,
+    "vatAmount": 33830,
+    "totalAmount": 202980,
+    "depositPaid": 202980,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "19449224301",
+    "invoiceAddress": "Atatürk Mah. No:74 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-14B",
+    "mediaKey": "MEDIA-AUG26-14B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_020",
+    "customerName": "Zafer & Ece Arslan",
+    "customerEmail": "zafer.arslan@example.com",
+    "customerPhone": "+90 537 849 7608",
+    "secondaryPhone": "+90 544 432 2880",
+    "date": "2026-08-14",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 700,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 700,
+        "unitPrice": 420,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 19000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 13500,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 110000,
+    "subtotal": 436500,
+    "campaignCode": "EK_HIZMET_PAKET",
+    "discountAmount": 21825,
+    "vatAmount": 82935,
+    "totalAmount": 497610,
+    "depositPaid": 199044,
+    "remainingBalance": 298566,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "83182850036",
+    "invoiceAddress": "Atatürk Mah. No:89 Sapanca / Sakarya",
+    "notes": "Özel Talep: EK_HIZMET_PAKET uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-15A",
+    "mediaKey": "MEDIA-AUG26-15A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_021",
+    "customerName": "Alper & Deniz Keser",
+    "customerEmail": "alper.keser@example.com",
+    "customerPhone": "+90 535 342 9175",
+    "secondaryPhone": "+90 549 974 2539",
+    "date": "2026-08-15",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 500,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 500,
+        "unitPrice": 620,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 11500,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 10000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 52500,
+    "subtotal": 384000,
+    "campaignCode": "YAZ_FIRSATI_10",
+    "discountAmount": 38400,
+    "vatAmount": 69120,
+    "totalAmount": 414720,
+    "depositPaid": 414720,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "94666362256",
+    "invoiceAddress": "Atatürk Mah. No:39 Sapanca / Sakarya",
+    "notes": "Özel Talep: YAZ_FIRSATI_10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-15B",
+    "mediaKey": "MEDIA-AUG26-15B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_022",
+    "customerName": "Can & İrem Arslan",
+    "customerEmail": "can.arslan@example.com",
+    "customerPhone": "+90 536 460 2112",
+    "secondaryPhone": "+90 546 977 6551",
+    "date": "2026-08-15",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 500,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 500,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 21000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 12500,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 17000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 85000,
+    "subtotal": 410500,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 82100,
+    "vatAmount": 65680,
+    "totalAmount": 394080,
+    "depositPaid": 98520,
+    "remainingBalance": 295560,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "82291261033",
+    "invoiceAddress": "Atatürk Mah. No:12 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-16A",
+    "mediaKey": "MEDIA-AUG26-16A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_023",
+    "customerName": "Erhan & Pınar Kaya",
+    "customerEmail": "erhan.kaya@example.com",
+    "customerPhone": "+90 538 224 6455",
+    "secondaryPhone": "+90 545 185 3369",
+    "date": "2026-08-16",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 400,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 400,
+        "unitPrice": 620,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 24000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 12000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 120000,
+    "subtotal": 422000,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 84400,
+    "vatAmount": 67520,
+    "totalAmount": 405120,
+    "depositPaid": 0,
+    "remainingBalance": 405120,
+    "paymentStatus": "Beklemede",
+    "isInvoiced": false,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "97162188706",
+    "invoiceAddress": "Atatürk Mah. No:15 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-16B",
+    "mediaKey": "MEDIA-AUG26-16B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_024",
+    "customerName": "Uğur & Ayşe Doğan",
+    "customerEmail": "uğur.doğan@example.com",
+    "customerPhone": "+90 534 865 5869",
+    "secondaryPhone": "+90 545 627 5050",
+    "date": "2026-08-16",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 21000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 13000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 75000,
+    "subtotal": 415000,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 83000,
+    "vatAmount": 66400,
+    "totalAmount": 398400,
+    "depositPaid": 199200,
+    "remainingBalance": 199200,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "37962337388",
+    "invoiceAddress": "Atatürk Mah. No:83 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-17",
+    "mediaKey": "MEDIA-AUG26-17",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_025",
+    "customerName": "Tayfun & Ayşe Öztürk",
+    "customerEmail": "tayfun.öztürk@example.com",
+    "customerPhone": "+90 534 644 8114",
+    "secondaryPhone": "+90 546 154 4868",
+    "date": "2026-08-17",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 650,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 650,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 27000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 10000,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 11000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 55000,
+    "subtotal": 381500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 45780,
+    "vatAmount": 67144,
+    "totalAmount": 402864,
+    "depositPaid": 201432,
+    "remainingBalance": 201432,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "60466485814",
+    "invoiceAddress": "Atatürk Mah. No:59 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-18",
+    "mediaKey": "MEDIA-AUG26-18",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_026",
+    "customerName": "Mehmet & İrem Tekin",
+    "customerEmail": "mehmet.tekin@example.com",
+    "customerPhone": "+90 538 513 3792",
+    "secondaryPhone": "+90 544 997 1069",
+    "date": "2026-08-18",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 320,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 95000,
+    "subtotal": 367000,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 55050,
+    "vatAmount": 62390,
+    "totalAmount": 374340,
+    "depositPaid": 112302,
+    "remainingBalance": 262038,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "55881166310",
+    "invoiceAddress": "Atatürk Mah. No:38 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-19",
+    "mediaKey": "MEDIA-AUG26-19",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_027",
+    "customerName": "Kerem & Ayşe Eroğlu",
+    "customerEmail": "kerem.eroğlu@example.com",
+    "customerPhone": "+90 536 893 3749",
+    "secondaryPhone": "+90 547 135 3426",
+    "date": "2026-08-19",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 400,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 400,
+        "unitPrice": 620,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 17000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 14500,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 16000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 85000,
+    "subtotal": 398500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 47820,
+    "vatAmount": 70136,
+    "totalAmount": 420816,
+    "depositPaid": 105204,
+    "remainingBalance": 315612,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "14621026982",
+    "invoiceAddress": "Atatürk Mah. No:15 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-20",
+    "mediaKey": "MEDIA-AUG26-20",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_028",
+    "customerName": "Bora & Gizem Bulut",
+    "customerEmail": "bora.bulut@example.com",
+    "customerPhone": "+90 536 717 8724",
+    "secondaryPhone": "+90 547 326 2694",
+    "date": "2026-08-20",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 800,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 800,
+        "unitPrice": 320,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 24000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 9500,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 70000,
+    "subtotal": 359500,
+    "campaignCode": "YAZ_FIRSATI_10",
+    "discountAmount": 35950,
+    "vatAmount": 64710,
+    "totalAmount": 388260,
+    "depositPaid": 0,
+    "remainingBalance": 388260,
+    "paymentStatus": "Beklemede",
+    "isInvoiced": false,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "20006248325",
+    "invoiceAddress": "Atatürk Mah. No:19 Sapanca / Sakarya",
+    "notes": "Özel Talep: YAZ_FIRSATI_10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-21A",
+    "mediaKey": "MEDIA-AUG26-21A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_029",
+    "customerName": "Tolga & Özge Demir",
+    "customerEmail": "tolga.demir@example.com",
+    "customerPhone": "+90 537 746 2957",
+    "secondaryPhone": "+90 542 841 2717",
+    "date": "2026-08-21",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 600,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 600,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 28000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 14000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 97500,
+    "subtotal": 373500,
+    "campaignCode": "DISCOUNT_%20",
+    "discountAmount": 74700,
+    "vatAmount": 59760,
+    "totalAmount": 358560,
+    "depositPaid": 107568,
+    "remainingBalance": 250992,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "97404075711",
+    "invoiceAddress": "Atatürk Mah. No:3 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-21B",
+    "mediaKey": "MEDIA-AUG26-21B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_030",
+    "customerName": "Metin & Selin Çetin",
+    "customerEmail": "metin.çetin@example.com",
+    "customerPhone": "+90 537 357 4203",
+    "secondaryPhone": "+90 548 818 9904",
+    "date": "2026-08-21",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 11500,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 15000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 67500,
+    "subtotal": 581500,
+    "campaignCode": "EK_HIZMET_PAKET",
+    "discountAmount": 29075,
+    "vatAmount": 110485,
+    "totalAmount": 662910,
+    "depositPaid": 198873,
+    "remainingBalance": 464037,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "47766909692",
+    "invoiceAddress": "Atatürk Mah. No:87 Sapanca / Sakarya",
+    "notes": "Özel Talep: EK_HIZMET_PAKET uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-22A",
+    "mediaKey": "MEDIA-AUG26-22A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_031",
+    "customerName": "Serkan & Gözde Özkan",
+    "customerEmail": "serkan.özkan@example.com",
+    "customerPhone": "+90 532 622 6316",
+    "secondaryPhone": "+90 541 684 5070",
+    "date": "2026-08-22",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 650,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 650,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 30000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 13000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 75000,
+    "subtotal": 475500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 57060,
+    "vatAmount": 83688,
+    "totalAmount": 502128,
+    "depositPaid": 502128,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "13662620004",
+    "invoiceAddress": "Atatürk Mah. No:35 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-22B",
+    "mediaKey": "MEDIA-AUG26-22B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_032",
+    "customerName": "Alper & Zeynep Arslan",
+    "customerEmail": "alper.arslan@example.com",
+    "customerPhone": "+90 538 648 1946",
+    "secondaryPhone": "+90 549 581 4845",
+    "date": "2026-08-22",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 550,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 550,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 19000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 12000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 90000,
+    "subtotal": 355500,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 42660,
+    "vatAmount": 62568,
+    "totalAmount": 375408,
+    "depositPaid": 112622,
+    "remainingBalance": 262786,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "63462844433",
+    "invoiceAddress": "Atatürk Mah. No:17 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-23A",
+    "mediaKey": "MEDIA-AUG26-23A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_033",
+    "customerName": "Zafer & Yasemin Koç",
+    "customerEmail": "zafer.koç@example.com",
+    "customerPhone": "+90 532 436 4443",
+    "secondaryPhone": "+90 549 738 2823",
+    "date": "2026-08-23",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 900,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 900,
+        "unitPrice": 320,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 14000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 10500,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 80000,
+    "subtotal": 392500,
+    "campaignCode": "ERKEN_REZ_15",
+    "discountAmount": 58875,
+    "vatAmount": 66725,
+    "totalAmount": 400350,
+    "depositPaid": 200175,
+    "remainingBalance": 200175,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "85195552904",
+    "invoiceAddress": "Atatürk Mah. No:21 Sapanca / Sakarya",
+    "notes": "Özel Talep: ERKEN_REZ_15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-23B",
+    "mediaKey": "MEDIA-AUG26-23B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_034",
+    "customerName": "Onur & Damla Yıldız",
+    "customerEmail": "onur.yıldız@example.com",
+    "customerPhone": "+90 537 743 7060",
+    "secondaryPhone": "+90 541 839 6737",
+    "date": "2026-08-23",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 620,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 26000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 15500,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 87500,
+    "subtotal": 694000,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 104100,
+    "vatAmount": 117980,
+    "totalAmount": 707880,
+    "depositPaid": 353940,
+    "remainingBalance": 353940,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "39876642551",
+    "invoiceAddress": "Atatürk Mah. No:37 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-24",
+    "mediaKey": "MEDIA-AUG26-24",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_035",
+    "customerName": "Eren & Pınar Gül",
+    "customerEmail": "eren.gül@example.com",
+    "customerPhone": "+90 539 237 1300",
+    "secondaryPhone": "+90 547 899 8354",
+    "date": "2026-08-24",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 500,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 500,
+        "unitPrice": 320,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 28000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 21000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 11000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 52500,
+    "subtotal": 272500,
+    "campaignCode": "HAFTAICI_SURPRIZ_20",
+    "discountAmount": 54500,
+    "vatAmount": 43600,
+    "totalAmount": 261600,
+    "depositPaid": 104640,
+    "remainingBalance": 156960,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "44865364855",
+    "invoiceAddress": "Atatürk Mah. No:64 Sapanca / Sakarya",
+    "notes": "Özel Talep: HAFTAICI_SURPRIZ_20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-25",
+    "mediaKey": "MEDIA-AUG26-25",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_036",
+    "customerName": "Eren & Tuğba Çelik",
+    "customerEmail": "eren.çelik@example.com",
+    "customerPhone": "+90 539 940 1522",
+    "secondaryPhone": "+90 546 389 3711",
+    "date": "2026-08-25",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 550,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 550,
+        "unitPrice": 390,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 14500,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 15000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 52500,
+    "subtotal": 339500,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 50925,
+    "vatAmount": 57715,
+    "totalAmount": 346290,
+    "depositPaid": 346290,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "84634601626",
+    "invoiceAddress": "Atatürk Mah. No:86 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-26",
+    "mediaKey": "MEDIA-AUG26-26",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_037",
+    "customerName": "Kerem & Damla Kılıç",
+    "customerEmail": "kerem.kılıç@example.com",
+    "customerPhone": "+90 535 849 6902",
+    "secondaryPhone": "+90 543 834 5615",
+    "date": "2026-08-26",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 450,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 450,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 15000,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 19000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 122500,
+    "subtotal": 336500,
+    "campaignCode": "HAFTAICI_SURPRIZ_20",
+    "discountAmount": 67300,
+    "vatAmount": 53840,
+    "totalAmount": 323040,
+    "depositPaid": 323040,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "56469849007",
+    "invoiceAddress": "Atatürk Mah. No:80 Sapanca / Sakarya",
+    "notes": "Özel Talep: HAFTAICI_SURPRIZ_20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-27",
+    "mediaKey": "MEDIA-AUG26-27",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_038",
+    "customerName": "Deniz & Sibel Kan",
+    "customerEmail": "deniz.kan@example.com",
+    "customerPhone": "+90 535 194 5954",
+    "secondaryPhone": "+90 541 793 5556",
+    "date": "2026-08-27",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 480,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 26000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 24000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 11000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 82500,
+    "subtotal": 551500,
+    "campaignCode": "DISCOUNT_%10",
+    "discountAmount": 55150,
+    "vatAmount": 99270,
+    "totalAmount": 595620,
+    "depositPaid": 595620,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "28038337202",
+    "invoiceAddress": "Atatürk Mah. No:80 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-28A",
+    "mediaKey": "MEDIA-AUG26-28A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v2",
+    "venueName": "VIP Kır Bahçesi & Park",
+    "customerId": "cust_aug_039",
+    "customerName": "Levent & Deniz Doğan",
+    "customerEmail": "levent.doğan@example.com",
+    "customerPhone": "+90 538 219 8645",
+    "secondaryPhone": "+90 548 749 1624",
+    "date": "2026-08-28",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 250,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 250,
+        "unitPrice": 620,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 22000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 22000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 107500,
+    "subtotal": 324500,
+    "campaignCode": "VIP_DUGUN_SPECIAL",
+    "discountAmount": 15000,
+    "vatAmount": 61900,
+    "totalAmount": 371400,
+    "depositPaid": 0,
+    "remainingBalance": 371400,
+    "paymentStatus": "Beklemede",
+    "isInvoiced": false,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "80208697266",
+    "invoiceAddress": "Atatürk Mah. No:70 Sapanca / Sakarya",
+    "notes": "Özel Talep: VIP_DUGUN_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-28B",
+    "mediaKey": "MEDIA-AUG26-28B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_040",
+    "customerName": "Oğuz & Melis Demir",
+    "customerEmail": "oğuz.demir@example.com",
+    "customerPhone": "+90 536 357 8921",
+    "secondaryPhone": "+90 546 583 6019",
+    "date": "2026-08-28",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 850,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 850,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 50000,
+    "subtotal": 537500,
+    "campaignCode": "DISCOUNT_%10",
+    "discountAmount": 53750,
+    "vatAmount": 96750,
+    "totalAmount": 580500,
+    "depositPaid": 580500,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "58804975808",
+    "invoiceAddress": "Atatürk Mah. No:47 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-29A",
+    "mediaKey": "MEDIA-AUG26-29A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v5",
+    "venueName": "Zümrüt VIP Balo Salonu",
+    "customerId": "cust_aug_041",
+    "customerName": "Volkan & Derya Kara",
+    "customerEmail": "volkan.kara@example.com",
+    "customerPhone": "+90 531 480 4816",
+    "secondaryPhone": "+90 545 183 3911",
+    "date": "2026-08-29",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 300,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 300,
+        "unitPrice": 420,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 50000,
+    "subtotal": 194000,
+    "campaignCode": "DISCOUNT_%15",
+    "discountAmount": 29100,
+    "vatAmount": 32980,
+    "totalAmount": 197880,
+    "depositPaid": 49470,
+    "remainingBalance": 148410,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "corporate",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "99872889070",
+    "invoiceAddress": "Atatürk Mah. No:41 Sapanca / Sakarya",
+    "notes": "Özel Talep: DISCOUNT_%15 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-29B",
+    "mediaKey": "MEDIA-AUG26-29B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v1",
+    "venueName": "Bosphorus Gold Balo Salonu",
+    "customerId": "cust_aug_042",
+    "customerName": "Murat & Gamze Kaya",
+    "customerEmail": "murat.kaya@example.com",
+    "customerPhone": "+90 536 107 5623",
+    "secondaryPhone": "+90 545 743 7346",
+    "date": "2026-08-29",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 350,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 350,
+        "unitPrice": 550,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 22000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 92500,
+    "subtotal": 327000,
+    "campaignCode": "KINA_PAKET_SPECIAL",
+    "discountAmount": 39240,
+    "vatAmount": 57552,
+    "totalAmount": 345312,
+    "depositPaid": 345312,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "55623352396",
+    "invoiceAddress": "Atatürk Mah. No:14 Sapanca / Sakarya",
+    "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-30A",
+    "mediaKey": "MEDIA-AUG26-30A",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v3",
+    "venueName": "Teras Salon Silver Rose",
+    "customerId": "cust_aug_043",
+    "customerName": "Tarkan & Defne Özdemir",
+    "customerEmail": "tarkan.özdemir@example.com",
+    "customerPhone": "+90 531 247 8932",
+    "secondaryPhone": "+90 547 587 3720",
+    "date": "2026-08-30",
+    "timeSlot": "12:00-16:00",
+    "guestCount": 350,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 350,
+        "unitPrice": 360,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 20000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 72500,
+    "subtotal": 218500,
+    "campaignCode": "HAFTAICI_SURPRIZ_20",
+    "discountAmount": 43700,
+    "vatAmount": 34960,
+    "totalAmount": 209760,
+    "depositPaid": 62928,
+    "remainingBalance": 146832,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "38757876230",
+    "invoiceAddress": "Atatürk Mah. No:95 Sapanca / Sakarya",
+    "notes": "Özel Talep: HAFTAICI_SURPRIZ_20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "12:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "13:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "14:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "15:15",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "15:45",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-30B",
+    "mediaKey": "MEDIA-AUG26-30B",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_044",
+    "customerName": "Deniz & Sibel Arslan",
+    "customerEmail": "deniz.arslan@example.com",
+    "customerPhone": "+90 537 136 7305",
+    "secondaryPhone": "+90 541 789 8264",
+    "date": "2026-08-30",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 250,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 250,
+        "unitPrice": 620,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 27000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 14000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s4",
+        "serviceName": "Sis & Lazer Işık Şovu",
+        "quantity": 1,
+        "unitPrice": 10000,
+        "isPaid": false
+      },
+      {
+        "serviceId": "s5",
+        "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
+        "quantity": 1,
+        "unitPrice": 14000,
+        "isPaid": false
+      }
+    ],
+    "venuePrice": 55000,
+    "subtotal": 275000,
+    "campaignCode": "HAFTAICI_SURPRIZ_20",
+    "discountAmount": 55000,
+    "vatAmount": 44000,
+    "totalAmount": 264000,
+    "depositPaid": 264000,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "93154495166",
+    "invoiceAddress": "Atatürk Mah. No:11 Sapanca / Sakarya",
+    "notes": "Özel Talep: HAFTAICI_SURPRIZ_20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  },
+  {
+    "id": "RES-2026-AUG-31",
+    "mediaKey": "MEDIA-AUG26-31",
+    "mediaRetentionDays": 30,
+    "mediaFiles": [],
+    "venueId": "v4",
+    "venueName": "Yakut Panorama Salon",
+    "customerId": "cust_aug_045",
+    "customerName": "Metin & Damla Yılmaz",
+    "customerEmail": "metin.yılmaz@example.com",
+    "customerPhone": "+90 534 846 7282",
+    "secondaryPhone": "+90 543 648 4669",
+    "date": "2026-08-31",
+    "timeSlot": "19:00-23:00",
+    "guestCount": 600,
+    "selectedServices": [
+      {
+        "serviceId": "s1",
+        "serviceName": "Özel Menü İkramı",
+        "quantity": 600,
+        "unitPrice": 480,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s2",
+        "serviceName": "Canlı Orkestra & DJ Performatör",
+        "quantity": 1,
+        "unitPrice": 31000,
+        "isPaid": true
+      },
+      {
+        "serviceId": "s3",
+        "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
+        "quantity": 1,
+        "unitPrice": 18000,
+        "isPaid": true
+      }
+    ],
+    "venuePrice": 45000,
+    "subtotal": 382000,
+    "campaignCode": "HAFTAICI_SURPRIZ_20",
+    "discountAmount": 76400,
+    "vatAmount": 61120,
+    "totalAmount": 366720,
+    "depositPaid": 366720,
+    "remainingBalance": 0,
+    "paymentStatus": "Ödendi",
+    "isInvoiced": true,
+    "invoiceType": "individual",
+    "taxOffice": "Sapanca VD",
+    "tcNo": "34067243579",
+    "invoiceAddress": "Atatürk Mah. No:9 Sapanca / Sakarya",
+    "notes": "Özel Talep: HAFTAICI_SURPRIZ_20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Karşılama İkramı"
+      },
+      {
+        "time": "19:45",
+        "title": "Gelin Damat Görkemli Giriş & İlk Dans"
+      },
+      {
+        "time": "20:30",
+        "title": "Sıcak Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Düğün Pastası Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı Töreni & Eğlence"
+      }
+    ],
+    "mediaGallery": []
+  }
+]
