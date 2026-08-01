@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T00:27:54.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.99",
-  "lastUpdated": "2026-08-02T00:27:54Z",
+  "systemVersion": "v1.5.00",
+  "lastUpdated": "2026-08-02T00:37:30Z",
   "versionHistory": [
+    {
+      "version": "v1.5.00",
+      "date": "02 Ağustos 2026",
+      "title": "📅 Ağustos 2026 Eksiksiz Tam Takvim & Özel Fiyatlandırmalı Dinamik Rezervasyon Veri Paketi (Complete August 2026 Dynamic Calendar & Custom Discounted Dataset)",
+      "desc": "Ağustos 2026 ayının tüm 31 gününü kapsayan 45 adet gerçekçi düğün, kına, nişan, sünnet ve gala rezervasyon veri paketi sisteme entegre edildi. Cuma, Cumartesi ve Pazar günlerinde gündüz (12:00-16:00) ve gece (19:00-23:00) olmak üzere çift seans bağımsız rezervasyonlar tanımlandı. Standart liste fiyatları yerine her rezervasyona özgün salon ve menü birim fiyatları, %10, %15, %20, %25 özel manuel indirimler, YAZ_FIRSATI_10, ERKEN_REZ_15, HAFTAICI_SURPRIZ_20, VIP_DUGUN_SPECIAL gibi özel kampanya kodları ve ek hizmet indirimleri (Orkestra, Drone, Sis/Lazer, VIP Gelin Arabası) uygulandı. Onaylı, Kapora Alındı, Ödendi ve Beklemede ödeme durumları ile fatura detayları eksiksiz simüle edildi."
+    },
     {
       "version": "v1.4.99",
       "date": "02 Ağustos 2026",
