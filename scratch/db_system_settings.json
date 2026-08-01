@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.79",
-  "lastUpdated": "2026-08-01T17:55:00Z",
+  "systemVersion": "v1.4.80",
+  "lastUpdated": "2026-08-01T18:01:45Z",
   "versionHistory": [
+    {
+      "version": "v1.4.80",
+      "date": "01 Ağustos 2026",
+      "title": "🖼️ Sayfa Yenilemede Görsel Kaybolma Düzeltmesi & Permanent Media Persistence",
+      "desc": "Davetli sayfasındaki oturum filtresi kısıtı (guestSessionUploadIds) kaldırılarak düğün albümüne yüklenen görsellerin yenileme (F5) sonrasında da ekranda %100 görünür kalması sağlandı. Arka planda sunucu veritabanı senkronizasyonu (storedMedia in db_system_settings.json) aktif edilerek yüklenen medya meta verilerinin hem diske hem de veritabanına kalıcı yazılması ve sayfa açılışında otomatik yüklenmesi sağlandı."
+    },
     {
       "version": "v1.4.79",
       "date": "01 Ağustos 2026",
