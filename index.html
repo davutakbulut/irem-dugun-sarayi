@@ -4262,11 +4262,32 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setReservations(prev => {
-              // Only update state if JSON strings differ to avoid infinite re-render loop
-              if (JSON.stringify(prev) !== raw) {
-                return parsed;
-              }
-              return prev;
+              let hasChanges = false;
+              const merged = prev.map(pRes => {
+                const cRes = parsed.find(c => c.id === pRes.id || c.mediaKey === pRes.mediaKey);
+                if (!cRes) return pRes;
+                
+                const pFiles = pRes.mediaFiles || [];
+                const cFiles = cRes.mediaFiles || [];
+                
+                // Merge by file ID preserving RAM items that have real image URLs
+                const fileMap = new Map();
+                cFiles.forEach(f => fileMap.set(f.id, f));
+                pFiles.forEach(f => {
+                  if (!fileMap.has(f.id) || (f.url && !f.url.includes('VALID_SVG'))) {
+                    fileMap.set(f.id, f);
+                  }
+                });
+                
+                const mergedFiles = Array.from(fileMap.values());
+                if (mergedFiles.length !== pFiles.length || JSON.stringify(mergedFiles) !== JSON.stringify(pFiles)) {
+                  hasChanges = true;
+                  return { ...pRes, mediaFiles: mergedFiles };
+                }
+                return pRes;
+              });
+              
+              return hasChanges ? merged : prev;
             });
           }
         }
@@ -4281,7 +4302,32 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     const handleCustomSync = (e) => {
       if (e.detail && Array.isArray(e.detail)) {
-        setReservations(e.detail);
+        setReservations(prev => {
+          let hasChanges = false;
+          const merged = prev.map(pRes => {
+            const cRes = e.detail.find(c => c.id === pRes.id || c.mediaKey === pRes.mediaKey);
+            if (!cRes) return pRes;
+            
+            const pFiles = pRes.mediaFiles || [];
+            const cFiles = cRes.mediaFiles || [];
+            
+            const fileMap = new Map();
+            cFiles.forEach(f => fileMap.set(f.id, f));
+            pFiles.forEach(f => {
+              if (!fileMap.has(f.id) || (f.url && !f.url.includes('VALID_SVG'))) {
+                fileMap.set(f.id, f);
+              }
+            });
+            
+            const mergedFiles = Array.from(fileMap.values());
+            if (mergedFiles.length !== pFiles.length || JSON.stringify(mergedFiles) !== JSON.stringify(pFiles)) {
+              hasChanges = true;
+              return { ...pRes, mediaFiles: mergedFiles };
+            }
+            return pRes;
+          });
+          return hasChanges ? merged : prev;
+        });
       } else {
         syncFromCache();
       }
@@ -4290,7 +4336,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    // Fast 1-second polling fallback so guest uploads appear on Admin panel in under 1 second without page refresh
     const pollTimer = setInterval(syncFromCache, 1000);
 
     return () => {
@@ -5461,7 +5506,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.77 Canlı
+                v1.4.78 Canlı
               </span>
             </div>
 
