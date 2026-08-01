@@ -15,14 +15,20 @@
   "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.86",
-  "lastUpdated": "2026-08-01T18:20:00Z",
+  "systemVersion": "v1.4.87",
+  "lastUpdated": "2026-08-01T18:21:37Z",
   "versionHistory": [
     {
-      "version": "v1.4.86",
+      "version": "v1.4.87",
       "date": "01 Ağustos 2026",
-      "title": "🔒 Kesin Davetli Mahremiyeti (Strict Guest Isolation Rule)",
-      "desc": "Davetliler (isPublicGuestMode) bir albüm bağlantısına (/medya/MEDIA-8X92M1KP veya diğer anahtarlar) ilk kez girdiklerinde veya kendi oturumlarında henüz dosya yüklemediklerinde önceden başkaları tarafından yüklenmiş hiçbir ögeyi kesinlikle göremez. Sayfa 0 içerik ile başlar ve davetli sadece kendi yüklediği ögeleri görüntüleyebilir. Yönetim Paneli (/yonetim/medya) yetkilileri ise tüm yüklemeleri 1:1 canlı görmeye ve yönetmeye devam eder."
+      "title": "⚡ Titreme ve Sayı Düşmesi Önleme (Reservation Key Isolation & Zero-Flicker)",
+      "desc": "Yönetim paneli veya albüm açılışında diğer rezervasyonlara ait görsellerin ilk anda hafızadan sızarak sayaç ve önizleme sayısını geçici olarak yüksek göstermesi ve ardından düşmesi engellendi. mediaList filtresine dosya yolunun doğrudan uploads/<resId>/ ile %100 eşleşmesi kuralı getirilerek, ilk yüklenme anından itibaren yalnızca ilgili rezervasyona ait fiziki dosyaların sayılması ve görünmesi sağlandı. Titreme ve sayaç dalgalanması %0'a indirildi."
+    },
+    {
+      "version": "v1.4.86",
+      "date": "01 A\u011fustos 2026",
+      "title": "\ud83d\udd12 Kesin Davetli Mahremiyeti (Strict Guest Isolation Rule)",
+      "desc": "Davetliler (isPublicGuestMode) bir alb\u00fcm ba\u011flant\u0131s\u0131na (/medya/MEDIA-8X92M1KP veya di\u011fer anahtarlar) ilk kez girdiklerinde veya kendi oturumlar\u0131nda hen\u00fcz dosya y\u00fcklemediklerinde \u00f6nceden ba\u015fkalar\u0131 taraf\u0131ndan y\u00fcklenmi\u015f hi\u00e7bir \u00f6geyi kesinlikle g\u00f6remez. Sayfa 0 i\u00e7erik ile ba\u015flar ve davetli sadece kendi y\u00fckledi\u011fi \u00f6geleri g\u00f6r\u00fcnt\u00fcleyebilir. Y\u00f6netim Paneli (/yonetim/medya) yetkilileri ise t\u00fcm y\u00fcklemeleri 1:1 canl\u0131 g\u00f6rmeye ve y\u00f6netmeye devam eder."
     },
     {
       "version": "v1.4.85",
@@ -281,6 +287,17 @@
       }
     ],
     "MEDIA-8X92M1KP": [
+      {
+        "id": "mf_1785597621205",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/davye-nisan-heade.gif",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/davye-nisan-heade.gif",
+        "fileName": "davye-nisan-heade.gif",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:20",
+        "isGuest": true
+      },
       {
         "id": "mf_1785597494923",
         "type": "image",
