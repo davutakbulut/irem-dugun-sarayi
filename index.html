@@ -9421,8 +9421,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             <div className="flex items-center space-x-4 font-semibold text-[11px]">
               <button onClick={() => onNavigate('settings-appearance')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Görünüm Ayarları</button>
               <span>•</span>
-              <button onClick={onOpenVersionModal} className="hover:text-amber-600 dark:hover:text-gold-400 transition font-bold text-amber-600 dark:text-gold-400">📋 Sistem Sürüm Geçmişi ({systemVersion || 'v1.4.48'})</button>
-              <span>•</span>
               <button onClick={() => showToast('🛡️ Gizlilik ve Güvenlik Sözleşmesi Onaylıdır')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Gizlilik Politikası</button>
             </div>
           </div>
