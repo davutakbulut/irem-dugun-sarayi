@@ -4717,46 +4717,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           : '📸 Dosya başarıyla yüklendi ve albüme kaydedildi!';
         showToast(toastMsg);
       } catch(err) {
-            return {
-              ...r,
-              mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
-              mediaFiles: [newMediaObj, ...existingList]
-            };
-          }
-          return r;
-        });
-
-        // Save safely to CacheService (Non-mutating persistence)
-        try {
-          if (typeof CacheService !== 'undefined') {
-            CacheService.set('reservations', updated);
-          }
-          // Dispatch instant custom sync event for all active components in same tab/window
-          window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
-        } catch(e){}
-
-        return updated;
-      });
-
-      if (isPublicGuestMode) {
-        setGuestSessionUploadIds(prev => [newMediaId, finalMediaUrl, pendingItem.name, ...prev]);
+        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'error', progress: 0 } : item));
+        setIsUploadingQueue(false);
+        showToast('⚠️ Yükleme hatası oluştu!', 'error');
       }
-
-      setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
-      setUploadedCountSession(prev => prev + 1);
-      setIsUploadingQueue(false);
-      showToast('📸 Dosya başarıyla yüklendi ve albüme kaydedildi!');
     };
 
-    reader.onerror = () => {
-      setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'error', progress: 0 } : item));
-      setIsUploadingQueue(false);
-      showToast('⚠️ Dosya okuma hatası oluştu!', 'error');
-    };
-
-    reader.readAsDataURL(pendingItem.file);
-
-  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, setReservations, showToast]);
+    processUpload();
+  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, enableCompression, isPublicGuestMode, setReservations, showToast]);
 
   // DELETE MEDIA ITEM FUNCTION
   const handleDeleteMediaItem = (mediaId, e) => {
@@ -5763,7 +5731,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.4.96 Canlı
+                v1.4.97 Canlı
               </span>
             </div>
 
