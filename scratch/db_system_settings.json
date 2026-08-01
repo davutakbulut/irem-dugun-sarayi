@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.87",
-  "lastUpdated": "2026-08-01T18:21:37Z",
+  "systemVersion": "v1.4.88",
+  "lastUpdated": "2026-08-01T18:23:14Z",
   "versionHistory": [
+    {
+      "version": "v1.4.88",
+      "date": "01 Ağustos 2026",
+      "title": "🧹 Kesin Sunucu Disk Doğrulaması (Absolute Disk Source of Truth & Stale Cache Purge)",
+      "desc": "Sayfa ilk açıldığında localStorage veya eski RAM hafızasındaki dosyaların setReservations içerisine sızarak geçici görüntü üretmesi tamamen engellendi. fetchDiskFolderFiles servisi, sunucu üzerindeki fiziki uploads/<resId>/ klasörünü TEK VE KESİN DOĞRULUK KAYNAĞI olarak kabul eder. Sayfa açıldığı ilk andan itibaren önbellekteki sahte veya eski veriler ezilir; sadece ve sadece diskteki fiziki dosyalar görüntülenir."
+    },
     {
       "version": "v1.4.87",
       "date": "01 Ağustos 2026",
