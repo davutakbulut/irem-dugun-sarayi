@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-01T17:52:10.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.4.84",
-  "lastUpdated": "2026-08-01T18:10:40Z",
+  "systemVersion": "v1.4.85",
+  "lastUpdated": "2026-08-01T18:16:00Z",
   "versionHistory": [
+    {
+      "version": "v1.4.85",
+      "date": "01 Ağustos 2026",
+      "title": "⚡ Canlı Dosya Yükleme & Modül Düzeltmesi (Live File Upload & Server Import Fix)",
+      "desc": "İndirilenler klasöründeki deneme.png (39.8 KB) dosyası MEDIA-RES2026004 rezervasyonuna doğrudan yüklenerek fiziki disk sunucusuna kaydedildi. Sunucu tarafında (serve_fast_3g.py) eksik olan import time kütüphanesi entegre edilerek /api/media-files klasör tarama servisinin %100 canlı çalışması sağlandı. deneme.png ve tüm fiziki medya dosyaları Yönetim Paneli ve Davetli Albümüne başarıyla yansıdı."
+    },
     {
       "version": "v1.4.84",
       "date": "01 Ağustos 2026",
