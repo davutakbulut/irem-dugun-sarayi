@@ -4391,15 +4391,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     let files = (currentRes.mediaFiles || []).filter(f => f && f.url && !f.url.includes('svg+xml') && !f.url.includes('VALID_SVG') && !f.url.includes('[cached_in_memory]'));
 
     // GUEST PRIVACY RULE: Guests ONLY see photos uploaded by themselves in their current session!
+    // If guest uploaded 0 items, they see 0 items (no previous items from other guests!).
     // Authorized Users / Admins see ALL uploaded photos across all devices in real-time!
     if (isPublicGuestMode) {
-      if (guestSessionUploadIds && guestSessionUploadIds.length > 0) {
-        files = files.filter(f => 
+      files = files.filter(f => 
+        guestSessionUploadIds && (
           guestSessionUploadIds.includes(f.id) || 
           guestSessionUploadIds.includes(f.url) || 
           guestSessionUploadIds.includes(f.fileName)
-        );
-      }
+        )
+      );
     }
 
     if (filterType === 'image') return files.filter(f => f.type === 'image');
