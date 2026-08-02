@@ -15,7 +15,7 @@
   "updatedAt": "2026-08-02T20:16:34.948Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.27",
+  "systemVersion": "v1.5.28",
   "lastUpdated": "2026-08-03T04:30:00Z",
   "versionHistory": [
     {
@@ -4341,5 +4341,13 @@
         "isGuest": true
       }
     ]
-  }
+  },
+  "releaseNotes": [
+    {
+      "version": "v1.5.28",
+      "date": "2026-08-03T04:45:00Z",
+      "title": "Salon Gider & Tedarikçi Masraf Kaydı / Net Kar / Zarar Analiz Ekranı (ExpenseVendorTracker v1.5.28)",
+      "details": "Garson, orkestra, catering, süsleme, fotoğrafçı ve elektrik masraflarının rezervasyon bazında veya genel gider kalemleri olarak işlenmesi, her düğün ve organizasyon için brüt gelirden masrafların düşülerek net kar marjının hesaplanması."
+    }
+  ]
 }
