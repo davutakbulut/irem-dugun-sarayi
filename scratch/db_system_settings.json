@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.14",
+  "systemVersion": "v1.5.15",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.15",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Mutfak & Catering Menü Seçim Sihirbazı (CateringMenuSelection v1.5.15)",
+      "description": "119 maddelik yol haritasının 12. maddesi otonom yapay zeka hattı tarafından tamamlandı. Standart, VIP, Vejetaryen ve Alerjen korumalı catering menü sihirbazı ve kişi başı ikram hesaplama rozeti entegre edildi. GitHub Project #2 panosunda Madde #12 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.14",
       "date": "02 Ağustos 2026",
