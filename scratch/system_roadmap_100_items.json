@@ -12,7 +12,8 @@
       "id": 2,
       "category": "Rezervasyon & Takvim",
       "title": "Tampon Hazırlık Süresi Modülü",
-      "desc": "İki düğün seansı arasına otomatik 90 dakikalık salon temizlik ve hazırlık tamponu koyma."
+      "desc": "İki düğün seansı arasına otomatik 90 dakikalık salon temizlik ve hazırlık tamponu koyma.",
+      "status": "✅ Tamamlandı (v1.5.04)"
     },
     {
       "id": 3,
