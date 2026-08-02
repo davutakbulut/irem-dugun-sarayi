@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.16",
+  "systemVersion": "v1.5.17",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.17",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Çoklu Para Birimi & Kur Dönüştürücü Motoru (MultiCurrencyExchange v1.5.17)",
+      "description": "119 maddelik yol haritasının 14. maddesi otonom yapay zeka hattı tarafından tamamlandı. TRY (₺), EUR (€), USD ($), GBP (£) cinsinden anlık döviz çevirici ve teklif kur dönüştürücü motoru entegre edildi. GitHub Project #2 panosunda Madde #14 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.16",
       "date": "02 Ağustos 2026",
