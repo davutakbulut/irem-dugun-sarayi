@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.20",
-  "lastUpdated": "2026-08-02T03:40:00Z",
+  "systemVersion": "v1.5.21",
+  "lastUpdated": "2026-08-02T03:50:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.21",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Toplu Medya Onay Modu (AdminModerationMode v1.5.21)",
+      "description": "119 maddelik yol haritasının 18. maddesi otonom yapay zeka hattı tarafından tamamlandı. Davetlilerin yüklediği fotoğrafların canlı akışa girmeden önce yöneticinin onayından geçmesini sağlayan modül, toplu onaylama/reddetme paneli ve içerik denetim kalkanı entegre edildi. GitHub Project #2 panosunda Madde #18 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.20",
       "date": "02 Ağustos 2026",
