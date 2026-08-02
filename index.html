@@ -9226,7 +9226,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.5.04 🤖 Otomatik Yapay Zeka Geliştirmesi
+                v1.5.05 🤖 Otomatik Yapay Zeka Geliştirmesi
               </span>
             </div>
 
@@ -13052,8 +13052,27 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       const dy = String(dayDate.getDate()).padStart(2, '0');
                       const dateStr = `${yr}-${mo}-${dy}`;
                       const isSelectedDate = dateStr === startDate;
-                      const hasExistingBooking = (reservations || []).some(r => r.venueId === venueId && r.date === dateStr && r.paymentStatus !== 'İptal');
+
+                      // Check bookings for currently selected venue
+                      const venueBooking = (reservations || []).find(r => {
+                        const rDate = r.startDate || r.eventDate || r.date;
+                        return r.venueId === venueId && rDate === dateStr && r.paymentStatus !== 'İptal';
+                      });
+
+                      // Check bookings across any other venue
+                      const otherVenueBooking = (reservations || []).find(r => {
+                        const rDate = r.startDate || r.eventDate || r.date;
+                        return r.venueId !== venueId && rDate === dateStr && r.paymentStatus !== 'İptal';
+                      });
+
+                      const hasExistingBooking = !!venueBooking;
+                      const hasOtherVenueBooking = !venueBooking && !!otherVenueBooking;
                       const monthNameShort = dayDate.toLocaleDateString('tr-TR', { month: 'short' });
+
+                      let badgeText = 'BOŞ';
+                      if (isSelectedDate) badgeText = 'SEÇİLDİ';
+                      else if (hasExistingBooking) badgeText = 'DOLU';
+                      else if (hasOtherVenueBooking) badgeText = 'DİĞER DOLU';
 
                       return (
                         <div
@@ -13062,17 +13081,26 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             setStartDate(dateStr);
                             setEndDate(dateStr);
                           }}
+                          title={
+                            hasExistingBooking
+                              ? `Bu salon rezerve edilmiş: ${venueBooking.customerName || ''}`
+                              : hasOtherVenueBooking
+                              ? `Başka salonda rezervasyon var: ${otherVenueBooking.venueName || 'Diğer Salon'} (${otherVenueBooking.customerName || ''})`
+                              : 'Bu tarih müsait'
+                          }
                           className={`p-1.5 rounded-xl text-center cursor-pointer transition border flex flex-col justify-between h-12 ${
                             isSelectedDate
                               ? 'gold-button shadow font-extrabold border-amber-500'
                               : hasExistingBooking
                               ? 'bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400 font-bold'
+                              : hasOtherVenueBooking
+                              ? 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-gold-400 font-bold'
                               : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-300 hover:border-amber-500/50'
                           }`}
                         >
                           <span className="text-[9px] opacity-75">{dayDate.getDate()} {monthNameShort}</span>
-                          <span className="text-[9px] font-bold">
-                            {isSelectedDate ? 'SEÇİLDİ' : hasExistingBooking ? 'DOLU' : 'BOŞ'}
+                          <span className="text-[9px] font-bold truncate px-0.5">
+                            {badgeText}
                           </span>
                         </div>
                       );

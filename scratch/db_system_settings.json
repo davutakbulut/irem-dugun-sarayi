@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.04",
+  "systemVersion": "v1.5.05",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.05",
+      "date": "02 Ağustos 2026",
+      "title": "fix(calendar): Çapraz Salon Doluluk Önizleme & 5 Ağustos Görünürlük Düzeltmesi (Cross-Venue Mini Calendar Occupancy Engine)",
+      "description": "Yeni rezervasyon oluşturma sihirbazındaki canlı takvim önizleme şeridi geliştirildi. 5 Ağustos rezervasyonunun 'Yakut Panorama Salon' için kayıtlı olmasından dolayı 'Kraliyet Balo Salonu' seçiliyken BOŞ görünmesi durumu düzeltildi. Takvim şeridine 'DİĞER DOLU' (Amber renkli) rozet ve detaylı tooltip bilgilendirmesi eklenerek salonlar arası doluluk farkındalığı %100 seviyesine çıkarıldı."
+    },
     {
       "version": "v1.5.04",
       "date": "02 Ağustos 2026",
@@ -289,317 +295,6 @@
       "desc": "Yeni Rezervasyon sayfasının en üstündeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir şık ve parmakla kaydırılabilir (overflow-x-auto whitespace-nowrap) yatay bantta toplandı."
     }
   ],
-  "reservations": [
-    {
-      "id": "MEDIA-RES2026004",
-      "mediaKey": "MEDIA-RES2026004",
-      "customerName": "Özel Düğün & Balo Daveti",
-      "eventType": "Balo / Düğün Daveti",
-      "date": "2026-08-01",
-      "venueId": "v1",
-      "mediaFiles": [
-        {
-          "id": "mf_test99",
-          "fileName": "guest_photo_test.jpg",
-          "uploadedAt": "2026-08-01T03:19:40Z"
-        }
-      ]
-    }
-  ],
-  "storedMedia": {
-    "MEDIA-RES2026003": [
-      {
-        "id": "mf_1785597409225",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-06-30_at_15.22.58.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-06-30_at_15.22.58.jpeg",
-        "fileName": "WhatsApp Image 2026-06-30 at 15.22.58.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597402659",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
-        "fileName": "WhatsApp Image 2026-05-11 at 16.28.27.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597401374",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-03_at_00.48.52.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-03_at_00.48.52.jpeg",
-        "fileName": "WhatsApp Image 2026-03-03 at 00.48.52.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597398288",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
-        "fileName": "WhatsApp Image 2026-03-02 at 21.32.31.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597396372",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
-        "fileName": "WhatsApp Image 2026-02-16 at 16.58.26.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597395005",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
-        "fileName": "WhatsApp Image 2026-07-01 at 16.17.52.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      }
-    ],
-    "MEDIA-8X92M1KP": [
-      {
-        "id": "mf_1785617956011",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_bedb1vbedb1vbedb.png",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_bedb1vbedb1vbedb.png",
-        "fileName": "Gemini_Generated_Image_bedb1vbedb1vbedb.png",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 23:59",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785599162697",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/melih-gunal-e-fatura-imza.png",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/melih-gunal-e-fatura-imza.png",
-        "fileName": "melih-gunal-e-fatura-imza.png",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:46",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785599004585",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
-        "fileName": "WhatsApp Image 2026-05-11 at 16.28.27.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:43",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598951241",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
-        "fileName": "WhatsApp Image 2026-07-01 at 16.17.52.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:42",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598950861",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/deneme.png",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/deneme.png",
-        "fileName": "deneme.png",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:42",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598602241",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
-        "fileName": "Gemini_Generated_Image_p7r86bp7r86bp7r8 (1).jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598598409",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
-        "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598594782",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
-        "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8 copy.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598590567",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_hu3fzlhu3fzlhu3f.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_hu3fzlhu3fzlhu3f.jpeg",
-        "fileName": "Gemini_Generated_Image_hu3fzlhu3fzlhu3f.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598577371",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Botoks_Enjekto_ru__WP_Marketing.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Botoks_Enjekto_ru__WP_Marketing.jpg",
-        "fileName": "Botoks Enjektörü WP Marketing.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598575774",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/banner-1784139450418.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/banner-1784139450418.jpg",
-        "fileName": "banner-1784139450418.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598575487",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n.jpg",
-        "fileName": "969454_17930137260336302_5816159898068853577_n.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598574988",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n__1_.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n__1_.jpg",
-        "fileName": "969454_17930137260336302_5816159898068853577_n (1).jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597621205",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/davye-nisan-heade.gif",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/davye-nisan-heade.gif",
-        "fileName": "davye-nisan-heade.gif",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:20",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597494923",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
-        "fileName": "Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:18",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597489507",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
-        "fileName": "Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:18",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597484998",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/fircakullanimlanlari.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/fircakullanimlanlari.jpg",
-        "fileName": "fircakullanimlanlari.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:18",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597482876",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Davye_Medikal_Genject_Beslenme_S__r_ngas_.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Davye_Medikal_Genject_Beslenme_S__r_ngas_.jpg",
-        "fileName": "Davye Medikal Genject Beslenme Şırıngası.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:18",
-        "isGuest": true
-      }
-    ],
-    "MEDIA-RES2026004": [
-      {
-        "id": "mf_1785601007221",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026004/IMG_8517.png",
-        "thumbnail": "/uploads/MEDIA-RES2026004/IMG_8517.png",
-        "fileName": "IMG_8517.png",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 19:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785601005764",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026004/IMG_8515.png",
-        "thumbnail": "/uploads/MEDIA-RES2026004/IMG_8515.png",
-        "fileName": "IMG_8515.png",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 19:16",
-        "isGuest": true
-      }
-    ]
-  },
   "reservations": [
     {
       "id": "RES-2026-AUG-01A",
@@ -4185,5 +3880,299 @@
       ],
       "mediaGallery": []
     }
-  ]
+  ],
+  "storedMedia": {
+    "MEDIA-RES2026003": [
+      {
+        "id": "mf_1785597409225",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-06-30_at_15.22.58.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-06-30_at_15.22.58.jpeg",
+        "fileName": "WhatsApp Image 2026-06-30 at 15.22.58.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597402659",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
+        "fileName": "WhatsApp Image 2026-05-11 at 16.28.27.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597401374",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-03_at_00.48.52.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-03_at_00.48.52.jpeg",
+        "fileName": "WhatsApp Image 2026-03-03 at 00.48.52.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597398288",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
+        "fileName": "WhatsApp Image 2026-03-02 at 21.32.31.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597396372",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
+        "fileName": "WhatsApp Image 2026-02-16 at 16.58.26.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597395005",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
+        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
+        "fileName": "WhatsApp Image 2026-07-01 at 16.17.52.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:16",
+        "isGuest": true
+      }
+    ],
+    "MEDIA-8X92M1KP": [
+      {
+        "id": "mf_1785617956011",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_bedb1vbedb1vbedb.png",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_bedb1vbedb1vbedb.png",
+        "fileName": "Gemini_Generated_Image_bedb1vbedb1vbedb.png",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 23:59",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785599162697",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/melih-gunal-e-fatura-imza.png",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/melih-gunal-e-fatura-imza.png",
+        "fileName": "melih-gunal-e-fatura-imza.png",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:46",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785599004585",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-05-11_at_16.28.27.jpeg",
+        "fileName": "WhatsApp Image 2026-05-11 at 16.28.27.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:43",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598951241",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
+        "fileName": "WhatsApp Image 2026-07-01 at 16.17.52.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:42",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598950861",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/deneme.png",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/deneme.png",
+        "fileName": "deneme.png",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:42",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598602241",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
+        "fileName": "Gemini_Generated_Image_p7r86bp7r86bp7r8 (1).jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598598409",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
+        "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598594782",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
+        "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8 copy.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598590567",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_hu3fzlhu3fzlhu3f.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_hu3fzlhu3fzlhu3f.jpeg",
+        "fileName": "Gemini_Generated_Image_hu3fzlhu3fzlhu3f.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598577371",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Botoks_Enjekto_ru__WP_Marketing.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Botoks_Enjekto_ru__WP_Marketing.jpg",
+        "fileName": "Botoks Enjektörü WP Marketing.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598575774",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/banner-1784139450418.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/banner-1784139450418.jpg",
+        "fileName": "banner-1784139450418.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598575487",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n.jpg",
+        "fileName": "969454_17930137260336302_5816159898068853577_n.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785598574988",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n__1_.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n__1_.jpg",
+        "fileName": "969454_17930137260336302_5816159898068853577_n (1).jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:36",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597621205",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/davye-nisan-heade.gif",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/davye-nisan-heade.gif",
+        "fileName": "davye-nisan-heade.gif",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:20",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597494923",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
+        "fileName": "Gemini_Generated_Image_8trbw08trbw08trb.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597489507",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
+        "fileName": "Gemini_Generated_Image_1bpnpv1bpnpv1bpn.jpeg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597484998",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/fircakullanimlanlari.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/fircakullanimlanlari.jpg",
+        "fileName": "fircakullanimlanlari.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785597482876",
+        "type": "image",
+        "url": "/uploads/MEDIA-8X92M1KP/Davye_Medikal_Genject_Beslenme_S__r_ngas_.jpg",
+        "thumbnail": "/uploads/MEDIA-8X92M1KP/Davye_Medikal_Genject_Beslenme_S__r_ngas_.jpg",
+        "fileName": "Davye Medikal Genject Beslenme Şırıngası.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 18:18",
+        "isGuest": true
+      }
+    ],
+    "MEDIA-RES2026004": [
+      {
+        "id": "mf_1785601007221",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026004/IMG_8517.png",
+        "thumbnail": "/uploads/MEDIA-RES2026004/IMG_8517.png",
+        "fileName": "IMG_8517.png",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 19:16",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785601005764",
+        "type": "image",
+        "url": "/uploads/MEDIA-RES2026004/IMG_8515.png",
+        "thumbnail": "/uploads/MEDIA-RES2026004/IMG_8515.png",
+        "fileName": "IMG_8515.png",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-01 19:16",
+        "isGuest": true
+      }
+    ]
+  }
 }
