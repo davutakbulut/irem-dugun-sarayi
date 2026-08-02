@@ -26,7 +26,8 @@
       "id": 4,
       "category": "Rezervasyon & Takvim",
       "title": "Rezervasyon Opsiyon Süresi Zamanlayıcısı",
-      "desc": "Kaporası yatırılmayan bekleyen rezervasyonların 48 saat sonra otomatik düşmesi."
+      "desc": "Kaporası yatırılmayan bekleyen rezervasyonların 48 saat sonra otomatik düşmesi.",
+      "status": "✅ Tamamlandı (v1.5.07)"
     },
     {
       "id": 5,

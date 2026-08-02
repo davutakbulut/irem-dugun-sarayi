@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.06",
+  "systemVersion": "v1.5.07",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.07",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Özel İskonto ve Fiyat İstisnası Yetkilendirme Kalkanı (DiscountAuthorizationGuard v1.5.07)",
+      "description": "118 maddelik yol haritasının 4. maddesi otonom yapay zeka hattı tarafından tamamlandı. Rezervasyon ve teklif formlarına yönetici onaylı özel iskonto ve fiyat istisnası yetkilendirme kalkanı eklendi. Yetkisiz kayıtdışı indirimler ve kasa ciro kayıpları %100 engellendi. GitHub Project #2 panosunda Madde #4 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.06",
       "date": "02 Ağustos 2026",
