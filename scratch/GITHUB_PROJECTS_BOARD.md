@@ -1,6 +1,8 @@
-# 📊 İrem Düğün Sarayı — GitHub Projects Live Kanban Board
+# 📊 İrem Düğün Sarayı — Resmi GitHub Projects Live Kanban Board
 
-Bu pano, otonom yapay zeka geliştirme hattı (`task-2254`) tarafından anlık olarak güncellenir.
+🔗 **Resmi GitHub Proje Panosu:** [https://github.com/users/davutakbulut/projects/1/views/1](https://github.com/users/davutakbulut/projects/1/views/1)
+
+Bu döküman ve canlı pano, otonom yapay zeka geliştirme hattı (`task-2254`) tarafından anlık olarak senkronize edilir.
 
 ---
 
