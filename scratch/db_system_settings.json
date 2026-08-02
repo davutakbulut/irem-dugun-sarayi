@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.22",
-  "lastUpdated": "2026-08-02T04:00:00Z",
+  "systemVersion": "v1.5.23",
+  "lastUpdated": "2026-08-02T04:30:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.23",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Instagram / TikTok Doğrudan Paylaşım Butonu (SocialMediaShareDispatch v1.5.23)",
+      "description": "119 maddelik yol haritasının 20. maddesi otonom yapay zeka hattı tarafından tamamlandı. Düğün fotoğraflarını ve videolarını tek tıkla Instagram Story/Reels ve TikTok mobil uygulamalarına doğrudan aktaran ve Web Share API / derin bağlantı destekli sosyal medya entegrasyonu sağlandı. GitHub Project #2 panosunda Madde #20 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.22",
       "date": "02 Ağustos 2026",
