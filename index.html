@@ -9639,7 +9639,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const [reservations, setReservations] = useState(() => {
         const cached = CacheService.get('reservations', INITIAL_RESERVATIONS);
-        return normalizeReservationsMediaKeys(cached);
+        const cachedArray = Array.isArray(cached) ? cached : [];
+        
+        // Merge missing items from INITIAL_RESERVATIONS (ensures all 45 August 2026 reservations appear instantly)
+        const cachedMap = new Map(cachedArray.map(r => [r.id, r]));
+        INITIAL_RESERVATIONS.forEach(initRes => {
+          if (!cachedMap.has(initRes.id)) {
+            cachedMap.set(initRes.id, initRes);
+          }
+        });
+        const mergedReservations = Array.from(cachedMap.values());
+        return normalizeReservationsMediaKeys(mergedReservations);
       });
       const [draftReservations, setDraftReservations] = useState(() => CacheService.get('draft_reservations', []));
       const [users, setUsers] = useState(() => CacheService.get('users', INITIAL_USERS));
