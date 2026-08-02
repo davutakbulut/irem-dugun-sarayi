@@ -12,12 +12,18 @@
     "video/mp4",
     "video/quicktime"
   ],
-  "updatedAt": "2026-08-02T03:29:20.000Z",
+  "updatedAt": "2026-08-02T20:16:34.948Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.23",
-  "lastUpdated": "2026-08-02T04:30:00Z",
+  "systemVersion": "v1.5.24",
+  "lastUpdated": "2026-08-03T03:00:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.24",
+      "date": "03 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — GİB Uyumlu e-Fatura & e-Arşiv Entegrasyon Simülasyonu (EInvoiceArchiveSimulator v1.5.24)",
+      "description": "119 maddelik yol haritasının 21. maddesi otonom yapay zeka hattı tarafından tamamlandı. Kesilen düğün sözleşmeleri ve kaparo tahsilatları için Türkiye Gelir İdaresi Başkanlığı (GİB) VUK mevzuatına ve UBL-TR 1.2 standardına uygun e-Fatura / e-Arşiv taslak ve QR kodlu PDF simülatörü entegre edildi. GitHub Project #2 panosunda Madde #21 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.23",
       "date": "02 Ağustos 2026",
@@ -4279,6 +4285,41 @@
         "uploaderName": "Davetli Konuk",
         "tableNo": "Masa Davetlisi",
         "timestamp": "2026-08-01 19:16",
+        "isGuest": true
+      }
+    ],
+    "MEDIA-AUG26-31": [
+      {
+        "id": "mf_1785702289707",
+        "type": "image",
+        "url": "/uploads/MEDIA-AUG26-31/THY-EVRAK.jpg",
+        "thumbnail": "/uploads/MEDIA-AUG26-31/THY-EVRAK.jpg",
+        "fileName": "THY-EVRAK.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-02 23:24",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785702203774",
+        "type": "image",
+        "url": "/uploads/MEDIA-AUG26-31/Kimlik_Kart__G_r_nt_s_.jpg",
+        "thumbnail": "/uploads/MEDIA-AUG26-31/Kimlik_Kart__G_r_nt_s_.jpg",
+        "fileName": "Kimlik Kartı Görüntüsü.jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-02 23:23",
+        "isGuest": true
+      },
+      {
+        "id": "mf_1785702203555",
+        "type": "image",
+        "url": "/uploads/MEDIA-AUG26-31/THY-EVRAK__1_.jpg",
+        "thumbnail": "/uploads/MEDIA-AUG26-31/THY-EVRAK__1_.jpg",
+        "fileName": "THY-EVRAK (1).jpg",
+        "uploaderName": "Davetli Konuk",
+        "tableNo": "Masa Davetlisi",
+        "timestamp": "2026-08-02 23:23",
         "isGuest": true
       }
     ]
