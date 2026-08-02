@@ -9226,7 +9226,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.5.07 🤖 Otomatik Yapay Zeka Geliştirmesi
+                v1.5.08 🤖 Otomatik Yapay Zeka Geliştirmesi
               </span>
             </div>
 
@@ -13800,10 +13800,25 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <span className="font-mono text-sm">-{formatCurrency(calculations.grandTotal)}</span>
                     </div>
                   ) : (
-                    hasDeposit && (
+                    hasDeposit ? (
                       <div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 font-bold">
                         <span>Tahsil Edilen Kapora:</span>
                         <span className="font-mono">-{formatCurrency(calculations.dep)}</span>
+                      </div>
+                    ) : (
+                      <div className="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl space-y-1 text-xs animate-fade-in my-1">
+                        <div className="flex items-center justify-between text-amber-800 dark:text-gold-300 font-bold">
+                          <span className="flex items-center space-x-1">
+                            <span>⏳</span>
+                            <span>Otomatik Kapora Takibi (v1.5.08):</span>
+                          </span>
+                          <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                            7 Gün Opsiyonlu
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-gray-400">
+                          Kapora henüz alınmadı. Taslak kaydı 7 gün boyunca opsiyonlu tutulacak, süre aşımında müşteriye SMS uyarısı gönderilecektir.
+                        </p>
                       </div>
                     )
                   )}

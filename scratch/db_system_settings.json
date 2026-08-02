@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.07",
+  "systemVersion": "v1.5.08",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.08",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Otomatik Kapora Takibi ve Süre Aşımı Bildirimi (DepositExpirationTracker v1.5.08)",
+      "description": "119 maddelik yol haritasının 5. maddesi otonom yapay zeka hattı tarafından tamamlandı. Kaporası henüz ödenmemiş taslak rezervasyonlar için 7 günlük otomatik opsiyon süresi takibi ve ikaz rozeti entegre edildi. Salon takviminin gereksiz yere kilitlenmesi engellendi. GitHub Project #2 panosunda Madde #5 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.07",
       "date": "02 Ağustos 2026",

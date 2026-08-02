@@ -33,7 +33,8 @@
       "id": 5,
       "category": "Rezervasyon & Takvim",
       "title": "Google Calendar ve Outlook Entegrasyonu",
-      "desc": "Rezervasyon tarihlerinin salon yöneticilerinin kişisel takvimlerine senkronize edilmesi."
+      "desc": "Rezervasyon tarihlerinin salon yöneticilerinin kişisel takvimlerine senkronize edilmesi.",
+      "status": "✅ Tamamlandı (v1.5.08)"
     },
     {
       "id": 6,
