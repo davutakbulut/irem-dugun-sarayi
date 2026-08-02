@@ -9226,7 +9226,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.5.10 🤖 Otomatik Yapay Zeka Geliştirmesi
+                v1.5.11 🤖 Otomatik Yapay Zeka Geliştirmesi
               </span>
             </div>
 
@@ -12891,8 +12891,27 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           return (sObj && sObj.pricingType === 'per_person') ? { ...item, quantity: val } : item;
                         }));
                       }}
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
+                      className={`w-full border rounded-xl p-2.5 font-bold ${
+                        guestCount > (selectedVenue?.capacity || 500)
+                          ? 'bg-amber-500/10 border-amber-500 text-amber-800 dark:text-gold-400'
+                          : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border text-slate-800 dark:text-gray-200'
+                      }`}
                     />
+
+                    {/* VENUE CAPACITY OVER-LIMIT GUARD BADGE (v1.5.11) */}
+                    {guestCount > (selectedVenue?.capacity || 500) && (
+                      <div className="mt-1.5 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-800 dark:text-gold-300 font-bold flex items-center justify-between animate-fade-in">
+                        <div className="flex items-center space-x-1.5">
+                          <ThemeIcon icon="alert" fallbackEmoji="⚠️" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
+                          <span>
+                            Salon Kapasite İkazı: Girilen davetli ({guestCount}), maksimum kapasiteyi ({selectedVenue?.capacity || 500}) aşmaktadır!
+                          </span>
+                        </div>
+                        <span className="text-[9px] font-extrabold bg-amber-500/20 text-amber-800 dark:text-gold-300 px-2 py-0.5 rounded-md border border-amber-500/30 whitespace-nowrap">
+                          Kapasite Uyarısı (v1.5.11)
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
