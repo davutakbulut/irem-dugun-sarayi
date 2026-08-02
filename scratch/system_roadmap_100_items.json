@@ -1,5 +1,5 @@
 {
-  "total": 116,
+  "total": 117,
   "items": [
     {
       "id": 1,
@@ -713,6 +713,13 @@
       "category": "GitHub Actions & CI/CD Dağıtımı",
       "title": "Jekyll Static Site & Docker İmaj Paketleme İş Akışı",
       "desc": "Sistem dokümantasyonunun ve rehber sayfalarının Jekyll Docker container imajı olarak GitHub Actions ile derlenmesi.",
+      "status": "⏳ Eklenme Bekliyor (Yol Haritasında)"
+    },
+    {
+      "id": 117,
+      "category": "Rakip & Derin Sistem Araştırması (Competitor Innovation)",
+      "title": "İnteraktif 2D Düğün Masası Yerleşim ve Oturma Düzeni Çizici (2D Interactive Drag & Drop Seating Chart & Guest Allocation Engine)",
+      "desc": "Rakip analizi sonucu tespit edilen; gelin ve damadın davetlileri masalara 2D sürükle-bırak yöntemiyle oturtmasını sağlayan, salon şefleri için masa ikram çıktıları üreten 5-Ajan Onaylı yüksek performanslı oturma planı motoru.",
       "status": "⏳ Eklenme Bekliyor (Yol Haritasında)"
     }
   ],
