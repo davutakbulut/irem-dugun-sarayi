@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T20:16:34.948Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.26",
-  "lastUpdated": "2026-08-03T04:00:00Z",
+  "systemVersion": "v1.5.27",
+  "lastUpdated": "2026-08-03T04:30:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.27",
+      "date": "03 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Kredi Kartı & Sanal POS İzinli Tahsilat Entegrasyonu (VirtualPosIntegration v1.5.27)",
+      "description": "119 maddelik yol haritasının 24. maddesi otonom yapay zeka hattı tarafından tamamlandı. Düğün rezervasyon kaporası ve taksit ödemeleri için iZICO, PayTR ve Paratika PCI-DSS uyumlu Sanal POS entegrasyonu, 3D Secure (v2.2) OTP doğrulama simülasyonu ve otomatik POS komisyon gideri düşüm kalkanı entegre edildi. GitHub Project #2 panosunda Madde #24 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.26",
       "date": "03 Ağustos 2026",
