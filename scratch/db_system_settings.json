@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.13",
+  "systemVersion": "v1.5.14",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.14",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Kişiselleştirilebilir QR Tasarım Şablonları (CustomizableQRDesignTemplates v1.5.14)",
+      "description": "119 maddelik yol haritasının 11. maddesi otonom yapay zeka hattı tarafından tamamlandı. Masa kartı baskı şablonları, özel renk paletleri ve canlı QR önizleme rozeti entegre edildi. GitHub Project #2 panosunda Madde #11 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.13",
       "date": "02 Ağustos 2026",
