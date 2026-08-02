@@ -12,12 +12,18 @@
     "video/mp4",
     "video/quicktime"
   ],
-  "updatedAt": "2026-08-02T00:27:54.000Z",
+  "updatedAt": "2026-08-02T03:13:00.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.01",
-  "lastUpdated": "2026-08-02T03:05:00Z",
+  "systemVersion": "v1.5.02",
+  "lastUpdated": "2026-08-02T03:13:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.02",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Düğün Albümleri Otomatik .ZIP İndirme ve Depolama Optimize Etme Servisi (Automated ZIP Archiver & Storage Optimizer)",
+      "desc": "4 uzman yapay zeka ajanının (Karar/Mimarlık Ajanı architectural_evaluator_agent, UI/UX Ajanı ui_ux_tester_agent, Canlı Entegrasyon Ajanı live_integration_tester_agent, Güvenlik/CISO Ajanı security_data_leak_auditor_agent) katıldığı denetim ve değerlendirme sürecinde [APPROVED] kararıyla onaylanan yeni özellik devreye alındı. Sunucuda (serve_fast_3g.py) yeni kurulan /api/download-album-zip REST servisi ile salon yöneticileri düğün bittikten sonra albümdeki yüzlerce fotoğraf ve videoyu tek tıkla yüksek hızlı .ZIP arşivi olarak indirebilir ve sunucu diskini otomatik optimize edebilir."
+    },
     {
       "version": "v1.5.01",
       "date": "02 Ağustos 2026",
