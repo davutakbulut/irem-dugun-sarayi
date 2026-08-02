@@ -1,0 +1,605 @@
+{
+  "total": 100,
+  "items": [
+    {
+      "id": 1,
+      "category": "Rezervasyon & Takvim",
+      "title": "Çoklu Salon Çakışma Engelleyici",
+      "desc": "Aynı salonda aynı zaman diliminde 2. rezervasyonun oluşturulmasını otomatik engelleme."
+    },
+    {
+      "id": 2,
+      "category": "Rezervasyon & Takvim",
+      "title": "Tampon Hazırlık Süresi Modülü",
+      "desc": "İki düğün seansı arasına otomatik 90 dakikalık salon temizlik ve hazırlık tamponu koyma."
+    },
+    {
+      "id": 3,
+      "category": "Rezervasyon & Takvim",
+      "title": "Sürükle-Bırak Tarih Güncelleme Güvenlik İkazı",
+      "desc": "Takvimde sürükle-bırak yapılırken müşteri onay mesajı ve SMS bildirim tetikleyicisi."
+    },
+    {
+      "id": 4,
+      "category": "Rezervasyon & Takvim",
+      "title": "Rezervasyon Opsiyon Süresi Zamanlayıcısı",
+      "desc": "Kaporası yatırılmayan bekleyen rezervasyonların 48 saat sonra otomatik düşmesi."
+    },
+    {
+      "id": 5,
+      "category": "Rezervasyon & Takvim",
+      "title": "Google Calendar ve Outlook Entegrasyonu",
+      "desc": "Rezervasyon tarihlerinin salon yöneticilerinin kişisel takvimlerine senkronize edilmesi."
+    },
+    {
+      "id": 6,
+      "category": "Rezervasyon & Takvim",
+      "title": "Özel Gün & Resmi Tatil Fiyat Çarpanı",
+      "desc": "Dini ve milli bayram günlerinde otomatik %20 fiyat farkı hesaplama seçeneği."
+    },
+    {
+      "id": 7,
+      "category": "Rezervasyon & Takvim",
+      "title": "Tekrarlanan Etkinlik Şablonları",
+      "desc": "Haftalık bayii toplantıları veya dernek geceleri için toplu rezervasyon oluşturma."
+    },
+    {
+      "id": 8,
+      "category": "Rezervasyon & Takvim",
+      "title": "Salona Özel Kapasite Uyarısı",
+      "desc": "Salon kapasitesini aşan davetli sayısı girildiğinde ikaz rozeti gösterimi."
+    },
+    {
+      "id": 9,
+      "category": "Rezervasyon & Takvim",
+      "title": "Görsel Oturma Planı Tasarlayıcı",
+      "desc": "Masaların ve davetli oturuş düzeninin 2D kroki üzerinde sürükle-bırak ile çizimi."
+    },
+    {
+      "id": 10,
+      "category": "Rezervasyon & Takvim",
+      "title": "Rezervasyon Geçmişi & Değişiklik Logu",
+      "desc": "Rezervasyonda kimin ne zaman değişiklik yaptığını gösteren audit log ekranı."
+    },
+    {
+      "id": 11,
+      "category": "Medya Galerisi & QR",
+      "title": "Kişiselleştirilebilir QR Tasarım Şablonları",
+      "desc": "Masa kartı QR kodlarına çift fotoğrafları ve özel çerçeve stilleri ekleme."
+    },
+    {
+      "id": 12,
+      "category": "Medya Galerisi & QR",
+      "title": "Canlı Slayt Gösterisi (Live TV Presentation Mode)",
+      "desc": "Davetliler yükledikçe dev salondaki TV'de otomatik geçen tam ekran slayt modu."
+    },
+    {
+      "id": 13,
+      "category": "Medya Galerisi & QR",
+      "title": "Otomatik EXIF Konum & Metadata Temizliği",
+      "desc": "Fotoğraflardaki GPS ve cihaz bilgilerini KVKK gereği sunucuya girmeden silme."
+    },
+    {
+      "id": 14,
+      "category": "Medya Galerisi & QR",
+      "title": "Yapay Zeka Yüz Tanıma & Çift Albümü Ayırma",
+      "desc": "Gelin ve damat fotoğraflarını yapay zeka ile otomatik tanıyıp öne çıkarma."
+    },
+    {
+      "id": 15,
+      "category": "Medya Galerisi & QR",
+      "title": "Medya Beğeni ve Davetli Yorumları",
+      "desc": "Davetlilerin fotoğraflara kalp/beğeni atabilmesi ve tebrik notu bırakması."
+    },
+    {
+      "id": 16,
+      "category": "Medya Galerisi & QR",
+      "title": "Otomatik Filigran (Watermark) Ekleme",
+      "desc": "Yüklenen fotoğraflara salon amblemi ve çift ismini filigran olarak basma."
+    },
+    {
+      "id": 17,
+      "category": "Medya Galerisi & QR",
+      "title": "Medya Retention & Otomatik Silme Uyarısı",
+      "desc": "30 günü dolan albümler silinmeden önce çiftin e-postasına uyarı ve indirme linki gönderme."
+    },
+    {
+      "id": 18,
+      "category": "Medya Galerisi & QR",
+      "title": "Toplu Medya Onay Modu (Admin Moderation)",
+      "desc": "Yöneticinin onaylamadığı davetli fotoğraflarının TV'de ve galeride görünmemesi."
+    },
+    {
+      "id": 19,
+      "category": "Medya Galerisi & QR",
+      "title": "Video Thumbnail Otomatik Oluşturucu",
+      "desc": "Yüklenen MP4/MOV videoların ilk karesinden otomatik kapak görseli üretme."
+    },
+    {
+      "id": 20,
+      "category": "Medya Galerisi & QR",
+      "title": "Instagram / TikTok Doğrudan Paylaşım Butonu",
+      "desc": "Davetlilerin fotoğraflarını sosyal medyada salon etiketiyle paylaşma aracı."
+    },
+    {
+      "id": 21,
+      "category": "Finans & Fatura",
+      "title": "GİB Uyumlu e-Fatura & e-Arşiv Entegrasyon Simülasyonu",
+      "desc": "Resmi faturaların PDF üretilip müşteriye otomatik gönderilmesi."
+    },
+    {
+      "id": 22,
+      "category": "Finans & Fatura",
+      "title": "Parçalı Ödeme & Taksit Takip Sistemi",
+      "desc": "Kapora haricinde 1., 2. ve 3. taksit tarihlerini ve kalan bakiyeyi izleme."
+    },
+    {
+      "id": 23,
+      "category": "Finans & Fatura",
+      "title": "Otomatik Ödeme Hatırlatma SMS/WhatsApp Servisi",
+      "desc": "Düğüne 7 gün kala kalan bakiye için otomatik WhatsApp hatırlatma mesajı."
+    },
+    {
+      "id": 24,
+      "category": "Finans & Fatura",
+      "title": "Salon Gider & Tedarikçi Masraf Kaydı",
+      "desc": "Garson, orkestra, catering ve elektrik masraflarının rezervasyon bazlı düşülmesi."
+    },
+    {
+      "id": 25,
+      "category": "Finans & Fatura",
+      "title": "Net Kar / Zarar Analiz Ekranı",
+      "desc": "Her düğün için toplam gelirden masraflar düşülerek net kar marjının hesabı."
+    },
+    {
+      "id": 26,
+      "category": "Finans & Fatura",
+      "title": "Cari Hesap & Tedarikçi Borç-Alacak Takibi",
+      "desc": "Çiçekçi, fotoğrafçı ve müzisyenlerin cari hesap bakiyelerinin tutulması."
+    },
+    {
+      "id": 27,
+      "category": "Finans & Fatura",
+      "title": "KDV Oranı Dinamik Seçim Engine (%1, %10, %20)",
+      "desc": "Yemek ve organizasyon hizmetlerinin farklı KDV oranlarına göre bölünmesi."
+    },
+    {
+      "id": 28,
+      "category": "Finans & Fatura",
+      "title": "Dövizli Fiyatlandırma (EUR/USD) & Anlık Kur",
+      "desc": "Yabancı düğünler için döviz bazlı sözleşme ve anlık Merkez Bankası kuru."
+    },
+    {
+      "id": 29,
+      "category": "Finans & Fatura",
+      "title": "İptal & İade (Refund) Muhasebe Kaydı",
+      "desc": "İptal edilen düğünlerin kaza tazminatı ve kapora iade süreçlerinin işlenmesi."
+    },
+    {
+      "id": 30,
+      "category": "Finans & Fatura",
+      "title": "Nakit & Kredi Kartı Kasa Mutabakatı",
+      "desc": "Gün sonu kasa takibi ve banka pos raporlarının eşleştirilmesi."
+    },
+    {
+      "id": 31,
+      "category": "Müşteri CRM",
+      "title": "Görüşme & Teklif Takip Hattı (Pipeline Stage)",
+      "desc": "Müşterilerin 'İlk İletişim', 'Salon Gezisi', 'Teklif Verildi', 'Sözleşme İmzalandı' aşamalarında takibi."
+    },
+    {
+      "id": 32,
+      "category": "Müşteri CRM",
+      "title": "Otomatik Sözleşme PDF Oluşturucu",
+      "desc": "Rezervasyon bilgilerini resmi düğün sözleşmesi PDF'ine döküp indirme."
+    },
+    {
+      "id": 33,
+      "category": "Müşteri CRM",
+      "title": "Dijital İmza (E-Signature) Desteği",
+      "desc": "Çiftlerin telefon ekranında parmaklarıyla sözleşmeyi dijital onaylaması."
+    },
+    {
+      "id": 34,
+      "category": "Müşteri CRM",
+      "title": "Müşteri Memnuniyet Anketi (NPS Survey)",
+      "desc": "Düğün bittikten 1 gün sonra çifte otomatik WhatsApp memnuniyet puanlaması gönderme."
+    },
+    {
+      "id": 35,
+      "category": "Müşteri CRM",
+      "title": "Özel Gün Tebrik Mesajı Otomasyonu",
+      "desc": "Çiftlerin evlilik yıldönümlerinde her yıl otomatik tebrik mesajı gönderme."
+    },
+    {
+      "id": 36,
+      "category": "Müşteri CRM",
+      "title": "Potansiyel Müşteri (Lead) Kayıt Formu Widget'ı",
+      "desc": "Web sitesine eklenebilen 'Teklif Alın' formu verilerinin CRM'e düşmesi."
+    },
+    {
+      "id": 37,
+      "category": "Müşteri CRM",
+      "title": "Müşteri Etiketleme & Segmentasyon",
+      "desc": "Müşterileri 'VIP', 'Kurumsal', 'Şikayetli', 'Referanslı' şeklinde etiketleme."
+    },
+    {
+      "id": 38,
+      "category": "Müşteri CRM",
+      "title": "Toplu SMS & E-posta Kampanya Gönderimi",
+      "desc": "Tüm müşterilere erken rezervasyon indirim duyurularının toplu iletilmesi."
+    },
+    {
+      "id": 39,
+      "category": "Müşteri CRM",
+      "title": "Arama Kaydı ve İletişim Notları",
+      "desc": "Müşteri rehberinde yapılan telefon görüşmelerinin tarihli not olarak saklanması."
+    },
+    {
+      "id": 40,
+      "category": "Müşteri CRM",
+      "title": "Referans (Referral) İndirim Takipçisi",
+      "desc": "Eski müşterilerin getirdiği yeni düğünler için referans primi hesaplama."
+    },
+    {
+      "id": 41,
+      "category": "Salon & Hizmet",
+      "title": "Salon Teknik Envanter Takibi",
+      "desc": "Ses, ışık, robot, projektör ve jeneratör cihazlarının bakım sürelerinin takibi."
+    },
+    {
+      "id": 42,
+      "category": "Salon & Hizmet",
+      "title": "Menü İçerik & Alerjen Uyarısı Kataloğu",
+      "desc": "Yemek menülerindeki alerjen maddelerin (glutensiz, vegan vb.) davetliye gösterimi."
+    },
+    {
+      "id": 43,
+      "category": "Salon & Hizmet",
+      "title": "Tedarikçi Personel Vardiya Planlayıcı",
+      "desc": "Hangi düğünde hangi şef, garson ve fotoğrafçının görevli olduğunun çizelgesi."
+    },
+    {
+      "id": 44,
+      "category": "Salon & Hizmet",
+      "title": "Salon Panoramik 360 Derece Tur Entegrasyonu",
+      "desc": "Müşterilere salonların 360 sanal turunu sistem içinden izletme."
+    },
+    {
+      "id": 45,
+      "category": "Salon & Hizmet",
+      "title": "Ek Hizmet Stok & Limit Kontrolü",
+      "desc": "Aynı gece en fazla 2 düğüne verilebilen VIP Gelin Arabası stokunun kontrolü."
+    },
+    {
+      "id": 46,
+      "category": "Salon & Hizmet",
+      "title": "Gelin Odası Özel Hizmet Menüsü",
+      "desc": "Gelin odasına ikram edilecek meyve, içecek ve makyaj aydınlatması şablonu."
+    },
+    {
+      "id": 47,
+      "category": "Salon & Hizmet",
+      "title": "Çocuk Oyun Alanı & Palyaço Hizmet Takibi",
+      "desc": "Çocuklu aileler için çocuk kulübü ek hizmet seçeneği."
+    },
+    {
+      "id": 48,
+      "category": "Salon & Hizmet",
+      "title": "Valet & Otopark Araç Sayı Yönetimi",
+      "desc": "Salon otopark kapasitesine göre vale araç kabul planlaması."
+    },
+    {
+      "id": 49,
+      "category": "Salon & Hizmet",
+      "title": "Volkan & Sis Şovu Zamanlama Düzeneği",
+      "desc": "İlk dans ve pasta kesim anında sis makinesinin süre göstergesi."
+    },
+    {
+      "id": 50,
+      "category": "Salon & Hizmet",
+      "title": "Organizasyon Paket Karşılaştırma Ekranı",
+      "desc": "Bronz, Gümüş, Altın ve VIP paketlerin yan yana özellik kıyaslaması."
+    },
+    {
+      "id": 51,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Gelecek Sezon Gelir Tahminleme (Forecasting)",
+      "desc": "Gelecek yılın doluluk ve ciro tahminini AI algoritmalarıyla hesaplama."
+    },
+    {
+      "id": 52,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Dinamik Fiyat Öneri Motoru",
+      "desc": "Talebin yüksek olduğu hafta sonları için optimum fiyat teklifi sunma."
+    },
+    {
+      "id": 53,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI İptal Riski Erken Uyarı Sistemi",
+      "desc": "Kaporasını geciktiren ve iletişimi azalan müşterilerin kayıp risk puanı."
+    },
+    {
+      "id": 54,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Müşteri Yorum Analizi (Sentiment Analysis)",
+      "desc": "Anketlerdeki müşteri yorumlarından olumlu/olumsuz duygu analizi çıkarma."
+    },
+    {
+      "id": 55,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Menü Popülerlik ve İsraf Analizi",
+      "desc": "En çok tercih edilen yemeklerin ve artik oranlarının istatistiği."
+    },
+    {
+      "id": 56,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Personel Performans Puanlaması",
+      "desc": "Garson ve ekibin müşteri puanlarına göre ayın elemanı analizi."
+    },
+    {
+      "id": 57,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Kampanya Verimlilik Raporu",
+      "desc": "Hangi indirim kodunun ne kadar dönüşüm getirdiğinin AI grafiği."
+    },
+    {
+      "id": 58,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Otomatik Düğün Senaryo Metni",
+      "desc": "Sunucu (MC) için gelin-damat bilgilerinden otomatik takdim konuşması yazma."
+    },
+    {
+      "id": 59,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Sosyal Medya İletişim Asistanı",
+      "desc": "Düğün görselleri için Instagram paylaşım metni ve hashtag üretme."
+    },
+    {
+      "id": 60,
+      "category": "Yapay Zeka Analiz",
+      "title": "AI Anomali ve Şüpheli İşlem Tespiti",
+      "desc": "Normal dışı yüksek indirim veya hatalı bakiye kayıtlarını AI tespiti."
+    },
+    {
+      "id": 61,
+      "category": "Performans & Depolama",
+      "title": "IndexedDB Depolama Mimarisi Migration",
+      "desc": "LocalStorage 5MB sınırına takılmamak için depolamayı IndexedDB'ye taşıma."
+    },
+    {
+      "id": 62,
+      "category": "Performans & Depolama",
+      "title": "HLS / DASH Adaptif Video Streaming",
+      "desc": "Mobil internet hızına göre videoları 1080p/720p/480p otomatik kalitede oynatma."
+    },
+    {
+      "id": 63,
+      "category": "Performans & Depolama",
+      "title": "PWA (Progressive Web App) Çevrimdışı Çalışma",
+      "desc": "İnternet kesildiğinde uygulamanın çevrimdışı (offline) çalışmaya devam etmesi."
+    },
+    {
+      "id": 64,
+      "category": "Performans & Depolama",
+      "title": "Service Worker Asset Caching",
+      "desc": "CSS, JS ve yazı tiplerinin tarayıcıda 0ms anlık yüklenmesi için Service Worker."
+    },
+    {
+      "id": 65,
+      "category": "Performans & Depolama",
+      "title": "Resim Görsellerini AVIF Formatına Dönüştürme",
+      "desc": "WebP'ye ek olarak %30 daha küçük AVIF resim formatı desteği."
+    },
+    {
+      "id": 66,
+      "category": "Performans & Depolama",
+      "title": "Lazy-Loading & Infinite Scroll Medya Galeri",
+      "desc": "Binlerce görsel olan albümlerde ekrana geldikçe yükleme (Virtual List)."
+    },
+    {
+      "id": 67,
+      "category": "Performans & Depolama",
+      "title": "Otomatik Sunucu Disk Temizlik Cron'u",
+      "desc": "90 günü geçen geçici temp dosyalarının otomatik silinmesi (Kullanıcı izinli)."
+    },
+    {
+      "id": 68,
+      "category": "Performans & Depolama",
+      "title": "GZip & Brotli Sunucu Sıkıştırma",
+      "desc": "HTTP yanıtlarının sunucu tarafında Brotli ile sıkıştırılıp gönderilmesi."
+    },
+    {
+      "id": 69,
+      "category": "Performans & Depolama",
+      "title": "Database Indexing & Arama Hızlandırma",
+      "desc": "Binlerce rezervasyon arasında 1ms içinde arama yapabilmek için arama indeksi."
+    },
+    {
+      "id": 70,
+      "category": "Performans & Depolama",
+      "title": "CDN (Content Delivery Network) Entegrasyon",
+      "desc": "Görsellerin dünyadaki en yakın sunucudan hızlı yüklenmesi altyapısı."
+    },
+    {
+      "id": 71,
+      "category": "Güvenlik & KVKK",
+      "title": "İki Faktörlü Kimlik Doğrulama (2FA / OTP)",
+      "desc": "Yönetici girişlerinde SMS veya Google Authenticator 2FA zorunluluğu."
+    },
+    {
+      "id": 72,
+      "category": "Güvenlik & KVKK",
+      "title": "Detaylı Rol Bazlı İzin Matrisi (Granular RBAC)",
+      "desc": "Garson, muhasebeci ve müdür için buton seviyesinde yetki kısıtlama."
+    },
+    {
+      "id": 73,
+      "category": "Güvenlik & KVKK",
+      "title": "KVKK Açık Rıza ve İzin Onay Metni",
+      "desc": "Davetlilerin fotoğraf yüklemeden önce KVKK aydınlatma metnini onaylaması."
+    },
+    {
+      "id": 74,
+      "category": "Güvenlik & KVKK",
+      "title": "Unutulma Hakkı (Data Erasure Engine)",
+      "desc": "Müşterinin talebi halinde tüm verilerinin ve medyalarının kalıcı silinmesi."
+    },
+    {
+      "id": 75,
+      "category": "Güvenlik & KVKK",
+      "title": "Oturum Zamanaşımı (Session Timeout Guard)",
+      "desc": "15 dakika işlem yapılmadığında yönetici oturumunun otomatik kapanması."
+    },
+    {
+      "id": 76,
+      "category": "Güvenlik & KVKK",
+      "title": "Şifreli Veritabanı Saklama (AES-256 Encryption)",
+      "desc": "Müşteri TC ve telefon bilgilerinin veritabanında şifreli (encrypted) tutulması."
+    },
+    {
+      "id": 77,
+      "category": "Güvenlik & KVKK",
+      "title": "CSRF & XSS Güvenlik Başlıkları (CSP Headers)",
+      "desc": "Tarayıcı güvenlik başlıklarının (Content Security Policy) sıkılaştırılması."
+    },
+    {
+      "id": 78,
+      "category": "Güvenlik & KVKK",
+      "title": "Şüpheli Giriş ve IP Engelleme Paneli",
+      "desc": "Yanlış şifre deneyen IP'lerin otomatik karantinaya alınması."
+    },
+    {
+      "id": 79,
+      "category": "Güvenlik & KVKK",
+      "title": "Güvenlik İhlal Bildirim Sistemi",
+      "desc": "Olağandışı bir giriş olduğunda ana yöneticiye anında güvenlik SMS'i."
+    },
+    {
+      "id": 80,
+      "category": "Güvenlik & KVKK",
+      "title": "Güvenli Çıkış (Force Logout Across Devices)",
+      "desc": "Çalınan hesaplarda tüm cihazlardan tek tıkla oturum kapatma."
+    },
+    {
+      "id": 81,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Gelişmiş Klavye Kısayolları (Keyboard Shortcuts)",
+      "desc": "CTRL+K arama, ESC kapatma, N yeni rezervasyon kısayolları."
+    },
+    {
+      "id": 82,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "WCAG 2.1 AAA Ekran Okuyucu (Screen Reader) Uyum",
+      "desc": "Görme engelli kullanıcılar için ARIA etiketleri ve sesli okuma desteği."
+    },
+    {
+      "id": 83,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Çoklu Dil Desteği (Türkçe, İngilizce, Almanca, Arapça)",
+      "desc": "Platformun 4 dilde anlık dil değiştirme altyapısı."
+    },
+    {
+      "id": 84,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Özel Tema Renk Paleti Tasarlayıcı",
+      "desc": "Salonların kendi kurumsal renklerini (Gold, Rose, Emerald) seçebilmesi."
+    },
+    {
+      "id": 85,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Sesli Komut ile Arama ve Yönlendirme",
+      "desc": "Mikrofona 'Ağustos rezervasyonlarını göster' diyerek arama yapma."
+    },
+    {
+      "id": 86,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Yüksek Kontrastlı Mod (High Contrast Theme)",
+      "desc": "Göz yormayan ve açık havada güneş altında rahat okunan mod."
+    },
+    {
+      "id": 87,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Yazdırma Dostu Sayfa Mimarisi (Print CSS)",
+      "desc": "Sayfaların yazıcıdan basılırken gereksiz menüleri gizlemesi."
+    },
+    {
+      "id": 88,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Görsel Yükleme Drag-and-Drop Efektleri",
+      "desc": "Dosya sürüklerken ekranın tamamında beliren şık animasyonlar."
+    },
+    {
+      "id": 89,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Yükleme Durumu Skeleton Loader Animasyonları",
+      "desc": "Sayfa yüklenirken veri gri taslak kartlar (Skeleton) gösterimi."
+    },
+    {
+      "id": 90,
+      "category": "UI/UX & Erişilebilirlik",
+      "title": "Mobil Dokunmatik Titreşim (Haptic Feedback)",
+      "desc": "Telefonda butonlara basıldığında hafif haptik titreşim geri bildirimi."
+    },
+    {
+      "id": 91,
+      "category": "Sistem & Operasyon",
+      "title": "Otomatik Günlük Veritabanı Yedekleme (Auto Backup)",
+      "desc": "Her gece 03:00'te veritabanının otomatik ZIP yedeğinin alınması."
+    },
+    {
+      "id": 92,
+      "category": "Sistem & Operasyon",
+      "title": "Tek Tıkla Veritabanı Geri Yükleme (Restore Engine)",
+      "desc": "Hatalı bir durumda eski yedek dosyasına tek tıkla geri dönebilme."
+    },
+    {
+      "id": 93,
+      "category": "Sistem & Operasyon",
+      "title": "Sistem Sağlık Durumu (Health Check Monitor)",
+      "desc": "CPU, RAM, Disk kullanımı ve sunucu tepki süresinin canlı gösterimi."
+    },
+    {
+      "id": 94,
+      "category": "Sistem & Operasyon",
+      "title": "Otomatik Sistem Güncelleme ve Sürüm Dökümü",
+      "desc": "Versiyon takibinin sürüm notlarıyla canlı yayınlanması."
+    },
+    {
+      "id": 95,
+      "category": "Sistem & Operasyon",
+      "title": "Çoklu Şube / Salon Zincir Yönetimi",
+      "desc": "Birden fazla düğün salonu şubesinin merkezden yönetilebilmesi."
+    },
+    {
+      "id": 96,
+      "category": "Sistem & Operasyon",
+      "title": "Tedarikçi Giriş Portalı (Vendor Portal)",
+      "desc": "Fotoğrafçı ve orkestranın kendi iş takvimini gördüğü izole panel."
+    },
+    {
+      "id": 97,
+      "category": "Sistem & Operasyon",
+      "title": "Gelişmiş Hata Takip ve Telegram Bildirim Botu",
+      "desc": "Sistemde hata oluştuğunda yazılımcıya anında Telegram mesajı atma."
+    },
+    {
+      "id": 98,
+      "category": "Sistem & Operasyon",
+      "title": "Otomatik Fatura Kesim Uyarısı",
+      "desc": "Düğünü biten ancak faturası kesilmeyen rezervasyonların ikazı."
+    },
+    {
+      "id": 99,
+      "category": "Sistem & Operasyon",
+      "title": "Sistem Kullanım İstatistiği & Log Analizi",
+      "desc": "Hangi sayfanın ne kadar ziyaret edildiğinin iç analitiği."
+    },
+    {
+      "id": 100,
+      "category": "Sistem & Operasyon",
+      "title": "Yapay Zeka Otonom Geliştirme Motoru Senkronizasyonu",
+      "desc": "4 uzman ajanın bu 100 maddelik yol haritasını sırayla otonom geliştirmesi."
+    }
+  ]
+}
