@@ -231,44 +231,44 @@
     {
       "version": "v1.4.65",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.65)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "🧹 Sistem Kılavuzu (`#/sistem-kilavuzu`) `find-skills` Temizliği",
+      "desc": "Sistem Kılavuzu sayfasındaki Vercel Ajan Yetenekleri listesinden artık kullanılmayan find-skills kartı kaldırıldı ve aktif yetenek sayısı 9 adede güncellendi."
     },
     {
       "version": "v1.4.64",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.64)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "🧼 Footer Mükerrer Sürüm Geçmişi Bağlantısı Temizliği",
+      "desc": "Footer telif barındaki mükerrer Sürüm Geçmişi metin linki kaldırıldı, kurumsal sol sütundaki tekil yeşil Canlı Sistem rozeti korundu."
     },
     {
       "version": "v1.4.63",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.63)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "📖 Sistem Kılavuzu Rota & RBAC İzin Entegrasyonu",
+      "desc": "sistem-kilavuzu ve system-guide rotaları SLUG_TO_TAB haritasına, RBAC izin matrisine ve App render bloğuna eklenerek 404 hatası tamamen çözüldü."
     },
     {
       "version": "v1.4.62",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.62)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "🐛 VersionHistoryModal Tanımsız Değişken ReferenceError Tamiri",
+      "desc": "App bileşeni içerisindeki VersionHistoryModalComponent çağrısında kalan tanımsız systemSettings değişkeni temizlendi, canlı sürüm aktarımı sağlandı."
     },
     {
       "version": "v1.4.61",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.61)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "⚙️ React App systemVersionState Eşleşme Bağlantısı",
+      "desc": "systemVersionState ReferenceError hatası düzeltildi, canlı sürüm state binding systemVersion prop'u ile bağlandı."
     },
     {
       "version": "v1.4.60",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.60)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "⚡ VersionHistoryModal Dynamic Props Aktarımı",
+      "desc": "App bileşenindeki VersionHistoryModalComponent çağrısına systemVersion ve versionHistory prop'ları dinamik veritabanı state'inden aktarıldı."
     },
     {
       "version": "v1.4.59",
       "date": "01 Ağustos 2026",
-      "title": "Otomatik Sürüm Güncellemesi (v1.4.59)",
-      "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+      "title": "📜 Veritabanı Canlı Sürüm Geçmişi Kataloğu Entegrasyonu",
+      "desc": "db_system_settings.json içerisine v1.4.0'dan bu yana yapılan tüm mimari yeniliklerin detaylı changelog kataloğu işlendi."
     },
     {
       "version": "v1.4.58",
@@ -287,36 +287,23 @@
       "date": "01 Ağustos 2026",
       "title": "📱 Mobil Yatay Kaydırılabilir Üst Rozet Şeridi",
       "desc": "Yeni Rezervasyon sayfasının en üstündeki 3 adet rozet (Kiralama, Ref Kodu, Taslak Kaydedildi) mobil ekranlarda dikey alt alta dizilmek yerine tek bir şık ve parmakla kaydırılabilir (overflow-x-auto whitespace-nowrap) yatay bantta toplandı."
-    },
+    }
+  ],
+  "reservations": [
     {
-      "version": "v1.4.55",
-      "date": "01 Ağustos 2026",
-      "title": "⚡ 17 Modüler ES Sayfa Bileşeni (%100 Sync)",
-      "desc": "Projedeki tüm 17 ana sayfa bileşeni (CreateReservationPage, ReservationsListPage, DashboardPage, SettingsPage, FinancePage vb.) ve modallar src/pages/*.jsx klasörüne %100 güncel ES Module standartlarında senkronize edildi."
-    },
-    {
-      "version": "v1.4.54",
-      "date": "01 Ağustos 2026",
-      "title": "🛠️ Yeni Rezervasyon Üst Başlık Kartı & Tıkla-Kopyala Ref Kodu",
-      "desc": "Yeni Rezervasyon sayfasının üst kartındaki ekrandan sağa taşma ve kayma sorunu flex-wrap ve overflow-hidden ile düzeltildi. Ref rozetine tek tıkla panoya kopyalama ve toast bildirimi eklendi."
-    },
-    {
-      "version": "v1.4.52",
-      "date": "01 Ağustos 2026",
-      "title": "🔗 Canlı Veritabanı Sürüm Geçmişi Modal Bağlantısı",
-      "desc": "Sürüm Geçmişi modalındaki releases dizisi veritabanındaki versionHistory verisine dinamik olarak bağlandı. ReferenceError hatası giderildi ve otomatik sürüm yükseltme motoru devreye girdi."
-    },
-    {
-      "version": "v1.4.44",
-      "date": "01 Ağustos 2026",
-      "title": "⚙️ Ayarlar Sayfası Masaüstü Menü Seçim Kartı İyileştirmesi",
-      "desc": "Ayarlar > Görünüm sekmesinde kaydırma ve sekme geçişlerinde kaybolan Masaüstü Menü Yerleşimi kartı düzeltildi, build_precompiled.py tüm JSX script bloklarını tek dosyada birleştirecek şekilde güncellendi."
-    },
-    {
-      "version": "v1.4.43",
-      "date": "01 Ağustos 2026",
-      "title": "🌐 Ağ İstekleri Otomatik Tekrar Deneme (fetchWithRetry)",
-      "desc": "Sunucu yeniden başlatılırken oluşan ERR_CONNECTION_REFUSED hatalarını engellemek için window.fetchWithRetry mekanizması entegre edildi. İstekler 3 kez üst üste otomatik denenir."
+      "id": "MEDIA-RES2026004",
+      "mediaKey": "MEDIA-RES2026004",
+      "customerName": "Özel Düğün & Balo Daveti",
+      "eventType": "Balo / Düğün Daveti",
+      "date": "2026-08-01",
+      "venueId": "v1",
+      "mediaFiles": [
+        {
+          "id": "mf_test99",
+          "fileName": "guest_photo_test.jpg",
+          "uploadedAt": "2026-08-01T03:19:40Z"
+        }
+      ]
     }
   ],
   "storedMedia": {

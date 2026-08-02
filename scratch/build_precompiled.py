@@ -19,13 +19,28 @@ try:
             db_data['systemVersion'] = new_v
             db_data['lastUpdated'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
             
-            # Add automatic changelog entry
+            # Add automatic changelog entry (reads from scratch/next_changelog.json if available, or env vars)
+            changelog_info = {
+                "title": os.environ.get('BUILD_CHANGELOG_TITLE', f"Sürüm Güncellemesi ({new_v})"),
+                "desc": os.environ.get('BUILD_CHANGELOG_DESC', "Sistem mimarisi, UI/UX düzenlemeleri ve kod optimizasyonları yapıldı.")
+            }
+            next_cl_path = os.path.join(os.path.dirname(__file__), 'next_changelog.json')
+            if os.path.exists(next_cl_path):
+                try:
+                    with open(next_cl_path, 'r', encoding='utf-8') as ncf:
+                        next_cl = json.load(ncf)
+                        changelog_info['title'] = next_cl.get('title', changelog_info['title'])
+                        changelog_info['desc'] = next_cl.get('desc', changelog_info['desc'])
+                    os.remove(next_cl_path)
+                except Exception as e:
+                    print("next_changelog error:", e)
+
             history = db_data.get('versionHistory', [])
             history.insert(0, {
                 "version": new_v,
                 "date": time.strftime('%d Ağustos %Y', time.localtime()),
-                "title": f"Otomatik Sürüm Güncellemesi ({new_v})",
-                "desc": "Sistem veritabanında (db_system_settings.json) otomatik sürüm yükseltme ve canlı veri çekme mekanizması devreye girdi."
+                "title": changelog_info['title'],
+                "desc": changelog_info['desc']
             })
             db_data['versionHistory'] = history[:15] # Keep last 15 entries
             

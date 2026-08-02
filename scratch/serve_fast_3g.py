@@ -236,7 +236,8 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                             sys_cfg = json.load(dbf)
                         active_t = sys_cfg.get('themeColor', 'nordic-light')
                         active_m = sys_cfg.get('menuLayout', 'vertical')
-                        inject_tag = f'<html lang="tr" class="light" data-ui-theme="{active_t}" data-menu-layout="{active_m}">'
+                        active_v = sys_cfg.get('systemVersion', 'v1.4.67')
+                        inject_tag = f'<html lang="tr" class="light" data-ui-theme="{active_t}" data-menu-layout="{active_m}" data-system-version="{active_v}">'
                         content_str = content.decode('utf-8', errors='ignore')
                         content_str = re.sub(r'<html[^>]*>', inject_tag, content_str, count=1)
                         content = content_str.encode('utf-8')
