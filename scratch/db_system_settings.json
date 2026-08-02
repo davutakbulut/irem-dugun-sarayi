@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.11",
+  "systemVersion": "v1.5.12",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.12",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Görsel Oturma Planı Tasarlayıcı (VisualSeatingChartPlanner v1.5.12)",
+      "description": "119 maddelik yol haritasının 9. maddesi otonom yapay zeka hattı tarafından tamamlandı. Protokol, VIP ve aile masaları için görsel oturma planı ve masa düzeni ikaz rozeti entegre edildi. GitHub Project #2 panosunda Madde #9 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.11",
       "date": "02 Ağustos 2026",
