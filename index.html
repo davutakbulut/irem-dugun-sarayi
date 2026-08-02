@@ -11815,6 +11815,39 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const isEditMode = !!editingResFromUrl;
 
+      // ROADMAP ITEM #1: MULTI-VENUE COLLISION PREVENTION ENGINE
+      const venueCollisionInfo = useMemo(() => {
+        if (!venueId || !startDate || !startTime || !endTime) return { isCollision: false, conflictingRes: null };
+
+        const targetVenue = (venues || []).find(v => v.id === venueId);
+        const venueName = targetVenue ? targetVenue.name : 'Seçili Salon';
+
+        const conflict = (reservations || []).find(r => {
+          if (isEditMode && editingResFromUrl && (r.id === editingResFromUrl.id || r.mediaKey === editingResFromUrl.mediaKey)) {
+            return false;
+          }
+
+          const rVenueId = r.venueId;
+          const rDate = r.startDate || r.date;
+          if (rVenueId !== venueId || rDate !== startDate) return false;
+
+          const rSlot = r.timeSlot || `${r.startTime || '19:00'}-${r.endTime || '23:00'}`;
+          const [s1, e1] = [startTime, endTime];
+          const [s2, e2] = (rSlot.includes('-') ? rSlot.split('-') : ['19:00', '23:00']).map(s => s.trim());
+          
+          return (s1 < e2 && s2 < e1);
+        });
+
+        if (conflict) {
+          return {
+            isCollision: true,
+            conflictingRes: conflict,
+            message: `⚠️ ÇAKIŞMA UYARISI: ${venueName} salonunda ${startDate} tarihinde (${conflict.timeSlot || 'bu saatlerde'}) zaten "${conflict.customerName}" adına kayıtlı bir rezervasyon bulunmaktadır!`
+          };
+        }
+        return { isCollision: false, conflictingRes: null };
+      }, [venueId, startDate, startTime, endTime, reservations, isEditMode, editingResFromUrl, venues]);
+
       // Pre-fill form when editingResFromUrl is detected
       useEffect(() => {
         if (editingResFromUrl) {

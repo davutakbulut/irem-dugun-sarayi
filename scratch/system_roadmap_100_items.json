@@ -5,7 +5,8 @@
       "id": 1,
       "category": "Rezervasyon & Takvim",
       "title": "Çoklu Salon Çakışma Engelleyici",
-      "desc": "Aynı salonda aynı zaman diliminde 2. rezervasyonun oluşturulmasını otomatik engelleme."
+      "desc": "Aynı salonda aynı zaman diliminde 2. rezervasyonun oluşturulmasını otomatik engelleme.",
+      "status": "✅ Tamamlandı (v1.5.03)"
     },
     {
       "id": 2,
