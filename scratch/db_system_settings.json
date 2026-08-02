@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T20:16:34.948Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.25",
-  "lastUpdated": "2026-08-03T03:30:00Z",
+  "systemVersion": "v1.5.26",
+  "lastUpdated": "2026-08-03T04:00:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.26",
+      "date": "03 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Otomatik Ödeme Hatırlatma SMS/WhatsApp Servisi (AutoPaymentReminderDispatch v1.5.26)",
+      "description": "119 maddelik yol haritasının 23. maddesi otonom yapay zeka hattı tarafından tamamlandı. Vadesine 7 gün, 3 gün kalan ve vadesi geçen taksit ödemeleri için şablonlu WhatsApp ve SMS ödeme hatırlatma bağlantısı gönderen, Gece Kalkanı (Quiet Hours) ve sıklık sınırlamalı otomatik iletim kalkanı entegre edildi. GitHub Project #2 panosunda Madde #23 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.25",
       "date": "03 Ağustos 2026",
