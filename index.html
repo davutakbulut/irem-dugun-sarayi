@@ -9226,7 +9226,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.5.08 🤖 Otomatik Yapay Zeka Geliştirmesi
+                v1.5.09 🤖 Otomatik Yapay Zeka Geliştirmesi
               </span>
             </div>
 
@@ -12972,16 +12972,33 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 flex items-center justify-between shadow-sm">
-                    <div className="flex items-center space-x-2.5">
-                      <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                      <div className="text-xs font-bold">
-                        {selectedVenue?.name} • {formatDate(startDate)} ({activeSlot}) — Bu Salon ve Seans Tamamen Müsait!
+                  <div className="space-y-2">
+                    <div className="p-3.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 flex items-center justify-between shadow-sm">
+                      <div className="flex items-center space-x-2.5">
+                        <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div className="text-xs font-bold">
+                          {selectedVenue?.name} • {formatDate(startDate)} ({activeSlot}) — Bu Salon ve Seans Tamamen Müsait!
+                        </div>
                       </div>
+                      <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                        MÜSAİT
+                      </span>
                     </div>
-                    <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-wider">
-                      MÜSAİT
-                    </span>
+
+                    {/* SPECIAL DAY & HOLIDAY PRICING MULTIPLIER BADGE (v1.5.09) */}
+                    {(startDate.endsWith('-08-30') || startDate.endsWith('-10-29') || startDate.endsWith('-04-23') || startDate.endsWith('-05-19') || startDate.endsWith('-07-15') || startDate.endsWith('-01-01')) && (
+                      <div className="p-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-gold-300 flex items-center justify-between text-xs font-bold animate-fade-in">
+                        <div className="flex items-center space-x-2">
+                          <ThemeIcon icon="sparkles" fallbackEmoji="🎉" className="w-4 h-4 text-amber-600 dark:text-gold-400 shrink-0" />
+                          <span>
+                            Resmi Tatil & Özel Gün Tarifesi Aktif: Seçilen Tarihte %20 Yoğun Sezon Çarpanı Uygulanır
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-extrabold bg-amber-500/20 text-amber-800 dark:text-gold-300 px-2.5 py-1 rounded-full border border-amber-500/30">
+                          Resmi Tatil (%20 Çarpan - v1.5.09)
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
 
