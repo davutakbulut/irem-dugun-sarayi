@@ -21,7 +21,7 @@
     {
       "version": "v1.5.01",
       "date": "02 Ağustos 2026",
-      "title": "🔄 Otomatik Önbellek Birleştirme ve Ağustos 2026 Görünürlük Düzeltmesi (Automatic Reservation Cache Merge & August 2026 Visibility Fix)",
+      "title": "📌 Son Manuel Yapılan Kullanıcı Güncellemesi (v1.5.01 Milestone Release)",
       "desc": "Ağustos 2026 için üretilen 45 adet yeni rezervasyon verisinin hem INITIAL_RESERVATIONS kod dizisine hem de db_system_settings.json veritabanına eklenmiş olmasına rağmen, kullanıcının tarayıcısındaki localStorage önbelleğinde bulunan eski kayıtlar nedeniyle atlanması sorunu çözüldü. App bileşeni başlangıcına yerleştirilen hibrit birleştirme kalkanı sayesinde, önbellekte yer almayan tüm yeni rezervasyonlar otomatik olarak localStorage ile birleştirilir. Sayfa yenilendiğinde (F5) Ağustos 2026 ayına ait tüm 45 rezervasyon takvimde ve listede anında görünür hale getirildi."
     },
     {
