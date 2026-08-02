@@ -11898,6 +11898,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
           setReferrerName(editingResFromUrl.referrerName || '');
           setCampaignCode(editingResFromUrl.campaignCode || '');
+          setCustomDiscountAmount(editingResFromUrl.customDiscountAmount || editingResFromUrl.discountAmount || 0);
           setHasDeposit((editingResFromUrl.depositPaid || 0) > 0);
           setDepositPaid(editingResFromUrl.depositPaid || 0);
           setPaymentStatus(editingResFromUrl.paymentStatus || 'Bekliyor');
@@ -11940,6 +11941,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           if (f.selectedServices) setSelectedServices(f.selectedServices);
           if (f.referrerName !== undefined) setReferrerName(f.referrerName);
           if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
+          if (f.customDiscountAmount !== undefined) setCustomDiscountAmount(f.customDiscountAmount);
           if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
           if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
           if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
@@ -12072,7 +12074,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [referrerName, setReferrerName] = useState('');
       const [campaignCode, setCampaignCode] = useState('');
       const [hasDeposit, setHasDeposit] = useState(false); // Default: Hayır
-      const [depositPaid, setDepositPaid] = useState(0); // Default: 0 TL
+      const [depositPaid, setDepositPaid] = useState(0);
+      const [customDiscountAmount, setCustomDiscountAmount] = useState(0); // Default: 0 TL
       const [paymentStatus, setPaymentStatus] = useState('Bekliyor'); // Default: Bekliyor
 
       // 5. Invoicing Details (Bireysel / Tüzel) - DEFAULT TO UNCHECKED
@@ -12357,6 +12360,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           disc = 5000;
         }
 
+        let customDisc = Number(customDiscountAmount) || 0;
+        disc = disc + customDisc;
         disc = Math.max(0, Math.min(sub, disc));
         const afterDisc = Math.max(0, sub - disc);
         const vat = isInvoiced ? afterDisc * 0.20 : 0;
@@ -12368,7 +12373,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const remaining = isFullyPaid ? 0 : Math.max(0, grandTotal - netDeductions);
 
         return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, paidServicesTotal, paidServicesList, netDeductions, remaining, isFullyPaid, mappedServices };
-      }, [customVenuePrice, selectedServices, campaignCode, hasDeposit, depositPaid, paymentStatus, isInvoiced, services]);
+      }, [customVenuePrice, selectedServices, campaignCode, customDiscountAmount, hasDeposit, depositPaid, paymentStatus, isInvoiced, services]);
 
       const handleAddFlowItem = () => {
         setFlowPlan(prev => [...prev, { time: '22:30', title: 'Yeni Akış Adımı' }]);
@@ -12587,6 +12592,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         if (f.selectedServices) setSelectedServices(f.selectedServices);
                         if (f.referrerName !== undefined) setReferrerName(f.referrerName);
                         if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
+          if (f.customDiscountAmount !== undefined) setCustomDiscountAmount(f.customDiscountAmount);
                         if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
                         if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
                         if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
