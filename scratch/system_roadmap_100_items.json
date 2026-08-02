@@ -1,5 +1,5 @@
 {
-  "total": 118,
+  "total": 119,
   "items": [
     {
       "id": 1,
@@ -729,6 +729,13 @@
       "category": "Rakip & Derin Sistem Araştırması (Competitor Innovation)",
       "title": "Canlı WhatsApp & SMS Düğün Menüsü Tercih Toplama ve Lojistik Motoru (Automated WhatsApp & SMS Wedding Menu Preference & Catering Logistics Engine)",
       "desc": "Davetlilere otomatik WhatsApp/SMS menü anketi (Kırmızı Et, Beyaz Et, Vejetaryen, Çocuk) göndererek mutfak şeflerine anlık sayım çıkaran, gıda israfını %30 önleyen 5-Ajan Onaylı catering lojistiği motoru.",
+      "status": "⏳ Eklenme Bekliyor (Yol Haritasında)"
+    },
+    {
+      "id": 119,
+      "category": "Rakip & Derin Sistem Araştırması (Competitor Innovation)",
+      "title": "Otomatik Akıllı Bütçe, Kapora ve Taksitli Ödeme Hatırlatıcı Motoru (Automated Installment Payment & Financial Dues Tracking Engine)",
+      "desc": "Çiftlerin ödeme taksit tarihlerini, kapora vadelerini ve kalan bakiyelerini SMS/WhatsApp ile hatırlatan, kasa nakit akışını güvenceye alan 5-Ajan Onaylı finansal takip motoru.",
       "status": "⏳ Eklenme Bekliyor (Yol Haritasında)"
     }
   ],
