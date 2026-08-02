@@ -1,6 +1,6 @@
 # 📊 İrem Düğün Sarayı — Resmi GitHub Projects Live Kanban Board
 
-🔗 **Resmi GitHub Proje Panosu:** [https://github.com/users/davutakbulut/projects/1/views/1](https://github.com/users/davutakbulut/projects/1/views/1)
+🔗 **Resmi GitHub Proje Panosu:** [https://github.com/users/davutakbulut/projects/2](https://github.com/users/davutakbulut/projects/2) (`Rezervasyon Sistemi - v1`)
 
 Bu döküman ve canlı pano, otonom yapay zeka geliştirme hattı (`task-2254`) tarafından anlık olarak senkronize edilir.
 
