@@ -149,7 +149,46 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({'success': False, 'error': str(e), 'files': []}).encode('utf-8'))
                 return
 
-        # 2. API: Ping GET
+        # 2. API: Download Album ZIP (/api/download-album-zip?resId=...)
+        if parsed_path.path == '/api/download-album-zip':
+            try:
+                import zipfile
+                import io
+                query = urllib.parse.parse_qs(parsed_path.query)
+                res_id = re.sub(r'[^A-Za-z0-9_-]', '', query.get('resId', ['GENERAL'])[0])
+                
+                uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', res_id)
+                if not os.path.exists(uploads_dir):
+                    self.send_response(404)
+                    self.end_headers()
+                    self.wfile.write(b'{"error":"Album folder not found"}')
+                    return
+                
+                mem_zip = io.BytesIO()
+                with zipfile.ZipFile(mem_zip, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
+                    for root, dirs, files in os.walk(uploads_dir):
+                        for file in files:
+                            abs_f = os.path.join(root, file)
+                            rel_f = os.path.relpath(abs_f, uploads_dir)
+                            zf.write(abs_f, rel_f)
+                            
+                mem_zip.seek(0)
+                zip_data = mem_zip.read()
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/zip')
+                self.send_header('Content-Disposition', f'attachment; filename="irem_album_{res_id}.zip"')
+                self.send_header('Content-Length', str(len(zip_data)))
+                self.end_headers()
+                self.wfile.write(zip_data)
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f'{{"error":"ZIP creation failed: {str(e)}"}}'.encode('utf-8'))
+                return
+
+        # 3. API: Ping GET
         if parsed_path.path == '/api/ping':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')

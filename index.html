@@ -8255,14 +8255,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
   };
 
-  const handleBulkDownload = () => {
-    showToast('📦 Tüm fotoğraf ve videolar paketleniyor... Arşiv indirmesi başlatıldı!');
-    const text = 'İrem Düğün Sarayı - Medya Arşivi\nEtkinlik: ' + (currentRes ? currentRes.customerName : 'Davet') + '\nToplam ' + mediaList.length + ' dosya.';
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (currentRes ? currentRes.customerName.replace(/\s+/g, '_') : 'Etkinlik') + '_Medya_Arsivi.txt';
-    a.click();
+  const handleBulkDownload = async () => {
+    const activeKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
+    showToast('📦 Tüm albüm yüksek hızlı .ZIP arşivi olarak indiriliyor...');
+    try {
+      const zipUrl = `/api/download-album-zip?resId=${activeKey}`;
+      const a = document.createElement('a');
+      a.href = zipUrl;
+      a.download = `irem_album_${activeKey}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch(err) {
+      showToast('⚠️ ZIP indirmesi başlatılamadı!', 'error');
+    }
   };
 
   return (
