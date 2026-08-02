@@ -9226,7 +9226,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.5.03 🤖 Otomatik Yapay Zeka Geliştirmesi
+                v1.5.04 🤖 Otomatik Yapay Zeka Geliştirmesi
               </span>
             </div>
 
@@ -12978,9 +12978,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 )}
 
                 {/* ROADMAP ITEM #2: 90-MIN VENUE BUFFER & SANITIZATION PROTECTION BADGE */}
-                <div className="flex items-center space-x-2 text-[11px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
-                  <span className="shrink-0 text-sm">🧹</span>
-                  <span>90 Dakikalık Salon Temizlik, Havalandırma & Dezenfeksiyon Tamponu Korumalı (Seanslar Arası Sterilizasyon)</span>
+                <div className="flex items-center space-x-2.5 text-[11px] font-bold text-amber-800 dark:text-gold-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/25 transition-all shadow-xs">
+                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <ThemeIcon icon="sparkles" fallbackEmoji="🧹" className="w-3.5 h-3.5 text-amber-700 dark:text-gold-400 shrink-0" />
+                  </div>
+                  <span className="leading-snug">90 Dakikalık Salon Temizlik, Havalandırma & Dezenfeksiyon Tamponu Korumalı (Seanslar Arası Sterilizasyon)</span>
                 </div>
 
                 {/* LIVE CALENDAR PREVIEW & OCCUPANCY TIMELINE (RESTORED INSIDE SECTION 1) */}
