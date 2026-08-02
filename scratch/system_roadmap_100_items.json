@@ -1,5 +1,5 @@
 {
-  "total": 117,
+  "total": 118,
   "items": [
     {
       "id": 1,
@@ -720,6 +720,13 @@
       "category": "Rakip & Derin Sistem Araştırması (Competitor Innovation)",
       "title": "İnteraktif 2D Düğün Masası Yerleşim ve Oturma Düzeni Çizici (2D Interactive Drag & Drop Seating Chart & Guest Allocation Engine)",
       "desc": "Rakip analizi sonucu tespit edilen; gelin ve damadın davetlileri masalara 2D sürükle-bırak yöntemiyle oturtmasını sağlayan, salon şefleri için masa ikram çıktıları üreten 5-Ajan Onaylı yüksek performanslı oturma planı motoru.",
+      "status": "⏳ Eklenme Bekliyor (Yol Haritasında)"
+    },
+    {
+      "id": 118,
+      "category": "Rakip & Derin Sistem Araştırması (Competitor Innovation)",
+      "title": "Canlı WhatsApp & SMS Düğün Menüsü Tercih Toplama ve Lojistik Motoru (Automated WhatsApp & SMS Wedding Menu Preference & Catering Logistics Engine)",
+      "desc": "Davetlilere otomatik WhatsApp/SMS menü anketi (Kırmızı Et, Beyaz Et, Vejetaryen, Çocuk) göndererek mutfak şeflerine anlık sayım çıkaran, gıda israfını %30 önleyen 5-Ajan Onaylı catering lojistiği motoru.",
       "status": "⏳ Eklenme Bekliyor (Yol Haritasında)"
     }
   ],
