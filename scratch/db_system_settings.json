@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.09",
+  "systemVersion": "v1.5.10",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.10",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Tekrarlanan Etkinlik Şablonları (RecurringEventTemplates v1.5.10)",
+      "description": "119 maddelik yol haritasının 7. maddesi otonom yapay zeka hattı tarafından tamamlandı. Kurumsal bayi toplantıları, dernek yemekleri ve özel organizasyonlar için hızlı şablon seçimi ve otomatik alan doldurma motoru entegre edildi. GitHub Project #2 panosunda Madde #7 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.09",
       "date": "02 Ağustos 2026",
