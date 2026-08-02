@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T20:16:34.948Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.24",
-  "lastUpdated": "2026-08-03T03:00:00Z",
+  "systemVersion": "v1.5.25",
+  "lastUpdated": "2026-08-03T03:30:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.25",
+      "date": "03 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Parçalı Ödeme & Taksit Takip Sistemi (PartialPaymentTracker v1.5.25)",
+      "description": "119 maddelik yol haritasının 22. maddesi otonom yapay zeka hattı tarafından tamamlandı. Düğün ve organizasyon ödemeleri için Kaparo, 1. Taksit, 2. Taksit ve Kapanış Ödemesi gibi parçalı ödeme planları oluşturan, vadesi geçen taksitleri izleyen ve otomatik makbuz üreten finans kalkanı kuruldu. GitHub Project #2 panosunda Madde #22 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.24",
       "date": "03 Ağustos 2026",
