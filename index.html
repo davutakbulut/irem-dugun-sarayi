@@ -9226,7 +9226,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
 
               <span className="bg-amber-500/10 text-amber-700 dark:text-gold-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-amber-500/30">
-                v1.5.05 🤖 Otomatik Yapay Zeka Geliştirmesi
+                v1.5.06 🤖 Otomatik Yapay Zeka Geliştirmesi
               </span>
             </div>
 
@@ -17305,6 +17305,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     function CalendarComponent({ reservations = [], draftReservations = [], venues = [], onResClick, onReschedule, onCreateNewForDate, navigateTo }) {
       const [draggedResId, setDraggedResId] = useState(null);
       const [selectedDayData, setSelectedDayData] = useState(null);
+      const [pendingReschedule, setPendingReschedule] = useState(null); // Safety reschedule modal state
       const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1)); // August 2026 default
 
       const year = currentDate.getFullYear();
@@ -17341,6 +17342,72 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               }}
               onClose={() => setSelectedDayData(null)}
             />
+          )}
+
+          {/* ROADMAP ITEM #3: DRAG & DROP RESCHEDULE SAFETY CONFIRMATION MODAL */}
+          {pendingReschedule && (
+            <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[999] flex items-center justify-center p-4 animate-fade-in">
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 relative">
+                <div className="flex items-center space-x-3 border-b border-slate-200 dark:border-brand-border pb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                    <ThemeIcon icon="alert-triangle" fallbackEmoji="⚠️" className="w-6 h-6 text-amber-600 dark:text-gold-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100">
+                      Tarih Değişikliği Onay Kalkanı (v1.5.06)
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">
+                      Yanlışlıkla tarih kaydırma koruması & müşteri bildirim sistemi
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl space-y-1.5">
+                    <div className="font-bold text-amber-800 dark:text-gold-300 text-sm">
+                      👤 {pendingReschedule.reservation.customerName || 'Müşteri'}
+                    </div>
+                    <div className="text-slate-600 dark:text-gray-300 flex items-center space-x-2">
+                      <span>Eski Tarih: <strong className="line-through text-red-500">{pendingReschedule.reservation.date || pendingReschedule.reservation.eventDate || pendingReschedule.reservation.startDate}</strong></span>
+                      <span>➔</span>
+                      <span>Yeni Tarih: <strong className="text-emerald-600 dark:text-emerald-400">{pendingReschedule.targetDate}</strong></span>
+                    </div>
+                    <div className="text-slate-500 text-[11px]">
+                      Salon: {pendingReschedule.reservation.venueName || 'Salon'} | Seans: {pendingReschedule.reservation.timeSlot || '19:00-23:00'}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-brand-dark/40 p-3 rounded-xl border border-slate-200 dark:border-brand-border space-y-1">
+                    <div className="font-bold text-slate-700 dark:text-gray-200">📱 Müşteri Otomatik İletişim Protokolü:</div>
+                    <p className="text-[11px] text-slate-500 dark:text-gray-400">
+                      Tarih değişikliği onaylandığında müşterinin telefonuna (+90 {pendingReschedule.reservation.customerPhone || '...'}) bilgilendirme SMS / WhatsApp mesajı fırlatılacaktır.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end space-x-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setPendingReschedule(null)}
+                    className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-brand-border text-slate-700 dark:text-gray-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-brand-dark transition"
+                  >
+                    ❌ Değişikliği İptal Et
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onReschedule) {
+                        onReschedule(pendingReschedule.reservation.id, pendingReschedule.targetDate);
+                      }
+                      setPendingReschedule(null);
+                    }}
+                    className="px-5 py-2.5 rounded-xl gold-button font-bold text-xs shadow-lg hover:scale-105 transition"
+                  >
+                    ✅ Değişikliği Onayla & SMS Gönder
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           <div className="flex justify-between items-center flex-wrap gap-3">
@@ -17406,8 +17473,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     onDragOver={e => e.preventDefault()}
                     onDrop={e => {
                       e.preventDefault();
-                      if (draggedResId && onReschedule) {
-                        onReschedule(draggedResId, dateStr);
+                      if (draggedResId) {
+                        const targetRes = (reservations || []).find(r => r.id === draggedResId);
+                        if (targetRes) {
+                          setPendingReschedule({
+                            reservation: targetRes,
+                            targetDate: dateStr
+                          });
+                        }
                         setDraggedResId(null);
                       }
                     }}

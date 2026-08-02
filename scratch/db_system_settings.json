@@ -15,9 +15,15 @@
   "updatedAt": "2026-08-02T03:29:20.000Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.05",
+  "systemVersion": "v1.5.06",
   "lastUpdated": "2026-08-02T03:29:20Z",
   "versionHistory": [
+    {
+      "version": "v1.5.06",
+      "date": "02 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Sürükle-Bırak Tarih Güncelleme Güvenlik İkaz Kalkanı (RescheduleSafetyModal v1.5.06)",
+      "description": "118 maddelik yol haritasının 3. maddesi otonom yapay zeka hattı tarafından tamamlandı. Takvim üzerinde rezervasyon tarihi sürüklendiğinde yanlışlıkla tarih kaydırmayı ve uyuşmazlıkları engelleyen güvenlik onay kalkanı, eski/yeni tarih karşılaştırması ve müşteriye otomatik SMS/WhatsApp bilgilendirme protokolü kuruldu. GitHub Project #2 panosunda Madde #3 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.05",
       "date": "02 Ağustos 2026",

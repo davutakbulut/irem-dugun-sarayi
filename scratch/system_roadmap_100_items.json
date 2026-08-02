@@ -19,7 +19,8 @@
       "id": 3,
       "category": "Rezervasyon & Takvim",
       "title": "Sürükle-Bırak Tarih Güncelleme Güvenlik İkazı",
-      "desc": "Takvimde sürükle-bırak yapılırken müşteri onay mesajı ve SMS bildirim tetikleyicisi."
+      "desc": "Takvimde sürükle-bırak yapılırken müşteri onay mesajı ve SMS bildirim tetikleyicisi.",
+      "status": "✅ Tamamlandı (v1.5.06)"
     },
     {
       "id": 4,
