@@ -127,6 +127,18 @@ export default function App() {
             if (data.customers && Array.isArray(data.customers) && data.customers.length > 0) {
               setCustomers(data.customers);
             }
+            if (data.campaigns && Array.isArray(data.campaigns) && data.campaigns.length > 0) {
+              setCampaigns(data.campaigns);
+            }
+            if (data.users && Array.isArray(data.users) && data.users.length > 0) {
+              setUsers(data.users);
+            }
+            if (data.roles && typeof data.roles === 'object' && Object.keys(data.roles).length > 0) {
+              setRolesState(data.roles);
+            }
+            if (data.tabPermissions && typeof data.tabPermissions === 'object' && Object.keys(data.tabPermissions).length > 0) {
+              setTabPermissionsState(data.tabPermissions);
+            }
             if (data.themeColor) {
               setCurrentTheme(data.themeColor);
             }
@@ -160,26 +172,45 @@ export default function App() {
     }
   };
 
+  // Helper to persist roles & permissions to backend
+  const persistRolesAndPermissions = (updatedRoles, updatedPermissions) => {
+    try {
+      const fetchFn = window.fetchWithRetry || fetch;
+      fetchFn('/api/system-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roles: updatedRoles,
+          tabPermissions: updatedPermissions,
+          updatedAt: new Date().toISOString(),
+          updatedBy: 'admin'
+        })
+      });
+    } catch(e) {}
+  };
+
   // Role Management Handlers
   const handleAddRole = (roleId, roleName) => {
     const cleanId = roleId.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
     if (!cleanId || !roleName.trim()) return;
-    setRolesState(prev => ({ ...prev, [cleanId]: roleName }));
-    setTabPermissionsState(prev => {
-      const updated = { ...prev };
-      Object.keys(updated).forEach(t => {
-        if (!updated[t].includes(cleanId)) {
-          updated[t] = [...updated[t], cleanId];
-        }
-      });
-      return updated;
+    const newRoles = { ...rolesState, [cleanId]: roleName };
+    const newPerms = { ...tabPermissionsState };
+    Object.keys(newPerms).forEach(t => {
+      if (!newPerms[t].includes(cleanId)) {
+        newPerms[t] = [...newPerms[t], cleanId];
+      }
     });
+    setRolesState(newRoles);
+    setTabPermissionsState(newPerms);
+    persistRolesAndPermissions(newRoles, newPerms);
     showAlert('🛡️ Yeni Rol Eklendi', `"${roleName}" rolü başarıyla tanımlandı.`);
   };
 
   const handleEditRole = (roleId, newRoleName) => {
     if (!newRoleName.trim()) return;
-    setRolesState(prev => ({ ...prev, [roleId]: newRoleName }));
+    const newRoles = { ...rolesState, [roleId]: newRoleName };
+    setRolesState(newRoles);
+    persistRolesAndPermissions(newRoles, tabPermissionsState);
     showAlert('✏️ Rol Güncellendi', `"${newRoleName}" rol unvanı güncellendi.`);
   };
 
@@ -188,29 +219,26 @@ export default function App() {
       showAlert('⚠️ Uyarı', 'Admin rolü sistemin ana rolüdür, silinemez!');
       return;
     }
-    setRolesState(prev => {
-      const copy = { ...prev };
-      delete copy[roleId];
-      return copy;
+    const newRoles = { ...rolesState };
+    delete newRoles[roleId];
+    const newPerms = { ...tabPermissionsState };
+    Object.keys(newPerms).forEach(t => {
+      newPerms[t] = (newPerms[t] || []).filter(r => r !== roleId);
     });
-    setTabPermissionsState(prev => {
-      const updated = { ...prev };
-      Object.keys(updated).forEach(t => {
-        updated[t] = (updated[t] || []).filter(r => r !== roleId);
-      });
-      return updated;
-    });
+    setRolesState(newRoles);
+    setTabPermissionsState(newPerms);
+    persistRolesAndPermissions(newRoles, newPerms);
     showAlert('🗑️ Rol Silindi', `Rol (${roleId}) ve izinleri silindi.`);
   };
 
   const handleToggleTabPermission = (tabId, roleId) => {
-    setTabPermissionsState(prev => {
-      const current = prev[tabId] || [];
-      const updated = current.includes(roleId)
-        ? current.filter(r => r !== roleId)
-        : [...current, roleId];
-      return { ...prev, [tabId]: updated };
-    });
+    const current = tabPermissionsState[tabId] || [];
+    const updatedList = current.includes(roleId)
+      ? current.filter(r => r !== roleId)
+      : [...current, roleId];
+    const newPerms = { ...tabPermissionsState, [tabId]: updatedList };
+    setTabPermissionsState(newPerms);
+    persistRolesAndPermissions(rolesState, newPerms);
   };
 
   // Reservation Handlers
