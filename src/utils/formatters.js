@@ -156,6 +156,8 @@ export const TAB_TO_SLUG = {
 
 export const SLUG_TO_TAB = {
   '': 'dashboard',
+  'yonetim': 'dashboard',
+  'yonetim/anasayfa': 'dashboard',
   'dashboard': 'dashboard',
   'anasayfa': 'dashboard',
   'medya': 'media',
@@ -166,12 +168,14 @@ export const SLUG_TO_TAB = {
   'ek-hizmetler': 'services',
   'rezervasyonlar': 'reservations',
   'takvim': 'calendar',
+  'campaigns': 'campaigns',
   'kampanyalar': 'campaigns',
   'finans': 'finance',
   'musteri-rehberi': 'customers',
   'kullanici-yonetimi': 'users',
   'roller': 'roles',
   'raporlar-ai': 'reports',
+  'reports': 'reports',
   'medya-yukle': 'media',
   'profil': 'profile',
   'zihin-haritasi': 'mind-map',
@@ -222,9 +226,13 @@ export const parseHashRoute = () => {
   } else if (pathname.startsWith('/medya') || pathname.startsWith('/m/') || pathname.startsWith('/medya-yukle') || routePart.startsWith('medya') || routePart.startsWith('m/')) {
     targetTab = 'media';
     slug = 'media';
-  } else if (pathname.startsWith('/yonetim') || rawHash.length > 0) {
+  } else {
+    // Strip leading /yonetim if present in pathname or hash
     let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
     if (!sub && routePart) sub = routePart;
+    if (sub.startsWith('yonetim/')) sub = sub.replace(/^yonetim\//, '');
+    if (sub === 'yonetim') sub = '';
+
     slug = sub || 'dashboard';
 
     if (!sub || sub === 'anasayfa' || sub === 'dashboard') {
@@ -235,15 +243,11 @@ export const parseHashRoute = () => {
       targetTab = SLUG_TO_TAB[sub];
     } else if (['404', '301', '403', '500', 'simulasyon-404', 'simulasyon-301', 'simulasyon-403', 'simulasyon-500'].includes(sub)) {
       targetTab = sub.startsWith('simulasyon-') ? sub : 'simulasyon-' + sub;
+    } else if (pathname === '/' || pathname === '/yonetim' || pathname === '/yonetim/') {
+      targetTab = 'dashboard';
     } else {
       targetTab = 'simulasyon-404';
     }
-  } else if (pathname === '/' && !rawHash) {
-    targetTab = 'dashboard';
-    slug = 'dashboard';
-  } else {
-    targetTab = 'simulasyon-404';
-    slug = '404';
   }
 
   const refKey = params.get('ref') || null;
