@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { RedAlertConfirmModal } from '../components/Modals.jsx';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { TAB_LABELS } from '../constants/mockData.js';
 
 export function RolesPageComponent({ activeRole, roles, users = [], tabPermissions, onAddRole, onEditRole, onDeleteRole, onToggleTabPermission, showToast, navigateTo }) {
       const [newRoleId, setNewRoleId] = useState('');

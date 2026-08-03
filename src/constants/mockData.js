@@ -184,6 +184,35 @@ export const ROLE_NAMES = {
   'musteri': 'Müşteri'
 };
 
+export const TAB_LABELS = {
+  'dashboard': 'Anasayfa / İstatistikler',
+  'create-reservation': 'Yeni Rezervasyon Oluştur',
+  'venues': 'Etkinlik Mekanları',
+  'services': 'Ek Hizmetlerim',
+  'reservations': 'Rezervasyonlar',
+  'calendar': 'Takvim Görünümü',
+  'campaigns': 'Kampanyalar',
+  'finance': 'Finans & Fatura Yönetimi',
+  'customers': 'Müşteri Rehberi',
+  'users': 'Kullanıcı Yönetimi',
+  'roles': 'Rol Yönetimi (Sistem Rolleri)',
+  'reports': 'Raporlar & AI Önerileri',
+  'media': 'Medya & Foto Yükleme',
+  'profile': 'Profilim & Hesap Ayarları',
+  'mind-map': 'Zihin Haritası (MindMap)',
+  'settings': 'Genel Ayarlar & Rol Yönetimi',
+  'settings-appearance': 'Görünüm & Tema Ayarları',
+  'settings-performance': 'Önbellek & Performans',
+  'settings-rbac': 'Rol & İzin Yönetimi',
+  'settings-errors': 'Hata & Yönlendirme Simülasyonu',
+  'system-guide': 'Sistem Kılavuzu & Mimarisi',
+  'simulasyon-404': 'HTTP 404 - Sayfa Bulunamadı Simülasyonu',
+  'simulasyon-301': 'HTTP 301 - Kalıcı Yönlendirme Simülasyonu',
+  'simulasyon-403': 'HTTP 403 - Yetkisiz Erişim Uyarısı Simülasyonu',
+  'simulasyon-500': 'HTTP 500 - Sunucu Hatası Simülasyonu'
+};
+
+
 export const TAB_PERMISSIONS = {
   'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
   'create-reservation': ['admin', 'satisci'],

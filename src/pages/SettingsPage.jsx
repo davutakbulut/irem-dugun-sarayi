@@ -3,6 +3,7 @@ import { RedAlertConfirmModal } from '../components/Modals.jsx';
 import { Page404 as Page404Component, Page301 as Page301Component, Page403 as Page403Component, Page500 as Page500Component } from './ErrorPages.jsx';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { TAB_LABELS } from '../constants/mockData.js';
 
 export function SettingsComponent({
       activeRole,
