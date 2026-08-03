@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { formatCurrency } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { generateSmartAIRecommendations } from '../constants/mockData.js';
 
 export function ReportsComponent({ reservations = [], venues = [], services = [], onConvertToCampaign, onUpdateVenuePrice }) {
       const totalRevenue = useMemo(() => {

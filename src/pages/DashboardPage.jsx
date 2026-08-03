@@ -3,6 +3,7 @@ import { WhatsAppButton } from '../components/CommonUI.jsx';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { generateSmartAIRecommendations } from '../constants/mockData.js';
 
 export function DashboardComponent({ activeRole, venues = [], reservations = [], financialStats, onNewResClick, onTabChange, onConvertToCampaign, onUpdateVenuePrice }) {
       const totalRevenue = useMemo(() => {

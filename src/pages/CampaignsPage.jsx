@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { generateSmartAIRecommendations } from '../constants/mockData.js';
 
 export function CampaignsComponent({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice }) {
       const aiRecs = React.useMemo(() => {
