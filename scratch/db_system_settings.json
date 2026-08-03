@@ -15,9 +15,27 @@
   "updatedAt": "2026-08-02T20:16:34.948Z",
   "updatedBy": "admin",
   "menuLayout": "vertical",
-  "systemVersion": "v1.5.29",
-  "lastUpdated": "2026-08-03T04:30:00Z",
+  "systemVersion": "v1.5.30",
+  "lastUpdated": "2026-08-04T02:30:00Z",
   "versionHistory": [
+    {
+      "version": "v1.5.30",
+      "date": "04 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — KDV Oranı Dinamik Seçim Engine (%1, %10, %20) (DynamicVatRateEngine v1.5.30)",
+      "description": "119 maddelik yol haritasının 27. maddesi otonom yapay zeka hattı tarafından tamamlandı. Düğün organizasyonu hizmetlerinde yemek/catering (%10 KDV), gıda hammaddeleri (%1 KDV) ve salon kiralama (%20 KDV) kalemsel KDV matrah ayrıştırma motoru ve vergi kalkanı entegre edildi. GitHub Project #2 panosunda Madde #27 Done sütununa aktarıldı."
+    },
+    {
+      "version": "v1.5.29",
+      "date": "04 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Cari Hesap & Tedarikçi Borç-Alacak Takibi (VendorLedgerTracker v1.5.29)",
+      "description": "119 maddelik yol haritasının 26. maddesi otonom yapay zeka hattı tarafından tamamlandı. Dış tedarikçi ve hizmet sağlayıcılarının (orkestra, catering, fotoğrafçı) cari hesap bakiyelerinin takibi, Borç/Alacak ekstrası üretimi ve finansal mutabakat kalkanı entegre edildi. GitHub Project #2 panosunda Madde #26 Done sütununa aktarıldı."
+    },
+    {
+      "version": "v1.5.28",
+      "date": "04 Ağustos 2026",
+      "title": "🤖 Otomatikleştirilmiş Yapay Zeka Geliştirmesi — Salon Gider & Tedarikçi Masraf Kaydı / Net Kar Analizi (ExpenseVendorTracker v1.5.28)",
+      "description": "119 maddelik yol haritasının 25. maddesi otonom yapay zeka hattı tarafından tamamlandı. Her düğün ve organizasyon için brüt gelirden salon ve tedarikçi masraflarının düşülerek net kar marjının hesaplanması ve finansal kar/zarar analitiği entegre edildi. GitHub Project #2 panosunda Madde #25 Done sütununa aktarıldı."
+    },
     {
       "version": "v1.5.27",
       "date": "03 Ağustos 2026",

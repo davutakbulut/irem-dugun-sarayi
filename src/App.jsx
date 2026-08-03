@@ -4,6 +4,8 @@ import { MobileBottomSummaryBar } from './components/MobileBottomSummaryBar';
 import MobileDrawer from './components/MobileDrawer';
 import { NotificationPopup } from './components/NotificationPopup';
 import { PageErrorBoundary } from './components/PageErrorBoundary';
+import { GlobalFooterComponent } from './components/Footer';
+import { VersionHistoryModalComponent } from './components/Modals';
 
 // Data & Pages
 import {
@@ -56,6 +58,9 @@ export default function App() {
   const [rolesState, setRolesState] = useState(ROLE_NAMES);
   const [tabPermissionsState, setTabPermissionsState] = useState(TAB_PERMISSIONS);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [systemVersion, setSystemVersion] = useState('v1.5.30');
+  const [versionHistoryState, setVersionHistoryState] = useState([]);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
   const [currentTheme, setCurrentTheme] = useState(() => {
     if (typeof document !== 'undefined') {
@@ -140,6 +145,12 @@ export default function App() {
             }
             if (data.tabPermissions && typeof data.tabPermissions === 'object' && Object.keys(data.tabPermissions).length > 0) {
               setTabPermissionsState(data.tabPermissions);
+            }
+            if (data.systemVersion) {
+              setSystemVersion(data.systemVersion);
+            }
+            if (data.versionHistory && Array.isArray(data.versionHistory)) {
+              setVersionHistoryState(data.versionHistory);
             }
             if (data.themeColor) {
               setCurrentTheme(data.themeColor);
@@ -374,6 +385,8 @@ export default function App() {
           currentUser={activeUser}
           rolesState={rolesState}
           onToggleSidebar={() => setIsMobileDrawerOpen(prev => !prev)}
+          systemVersion={systemVersion}
+          onOpenVersionModal={() => setIsVersionModalOpen(true)}
         />
 
         {/* PAGE CONTENT CONTAINER WITH FAULT ISOLATION */}
@@ -623,6 +636,15 @@ export default function App() {
               <Page404 onNavigate={navigateTo} />
             </PageErrorBoundary>
           )}
+          {/* GLOBAL FOOTER */}
+          <GlobalFooterComponent
+            onNavigate={navigateTo}
+            activeRole={activeRole}
+            campaigns={campaigns}
+            showToast={showAlert}
+            systemVersion={systemVersion}
+            onOpenVersionModal={() => setIsVersionModalOpen(true)}
+          />
         </main>
       </div>
 
@@ -637,6 +659,14 @@ export default function App() {
         activeRole={activeRole}
         tabPermissionsState={tabPermissionsState}
         navigateTo={navigateTo}
+      />
+
+      {/* VERSION HISTORY MODAL */}
+      <VersionHistoryModalComponent
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+        systemVersion={systemVersion}
+        versionHistory={versionHistoryState}
       />
     </div>
   );

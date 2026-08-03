@@ -167,7 +167,9 @@ export function HeaderComponent({
   onRoleChange,
   currentUser,
   isSidebarOpen,
-  onToggleSidebar
+  onToggleSidebar,
+  systemVersion = 'v1.5.30',
+  onOpenVersionModal
 }) {
   const getHeaderTitle = () => {
     switch (activeTab) {
@@ -297,10 +299,17 @@ export function HeaderComponent({
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center space-x-2 text-[10px] text-slate-400 shrink-0">
-          <span className="bg-emerald-500/10 text-emerald-600 font-bold px-2 py-0.5 rounded-full border border-emerald-500/20">
-            🟢 Canlı Altyapı (v2.0)
-          </span>
+        <div className="hidden sm:flex items-center space-x-2 text-[10px] shrink-0">
+          <button
+            type="button"
+            onClick={onOpenVersionModal}
+            className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-extrabold px-3 py-1 rounded-full border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer flex items-center space-x-1.5 shadow-xs"
+            title="Sistem Sürüm Geçmişini Göster"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Canlı Sistem ({systemVersion})</span>
+            <span className="text-[9px] opacity-70">📋</span>
+          </button>
         </div>
       </div>
     </header>

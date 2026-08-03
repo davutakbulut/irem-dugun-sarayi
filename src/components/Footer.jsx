@@ -1,7 +1,7 @@
 import React from 'react';
 import { ThemeIcon } from './ThemeIcon';
 
-export function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal }) {
+export function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal, systemVersion = 'v1.5.30' }) {
   const activeCampaign = campaigns.length > 0 ? campaigns[0] : { title: 'Erken Rezervasyon Fırsatı', code: 'IREM2026', discount: '%20 İndirim' };
   const currentYear = new Date().getFullYear();
 
@@ -41,7 +41,7 @@ export function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], 
             title="Sistem Sürüm Geçmişi ve Güncelleme Günlüğünü Göster"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Canlı Sistem v1.3.0 (Sürüm Notları 📋)</span>
+            <span>Canlı Sistem ({systemVersion}) (Sürüm Notları 📋)</span>
           </button>
         </div>
 
