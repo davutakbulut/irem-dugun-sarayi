@@ -1164,7 +1164,7 @@
     </div>
   </div>
 
-  <script type="text/babel" data-presets="react" data-compact="true">
+  <script type="text/babel" data-presets="react,env" data-compact="true">
     const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
     const INITIAL_VENUES = [
@@ -14072,18 +14072,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
           </div>
         </div>
+      </div>
       );
     }
 
     // --- CUSTOMER FORM MODAL ---
     function CustomerFormModal({ customer, onClose, onSave }) {
-      const [name, setName] = useState(customer?.name || '');
-      const [email, setEmail] = useState(customer?.email || '');
-      const [phone, setPhone] = useState(customer?.phone || '');
-      const [address, setAddress] = useState(customer?.address || '');
-      const [taxType, setTaxType] = useState(customer?.taxType || 'individual');
-      const [tcNo, setTcNo] = useState(customer?.tcNo || '');
-      const [taxOffice, setTaxOffice] = useState(customer?.taxOffice || '');
+      const [name, setName] = useState((customer && customer.name) || '');
+      const [email, setEmail] = useState((customer && customer.email) || '');
+      const [phone, setPhone] = useState((customer && customer.phone) || '');
+      const [address, setAddress] = useState((customer && customer.address) || '');
+      const [taxType, setTaxType] = useState((customer && customer.taxType) || 'individual');
+      const [tcNo, setTcNo] = useState((customer && customer.tcNo) || '');
+      const [taxOffice, setTaxOffice] = useState((customer && customer.taxOffice) || '');
 
       return (
         <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true">
