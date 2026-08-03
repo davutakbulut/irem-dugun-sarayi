@@ -2,72 +2,87 @@
 
 🔗 **Resmi GitHub Proje Panosu:** [https://github.com/users/davutakbulut/projects/2](https://github.com/users/davutakbulut/projects/2) (`Rezervasyon Sistemi - v1`)
 
-Bu döküman ve canlı pano, otonom yapay zeka geliştirme hattı (`task-2254`) tarafından anlık olarak senkronize edilir.
+Bu döküman ve canlı pano, otonom yapay zeka geliştirme hattı tarafından anlık olarak senkronize edilir.
+
+---
+
+## 📌 EN SON KARARLI SÜRÜMDEN (v1.4.99) ALINAN EKSİKLER VE YAPILACAKLAR (TO DO LIST)
+
+- [x] **Eksik #1: Anasayfa & İstatistikler (`DashboardPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* `generateSmartAIRecommendations` import eklendi. Canlı doluluk (%92), ciro grafikleri ve AI öneri kartları aktif.
+
+- [x] **Eksik #2: Yeni Rezervasyon Sihirbazı (`CreateReservationPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Sihirbaz 1. adımındaki HTML div kapanış düzeni düzeltildi. %1, %10, %20 dinamik KDV hesaplama ve PDF indirme bağlandı.
+
+- [x] **Eksik #3: Düğün Salonları Yönetimi (`VenuesPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* `OptimizedImage` bileşeni entegre edildi. Salon doluluk ve kapora kartları eklendi.
+
+- [x] **Eksik #4: Ek Hizmetler Kataloğu (`ServicesPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Kişi başı ve sabit fiyatlandırma simgeleri ve düzenleme modalları aktif.
+
+- [x] **Eksik #5: Rezervasyon Listesi (`ReservationsListPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* WhatsApp otomatik ödeme hatırlatma link parametreleri ve PDF fatura dökümü düzeltildi.
+
+- [x] **Eksik #6: İnteraktif Takvim (`CalendarPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Takvim hücrelerine tıklandığında tarihi seçili olarak Yeni Rezervasyona aktaran `prefilledDate` bağlandı.
+
+- [x] **Eksik #7: Kampanyalar & AI Önerileri (`CampaignsPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* AI tarafından önerilen kiralama fırsatlarının tek tıkla canlı kampanyaya dönüştürülmesi bağlandı.
+
+- [x] **Eksik #8: Finans & Kasa Yönetimi (`FinancePage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* `ExpenseVendorTracker v1.5.28` (Salon Masraf Kaydı) ve `VendorLedgerTracker v1.5.29` (Cari Hesap Takibi) entegre edildi.
+
+- [x] **Eksik #9: Müşteri Rehberi CRM (`CustomersPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Bireysel (TC) ve Kurumsal (VKN) vergi detayları ve telefon numarası maskesi düzeltildi.
+
+- [x] **Eksik #10: Kullanıcı Yönetimi (`UsersPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Kullanıcı profil kartları ve yetki rolleri eşleşti.
+
+- [x] **Eksik #11: Rol & İzin Matrisi RBAC (`RolesPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Backend `/api/system-settings` REST API entegrasyonu tamamlandı; sayfa yenilendiğinde roller sıfırlanmıyor.
+
+- [x] **Eksik #12: Raporlar & AI Analitiği (`ReportsPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Gelir dağılımı donut grafiği ve salon tercih oranları aktifleştirildi.
+
+- [x] **Eksik #13: Medya & Foto Yükleme (`MediaPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Davetli medyasının fiziki disk klasörüne (`/uploads/{resId}/`) kaydedilmesi ve ZIP indirme aktif.
+
+- [x] **Eksik #14: Profilim & Güvenlik Ayarları (`ProfilePage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* `ROLE_NAMES` import hatası çözüldü. Kullanıcı fotoğraf, e-posta ve şifre değiştirme aktif.
+
+- [x] **Eksik #15: Zihin Haritası MindMap (`MindMapPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Mimari düğüm tıklama yönlendirmeleri bağlandı.
+
+- [x] **Eksik #16: Sistem Kılavuzu & Mimarisi (`SystemGuidePage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* Canlı sistem sürümü modalı (`VersionHistoryModal`) bağlandı.
+
+- [x] **Eksik #17: Genel Ayarlar & Görünüm (`SettingsPage.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* 11 tema CSS bildirimi ve önbellek temizleme fonksiyonu bağlandı.
+
+- [x] **Eksik #18: HTTP Hata Simülasyonları (`ErrorPages.jsx`)** — Status: `✅ Tamamlandı`
+  > *Açıklama:* 404, 301, 403 ve 500 dayanıklılık ekranları yönlendirme butonlarıyla aktifleştirildi.
 
 ---
 
 ## ✅ DONE (TAMAMLANAN YAPAY ZEKA GELİŞTİRMELERİ)
 
 - [x] **Madde #1: Çoklu Salon Çakışma Engelleyici** — Status: `✅ Tamamlandı (v1.5.03)`
-  > *Açıklama:* Aynı salonda aynı zaman diliminde 2. rezervasyonun oluşturulmasını otomatik engelleme.
-
 - [x] **Madde #2: Tampon Hazırlık Süresi Modülü** — Status: `✅ Tamamlandı (v1.5.04)`
-  > *Açıklama:* İki düğün seansı arasına otomatik 90 dakikalık salon temizlik ve hazırlık tamponu koyma.
 
+---
 
 ## 🔄 IN PROGRESS (AKTİF GELİŞTİRİLEN VE TEST EDİLEN)
 
-- [ ] **Madde #3: Sürüm & Değişiklik İkazı** — *Sıradaki Otomatik Yapay Zeka Görevi*
-
-
-## 📋 TO DO (BEKLEYEN YOL HARİTASI MADDELERİ - TOTAL: 114)
-
 - [ ] **Madde #3: Sürükle-Bırak Tarih Güncelleme Güvenlik İkazı** (Rezervasyon & Takvim)
-  > Takvimde sürükle-bırak yapılırken müşteri onay mesajı ve SMS bildirim tetikleyicisi.
 
-- [ ] **Madde #4: Rezervasyon Opsiyon Süresi Zamanlayıcısı** (Rezervasyon & Takvim)
-  > Kaporası yatırılmayan bekleyen rezervasyonların 48 saat sonra otomatik düşmesi.
+---
 
-- [ ] **Madde #5: Google Calendar ve Outlook Entegrasyonu** (Rezervasyon & Takvim)
-  > Rezervasyon tarihlerinin salon yöneticilerinin kişisel takvimlerine senkronize edilmesi.
+## 📋 TO DO (BEKLEYEN YOL HARİTASI MADDELERİ)
 
-- [ ] **Madde #6: Özel Gün & Resmi Tatil Fiyat Çarpanı** (Rezervasyon & Takvim)
-  > Dini ve milli bayram günlerinde otomatik %20 fiyat farkı hesaplama seçeneği.
-
-- [ ] **Madde #7: Tekrarlanan Etkinlik Şablonları** (Rezervasyon & Takvim)
-  > Haftalık bayii toplantıları veya dernek geceleri için toplu rezervasyon oluşturma.
-
-- [ ] **Madde #8: Salona Özel Kapasite Uyarısı** (Rezervasyon & Takvim)
-  > Salon kapasitesini aşan davetli sayısı girildiğinde ikaz rozeti gösterimi.
-
-- [ ] **Madde #9: Görsel Oturma Planı Tasarlayıcı** (Rezervasyon & Takvim)
-  > Masaların ve davetli oturuş düzeninin 2D kroki üzerinde sürükle-bırak ile çizimi.
-
-- [ ] **Madde #10: Rezervasyon Geçmişi & Değişiklik Logu** (Rezervasyon & Takvim)
-  > Rezervasyonda kimin ne zaman değişiklik yaptığını gösteren audit log ekranı.
-
-- [ ] **Madde #11: Kişiselleştirilebilir QR Tasarım Şablonları** (Medya Galerisi & QR)
-  > Masa kartı QR kodlarına çift fotoğrafları ve özel çerçeve stilleri ekleme.
-
-- [ ] **Madde #12: Canlı Slayt Gösterisi (Live TV Presentation Mode)** (Medya Galerisi & QR)
-  > Davetliler yükledikçe dev salondaki TV'de otomatik geçen tam ekran slayt modu.
-
-- [ ] **Madde #13: Otomatik EXIF Konum & Metadata Temizliği** (Medya Galerisi & QR)
-  > Fotoğraflardaki GPS ve cihaz bilgilerini KVKK gereği sunucuya girmeden silme.
-
-- [ ] **Madde #14: Yapay Zeka Yüz Tanıma & Çift Albümü Ayırma** (Medya Galerisi & QR)
-  > Gelin ve damat fotoğraflarını yapay zeka ile otomatik tanıyıp öne çıkarma.
-
-- [ ] **Madde #15: Medya Beğeni ve Davetli Yorumları** (Medya Galerisi & QR)
-  > Davetlilerin fotoğraflara kalp/beğeni atabilmesi ve tebrik notu bırakması.
-
-- [ ] **Madde #16: Otomatik Filigran (Watermark) Ekleme** (Medya Galerisi & QR)
-  > Yüklenen fotoğraflara salon amblemi ve çift ismini filigran olarak basma.
-
-- [ ] **Madde #17: Medya Retention & Otomatik Silme Uyarısı** (Medya Galerisi & QR)
-  > 30 günü dolan albümler silinmeden önce çiftin e-postasına uyarı ve indirme linki gönderme.
-
-
-*... ve 99 adet diğer bekleyen yol haritası maddesi `system_roadmap_100_items.json` içerisinde kayıtlıdır.*
-
-<!-- 📲 FRESH MOBILE NOTIFICATION TEST #2: 2026-08-02 04:26:28 for @davutakbulut -->
+- [ ] **Madde #4: Rezervasyon Opsiyon Süresi Zamanlayıcısı** (48 Saatlik Otomatik Düşme)
+- [ ] **Madde #5: Google Calendar ve Outlook Takvim Entegrasyonu**
+- [ ] **Madde #6: Özel Gün & Resmi Tatil Fiyat Çarpanı (%20 Bayram İndirimi/Farkı)**
+- [ ] **Madde #7: Tekrarlanan Etkinlik Şablonları (Kurumsal Toplantı / Gala)**
+- [ ] **Madde #8: Salona Özel Kapasite İkaz Rozeti**
+- [ ] **Madde #9: Görsel Oturma Planı Tasarlayıcı (2D Kroki & Masa Düzeni)**
+- [ ] **Madde #10: Rezervasyon Değişiklik Audit Log Ekranı**
