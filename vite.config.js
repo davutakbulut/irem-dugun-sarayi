@@ -17,7 +17,9 @@ export default defineConfig({
           'page-finance': ['./src/pages/FinancePage.jsx'],
           'page-customers': ['./src/pages/CustomersPage.jsx'],
           'page-media': ['./src/pages/MediaPage.jsx'],
-          'page-settings': ['./src/pages/SettingsPage.jsx']
+          'page-settings': ['./src/pages/SettingsPage.jsx'],
+          'page-roles': ['./src/pages/RolesPage.jsx'],
+          'page-system-guide': ['./src/pages/SystemGuidePage.jsx']
         }
       }
     }

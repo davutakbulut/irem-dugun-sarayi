@@ -255,3 +255,16 @@ export const getHashTab = () => {
   return parseHashRoute().tab;
 };
 
+export async function fetchWithRetry(url, options = {}, retries = 3, backoff = 500) {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res;
+  } catch (err) {
+    if (retries <= 0) throw err;
+    await new Promise(r => setTimeout(r, backoff));
+    return fetchWithRetry(url, options, retries - 1, backoff * 2);
+  }
+}
+
+

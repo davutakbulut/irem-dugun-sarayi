@@ -176,3 +176,40 @@ export const INITIAL_SYSTEM_LOGS = [
   { id: 'l2', timestamp: '2026-07-29 15:15', user: 'Selin Yılmaz', action: 'Kapora Tahsilatı', detail: 'RES-2026-1001 için ₺50.000 tahsil edildi' },
   { id: 'l3', timestamp: '2026-07-29 16:00', user: 'Davut Akbulut', action: 'Tema Değişikliği', detail: 'Kurumsal Tema: Obsidian Gold aktif edildi' }
 ];
+
+export const ROLE_NAMES = {
+  'admin': 'Admin (Yönetici)',
+  'satisci': 'Satış Temsilcisi',
+  'sosyal_medyaci': 'Sosyal Medya',
+  'musteri': 'Müşteri'
+};
+
+export const TAB_PERMISSIONS = {
+  'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+  'create-reservation': ['admin', 'satisci'],
+  'venues': ['admin', 'satisci'],
+  'services': ['admin', 'satisci'],
+  'reservations': ['admin', 'satisci'],
+  'calendar': ['admin', 'satisci'],
+  'campaigns': ['admin'],
+  'finance': ['admin'],
+  'customers': ['admin', 'satisci'],
+  'users': ['admin'],
+  'roles': ['admin'],
+  'reports': ['admin'],
+  'media': ['admin', 'sosyal_medyaci', 'musteri'],
+  'profile': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+  'mind-map': ['admin'],
+  'settings': ['admin'],
+  'settings-appearance': ['admin'],
+  'settings-performance': ['admin'],
+  'settings-rbac': ['admin'],
+  'settings-indexing': ['admin'],
+  'settings-errors': ['admin'],
+  'system-guide': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+  'simulasyon-404': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+  'simulasyon-301': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+  'simulasyon-403': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+  'simulasyon-500': ['admin', 'satisci', 'sosyal_medyaci', 'musteri']
+};
+
