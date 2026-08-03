@@ -15,21 +15,21 @@ import {
   INITIAL_SYSTEM_LOGS
 } from './constants/mockData';
 
-import { DashboardPage } from './pages/DashboardPage';
-import { CreateReservationPage } from './pages/CreateReservationPage';
-import { ReservationsListPage } from './pages/ReservationsListPage';
-import { CalendarPage } from './pages/CalendarPage';
-import { FinancePage } from './pages/FinancePage';
-import { CustomersPage } from './pages/CustomersPage';
-import { CampaignsPage } from './pages/CampaignsPage';
-import { ReportsPage } from './pages/ReportsPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { VenuesPage } from './pages/VenuesPage';
-import { ServicesPage } from './pages/ServicesPage';
-import { UsersPage } from './pages/UsersPage';
-import { MediaPage } from './pages/MediaPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { MindMapPage } from './pages/MindMapPage';
+import { DashboardComponent as DashboardPage } from './pages/DashboardPage';
+import { CreateReservationPageComponent as CreateReservationPage } from './pages/CreateReservationPage';
+import { ReservationsListComponent as ReservationsListPage } from './pages/ReservationsListPage';
+import { CalendarComponent as CalendarPage } from './pages/CalendarPage';
+import { FinanceComponent as FinancePage } from './pages/FinancePage';
+import { CustomersComponent as CustomersPage } from './pages/CustomersPage';
+import { CampaignsComponent as CampaignsPage } from './pages/CampaignsPage';
+import { ReportsComponent as ReportsPage } from './pages/ReportsPage';
+import { SettingsComponent as SettingsPage } from './pages/SettingsPage';
+import { VenuesComponent as VenuesPage } from './pages/VenuesPage';
+import { ServicesComponent as ServicesPage } from './pages/ServicesPage';
+import { UsersComponent as UsersPage } from './pages/UsersPage';
+import { MediaComponent as MediaPage } from './pages/MediaPage';
+import { ProfileComponent as ProfilePage } from './pages/ProfilePage';
+import { MindMapPageComponent as MindMapPage } from './pages/MindMapPage';
 import { Page404, Page301, Page403, Page500 } from './pages/ErrorPages';
 
 export default function App() {
@@ -224,7 +224,7 @@ export default function App() {
     showAlert('✏️ Personel Güncellendi', `${uObj.name} güncellendi.`);
   };
 
-  const currentUser = users[0] || { name: 'Davut Akbulut', role: 'SuperAdmin' };
+  const activeUser = currentUser || users[0] || { name: 'Davut Akbulut', role: 'SuperAdmin' };
 
   return (
     <div className="flex h-screen bg-slate-900 dark:bg-brand-dark text-slate-100 font-sans overflow-hidden">

@@ -212,9 +212,26 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(f.read())
                 return
 
-        # 4. Main HTML & Routing (Excluding /api/ routes)
+        # 3.5 Asset Files Routing (dist/assets or local assets)
+        if parsed_path.path.startswith('/assets/'):
+            asset_path = os.path.join(os.path.dirname(__file__), '..', 'dist', parsed_path.path.lstrip('/'))
+            if not os.path.exists(asset_path):
+                asset_path = os.path.join(os.path.dirname(__file__), '..', parsed_path.path.lstrip('/'))
+            if os.path.exists(asset_path) and os.path.isfile(asset_path):
+                self.send_response(200)
+                ext = os.path.splitext(asset_path)[1].lower()
+                mime = 'application/javascript' if ext == '.js' else ('text/css' if ext == '.css' else 'application/octet-stream')
+                self.send_header('Content-Type', mime)
+                self.send_header('Content-Length', str(os.path.getsize(asset_path)))
+                self.end_headers()
+                with open(asset_path, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
+
+        # 4. Main HTML & Routing (Excluding /api/ and /assets/ routes)
         is_api_route = self.path.startswith('/api/')
-        is_html_route = not is_api_route and (
+        is_asset_route = self.path.startswith('/assets/')
+        is_html_route = not is_api_route and not is_asset_route and (
             self.path == '/' or
             self.path.startswith('/yonetim') or
             self.path.startswith('/giris') or
@@ -223,7 +240,8 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
             parsed_path.path.endswith('.html')
         )
         if is_html_route:
-            target_html = 'index.html'
+            dist_html = os.path.join(os.path.dirname(__file__), '..', 'dist', 'index.html')
+            target_html = dist_html if os.path.exists(dist_html) else 'index.html'
             if os.path.exists(target_html):
                 try:
                     with open(target_html, 'rb') as f:
