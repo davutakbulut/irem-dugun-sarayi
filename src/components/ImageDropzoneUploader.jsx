@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { ThemeIcon } from './ThemeIcon';
 
-export default function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '📷' }) {
+export function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '📷' }) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 

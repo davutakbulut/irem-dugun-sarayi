@@ -1,52 +1,5 @@
 import React, { useState, useMemo } from 'react';
-
-export function ToastNotification({ message, isVisible, onClose }) {
-  if (!isVisible) return null;
-  return (
-    <div className="fixed bottom-6 right-6 z-50 animate-bounce bg-slate-900/90 dark:bg-brand-card/95 text-white dark:text-gray-100 px-5 py-3 rounded-2xl shadow-2xl border border-amber-500/50 flex items-center space-x-3 text-xs font-bold backdrop-blur-md">
-      <span className="text-lg">✨</span>
-      <span>{message}</span>
-      <button onClick={onClose} className="ml-2 text-gray-400 hover:text-white font-bold">✕</button>
-    </div>
-  );
-}
-
-export function OptimizedImage({ src, alt, className = '', priority = false, onClick }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-
-  const optimizedSrc = useMemo(() => {
-    if (!src) return '';
-    if (src.includes('unsplash.com')) {
-      return src.includes('auto=format') ? src : `${src}&auto=format&fit=crop&q=80`;
-    }
-    return src;
-  }, [src]);
-
-  return (
-    <div className={`relative overflow-hidden bg-slate-200 dark:bg-brand-dark ${className}`} onClick={onClick}>
-      {!isLoaded && !hasError && (
-        <div className="absolute inset-0 skeleton-shimmer z-10" />
-      )}
-      {hasError ? (
-        <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-brand-card text-slate-400 text-xs font-bold">
-          🖼️ Görsel
-        </div>
-      ) : (
-        <img
-          src={optimizedSrc}
-          alt={alt || 'Görsel'}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          fetchPriority={priority ? 'high' : 'auto'}
-          onLoad={() => setIsLoaded(true)}
-          onError={() => setHasError(true)}
-          className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        />
-      )}
-    </div>
-  );
-}
+export { OptimizedImage } from './OptimizedImage.jsx';
 
 export function SkeletonCard() {
   return (
@@ -71,3 +24,24 @@ export function SkeletonTable({ rows = 4 }) {
     </div>
   );
 }
+
+export function WhatsAppButton({ phone, customerName = '', text = 'WhatsApp İle Mesaj At', className = '' }) {
+  const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+  const encodedText = encodeURIComponent(`Merhabalar ${customerName ? customerName + ' ' : ''}İrem Düğün Sarayı'ndan sizlere ulaşıyorum.`);
+  const href = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`bg-[#25D366] hover:bg-[#20BA5A] text-white font-extrabold px-3.5 py-2 rounded-xl text-xs inline-flex items-center space-x-2 shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-200 transform hover:-translate-y-0.5 border border-emerald-400/30 active:scale-95 ${className}`}
+    >
+      <svg className="w-4 h-4 fill-white text-white shrink-0" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12.012 2c-5.506 0-9.969 4.463-9.969 9.969 0 1.758.459 3.473 1.332 4.989l-1.416 5.176 5.297-1.389c1.464.798 3.119 1.218 4.756 1.218 5.506 0 9.969-4.463 9.969-9.969s-4.463-9.994-9.969-9.994zm5.829 14.157c-.247.695-1.436 1.341-1.968 1.386-.532.045-1.214.218-3.957-.919-3.308-1.365-5.422-4.733-5.586-4.952-.164-.218-1.341-1.782-1.341-3.401 0-1.619.845-2.415 1.146-2.742.301-.327.655-.409.873-.409.218 0 .436.009.627.018.2.009.473-.073.746.573.273.646.928 2.264 1.009 2.428.082.164.136.355.027.573-.109.218-.164.355-.327.546-.164.191-.345.427-.491.573-.164.164-.336.345-.145.673.191.327.855 1.401 1.837 2.274 1.264 1.128 2.328 1.482 2.655 1.646.327.164.518.136.709-.082.191-.218.818-.955 1.036-1.282.218-.327.436-.273.736-.164.3.109 1.909.901 2.236 1.064.327.164.545.245.627.382.082.137.082.846-.164 1.541z" />
+      </svg>
+      <span>{text}</span>
+    </a>
+  );
+}
+

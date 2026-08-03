@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ImageDropzoneUploader } from '../components/ImageDropzoneUploader.jsx';
+import { OptimizedImage } from '../components/OptimizedImage.jsx';
 import { formatPhoneNumber } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { DayDetailModalComponent } from '../components/Modals.jsx';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
 

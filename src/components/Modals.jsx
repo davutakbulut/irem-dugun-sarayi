@@ -872,3 +872,172 @@ export function EmailNotificationModal({ emailData, onClose }) {
     </div>
   );
 }
+
+export function DayDetailModalComponent({ dayData, venues = [], onResClick, onCreateNewForDay, onClose, navigateTo }) {
+  if (!dayData) return null;
+  const { dateStr, dayNumber, reservations = [], drafts = [] } = dayData;
+
+  const dateObj = new Date(dateStr);
+  const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        {/* MODAL HEADER */}
+        <div className="flex justify-between items-start border-b border-slate-200 dark:border-brand-border pb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-700 dark:text-gold-400 text-lg">
+              {dayNumber}
+            </div>
+            <div>
+              <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100">
+                {formattedDate} Detayı
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                Bu güne ait tüm rezervasyonlar, salon doluluk durumları ve yarım kalmış taslaklar
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+        </div>
+
+        {/* DRAFT RESERVATIONS SECTION IF ANY */}
+        {drafts.length > 0 && (
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-dashed border-amber-500/50 space-y-3">
+            <div className="flex justify-between items-center">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-amber-700 dark:text-gold-400 flex items-center space-x-1.5">
+                <span>⏳</span>
+                <span>Yarım Kalmış Taslak Rezervasyonlar ({drafts.length})</span>
+              </h4>
+              <span className="text-[10px] font-bold text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded">
+                Tamamlanmayı Bekliyor
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {drafts.map(d => (
+                <div key={d.refKey} className="bg-white dark:bg-brand-dark p-3 rounded-xl border border-amber-500/30 flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <span>{d.customerName || 'İsimsiz Taslak Müşteri'}</span>
+                      <span className="text-[10px] text-slate-500 font-normal">({d.timeSlot || 'Seans Belirtilmedi'})</span>
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-gray-400">
+                      Salon: <strong>{venues.find(v => v.id === d.venueId)?.name || 'Salon 1'}</strong> • Son Kayıt: {d.lastSaved || 'Bugün'}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (navigateTo) navigateTo('create-reservation', { ref: d.refKey });
+                    }}
+                    className="px-3 py-1.5 bg-amber-500 text-white rounded-xl text-xs font-bold shadow hover:bg-amber-600 transition flex items-center space-x-1"
+                  >
+                    <span>✍️</span>
+                    <span>Taslağı Tamamla</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* VENUES AVAILABILITY & CONFLICT MATRIX */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-gray-300">
+              🏛️ Salon Doluluk & Seans Çakışma Analizi
+            </h4>
+            <span className="text-[10px] font-bold text-slate-500 dark:text-gray-400 font-mono bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg">
+              Toplam {reservations.length} Onaylı Rezervasyon
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            {venues.map(venue => {
+              const venueRes = reservations.filter(r => r.venueId === venue.id);
+              const isOccupied = venueRes.length > 0;
+
+              return (
+                <div
+                  key={venue.id}
+                  className={`p-4 rounded-2xl border transition ${
+                    isOccupied
+                      ? 'bg-amber-500/10 border-amber-500/40 text-slate-800 dark:text-gray-100'
+                      : 'bg-emerald-500/5 border-emerald-500/30 text-slate-700 dark:text-gray-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-sm">{venue.name}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isOccupied
+                          ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/30'
+                          : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+                      }`}>
+                        {isOccupied ? `⚠️ ${venueRes.length} Organizasyon Yapılacak` : '✅ TAMAMEN MÜSAİT'}
+                      </span>
+                    </div>
+                    <span className="font-mono text-xs font-bold text-amber-700 dark:text-gold-400">
+                      {formatCurrency(venue.price)}
+                    </span>
+                  </div>
+
+                  {/* RESERVATIONS IN THIS VENUE */}
+                  {isOccupied ? (
+                    <div className="mt-3 space-y-2 pt-2 border-t border-amber-500/20">
+                      {venueRes.map(r => (
+                        <div
+                          key={r.id}
+                          onClick={() => { onClose(); onResClick(r); }}
+                          className="bg-white dark:bg-brand-card p-3 rounded-xl border border-amber-500/30 flex justify-between items-center hover:scale-[1.01] transition cursor-pointer shadow-sm"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono text-[10px] font-bold text-amber-700 dark:text-gold-400">{r.id}</span>
+                              <span className="font-bold text-xs text-slate-800 dark:text-gray-100">{r.customerName}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 dark:text-gray-400 flex items-center space-x-2">
+                              <span>⏰ Seans: <strong className="text-amber-800 dark:text-gold-300">{r.timeSlot}</strong></span>
+                              <span>• 👥 {r.guestCount} Davetli</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                              {r.paymentStatus}
+                            </span>
+                            <span className="text-xs text-amber-700 dark:text-gold-400">Detay 🔍</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1.5">
+                      💡 Bu salon için {formattedDate} tarihinde henüz hiç rezervasyon yapılmamıştır. Gündüz veya Gece seansı hemen rezerve edilebilir!
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* MODAL FOOTER */}
+        <div className="pt-3 border-t border-slate-200 dark:border-brand-border flex justify-between items-center">
+          <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">
+            Kapat
+          </button>
+          <button
+            onClick={() => { onClose(); onCreateNewForDay(dateStr); }}
+            className="gold-button font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg flex items-center space-x-2"
+          >
+            <span>➕</span>
+            <span>{formattedDate} İçin Yeni Rezervasyon Oluştur</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+

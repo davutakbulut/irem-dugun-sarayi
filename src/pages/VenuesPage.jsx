@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { VenueDetailModalComponent } from '../components/Modals.jsx';
+import { OptimizedImage } from '../components/OptimizedImage.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
