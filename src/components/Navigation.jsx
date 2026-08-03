@@ -74,19 +74,6 @@ export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleCha
   return (
     <aside className="w-64 bg-white dark:bg-brand-card border-r border-slate-200 dark:border-brand-border hidden lg:flex flex-col justify-between shrink-0 shadow-sm transition-all duration-300 custom-scrollbar overflow-y-auto sticky top-16 h-[calc(100vh-64px)] z-20">
       <div className="flex-1 min-h-0 flex flex-col">
-        {/* LOGO & BRANDING */}
-        <div className="p-4 border-b border-slate-200 dark:border-brand-border flex items-center space-x-3 shrink-0">
-          <div className="w-9 h-9 rounded-2xl gold-button flex items-center justify-center font-bold text-xl shadow-lg shrink-0">
-            <ThemeIcon icon="crown" fallbackEmoji="👑" className="w-5 h-5 shrink-0" />
-          </div>
-          <div>
-            <h1 className="font-heading font-extrabold text-sm text-slate-800 dark:text-gray-100 gold-gradient-text tracking-wide whitespace-nowrap">
-              İREM DÜĞÜN SARAYI
-            </h1>
-            <p className="text-[9px] text-amber-600 dark:text-gold-400 font-bold">Kurumsal Yönetim V2.0</p>
-          </div>
-        </div>
-
         {/* NAVIGATION CATEGORIES & LINKS WITH INTERNAL SCROLL */}
         <nav className="p-3 space-y-3 custom-scrollbar overflow-y-auto flex-1 min-h-0">
           {menuGroups.map(group => {

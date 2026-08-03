@@ -4,6 +4,7 @@ import { OptimizedImage } from '../components/OptimizedImage.jsx';
 import { formatPhoneNumber } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { ROLE_NAMES } from '../constants/mockData.js';
 
 export function ProfileComponent({ currentUser, activeRole, onSaveProfile, showToast, onRoleChange }) {
       const [name, setName] = useState(currentUser?.name || 'Davut Akbulut');
