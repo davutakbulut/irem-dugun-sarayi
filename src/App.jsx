@@ -359,38 +359,37 @@ export default function App() {
   const activeUser = currentUser || users[0] || { name: 'Davut Akbulut', role: 'admin' };
 
   return (
-    <div className="flex h-screen bg-slate-900 dark:bg-brand-dark text-slate-100 font-sans overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 font-sans relative w-full max-w-full overflow-x-hidden">
       
       {/* FLOATING ALERT POPUP */}
       <NotificationPopup alertModal={alertModal} onClose={closeAlert} />
 
-      {/* SIDEBAR NAVIGATION */}
-      <SidebarComponent
+      {/* TOP HEADER */}
+      <HeaderComponent
         activeTab={activeTab}
         onTabChange={navigateTo}
         activeRole={activeRole}
         onRoleChange={setActiveRole}
+        currentUser={activeUser}
         rolesState={rolesState}
+        onToggleSidebar={() => setIsMobileDrawerOpen(prev => !prev)}
+        systemVersion={systemVersion}
+        onOpenVersionModal={() => setIsVersionModalOpen(true)}
       />
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200">
-        
-        {/* TOP HEADER */}
-        <HeaderComponent
+      {/* MAIN CONTENT & SIDEBAR WRAPPER */}
+      <div className="flex-1 flex min-h-0 w-full max-w-full">
+        {/* SIDEBAR NAVIGATION */}
+        <SidebarComponent
           activeTab={activeTab}
           onTabChange={navigateTo}
           activeRole={activeRole}
           onRoleChange={setActiveRole}
-          currentUser={activeUser}
           rolesState={rolesState}
-          onToggleSidebar={() => setIsMobileDrawerOpen(prev => !prev)}
-          systemVersion={systemVersion}
-          onOpenVersionModal={() => setIsVersionModalOpen(true)}
         />
 
         {/* PAGE CONTENT CONTAINER WITH FAULT ISOLATION */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+        <main className="flex-1 p-4 sm:p-6 min-w-0 w-full max-w-full">
           {activeTab === 'dashboard' && (
             <PageErrorBoundary pageName="Anasayfa / İstatistikler" onNavigateHome={navigateTo}>
               <DashboardPage
@@ -636,17 +635,18 @@ export default function App() {
               <Page404 onNavigate={navigateTo} />
             </PageErrorBoundary>
           )}
-          {/* GLOBAL FOOTER */}
-          <GlobalFooterComponent
-            onNavigate={navigateTo}
-            activeRole={activeRole}
-            campaigns={campaigns}
-            showToast={showAlert}
-            systemVersion={systemVersion}
-            onOpenVersionModal={() => setIsVersionModalOpen(true)}
-          />
         </main>
       </div>
+
+      {/* FULL-WIDTH GLOBAL FOOTER AT VERY BOTTOM OF PAGE */}
+      <GlobalFooterComponent
+        onNavigate={navigateTo}
+        activeRole={activeRole}
+        campaigns={campaigns}
+        showToast={showAlert}
+        systemVersion={systemVersion}
+        onOpenVersionModal={() => setIsVersionModalOpen(true)}
+      />
 
       {/* MOBILE FIXED BOTTOM SUMMARY BAR */}
       <MobileBottomSummaryBar />

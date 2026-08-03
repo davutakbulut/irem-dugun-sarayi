@@ -72,7 +72,7 @@ export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleCha
   if (isSidebarOpen === false) return null;
 
   return (
-    <aside className="w-64 bg-white dark:bg-brand-card border-r border-slate-200 dark:border-brand-border hidden lg:flex flex-col justify-between shrink-0 shadow-sm transition-all duration-300 custom-scrollbar overflow-y-auto sticky top-0 h-[calc(100vh-105px)] z-20">
+    <aside className="w-64 bg-white dark:bg-brand-card border-r border-slate-200 dark:border-brand-border hidden lg:flex flex-col justify-between shrink-0 shadow-sm transition-all duration-300 custom-scrollbar overflow-y-auto sticky top-16 h-[calc(100vh-64px)] z-20">
       <div className="flex-1 min-h-0 flex flex-col">
         {/* LOGO & BRANDING */}
         <div className="p-4 border-b border-slate-200 dark:border-brand-border flex items-center space-x-3 shrink-0">
