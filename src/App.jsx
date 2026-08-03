@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SidebarComponent, HeaderComponent } from './components/Navigation';
 import { MobileBottomSummaryBar } from './components/MobileBottomSummaryBar';
+import MobileDrawer from './components/MobileDrawer';
 import { NotificationPopup } from './components/NotificationPopup';
 import { PageErrorBoundary } from './components/PageErrorBoundary';
 
@@ -54,6 +55,7 @@ export default function App() {
   const [activeRole, setActiveRole] = useState('admin');
   const [rolesState, setRolesState] = useState(ROLE_NAMES);
   const [tabPermissionsState, setTabPermissionsState] = useState(TAB_PERMISSIONS);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   const [currentTheme, setCurrentTheme] = useState(() => {
     if (typeof document !== 'undefined') {
@@ -371,6 +373,7 @@ export default function App() {
           onRoleChange={setActiveRole}
           currentUser={activeUser}
           rolesState={rolesState}
+          onToggleSidebar={() => setIsMobileDrawerOpen(prev => !prev)}
         />
 
         {/* PAGE CONTENT CONTAINER WITH FAULT ISOLATION */}
@@ -625,6 +628,16 @@ export default function App() {
 
       {/* MOBILE FIXED BOTTOM SUMMARY BAR */}
       <MobileBottomSummaryBar />
+
+      {/* MOBILE NAVIGATION DRAWER */}
+      <MobileDrawer
+        isOpen={isMobileDrawerOpen}
+        onClose={() => setIsMobileDrawerOpen(false)}
+        activeTab={activeTab}
+        activeRole={activeRole}
+        tabPermissionsState={tabPermissionsState}
+        navigateTo={navigateTo}
+      />
     </div>
   );
 }

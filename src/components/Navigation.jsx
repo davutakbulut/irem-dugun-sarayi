@@ -72,7 +72,7 @@ export function SidebarComponent({ activeTab, onTabChange, activeRole, onRoleCha
   if (isSidebarOpen === false) return null;
 
   return (
-    <aside className="w-64 bg-white dark:bg-brand-card border-r border-slate-200 dark:border-brand-border flex flex-col justify-between shrink-0 shadow-sm transition-all duration-300 custom-scrollbar overflow-y-auto sticky top-0 h-[calc(100vh-105px)] z-20">
+    <aside className="w-64 bg-white dark:bg-brand-card border-r border-slate-200 dark:border-brand-border hidden lg:flex flex-col justify-between shrink-0 shadow-sm transition-all duration-300 custom-scrollbar overflow-y-auto sticky top-0 h-[calc(100vh-105px)] z-20">
       <div className="flex-1 min-h-0 flex flex-col">
         {/* LOGO & BRANDING */}
         <div className="p-4 border-b border-slate-200 dark:border-brand-border flex items-center space-x-3 shrink-0">
@@ -202,7 +202,7 @@ export function HeaderComponent({
         <div className="flex items-center space-x-3">
           <button
             onClick={onToggleSidebar}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/10 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border transition shadow-2xs cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500/10 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border transition shadow-2xs cursor-pointer lg:hidden"
             title="Yan Menüyü Aç/Kapat"
             aria-label="Menüyü Aç/Kapat"
           >
