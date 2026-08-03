@@ -27,8 +27,15 @@ export function SettingsComponent({
       const [settingsTab, setSettingsTab] = useState(initialSubTab);
       const [draftTheme, setDraftTheme] = useState(() => {
         const domTheme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-ui-theme') : null;
-        return themeColor || domTheme || '';
+        return themeColor || domTheme || 'nordic-light';
       });
+
+      const handleSelectTheme = (tId) => {
+        setDraftTheme(tId);
+        if (onThemeColorChange) {
+          onThemeColorChange(tId);
+        }
+      };
 
       useEffect(() => {
         if (themeColor) {
@@ -271,7 +278,7 @@ export function SettingsComponent({
                   
                   {/* THEME PREVIEW CARD 1: MEVCUT RENKLİ & YUMUŞAK TEMA */}
                   <div
-                    onClick={() => setDraftTheme('gold')}
+                    onClick={() => handleSelectTheme('gold')}
                     style={{ borderRadius: '24px' }}
                     className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
                       draftTheme === 'gold'
@@ -306,7 +313,7 @@ export function SettingsComponent({
 
                   {/* THEME PREVIEW CARD 2: QUIET LUXURY & MINIMALIST HIGH-END ARCHITECTURE DARK THEME */}
                   <div
-                    onClick={() => setDraftTheme('elite-luxury')}
+                    onClick={() => handleSelectTheme('elite-luxury')}
                     style={{ borderRadius: '0px' }}
                     className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
                       draftTheme === 'elite-luxury' || draftTheme === 'obsidian'
@@ -341,7 +348,7 @@ export function SettingsComponent({
 
                   {/* THEME PREVIEW CARD 3: NORDIC CLARITY & PREMIUM SCANDINAVIAN MINIMAL (LIGHT THEME) */}
                   <div
-                    onClick={() => setDraftTheme('nordic-light')}
+                    onClick={() => handleSelectTheme('nordic-light')}
                     style={{ borderRadius: '0px' }}
                     className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
                       draftTheme === 'nordic-light'
@@ -376,7 +383,7 @@ export function SettingsComponent({
 
                   {/* THEME PREVIEW CARD 4: NEO-MINIMALIST SAFİR */}
                   <div
-                    onClick={() => setDraftTheme('sapphire-minimal')}
+                    onClick={() => handleSelectTheme('sapphire-minimal')}
                     style={{ borderRadius: '12px' }}
                     className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
                       draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean'
@@ -411,7 +418,7 @@ export function SettingsComponent({
 
                   {/* THEME PREVIEW CARD 5: KRALİYET ZÜMRÜT KIR BAHÇESİ */}
                   <div
-                    onClick={() => setDraftTheme('emerald-royal')}
+                    onClick={() => handleSelectTheme('emerald-royal')}
                     style={{ borderRadius: '16px' }}
                     className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
                       draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal'
@@ -446,7 +453,7 @@ export function SettingsComponent({
 
                   {/* THEME PREVIEW CARD:  APPLE (2026 HUMAN INTERFACE GUIDELINES) */}
                   <div
-                    onClick={() => setDraftTheme('apple')}
+                    onClick={() => handleSelectTheme('apple')}
                     style={{ borderRadius: '20px' }}
                     className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
                       draftTheme === 'apple' || draftTheme === 'apple-light'
@@ -490,15 +497,15 @@ export function SettingsComponent({
                     type="button"
                     onClick={() => {
                       onThemeColorChange(draftTheme);
-                      if (draftTheme && draftTheme !== 'gold' && draftTheme !== 'classic_gold') {
+                      if (typeof document !== 'undefined') {
                         document.documentElement.setAttribute('data-ui-theme', draftTheme);
-                      } else {
-                        document.documentElement.removeAttribute('data-ui-theme');
+                        document.documentElement.setAttribute('data-theme', draftTheme);
                       }
                       
                       // CRITICAL: PERMANENTLY POST TO BACKEND SERVER DATABASE
                       try {
-                        window.fetchWithRetry('/api/system-settings', {
+                        const fetchFn = window.fetchWithRetry || fetch;
+                        fetchFn('/api/system-settings', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ themeColor: draftTheme, updatedAt: new Date().toISOString(), updatedBy: 'admin' })

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -25,212 +25,950 @@
 }
 
 /* ==========================================================================
-   KURUMSAL TEMA PALETİ & GEOMETRİ/ÇEPER EFEKTİ SİSTEMİ
+   KURUMSAL TEMA PALETİ & GEOMETRİ/ÇEPER EFEKTİ SİSTEMİ (11 TEMA COMPLETE CSS)
    ========================================================================== */
 
-/* 0. NORDIC CLARITY & SCANDINAVIAN MINIMAL (SIFIR EMOJİ DIRECTIVE) */
-html[data-theme="nordic-clarity"], [data-theme="nordic-clarity"] {
-  --color-gold: #0f172a;
-  --color-gold-hover: #1e293b;
-  --color-bg: #f8fafc;
-  --color-card: #ffffff;
-  --color-card-border: #e2e8f0;
-  --color-text-main: #0f172a;
-  --color-text-muted: #94a3b8;
-  --glass-bg: rgba(255, 255, 255, 0.98);
-  --glass-border: #e2e8f0;
-}
-[data-theme="nordic-clarity"] .gold-button,
-[data-theme="nordic-clarity"] button,
-[data-theme="nordic-clarity"] input,
-[data-theme="nordic-clarity"] select {
-  border-radius: 0.375rem !important; /* rounded-md */
-}
-[data-theme="nordic-clarity"] .glass-panel,
-[data-theme="nordic-clarity"] .rounded-2xl,
-[data-theme="nordic-clarity"] .rounded-3xl,
-[data-theme="nordic-clarity"] .rounded-xl {
-  border-radius: 0.5rem !important; /* rounded-lg */
-}
-[data-theme="nordic-clarity"] .glass-panel {
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
-}
-[data-theme="nordic-clarity"] .gold-button {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border: 1px solid #334155 !important;
-}
-[data-theme="nordic-clarity"] .gold-gradient-text {
-  color: #0f172a !important;
-  background: none !important;
-  -webkit-text-fill-color: initial !important;
-}
+    /* QUIET LUXURY & MINIMALIST HIGH-END ARCHITECTURE THEME */
+    /* ---------------------------------------------------- */
+    html[data-ui-theme="elite-luxury"] {
+      --color-gold: #D4AF37;
+      --color-gold-hover: #E5C158;
+      --color-bg: #0B0C0E;
+      --color-card: #14161D;
+      --color-surface: #22252F;
+      --glass-bg: rgba(20, 22, 29, 0.96);
+      --glass-border: rgba(212, 175, 55, 0.2);
+      color: #F8FAFC !important;
+      background-color: #0B0C0E !important;
+    }
 
-/* 1. OBSIDIAN GOLD (Keskin Lüks Siyah & Altın) - rounded-none */
-html[data-theme="obsidian-gold"], [data-theme="obsidian-gold"] {
-  --color-gold: #d97706;
-  --color-gold-hover: #b45309;
-  --glass-border: rgba(217, 119, 6, 0.75);
-}
-[data-theme="obsidian-gold"] .gold-button,
-[data-theme="obsidian-gold"] button,
-[data-theme="obsidian-gold"] input,
-[data-theme="obsidian-gold"] select,
-[data-theme="obsidian-gold"] .glass-panel,
-[data-theme="obsidian-gold"] .rounded-2xl,
-[data-theme="obsidian-gold"] .rounded-3xl,
-[data-theme="obsidian-gold"] .rounded-xl,
-[data-theme="obsidian-gold"] .rounded-lg {
-  border-radius: 0px !important;
-}
-[data-theme="obsidian-gold"] .glass-panel {
-  border: 1px solid rgba(217, 119, 6, 0.8) !important;
-  box-shadow: 0 0 16px rgba(217, 119, 6, 0.25), inset 0 0 2px rgba(251, 191, 36, 0.5) !important;
-}
-[data-theme="obsidian-gold"] .gold-button {
-  background: linear-gradient(135deg, #d97706 0%, #78350f 100%) !important;
-  border: 1px solid #fbbf24 !important;
-}
-[data-theme="obsidian-gold"] .gold-gradient-text {
-  background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #92400e 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
+    html[data-ui-theme="elite-luxury"] body {
+      background-color: #0B0C0E !important;
+      color: #F8FAFC !important;
+    }
 
-/* 2. SAPPHIRE CLEAN (Neo-Minimalist Safir) - rounded-md */
-html[data-theme="sapphire-clean"], [data-theme="sapphire-clean"] {
-  --color-gold: #1d4ed8;
-  --color-gold-hover: #1e40af;
-  --glass-border: rgba(29, 78, 216, 0.45);
-}
-[data-theme="sapphire-clean"] .gold-button,
-[data-theme="sapphire-clean"] button,
-[data-theme="sapphire-clean"] input,
-[data-theme="sapphire-clean"] select {
-  border-radius: 0.375rem !important; /* rounded-md */
-}
-[data-theme="sapphire-clean"] .glass-panel,
-[data-theme="sapphire-clean"] .rounded-2xl,
-[data-theme="sapphire-clean"] .rounded-3xl,
-[data-theme="sapphire-clean"] .rounded-xl {
-  border-radius: 0.5rem !important; /* rounded-lg */
-}
-[data-theme="sapphire-clean"] .glass-panel {
-  border: 1px solid rgba(37, 99, 235, 0.45) !important;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15) !important;
-}
-[data-theme="sapphire-clean"] .gold-button {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
-  border: 1px solid #60a5fa !important;
-}
-[data-theme="sapphire-clean"] .gold-gradient-text {
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 50%, #1e3a8a 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
+    html[data-ui-theme="elite-luxury"] h1,
+    html[data-ui-theme="elite-luxury"] h2,
+    html[data-ui-theme="elite-luxury"] h3,
+    html[data-ui-theme="elite-luxury"] .font-heading {
+      font-family: 'Outfit', sans-serif !important;
+      letter-spacing: 0.05em !important;
+      font-weight: 700 !important;
+      color: #F8FAFC !important;
+    }
 
-/* 3. PLATINUM SILVER (Premium Platin & Gümüş) - rounded-sm */
-html[data-theme="platinum-silver"], [data-theme="platinum-silver"] {
-  --color-gold: #475569;
-  --color-gold-hover: #334155;
-  --glass-border: rgba(148, 163, 184, 0.55);
-}
-[data-theme="platinum-silver"] .gold-button,
-[data-theme="platinum-silver"] button,
-[data-theme="platinum-silver"] input,
-[data-theme="platinum-silver"] select {
-  border-radius: 0.125rem !important; /* rounded-sm */
-}
-[data-theme="platinum-silver"] .glass-panel,
-[data-theme="platinum-silver"] .rounded-2xl,
-[data-theme="platinum-silver"] .rounded-3xl,
-[data-theme="platinum-silver"] .rounded-xl {
-  border-radius: 0.25rem !important;
-}
-[data-theme="platinum-silver"] .glass-panel {
-  border: 1px solid rgba(203, 213, 225, 0.8) !important;
-  box-shadow: 0 0 16px rgba(226, 232, 240, 0.35), inset 0 0 6px rgba(255, 255, 255, 0.2) !important;
-}
-[data-theme="platinum-silver"] .gold-button {
-  background: linear-gradient(135deg, #64748b 0%, #334155 100%) !important;
-  border: 1px solid #cbd5e1 !important;
-}
-[data-theme="platinum-silver"] .gold-gradient-text {
-  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #475569 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
+    html[data-ui-theme="elite-luxury"] .gold-gradient-text {
+      color: #E5C158 !important;
+      background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #C5A059 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      letter-spacing: 0.05em !important;
+      font-weight: 700 !important;
+    }
 
-/* 4. EMERALD ROYAL (Kraliyet Zümrüt Kır Bahçesi) - rounded-none */
-html[data-theme="emerald-royal"], [data-theme="emerald-royal"] {
-  --color-gold: #047857;
-  --color-gold-hover: #064e3b;
-  --glass-border: rgba(4, 120, 87, 0.65);
-}
-[data-theme="emerald-royal"] .gold-button,
-[data-theme="emerald-royal"] button,
-[data-theme="emerald-royal"] input,
-[data-theme="emerald-royal"] select,
-[data-theme="emerald-royal"] .glass-panel,
-[data-theme="emerald-royal"] .rounded-2xl,
-[data-theme="emerald-royal"] .rounded-3xl,
-[data-theme="emerald-royal"] .rounded-xl,
-[data-theme="emerald-royal"] .rounded-lg {
-  border-radius: 0px !important;
-}
-[data-theme="emerald-royal"] .glass-panel {
-  border: 1px solid rgba(16, 185, 129, 0.75) !important;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25), inset 0 0 2px rgba(52, 211, 153, 0.5) !important;
-}
-[data-theme="emerald-royal"] .gold-button {
-  background: linear-gradient(135deg, #059669 0%, #064e3b 100%) !important;
-  border: 1px solid #34d399 !important;
-}
-[data-theme="emerald-royal"] .gold-gradient-text {
-  background: linear-gradient(135deg, #34d399 0%, #059669 50%, #064e3b 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
+    html[data-ui-theme="elite-luxury"] p,
+    html[data-ui-theme="elite-luxury"] span,
+    html[data-ui-theme="elite-luxury"] div,
+    html[data-ui-theme="elite-luxury"] td,
+    html[data-ui-theme="elite-luxury"] th {
+      font-family: 'Inter', sans-serif;
+    }
 
-/* 5. TITANIUM TECH (Titanium Tech Modern) - rounded-md */
-html[data-theme="titanium-tech"], [data-theme="titanium-tech"] {
-  --color-gold: #6d28d9;
-  --color-gold-hover: #4c1d95;
-  --glass-border: rgba(109, 40, 217, 0.55);
-}
-[data-theme="titanium-tech"] .gold-button,
-[data-theme="titanium-tech"] button,
-[data-theme="titanium-tech"] input,
-[data-theme="titanium-tech"] select {
-  border-radius: 0.375rem !important; /* rounded-md */
-}
-[data-theme="titanium-tech"] .glass-panel,
-[data-theme="titanium-tech"] .rounded-2xl,
-[data-theme="titanium-tech"] .rounded-3xl,
-[data-theme="titanium-tech"] .rounded-xl {
-  border-radius: 0.5rem !important;
-}
-[data-theme="titanium-tech"] .glass-panel {
-  border: 1px solid rgba(124, 58, 237, 0.65) !important;
-  box-shadow: 0 0 18px rgba(124, 58, 237, 0.28), inset 0 0 3px rgba(167, 139, 250, 0.4) !important;
-}
-[data-theme="titanium-tech"] .gold-button {
-  background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important;
-  border: 1px solid #a78bfa !important;
-}
-[data-theme="titanium-tech"] .gold-gradient-text {
-  background: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #4c1d95 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
+    html[data-ui-theme="elite-luxury"] .text-slate-500,
+    html[data-ui-theme="elite-luxury"] .text-slate-400,
+    html[data-ui-theme="elite-luxury"] .text-gray-400 {
+      color: #94A3B8 !important; /* Platin Gri - Quiet Luxury Muted Text */
+    }
 
-/* MEVCUT SOFT PALETLER */
-html[data-theme="emerald"], [data-theme="emerald"] { --color-gold: #059669; --color-gold-hover: #047857; }
-html[data-theme="sapphire"], [data-theme="sapphire"] { --color-gold: #2563eb; --color-gold-hover: #1d4ed8; }
-html[data-theme="rose"], [data-theme="rose"] { --color-gold: #e11d48; --color-gold-hover: #be123c; }
-html[data-theme="violet"], [data-theme="violet"] { --color-gold: #7c3aed; --color-gold-hover: #6d28d9; }
+    html[data-ui-theme="elite-luxury"] .glass-panel,
+    html[data-ui-theme="elite-luxury"] button,
+    html[data-ui-theme="elite-luxury"] input,
+    html[data-ui-theme="elite-luxury"] select,
+    html[data-ui-theme="elite-luxury"] textarea,
+    html[data-ui-theme="elite-luxury"] .rounded-3xl,
+    html[data-ui-theme="elite-luxury"] .rounded-2xl,
+    html[data-ui-theme="elite-luxury"] .rounded-xl {
+      border-radius: 0px !important;
+      border-color: rgba(212, 175, 55, 0.2) !important;
+    }
 
+    html[data-ui-theme="elite-luxury"] .gold-button {
+      background: #D4AF37 !important;
+      color: #0B0C0E !important;
+      border: 1px solid #D4AF37 !important;
+      border-radius: 0px !important;
+      box-shadow: none !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.06em !important;
+      text-transform: uppercase !important;
+      font-size: 0.75rem !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .gold-button:hover {
+      background: #E5C158 !important;
+      color: #0B0C0E !important;
+      border-color: #E5C158 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25) !important;
+    }
+
+    /* ----------------------------------------------------------- */
+    /* NORDIC CLARITY & PREMIUM SCANDINAVIAN MINIMAL (LIGHT THEME) */
+    /* ----------------------------------------------------------- */
+    html[data-ui-theme="nordic-light"] {
+      --color-gold: #0F172A;
+      --color-gold-hover: #1E293B;
+      --color-bg: #FAFAFA;
+      --color-card: #FFFFFF;
+      --color-surface: #F1F3F5;
+      --glass-bg: rgba(255, 255, 255, 0.98);
+      --glass-border: #E2E8F0;
+      color: #0F172A !important;
+      background-color: #FAFAFA !important;
+    }
+
+    html[data-ui-theme="nordic-light"] body {
+      background-color: #FAFAFA !important;
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] h1,
+    html[data-ui-theme="nordic-light"] h2,
+    html[data-ui-theme="nordic-light"] h3,
+    html[data-ui-theme="nordic-light"] .font-heading {
+      font-family: 'Outfit', sans-serif !important;
+      letter-spacing: 0.04em !important;
+      font-weight: 700 !important;
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-gradient-text {
+      color: #0F172A !important;
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      letter-spacing: 0.04em !important;
+      font-weight: 800 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] p,
+    html[data-ui-theme="nordic-light"] span,
+    html[data-ui-theme="nordic-light"] div,
+    html[data-ui-theme="nordic-light"] td,
+    html[data-ui-theme="nordic-light"] th {
+      font-family: 'Inter', sans-serif;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-slate-500,
+    html[data-ui-theme="nordic-light"] .text-slate-400,
+    html[data-ui-theme="nordic-light"] .text-gray-400 {
+      color: #64748B !important; /* Dumanlı Nötr Gri - Muted Text */
+    }
+
+    html[data-ui-theme="nordic-light"] .text-slate-800,
+    html[data-ui-theme="nordic-light"] .text-gray-100,
+    html[data-ui-theme="nordic-light"] .text-gray-200 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-white,
+    html[data-ui-theme="nordic-light"] .bg-brand-card,
+    html[data-ui-theme="nordic-light"] .glass-panel {
+      background-color: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .glass-panel,
+    html[data-ui-theme="nordic-light"] button,
+    html[data-ui-theme="nordic-light"] input,
+    html[data-ui-theme="nordic-light"] select,
+    html[data-ui-theme="nordic-light"] textarea,
+    html[data-ui-theme="nordic-light"] .rounded-3xl,
+    html[data-ui-theme="nordic-light"] .rounded-2xl,
+    html[data-ui-theme="nordic-light"] .rounded-xl {
+      border-radius: 0px !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-button {
+      background: #0F172A !important;
+      color: #FFFFFF !important;
+      border: 1px solid #0F172A !important;
+      border-radius: 0px !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15) !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.06em !important;
+      text-transform: uppercase !important;
+      font-size: 0.75rem !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-button:hover {
+      background: #1E293B !important;
+      color: #FFFFFF !important;
+      border-color: #1E293B !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+    }
+
+    /* NORDIC CLARITY ZERO-AMBER LEAK OVERRIDES */
+    html[data-ui-theme="nordic-light"] .border-amber-500,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/60,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/50,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/40,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/30,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/20 {
+      border-color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/20,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/30 {
+      background-color: #F1F5F9 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-amber-800,
+    html[data-ui-theme="nordic-light"] .text-amber-700,
+    html[data-ui-theme="nordic-light"] .text-gold-400,
+    html[data-ui-theme="nordic-light"] .text-gold-300 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-gradient-text {
+      background: none !important;
+      -webkit-background-clip: unset !important;
+      -webkit-text-fill-color: #0F172A !important;
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .ring-amber-500,
+    html[data-ui-theme="nordic-light"] .ring-amber-500\/40,
+    html[data-ui-theme="nordic-light"] .ring-amber-500\/30,
+    html[data-ui-theme="nordic-light"] .ring-amber-500\/20,
+    html[data-ui-theme="nordic-light"] .focus\:ring-amber-500:focus {
+      --tw-ring-color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .accent-amber-600 {
+      accent-color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .emoji-fallback,
+    html[data-ui-theme="nordic-light"] .emoji-text {
+      display: none !important;
+    }
+
+    /* ----------------------------------------------------------- */
+    /* NEO-MINIMALIST SAFİR (TECH CORPORATE & ELECTRIC BLUE)        */
+    /* ----------------------------------------------------------- */
+    html[data-ui-theme="sapphire-minimal"] {
+      --color-gold: #0284C7;
+      --color-gold-hover: #0369A1;
+      --color-bg: #0F172A;
+      --color-card: #1E293B;
+      --color-surface: #334155;
+      --glass-bg: rgba(30, 41, 59, 0.95);
+      --glass-border: #334155;
+      color: #F8FAFC !important;
+      background-color: #0F172A !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] body {
+      background-color: #0F172A !important;
+      color: #F8FAFC !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] h1,
+    html[data-ui-theme="sapphire-minimal"] h2,
+    html[data-ui-theme="sapphire-minimal"] h3,
+    html[data-ui-theme="sapphire-minimal"] .font-heading {
+      font-family: 'Space Grotesk', sans-serif !important;
+      letter-spacing: -0.02em !important;
+      font-weight: 700 !important;
+      color: #F8FAFC !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .gold-gradient-text {
+      color: #38BDF8 !important;
+      background: linear-gradient(135deg, #38BDF8 0%, #0284C7 60%, #0369A1 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      font-family: 'Space Grotesk', sans-serif !important;
+      letter-spacing: -0.02em !important;
+      font-weight: 700 !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] p,
+    html[data-ui-theme="sapphire-minimal"] span,
+    html[data-ui-theme="sapphire-minimal"] div,
+    html[data-ui-theme="sapphire-minimal"] td,
+    html[data-ui-theme="sapphire-minimal"] th {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    /* HIGH-CONTRAST TEXT & LINK OVERRIDES FOR SAPPHIRE MINIMAL */
+    html[data-ui-theme="sapphire-minimal"] a,
+    html[data-ui-theme="sapphire-minimal"] nav a,
+    html[data-ui-theme="sapphire-minimal"] .text-slate-600,
+    html[data-ui-theme="sapphire-minimal"] .text-slate-700,
+    html[data-ui-theme="sapphire-minimal"] .text-slate-800,
+    html[data-ui-theme="sapphire-minimal"] .text-slate-900,
+    html[data-ui-theme="sapphire-minimal"] .text-gray-600,
+    html[data-ui-theme="sapphire-minimal"] .text-gray-700,
+    html[data-ui-theme="sapphire-minimal"] .text-amber-600,
+    html[data-ui-theme="sapphire-minimal"] .text-amber-700,
+    html[data-ui-theme="sapphire-minimal"] .text-amber-800 {
+      color: #94A3B8 !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] nav a:hover,
+    html[data-ui-theme="sapphire-minimal"] a:hover {
+      color: #FFFFFF !important;
+      background-color: rgba(2, 132, 199, 0.15) !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .gold-gradient-text {
+      color: #F8FAFC !important;
+      background: linear-gradient(135deg, #F8FAFC 0%, #38BDF8 50%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      font-family: 'Space Grotesk', sans-serif !important;
+      letter-spacing: -0.02em !important;
+      font-weight: 700 !important;
+    }
+
+    html[data-ui-theme="sapphire-minimal"] .bg-amber-500\/10,
+    html[data-ui-theme="sapphire-minimal"] .bg-amber-500\/20 {
+      background-color: rgba(2, 132, 199, 0.15) !important;
+    }
+    html[data-ui-theme="sapphire-minimal"] .border-amber-500\/30,
+    html[data-ui-theme="sapphire-minimal"] .border-amber-500\/40,
+    html[data-ui-theme="sapphire-minimal"] .border-amber-500\/60 {
+      border-color: rgba(2, 132, 199, 0.35) !important;
+    }
+    html[data-ui-theme="sapphire-minimal"] .text-amber-700,
+    html[data-ui-theme="sapphire-minimal"] .text-amber-800,
+    html[data-ui-theme="sapphire-minimal"] .text-gold-400 {
+      color: #38BDF8 !important;
+    }
+
+    /* ----------------------------------------------------------- */
+    /* KRALİYET ZÜMRÜT KIR BAHÇESİ (BOTANICAL VELVET & EMERALD)    */
+    /* ----------------------------------------------------------- */
+    html[data-ui-theme="emerald-royal"] {
+      --color-gold: #10B981;
+      --color-gold-hover: #059669;
+      --color-bg: #042F2E;
+      --color-card: #064E3B;
+      --color-surface: #0f766e;
+      --glass-bg: rgba(6, 78, 59, 0.95);
+      --glass-border: rgba(52, 211, 153, 0.3);
+      color: #ECFDF5 !important;
+      background-color: #042F2E !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] body {
+      background-color: #042F2E !important;
+      color: #ECFDF5 !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] h1,
+    html[data-ui-theme="emerald-royal"] h2,
+    html[data-ui-theme="emerald-royal"] h3,
+    html[data-ui-theme="emerald-royal"] .font-heading {
+      font-family: 'Playfair Display', serif !important;
+      letter-spacing: 0.02em !important;
+      font-weight: 700 !important;
+      color: #ECFDF5 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .gold-gradient-text {
+      color: #ECFDF5 !important;
+      background: linear-gradient(135deg, #ECFDF5 0%, #34D399 50%, #6EE7B7 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      font-family: 'Playfair Display', serif !important;
+      letter-spacing: 0.02em !important;
+      font-weight: 800 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] p,
+    html[data-ui-theme="emerald-royal"] span,
+    html[data-ui-theme="emerald-royal"] div,
+    html[data-ui-theme="emerald-royal"] td,
+    html[data-ui-theme="emerald-royal"] th {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] a,
+    html[data-ui-theme="emerald-royal"] nav a,
+    html[data-ui-theme="emerald-royal"] .text-slate-600,
+    html[data-ui-theme="emerald-royal"] .text-slate-700,
+    html[data-ui-theme="emerald-royal"] .text-slate-800,
+    html[data-ui-theme="emerald-royal"] .text-slate-900,
+    html[data-ui-theme="emerald-royal"] .text-gray-600,
+    html[data-ui-theme="emerald-royal"] .text-gray-700,
+    html[data-ui-theme="emerald-royal"] .text-amber-600,
+    html[data-ui-theme="emerald-royal"] .text-amber-700,
+    html[data-ui-theme="emerald-royal"] .text-amber-800 {
+      color: #A7F3D0 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] nav a:hover,
+    html[data-ui-theme="emerald-royal"] a:hover {
+      color: #FFFFFF !important;
+      background-color: rgba(52, 211, 153, 0.15) !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .text-slate-500,
+    html[data-ui-theme="emerald-royal"] .text-slate-400,
+    html[data-ui-theme="emerald-royal"] .text-gray-400 {
+      color: #A7F3D0 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .bg-white,
+    html[data-ui-theme="emerald-royal"] .bg-brand-card,
+    html[data-ui-theme="emerald-royal"] .glass-panel {
+      background-color: #064E3B !important;
+      border-color: rgba(52, 211, 153, 0.3) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .bg-amber-500\/10,
+    html[data-ui-theme="emerald-royal"] .bg-amber-500\/20 {
+      background-color: rgba(52, 211, 153, 0.15) !important;
+    }
+    html[data-ui-theme="emerald-royal"] .border-amber-500\/30,
+    html[data-ui-theme="emerald-royal"] .border-amber-500\/40,
+    html[data-ui-theme="emerald-royal"] .border-amber-500\/60 {
+      border-color: rgba(52, 211, 153, 0.35) !important;
+    }
+    html[data-ui-theme="emerald-royal"] .text-amber-700,
+    html[data-ui-theme="emerald-royal"] .text-amber-800,
+    html[data-ui-theme="emerald-royal"] .text-gold-400 {
+      color: #34D399 !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .glass-panel,
+    html[data-ui-theme="emerald-royal"] button,
+    html[data-ui-theme="emerald-royal"] input,
+    html[data-ui-theme="emerald-royal"] select,
+    html[data-ui-theme="emerald-royal"] textarea,
+    html[data-ui-theme="emerald-royal"] .rounded-3xl,
+    html[data-ui-theme="emerald-royal"] .rounded-2xl,
+    html[data-ui-theme="emerald-royal"] .rounded-xl {
+      border-radius: 14px !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .gold-button {
+      background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important;
+      color: #FFFFFF !important;
+      border: 1px solid #34D399 !important;
+      border-radius: 14px !important;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+      font-family: 'Playfair Display', serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.03em !important;
+      font-size: 0.8rem !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-ui-theme="emerald-royal"] .gold-button:hover {
+      background: linear-gradient(135deg, #34D399 0%, #059669 100%) !important;
+      color: #FFFFFF !important;
+      border-color: #6EE7B7 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45) !important;
+    }
+
+    /* ----------------------------------------------------------- */
+    /*  APPLE (2026 HUMAN INTERFACE GUIDELINES DESIGN SYSTEM)    */
+    /* ----------------------------------------------------------- */
+    html[data-ui-theme="apple"] {
+      --color-gold: #0071E3;
+      --color-gold-hover: #0077ED;
+      --color-bg: #F5F5F7;
+      --color-card: rgba(255, 255, 255, 0.85);
+      --color-surface: #E8E8ED;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      color: #1D1D1F !important;
+      background-color: #F5F5F7 !important;
+    }
+
+    html[data-ui-theme="apple"] body {
+      background-color: #F5F5F7 !important;
+      color: #1D1D1F !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html[data-ui-theme="apple"] h1,
+    html[data-ui-theme="apple"] h2,
+    html[data-ui-theme="apple"] h3,
+    html[data-ui-theme="apple"] .font-heading {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif !important;
+      letter-spacing: -0.025em !important;
+      font-weight: 700 !important;
+      color: #1D1D1F !important;
+    }
+
+    html[data-ui-theme="apple"] .gold-gradient-text {
+      background: linear-gradient(135deg, #1D1D1F 0%, #0071E3 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    html[data-ui-theme="apple"] p,
+    html[data-ui-theme="apple"] span,
+    html[data-ui-theme="apple"] div,
+    html[data-ui-theme="apple"] td,
+    html[data-ui-theme="apple"] th {
+      color: #1D1D1F;
+    }
+
+    html[data-ui-theme="apple"] .text-slate-500,
+    html[data-ui-theme="apple"] .text-slate-400,
+    html[data-ui-theme="apple"] .text-gray-400 {
+      color: #86868B !important;
+    }
+
+    html[data-ui-theme="apple"] .text-slate-800,
+    html[data-ui-theme="apple"] .text-gray-100,
+    html[data-ui-theme="apple"] .text-gray-200 {
+      color: #1D1D1F !important;
+    }
+
+    html[data-ui-theme="apple"] .bg-white,
+    html[data-ui-theme="apple"] .bg-brand-card,
+    html[data-ui-theme="apple"] .glass-panel {
+      background: rgba(255, 255, 255, 0.82) !important;
+      backdrop-filter: blur(25px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html[data-ui-theme="apple"] .glass-panel,
+    html[data-ui-theme="apple"] button,
+    html[data-ui-theme="apple"] input,
+    html[data-ui-theme="apple"] select,
+    html[data-ui-theme="apple"] textarea,
+    html[data-ui-theme="apple"] .rounded-3xl,
+    html[data-ui-theme="apple"] .rounded-2xl,
+    html[data-ui-theme="apple"] .rounded-xl {
+      border-radius: 18px !important;
+    }
+
+    html[data-ui-theme="apple"] .gold-button {
+      background: #0071E3 !important;
+      color: #FFFFFF !important;
+      border-radius: 980px !important;
+      box-shadow: 0 2px 10px rgba(0, 113, 227, 0.3) !important;
+      font-weight: 600 !important;
+      letter-spacing: -0.01em !important;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-ui-theme="apple"] .gold-button:hover {
+      background: #0077ED !important;
+      box-shadow: 0 4px 16px rgba(0, 113, 227, 0.4) !important;
+      transform: scale(1.015) !important;
+    }
+
+    html[data-ui-theme="apple"] .gold-button:active {
+      transform: scale(0.97) !important;
+    }
+
+    html[data-ui-theme="apple"] .border-amber-500,
+    html[data-ui-theme="apple"] .border-amber-500\/60,
+    html[data-ui-theme="apple"] .border-amber-500\/50,
+    html[data-ui-theme="apple"] .border-amber-500\/40,
+    html[data-ui-theme="apple"] .border-amber-500\/30,
+    html[data-ui-theme="apple"] .border-amber-500\/20 {
+      border-color: rgba(0, 113, 227, 0.3) !important;
+    }
+
+    html[data-ui-theme="apple"] .bg-amber-500\/10,
+    html[data-ui-theme="apple"] .bg-amber-500\/20,
+    html[data-ui-theme="apple"] .bg-amber-500\/30 {
+      background-color: rgba(0, 113, 227, 0.08) !important;
+    }
+
+    html[data-ui-theme="apple"] .text-amber-800,
+    html[data-ui-theme="apple"] .text-amber-700,
+    html[data-ui-theme="apple"] .text-gold-400,
+    html[data-ui-theme="apple"] .text-gold-300 {
+      color: #0071E3 !important;
+    }
+
+    html[data-ui-theme="apple"] .emoji-text {
+      display: none !important;
+    }
+
+    /* ---------------------------------------------------- */
+    /* GLOBAL HIGH-END SHARP BUTTON & MONOCHROME ICON RULES */
+    /* ---------------------------------------------------- */
+    html[data-ui-theme="nordic-light"] button,
+    html[data-ui-theme="elite-luxury"] button,
+    html[data-ui-theme="nordic-light"] a,
+    html[data-ui-theme="elite-luxury"] a,
+    html[data-ui-theme="nordic-light"] input,
+    html[data-ui-theme="elite-luxury"] input,
+    html[data-ui-theme="nordic-light"] select,
+    html[data-ui-theme="elite-luxury"] select,
+    html[data-ui-theme="nordic-light"] textarea,
+    html[data-ui-theme="elite-luxury"] textarea,
+    html[data-ui-theme="nordic-light"] .gold-button,
+    html[data-ui-theme="elite-luxury"] .gold-button,
+    html[data-ui-theme="nordic-light"] .rounded-2xl,
+    html[data-ui-theme="elite-luxury"] .rounded-2xl,
+    html[data-ui-theme="nordic-light"] .rounded-3xl,
+    html[data-ui-theme="elite-luxury"] .rounded-3xl,
+    html[data-ui-theme="nordic-light"] .rounded-xl,
+    html[data-ui-theme="elite-luxury"] .rounded-xl,
+    html[data-ui-theme="nordic-light"] .rounded-lg,
+    html[data-ui-theme="elite-luxury"] .rounded-lg {
+      border-radius: 0px !important;
+    }
+
+    html[data-ui-theme="nordic-light"] button,
+    html[data-ui-theme="elite-luxury"] button,
+    html[data-ui-theme="nordic-light"] .gold-button,
+    html[data-ui-theme="elite-luxury"] .gold-button {
+      text-transform: uppercase !important;
+      letter-spacing: 0.06em !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-weight: 700 !important;
+    }
+
+    /* MONOCHROME EMOJI FILTER & REFINED MINIMALIST ACCENT FOR THEMES */
+    html[data-ui-theme="nordic-light"] button span,
+    html[data-ui-theme="elite-luxury"] button span,
+    html[data-ui-theme="nordic-light"] a span,
+    html[data-ui-theme="elite-luxury"] a span {
+      filter: grayscale(100%) opacity(0.85) !important;
+    }
+
+    /* ---------------------------------------------------- */
+    /* STRICT ZERO-ORANGE OVERRIDES FOR ARCHITECTURE THEMES */
+    /* ---------------------------------------------------- */
+    html[data-ui-theme="elite-luxury"] :focus-visible {
+      outline: 2px solid #D4AF37 !important;
+      outline-offset: 2px !important;
+    }
+    html[data-ui-theme="nordic-light"] :focus-visible {
+      outline: 2px solid #0F172A !important;
+      outline-offset: 2px !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] ::-webkit-scrollbar-thumb:hover { background: #D4AF37 !important; }
+    html[data-ui-theme="nordic-light"] ::-webkit-scrollbar-thumb:hover { background: #0F172A !important; }
+
+    /* OVERRIDE ALL AMBER / ORANGE UTILITY CLASSES TO ZERO-ORANGE TOKENS */
+    html[data-ui-theme="elite-luxury"] .border-amber-500,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/30,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/40,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/50,
+    html[data-ui-theme="elite-luxury"] .border-amber-500\/60 {
+      border-color: rgba(212, 175, 55, 0.3) !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .text-amber-500,
+    html[data-ui-theme="elite-luxury"] .text-amber-600,
+    html[data-ui-theme="elite-luxury"] .text-amber-700,
+    html[data-ui-theme="elite-luxury"] .text-amber-400 {
+      color: #E5C158 !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .bg-amber-500,
+    html[data-ui-theme="elite-luxury"] .bg-amber-600 {
+      background-color: #D4AF37 !important;
+      color: #0B0C0E !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .bg-amber-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-amber-500\/20 {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .border-amber-500,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/30,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/40,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/50,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/60 {
+      border-color: #E2E8F0 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-amber-500,
+    html[data-ui-theme="nordic-light"] .text-amber-600,
+    html[data-ui-theme="nordic-light"] .text-amber-700,
+    html[data-ui-theme="nordic-light"] .text-amber-400 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-amber-500,
+    html[data-ui-theme="nordic-light"] .bg-amber-600 {
+      background-color: #0F172A !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/20 {
+      background-color: #F1F3F5 !important;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* STRICT PALETTE NORMALIZATION (PURGES ALL UNRELATED BADGE/TAG COLORS) */
+    /* ------------------------------------------------------------------- */
+    html[data-ui-theme="elite-luxury"] .text-emerald-500,
+    html[data-ui-theme="elite-luxury"] .text-emerald-600,
+    html[data-ui-theme="elite-luxury"] .text-blue-500,
+    html[data-ui-theme="elite-luxury"] .text-blue-600,
+    html[data-ui-theme="elite-luxury"] .text-rose-500,
+    html[data-ui-theme="elite-luxury"] .text-purple-500,
+    html[data-ui-theme="elite-luxury"] .text-indigo-500 {
+      color: #E5C158 !important;
+    }
+
+    html[data-ui-theme="elite-luxury"] .bg-emerald-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-blue-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-rose-500\/10,
+    html[data-ui-theme="elite-luxury"] .bg-purple-500\/10 {
+      background-color: #22252F !important;
+      color: #E5C158 !important;
+      border: 1px solid rgba(212, 175, 55, 0.2) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-emerald-500,
+    html[data-ui-theme="nordic-light"] .text-emerald-600,
+    html[data-ui-theme="nordic-light"] .text-blue-500,
+    html[data-ui-theme="nordic-light"] .text-blue-600,
+    html[data-ui-theme="nordic-light"] .text-rose-500,
+    html[data-ui-theme="nordic-light"] .text-purple-500,
+    html[data-ui-theme="nordic-light"] .text-indigo-500 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-emerald-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-blue-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-rose-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-purple-500\/10 {
+      background-color: #F1F3F5 !important;
+      color: #0F172A !important;
+      border: 1px solid #E2E8F0 !important;
+    }
+
+
+
+
+    /* =================================================================== */
+    /* NORDIC LIGHT EXHAUSTIVE AMBER PURGE & SLATE NORMALIZATION            */
+    /* =================================================================== */
+    html[data-ui-theme="nordic-light"] .bg-amber-500,
+    html[data-ui-theme="nordic-light"] .bg-amber-600,
+    html[data-ui-theme="nordic-light"] .bg-amber-700,
+    html[data-ui-theme="nordic-light"] .bg-amber-800,
+    html[data-ui-theme="nordic-light"] .bg-gold-500,
+    html[data-ui-theme="nordic-light"] .bg-gold-600 {
+      background-color: #0F172A !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/10,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/20,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/30,
+    html[data-ui-theme="nordic-light"] .bg-amber-500\/5 {
+      background-color: #F1F5F9 !important;
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-amber-400,
+    html[data-ui-theme="nordic-light"] .text-amber-500,
+    html[data-ui-theme="nordic-light"] .text-amber-600,
+    html[data-ui-theme="nordic-light"] .text-amber-700,
+    html[data-ui-theme="nordic-light"] .text-amber-800,
+    html[data-ui-theme="nordic-light"] .text-gold-400,
+    html[data-ui-theme="nordic-light"] .text-gold-500 {
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .border-amber-500,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/10,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/20,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/30,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/40,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/50,
+    html[data-ui-theme="nordic-light"] .border-amber-500\/60 {
+      border-color: #CBD5E1 !important;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* NORDIC LIGHT SCANDINAVIAN MINIMALIST ARCHITECTURE DESIGN SYSTEM    */
+    /* ------------------------------------------------------------------- */
+    html[data-ui-theme="nordic-light"] body {
+      background-color: #FAFAFA !important;
+      color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .glass-panel {
+      background-color: #FFFFFF !important;
+      border: 1px solid #CBD5E1 !important;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .border-dashed {
+      border-color: #0F172A !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .border-dashed:hover {
+      border-color: #0F172A !important;
+      background-color: #F8FAFC !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-button {
+      background: #0F172A !important;
+      color: #FFFFFF !important;
+      border: 2px solid #334155 !important;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
+      border-radius: 8px !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-button:hover {
+      background: #1E293B !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .bg-slate-900\/90,
+    html[data-ui-theme="nordic-light"] .bg-slate-950\/90 {
+      background-color: #0F172A !important;
+      border-color: #334155 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .text-amber-500,
+    html[data-ui-theme="nordic-light"] .text-amber-600,
+    html[data-ui-theme="nordic-light"] .text-amber-700 {
+      color: #0F172A !important;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* NORDIC LIGHT THEME: PURE MONOCHROME SLATE & WHITE (NO ORANGE / AMBER) */
+    /* ------------------------------------------------------------------- */
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .text-amber-400,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .text-amber-400,
+    html[data-ui-theme="nordic-light"] .bg-slate-900 .text-amber-400,
+    html[data-ui-theme="nordic-light"] .bg-slate-950 .text-amber-400,
+    html[data-ui-theme="nordic-light"] .bg-black .text-amber-400 {
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] .gold-gradient-text {
+      background: linear-gradient(135deg, #0F172A 0%, #334155 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .gold-gradient-text,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .gold-gradient-text {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .text-slate-300,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .text-slate-300,
+    html[data-ui-theme="nordic-light"] .bg-slate-900 .text-slate-300,
+    html[data-ui-theme="nordic-light"] .bg-slate-950 .text-slate-300 {
+      color: #E2E8F0 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .text-white,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .text-white,
+    html[data-ui-theme="nordic-light"] .bg-slate-900 .text-white,
+    html[data-ui-theme="nordic-light"] .bg-slate-950 .text-white {
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .bg-gradient-to-r,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .bg-gradient-to-r {
+      background: #0F172A !important;
+      color: #FFFFFF !important;
+      border: 2px solid #334155 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .bg-gradient-to-r *,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .bg-gradient-to-r * {
+      color: #FFFFFF !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .bg-amber-500,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .bg-amber-500 {
+      background-color: #0F172A !important;
+      color: #FFFFFF !important;
+      border: 2px solid #334155 !important;
+    }
+
+    html[data-ui-theme="nordic-light"] [class*="z-[999"] .bg-amber-500 *,
+    html[data-ui-theme="nordic-light"] [class*="z-[1000"] .bg-amber-500 * {
+      color: #FFFFFF !important;
+    }
+
+    :focus-visible {
+      outline: 3px solid #0F172A !important;
+      outline-offset: 2px !important;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--color-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--color-card-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+
+    /* PREVENT BLANK CANVAS DURING HARD SCROLLING */
+    main {
+      -webkit-overflow-scrolling: touch;
+      transform: translateZ(0);
+    }
+
+    /* FAST & BUTTERY SMOOTH SLIDE-IN FROM LEFT ANIMATION (APPLE CUBIC-BEZIER) */
+    @keyframes slideInLeft {
+      0% {
+        transform: translateX(-100%);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    .animate-slide-in-left {
+      animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: transform;
+    }
+
+    /* SYSTEM-WIDE PERFORMANCE LAYER 1: SKELETON SHIMMER ANIMATION */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton-shimmer {
+      background: linear-gradient(90deg, rgba(226, 232, 240, 0.5) 25%, rgba(203, 213, 225, 0.9) 50%, rgba(226, 232, 240, 0.5) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+    .dark .skeleton-shimmer {
+      background: linear-gradient(90deg, rgba(30, 41, 59, 0.5) 25%, rgba(51, 65, 85, 0.9) 50%, rgba(30, 41, 59, 0.5) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+/* REUSABLE BASE UTILITIES & ANIMATIONS */
 body {
   background-color: var(--color-bg);
   color: var(--color-text-main);
@@ -240,7 +978,6 @@ body {
   overflow-x: hidden;
 }
 
-/* FIX FOR BLANK WHITE BOXES & SCROLL REPAINT GLITCHES (GPU ACCELERATED) */
 .glass-panel {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
@@ -290,16 +1027,9 @@ main {
   transform: translateZ(0);
 }
 
-/* FAST & BUTTERY SMOOTH SLIDE-IN FROM LEFT ANIMATION (APPLE CUBIC-BEZIER) */
 @keyframes slideInLeft {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  0% { transform: translateX(-100%); opacity: 0.7; }
+  100% { transform: translateX(0); opacity: 1; }
 }
 .animate-slide-in-left {
   animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;

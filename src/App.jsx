@@ -98,7 +98,7 @@ export default function App() {
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('data-ui-theme', currentTheme);
       document.documentElement.setAttribute('data-theme', currentTheme);
-      if (currentTheme === 'nordic-light' || currentTheme === 'platinum-silver') {
+      if (currentTheme === 'nordic-light' || currentTheme === 'platinum-silver' || currentTheme === 'apple') {
         document.documentElement.classList.remove('dark');
         document.documentElement.classList.add('light');
       } else {
