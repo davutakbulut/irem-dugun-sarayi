@@ -8,6 +8,27 @@ export default function CustomerLoginPage({ navigateTo }) {
   const handleLogin = (e) => {
     e.preventDefault();
     setIsLogged(true);
+
+    const customerUser = {
+      id: 'cust-session-' + Date.now(),
+      name: contractCode ? `Çift Portalı (${contractCode.toUpperCase()})` : 'Zeynep & Burak Yılmaz',
+      email: 'musteri@iremdugunsarayi.com',
+      phone: phone || '+90 532 000 00 00',
+      role: 'musteri',
+      contractCode: contractCode || 'IRM-2026-8492',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+    };
+
+    try {
+      localStorage.setItem('irem_session_user', JSON.stringify(customerUser));
+      localStorage.setItem('irem_active_role', 'musteri');
+    } catch(err) {}
+
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/yonetim';
+      }
+    }, 1500);
   };
 
   return (
