@@ -11001,42 +11001,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         }
       };
 
-      // BIDIRECTIONAL SESSION GATEKEEPER AUTOMATIC REDIRECT
+      // BIDIRECTIONAL SESSION GATEKEEPER AUTOMATIC REDIRECT (MANAGEMENT ROUTES ONLY)
       useEffect(() => {
         if (typeof window === 'undefined') return;
         const path = window.location.pathname;
-        const search = window.location.search;
-        const hash = window.location.hash;
 
-        const isPublicGuestRoute = activeTab === 'media' && (
-          path.startsWith('/medya') ||
-          path.startsWith('/m/') ||
-          search.includes('mode=guest') ||
-          search.includes('key=') ||
-          hash.includes('mode=guest') ||
-          hash.includes('key=')
-        );
+        // 1. PUBLIC WEBSITE GUARD: NEVER REDIRECT ON MAIN DOMAIN OR PUBLIC PAGES!
+        if (!path.startsWith('/yonetim') && path !== '/giris' && path !== '/login') {
+          return;
+        }
 
-        const isError = activeTab.startsWith('simulasyon-') || ['404', '301', '403', '500'].includes(activeTab);
-        const isYonetimPath = (path.startsWith('/yonetim') || (activeTab !== 'login' && !isError && !isPublicGuestRoute)) && !isError && !isPublicGuestRoute;
-        const isGirisPath = (path === '/giris' || path === '/login' || activeTab === 'login') && !isError;
-
-        // 1. Unauthenticated attempt to access /yonetim -> redirect to /giris (EXCEPT public guest media routes)
-        if (isYonetimPath && !sessionUser) {
+        // 2. MANAGEMENT ROUTE GATEKEEPER
+        if (path.startsWith('/yonetim') && !sessionUser) {
           setActiveTabState('login');
           if (window.history && window.history.pushState) {
             window.history.pushState({}, '', '/giris');
           }
-        }
-        // 2. Authenticated attempt to access /giris when session already active -> auto-redirect to /yonetim
-        else if (isGirisPath && sessionUser) {
+        } else if ((path === '/giris' || path === '/login') && sessionUser) {
           const targetTab = activeTab === 'login' ? 'dashboard' : activeTab;
           setActiveTabState(targetTab);
           const targetPath = TAB_TO_PATH[targetTab] || '/yonetim';
           if (window.history && window.history.pushState && path !== targetPath) {
             window.history.pushState({}, '', targetPath);
           }
-          showToast('Aktif Oturumunuz Bulunmaktadır, Yönetim Paneline Otomatik Yönlendirildiniz');
         }
       }, [activeTab, sessionUser]);
 
