@@ -254,9 +254,16 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
 
         if is_html_route:
             base_dir = os.path.join(os.path.dirname(__file__), '..')
-            dist_html = os.path.join(base_dir, 'dist', 'index.html')
-            root_html = os.path.join(base_dir, 'index.html')
-            target_html = dist_html if os.path.exists(dist_html) else root_html
+            
+            # COMPLETELY INDEPENDENT APP ROUTING
+            if parsed_path.path.startswith('/yonetim') or parsed_path.path in ['/giris', '/login', '/yonetim/giris']:
+                target_html = os.path.join(base_dir, 'yonetim.html')
+                if not os.path.exists(target_html):
+                    target_html = os.path.join(base_dir, 'index.html')
+            else:
+                dist_html = os.path.join(base_dir, 'dist', 'index.html')
+                root_html = os.path.join(base_dir, 'index.html')
+                target_html = dist_html if os.path.exists(dist_html) else root_html
             
             if os.path.exists(target_html):
                 try:
