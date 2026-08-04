@@ -207,10 +207,34 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
+    const syncFromServer = async () => {
+      const targetKey = activeMediaKey || selectedResKey || currentRes?.mediaKey || currentRes?.id;
+      if (!targetKey) return;
+      try {
+        const res = await fetch(`/api/media-files?resId=${targetKey}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.files)) {
+            setReservations(prev => {
+              return prev.map(r => {
+                const isMatch = r.mediaKey === targetKey || r.id === targetKey || (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey));
+                if (isMatch) {
+                  const diskFiles = data.files.filter(f => f && f.url && f.url.startsWith('/uploads/'));
+                  return { ...r, mediaFiles: diskFiles };
+                }
+                return r;
+              });
+            });
+          }
+        }
+      } catch(e) {}
+    };
+
     // 0 POLLING ARCHITECTURE: Fully event-driven via Socket.io & SSE Push Notifications
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         syncFromCache();
+        syncFromServer();
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -222,6 +246,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
         evtSource = new EventSource('/api/media-stream');
         evtSource.addEventListener('media_update', () => {
           syncFromCache();
+          syncFromServer();
         });
       }
     } catch(e){}
@@ -240,10 +265,12 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
       socket.on('media_updated', () => {
         syncFromCache();
+        syncFromServer();
       });
 
       socket.on('global_media_updated', () => {
         syncFromCache();
+        syncFromServer();
       });
     } catch(e){}
 
