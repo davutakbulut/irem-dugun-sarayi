@@ -12029,8 +12029,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           if (hashData.refKey && hashData.refKey !== activeRefKey) {
             setActiveRefKey(hashData.refKey);
           } else if (!hashData.refKey && activeRefKey && !hashData.editId) {
-            const tabSlug = TAB_TO_SLUG['create-reservation'] || 'rezervasyon-olustur';
-            const newUrl = `${window.location.pathname}#/${tabSlug}?ref=${activeRefKey}`;
+            const cleanPath = window.location.pathname.endsWith('/yeni-rezervasyon') ? window.location.pathname : '/yonetim/yeni-rezervasyon';
+            const newUrl = `${cleanPath}?ref=${activeRefKey}`;
             window.history.replaceState({ tab: 'create-reservation', refKey: activeRefKey }, '', newUrl);
           }
         };
