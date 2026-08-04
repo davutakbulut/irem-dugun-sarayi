@@ -18587,7 +18587,6 @@ const E2E_WORKFLOWS = [
         { id: 'apple', name: ' Apple (2026 HIG Minimalist & Clean)', primary: '#0071E3', hover: '#0077ED' }
       ];
 
-      return (
       const [publicTheme, setPublicTheme] = useState(() => CacheService.get('public_settings', {}).publicTheme || 'dark-gold');
       const [publicBadge, setPublicBadge] = useState(() => CacheService.get('public_settings', {}).heroBadgeText || '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri');
       const [publicTitle, setPublicTitle] = useState(() => CacheService.get('public_settings', {}).heroTitle || 'Hayalinizdeki Düğün İrem Düğün Sarayı\'nda Unutulmaz Oluyor');
