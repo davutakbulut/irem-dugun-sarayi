@@ -9937,8 +9937,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       });
       const [draftReservations, setDraftReservations] = useState(() => CacheService.get('draft_reservations', []));
       const [users, setUsers] = useState(() => {
-        const cachedUsers = CacheService.get('users', INITIAL_USERS);
-        const cachedUserArray = Array.isArray(cachedUsers) ? cachedUsers : [];
+        const cachedUsers = CacheService.get('users', null);
+        if (cachedUsers && Array.isArray(cachedUsers) && cachedUsers.length > 0) {
+          return cachedUsers;
+        }
 
         const userMap = new Map();
 
@@ -9948,13 +9950,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           userMap.set(key, u);
         });
 
-        // 2. Cached users
-        cachedUserArray.forEach(u => {
-          const key = (u.email || u.id).toLowerCase();
-          userMap.set(key, u);
-        });
-
-        // 3. Customers from database/initial list
+        // 2. Customers from database/initial list
         const activeCustomers = CacheService.get('customers', INITIAL_CUSTOMERS) || INITIAL_CUSTOMERS;
         (activeCustomers || []).forEach(c => {
           const cEmail = (c.email || c.customerEmail || '').toLowerCase();
@@ -9971,7 +9967,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           }
         });
 
-        return Array.from(userMap.values());
+        const initialList = Array.from(userMap.values());
+        CacheService.set('users', initialList);
+        return initialList;
       });
 
       useEffect(() => { CacheService.set('venues', venues); }, [venues]);
@@ -10471,7 +10469,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           message: `"${uName}" kullanıcısının yetkilerini iptal edip sistemden silmek istediğinize emin misiniz?`,
           confirmText: 'Evet, Kullanıcıyı Sil',
           onConfirm: () => {
-            setUsers(prev => prev.filter(x => x.id !== uId));
+            setUsers(prev => {
+              const updated = prev.filter(x => x.id !== uId);
+              CacheService.set('users', updated);
+              return updated;
+            });
             showToast('🗑️ Kullanıcı Sistemden Silindi.');
           }
         });
@@ -10486,7 +10488,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           message: `"${cName}" müşteri kaydını rehberden silmek istediğinize emin misiniz?`,
           confirmText: 'Evet, Müşteriyi Sil',
           onConfirm: () => {
-            setCustomers(prev => prev.filter(x => x.id !== cId));
+            setCustomers(prev => {
+              const updatedCust = prev.filter(x => x.id !== cId);
+              CacheService.set('customers', updatedCust);
+              return updatedCust;
+            });
+            setUsers(prev => {
+              const updatedUsers = prev.filter(u => u.id !== cId && u.id !== `u_${cId}`);
+              CacheService.set('users', updatedUsers);
+              return updatedUsers;
+            });
             showToast('🗑️ Müşteri Rehberden Silindi.');
           }
         });
