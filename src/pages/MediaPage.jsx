@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { io as ioClient } from 'socket.io-client';
 
 export function MediaComponent({ reservations = [], setReservations = () => {}, activeRole = 'admin', currentUserState = null, showToast = () => {} }) {
   // Extract URL key from both path route (#/medya/MEDIA-8X92M1KP) and query param (?key=MEDIA-8X92M1KP)
@@ -245,6 +246,27 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       }
     } catch(e){}
 
+    // Independent Node.js Socket.io Server (Port 8003) Listener
+    let socket = null;
+    try {
+      const socketUrl = window.location.protocol + '//' + window.location.hostname + ':8003';
+      socket = ioClient(socketUrl, {
+        transports: ['websocket', 'polling'],
+        reconnection: true
+      });
+
+      const activeKey = activeMediaKey || 'GENERAL';
+      socket.emit('join_album', activeKey);
+
+      socket.on('media_updated', () => {
+        syncFromCache();
+      });
+
+      socket.on('global_media_updated', () => {
+        syncFromCache();
+      });
+    } catch(e){}
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
@@ -252,6 +274,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       stopHeartbeat();
       if (bc) bc.close();
       if (evtSource) evtSource.close();
+      if (socket) socket.disconnect();
     };
   }, [setReservations]);
 

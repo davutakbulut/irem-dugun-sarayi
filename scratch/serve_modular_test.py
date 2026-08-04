@@ -30,6 +30,15 @@ def broadcast_sse(event_type, payload):
         for d in dead:
             SSE_CLIENTS.discard(d)
 
+    # Notify independent Node.js Socket.io server (Port 8003)
+    try:
+        req = urllib.request.Request('http://localhost:8003/api/socket-notify',
+                                     data=json.dumps(payload).encode('utf-8'),
+                                     headers={'Content-Type': 'application/json'})
+        urllib.request.urlopen(req, timeout=1)
+    except Exception:
+        pass
+
 class ModularTestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')

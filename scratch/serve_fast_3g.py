@@ -30,6 +30,15 @@ def broadcast_sse(event_type, payload):
         for d in dead:
             SSE_CLIENTS.discard(d)
 
+    # Notify independent Node.js Socket.io server (Port 8003)
+    try:
+        req = urllib.request.Request('http://localhost:8003/api/socket-notify',
+                                     data=json.dumps(payload).encode('utf-8'),
+                                     headers={'Content-Type': 'application/json'})
+        urllib.request.urlopen(req, timeout=1)
+    except Exception:
+        pass
+
 # ENTERPRISE SECURITY HARDENING ENGINE & RATE LIMITING
 IP_UPLOAD_TRACKER = {}  # { ip_address: [timestamp1, timestamp2, ...] }
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.mp4', '.mov', '.avi', '.mkv'}
