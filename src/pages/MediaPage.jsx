@@ -6,11 +6,21 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
   // Extract URL key from both path route (#/medya/MEDIA-8X92M1KP) and query param (?key=MEDIA-8X92M1KP)
   const getUrlKey = () => {
     if (typeof window === 'undefined') return '';
+    const pathname = window.location.pathname || '';
     const hash = window.location.hash || '';
-    const pathMatch = hash.match(/^#\/(?:medya|m)\/([A-Za-z0-9_-]+)/);
-    if (pathMatch) return pathMatch[1];
-    const queryMatch = hash.match(/[?&](key|resId)=([A-Za-z0-9_-]+)/);
-    return queryMatch ? queryMatch[2] : '';
+
+    // Check direct pathname: /medya/MEDIA-AUG26-31 or /m/MEDIA-AUG26-31
+    const pathDirectMatch = pathname.match(/^\/(?:medya|m)\/([A-Za-z0-9_-]+)/);
+    if (pathDirectMatch) return pathDirectMatch[1];
+
+    // Check hash path: #/medya/MEDIA-AUG26-31 or #/m/MEDIA-AUG26-31
+    const hashMatch = hash.match(/^#\/(?:medya|m)\/([A-Za-z0-9_-]+)/);
+    if (hashMatch) return hashMatch[1];
+
+    // Check query params: ?key=MEDIA-AUG26-31
+    const searchStr = window.location.search || (hash.includes('?') ? '?' + hash.split('?')[1] : '');
+    const params = new URLSearchParams(searchStr);
+    return params.get('key') || params.get('resId') || '';
   };
 
   const urlKey = getUrlKey();
@@ -21,12 +31,13 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     return null;
   });
 
-  // STRICT GUEST MODE: Active on standalone guest links (#/medya/:key or ?mode=guest)
+  // STRICT GUEST MODE: Active on standalone guest links (/medya/:key or #/medya/:key or ?mode=guest)
   const isPublicGuestMode = useMemo(() => {
     if (typeof window === 'undefined') return false;
+    const pathname = window.location.pathname || '';
     const hash = window.location.hash || '';
-    return /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
-  }, [selectedResKey]);
+    return pathname.startsWith('/medya/') || pathname.startsWith('/m/') || /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest') || Boolean(urlKey);
+  }, [urlKey, selectedResKey]);
 
   // Sync selectedResKey with browser URL Hash (Pushes new history entry so Back button returns to #/medya-yukle cards list)
   const selectReservation = (key) => {
@@ -462,14 +473,14 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     showToast('🗑️ Görsel sunucudan ve albümden kalıcı olarak silindi.');
   };
 
-  // GUARANTEED SHAREABLE LINK COPY FUNCTION
+  // GUARANTEED SHAREABLE LINK COPY FUNCTION (PURE PUBLIC GUEST LINK - NO SESSION REQUIRED)
   const handleCopyLink = () => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}#/medya/${activeMediaKey}`;
+    const shareUrl = `${window.location.origin}/medya/${activeMediaKey}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
-      showToast('🔗 Davetli Yükleme Bağlantısı Panoya Kopyalandı!');
+      showToast('🔗 Davetli Bağlantısı Panoya Kopyalandı (Oturum İstemez): ' + shareUrl);
     } else {
-      prompt('Davetli Bağlantısını Kopyalayın:', shareUrl);
+      prompt('Davetli Yükleme Bağlantısı:', shareUrl);
     }
   };
 
