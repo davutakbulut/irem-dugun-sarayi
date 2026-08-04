@@ -534,6 +534,88 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     showToast('🗑️ Görsel sunucudan ve albümden kalıcı olarak silindi.');
   };
 
+  // SELECTION & BULK DELETE HANDLERS
+  const [selectedMediaIds, setSelectedMediaIds] = useState([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [bulkDeleteType, setBulkDeleteType] = useState('selected');
+
+  const toggleSelectMedia = (itemId, e) => {
+    if (e) e.stopPropagation();
+    setSelectedMediaIds(prev => 
+      prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedMediaIds.length === mediaList.length) {
+      setSelectedMediaIds([]);
+    } else {
+      setSelectedMediaIds(mediaList.map(m => m.id));
+    }
+  };
+
+  const handleConfirmBulkDelete = async () => {
+    const itemsToDelete = bulkDeleteType === 'all' 
+      ? [...mediaList] 
+      : mediaList.filter(m => selectedMediaIds.includes(m.id));
+
+    if (itemsToDelete.length === 0) {
+      setShowBulkDeleteModal(false);
+      return;
+    }
+
+    const resId = currentRes?.id || activeMediaKey || 'GENERAL';
+    const deleteIds = new Set(itemsToDelete.map(m => m.id));
+    const deleteFileNames = new Set(itemsToDelete.map(m => m.fileName || (m.url ? m.url.split('/').pop() : '')));
+
+    for (const item of itemsToDelete) {
+      const fileName = item.fileName || (item.url ? item.url.split('/').pop() : '');
+      try {
+        fetch('/api/delete-media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resId: resId,
+            fileName: fileName,
+            mediaId: item.id,
+            mediaKey: activeMediaKey
+          })
+        }).catch(err => console.warn('Bulk delete error:', err));
+      } catch(e){}
+    }
+
+    setReservations(prev => {
+      const updated = prev.map(r => {
+        if (r.mediaKey === activeMediaKey || r.id === currentRes?.id || r.id === activeMediaKey) {
+          return {
+            ...r,
+            mediaFiles: (r.mediaFiles || []).filter(m => {
+              const mName = m.fileName || (m.url ? m.url.split('/').pop() : '');
+              return !deleteIds.has(m.id) && !deleteFileNames.has(mName);
+            })
+          };
+        }
+        return r;
+      });
+
+      try {
+        if (typeof CacheService !== 'undefined') {
+          CacheService.set('reservations', updated);
+        } else {
+          localStorage.setItem('irem_cache_reservations', JSON.stringify(updated));
+        }
+      } catch(err){}
+
+      return updated;
+    });
+
+    const deletedCount = itemsToDelete.length;
+    setSelectedMediaIds([]);
+    setShowBulkDeleteModal(false);
+    showToast(`🗑️ ${deletedCount} adet medya albümden ve sunucudan kalıcı olarak silindi.`);
+  };
+
   // GUARANTEED SHAREABLE LINK COPY FUNCTION (PURE PUBLIC GUEST LINK - NO SESSION REQUIRED)
   const handleCopyLink = () => {
     const shareUrl = `${window.location.origin}/medya/${activeMediaKey}`;
@@ -803,34 +885,101 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
           {/* GALLERY GRID */}
           <div className="glass-panel p-6 rounded-3xl space-y-4 border border-slate-200 dark:border-brand-border/40 shadow-sm">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-3 border-slate-200 dark:border-brand-border/40">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3 border-slate-200 dark:border-brand-border/40">
               <h3 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100 flex items-center space-x-2">
                 <ThemeIcon icon="media" fallbackEmoji="" className="w-5 h-5 text-amber-500 shrink-0" />
                 <span>Yüklenen İçerikler ({mediaList.length})</span>
               </h3>
 
-              <div className="flex items-center space-x-1 bg-slate-100 dark:bg-brand-dark p-1 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setFilterType('all')}
-                  className={filterType === 'all' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
-                >
-                  Tümü
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFilterType('image')}
-                  className={filterType === 'image' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
-                >
-                  Fotoğraflar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFilterType('video')}
-                  className={filterType === 'video' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
-                >
-                  Videolar
-                </button>
+              <div className="flex flex-wrap items-center justify-between gap-2 w-full md:w-auto">
+                {/* FILTER BUTTONS */}
+                <div className="flex items-center space-x-1 bg-slate-100 dark:bg-brand-dark p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setFilterType('all')}
+                    className={filterType === 'all' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
+                  >
+                    Tümü
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFilterType('image')}
+                    className={filterType === 'image' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
+                  >
+                    Fotoğraflar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFilterType('video')}
+                    className={filterType === 'video' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
+                  >
+                    Videolar
+                  </button>
+                </div>
+
+                {/* BULK SELECTION & DELETE ACTION BUTTONS */}
+                {!isPublicGuestMode && mediaList.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {/* TOGGLE MULTI-SELECT MODE BUTTON */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSelectMode(!isSelectMode);
+                        if (isSelectMode) setSelectedMediaIds([]);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-xs ${
+                        isSelectMode
+                          ? 'bg-amber-500 text-slate-950 font-black border border-amber-400 ring-2 ring-amber-500/20'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <span>{isSelectMode ? '✓ Seçim Modu Açık' : '☑ Görsel Seçimi'}</span>
+                    </button>
+
+                    {/* SELECT ALL / UNSELECT ALL BUTTON */}
+                    {isSelectMode && (
+                      <button
+                        type="button"
+                        onClick={toggleSelectAll}
+                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer"
+                      >
+                        {selectedMediaIds.length === mediaList.length ? 'Seçimi Kaldır' : 'Tümünü Seç'}
+                      </button>
+                    )}
+
+                    {/* DELETE SELECTED BUTTON */}
+                    <button
+                      type="button"
+                      disabled={selectedMediaIds.length === 0}
+                      onClick={() => {
+                        setBulkDeleteType('selected');
+                        setShowBulkDeleteModal(true);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer ${
+                        selectedMediaIds.length > 0
+                          ? 'bg-red-600 hover:bg-red-500 text-white shadow-md'
+                          : 'bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-800'
+                      }`}
+                    >
+                      <ThemeIcon icon="trash" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <span>Seçilileri Sil ({selectedMediaIds.length})</span>
+                    </button>
+
+                    {/* DELETE ALL BUTTON */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBulkDeleteType('all');
+                        setShowBulkDeleteModal(true);
+                      }}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-800/50 transition flex items-center space-x-1 cursor-pointer shadow-xs"
+                      title="Albümdeki Tüm İçerikleri Sil"
+                    >
+                      <ThemeIcon icon="trash" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0 text-red-500" />
+                      <span>Tümünü Sil</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -842,12 +991,38 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {mediaList.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    onClick={() => setLightboxIndex(idx)}
-                    className="group relative rounded-2xl overflow-hidden aspect-square border border-slate-200 dark:border-brand-border/60 bg-slate-100 dark:bg-brand-dark shadow-xs cursor-pointer hover:border-amber-500/60 hover:scale-[1.02] transition"
-                  >
+                {mediaList.map((item, idx) => {
+                  const isSelected = selectedMediaIds.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={(e) => {
+                        if (isSelectMode) {
+                          toggleSelectMedia(item.id, e);
+                        } else {
+                          setLightboxIndex(idx);
+                        }
+                      }}
+                      className={`group relative rounded-2xl overflow-hidden aspect-square border transition cursor-pointer ${
+                        isSelected
+                          ? 'border-2 border-amber-500 ring-4 ring-amber-500/30 scale-[1.02] shadow-xl'
+                          : 'border-slate-200 dark:border-brand-border/60 bg-slate-100 dark:bg-brand-dark shadow-xs hover:border-amber-500/60 hover:scale-[1.02]'
+                      }`}
+                    >
+                      {/* CHECKBOX FOR SELECTION MODE */}
+                      {!isPublicGuestMode && (
+                        <button
+                          type="button"
+                          onClick={(e) => toggleSelectMedia(item.id, e)}
+                          className={`absolute top-2 right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center transition border shadow-md cursor-pointer ${
+                            isSelected
+                              ? 'bg-amber-500 text-slate-950 border-amber-300 font-black text-xs scale-110'
+                              : 'bg-slate-900/70 text-transparent border-white/50 hover:bg-amber-500/80 hover:text-white'
+                          }`}
+                        >
+                          ✓
+                        </button>
+                      )}
                     {item.type === 'video' ? (
                       <div className="w-full h-full relative bg-slate-950 flex items-center justify-center overflow-hidden">
                         <video
@@ -925,7 +1100,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                       </div>
                     </div>
                   </div>
-                ))}
+                ); })}
               </div>
             )}
           </div>
@@ -1131,6 +1306,50 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               >
                 <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-4 h-4 shrink-0" />
                 <span>Evet, Kalıcı Olarak Sil</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BULK DELETE CONFIRMATION MODAL */}
+      {showBulkDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in" onClick={() => setShowBulkDeleteModal(false)}>
+          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/50 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up" onClick={(e) => e.stopPropagation()}>
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-500 text-3xl shadow-inner animate-bounce">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="text-xl font-heading font-extrabold text-slate-800 dark:text-gray-100">
+                {bulkDeleteType === 'all' ? '🛑 TÜM ALBÜMÜ TEMİZLE' : `Seçilen ${selectedMediaIds.length} Adet İçeriği Sil`}
+              </h3>
+              <div className="text-xs text-slate-600 dark:text-gray-300 mt-2 leading-relaxed">
+                {bulkDeleteType === 'all' ? (
+                  <div>
+                    <strong className="text-red-500 font-bold block mb-1">DİKKAT: Bu işlem geri alınamaz!</strong>
+                    Etkinliğe ait toplam <strong className="text-slate-900 dark:text-white font-extrabold">{mediaList.length} adet</strong> fotoğraf ve video hem sunucu diskinden hem de albümden kalıcı olarak silinecektir.
+                  </div>
+                ) : (
+                  <div>
+                    Seçmiş olduğunuz <strong className="text-amber-500 font-extrabold">{selectedMediaIds.length} adet</strong> fotoğraf/video sunucudan ve galeri listesinden tamamen kaldırılacaktır.
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-center space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-brand-border text-slate-700 dark:text-gray-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBulkDelete}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black text-xs shadow-lg transition transform active:scale-95 cursor-pointer"
+              >
+                {bulkDeleteType === 'all' ? 'Evet, Tümünü Kalıcı Sil' : `Seçili ${selectedMediaIds.length} Medyayı Sil`}
               </button>
             </div>
           </div>
