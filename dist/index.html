@@ -14102,12 +14102,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <span className="font-mono text-sm">-{formatCurrency(calculations.grandTotal)}</span>
                     </div>
                   ) : (
-                    hasDeposit ? (
+                    hasDeposit && (
                       <div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 font-bold">
                         <span>Tahsil Edilen Kapora:</span>
                         <span className="font-mono">-{formatCurrency(calculations.dep)}</span>
                       </div>
-                      null
+                    )
                   )}
 
                   <div className={`flex justify-between font-bold text-sm p-2.5 rounded-xl border mt-2 ${
