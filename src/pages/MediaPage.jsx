@@ -670,9 +670,6 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                 <ThemeIcon icon="plus" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
                 <span>Yeni Fotoğraf veya Video Yükleyin</span>
               </h3>
-              <span className="text-[10px] font-mono text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 font-bold">
-                Mükerrer Görsel Engeli Aktif
-              </span>
             </div>
 
             <div
