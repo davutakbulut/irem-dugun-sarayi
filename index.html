@@ -9109,10 +9109,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         </div>
       )}
 
-      {/* DELETE CONFIRMATION POPUP MODAL */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in" onClick={() => setDeleteTarget(null)}>
-          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/40 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up" onClick={(e) => e.stopPropagation()}>
+      {/* SINGLE DELETE CONFIRMATION POPUP MODAL */}
+      {deleteTarget && typeof ReactDOM !== 'undefined' && ReactDOM.createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[9999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in pointer-events-auto"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/40 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 text-3xl shadow-inner">
               🗑️
             </div>
@@ -9142,13 +9146,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* BULK DELETE CONFIRMATION MODAL */}
-      {showBulkDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in" onClick={() => setShowBulkDeleteModal(false)}>
-          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/50 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up" onClick={(e) => e.stopPropagation()}>
+      {showBulkDeleteModal && typeof ReactDOM !== 'undefined' && ReactDOM.createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[9999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in pointer-events-auto"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justify: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
+          onClick={() => setShowBulkDeleteModal(false)}
+        >
+          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/50 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-500 text-3xl shadow-inner animate-bounce">
               ⚠️
             </div>
@@ -9186,7 +9195,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
 
