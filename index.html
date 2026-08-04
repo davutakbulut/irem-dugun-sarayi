@@ -5084,6 +5084,30 @@
     };
 
     const TAB_TO_PATH = {
+      'public-home': '/',
+      'home-gateway': '/',
+      'public-halls': '/salonlar',
+      'public-virtual-tour': '/360-tur',
+      'public-organizations': '/organizasyonlar',
+      'public-videos': '/videolar',
+      'public-blog': '/blog',
+      'public-about': '/hakkimizda',
+      'public-contact': '/iletisim',
+      'public-customer-login': '/musteri-giris',
+      'public-customer-register': '/musteri-kayit',
+
+      '/': '/',
+      '/salonlar': '/salonlar',
+      '/360-tur': '/360-tur',
+      '/sanal-tur': '/360-tur',
+      '/organizasyonlar': '/organizasyonlar',
+      '/videolar': '/videolar',
+      '/blog': '/blog',
+      '/hakkimizda': '/hakkimizda',
+      '/iletisim': '/iletisim',
+      '/musteri-giris': '/musteri-giris',
+      '/musteri-kayit': '/musteri-kayit',
+
       'login': '/giris',
       'dashboard': '/yonetim',
       'create-reservation': '/yonetim/yeni-rezervasyon',
@@ -10194,7 +10218,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         { label: 'İletişim', route: '/iletisim' },
       ];
 
-      const handleNavClick = (route) => {
+      const handleNavClick = (e, route) => {
+        if (e) e.preventDefault();
         setIsMobileMenuOpen(false);
         if (navigateTo) navigateTo(route);
         else window.location.href = route;
@@ -10204,36 +10229,37 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-slate-950/90 backdrop-blur-xl border-b border-amber-500/30 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.8)]' : 'bg-gradient-to-b from-slate-950/90 via-slate-950/50 to-transparent py-5'}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             {/* BRAND LOGO */}
-            <div onClick={() => handleNavClick('/')} className="flex items-center space-x-3.5 cursor-pointer group">
+            <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center space-x-3.5 cursor-pointer group">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 flex items-center justify-center text-white font-black text-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)] border border-amber-300/40 group-hover:scale-105 transition-transform duration-300">🏰</div>
               <div>
                 <h1 className="font-heading font-black text-lg sm:text-xl text-white tracking-wider leading-none gold-gradient-text">İREM DÜĞÜN SARAYI</h1>
                 <p className="text-[10px] font-mono font-bold text-amber-400 tracking-widest uppercase mt-1 flex items-center space-x-1"><span>👑</span><span>Balo & Organizasyon Tesisleri</span></p>
               </div>
-            </div>
+            </a>
 
             {/* DESKTOP NAV LINKS */}
             <nav className="hidden xl:flex items-center space-x-1 bg-slate-900/60 backdrop-blur-md p-1.5 rounded-2xl border border-amber-500/20">
               {navLinks.map(link => (
-                <button
+                <a
                   key={link.route}
-                  onClick={() => handleNavClick(link.route)}
+                  href={link.route}
+                  onClick={(e) => handleNavClick(e, link.route)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center space-x-1.5 ${currentRoute === link.route ? 'gold-button shadow-md text-slate-950' : 'text-slate-200 hover:text-amber-400 hover:bg-amber-500/10'}`}
                 >
                   <span>{link.label}</span>
                   {link.badge && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full animate-pulse shadow">{link.badge}</span>}
-                </button>
+                </a>
               ))}
             </nav>
 
             {/* ACTION BUTTONS */}
             <div className="hidden sm:flex items-center space-x-3">
-              <button onClick={() => handleNavClick('/iletisim')} className="gold-button font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
+              <a href="/iletisim" onClick={(e) => handleNavClick(e, '/iletisim')} className="gold-button font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
                 <span>👑</span><span>Teklif Alın</span>
-              </button>
-              <button onClick={() => handleNavClick('/musteri-giris')} className="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs px-4 py-3 rounded-xl border border-amber-500/40 hover:border-amber-400 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
+              </a>
+              <a href="/musteri-giris" onClick={(e) => handleNavClick(e, '/musteri-giris')} className="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs px-4 py-3 rounded-xl border border-amber-500/40 hover:border-amber-400 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
                 <span>🔑</span><span>VIP Müşteri Portalı</span>
-              </button>
+              </a>
             </div>
 
             {/* MOBILE MENU TOGGLE */}
@@ -10248,14 +10274,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           {isMobileMenuOpen && (
             <div className="xl:hidden bg-slate-950/98 backdrop-blur-2xl border-b border-amber-500/30 p-6 space-y-3 text-white shadow-2xl animate-fade-in">
               {navLinks.map(link => (
-                <button key={link.route} onClick={() => handleNavClick(link.route)} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex justify-between items-center ${currentRoute === link.route ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'hover:bg-slate-900 text-slate-200'}`}>
+                <a key={link.route} href={link.route} onClick={(e) => handleNavClick(e, link.route)} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex justify-between items-center ${currentRoute === link.route ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'hover:bg-slate-900 text-slate-200'}`}>
                   <span>{link.label}</span>
                   {link.badge && <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">{link.badge}</span>}
-                </button>
+                </a>
               ))}
               <div className="pt-4 border-t border-slate-800 flex flex-col gap-2">
-                <button onClick={() => handleNavClick('/iletisim')} className="gold-button font-bold py-3 text-xs rounded-xl w-full text-center">👑 Ücretsiz Fiyat Teklifi Alın</button>
-                <button onClick={() => handleNavClick('/musteri-giris')} className="bg-slate-900 border border-amber-500/30 text-amber-400 font-bold py-3 text-xs rounded-xl w-full text-center">🔑 VIP Müşteri Girişi</button>
+                <a href="/iletisim" onClick={(e) => handleNavClick(e, '/iletisim')} className="gold-button font-bold py-3 text-xs rounded-xl w-full text-center">👑 Ücretsiz Fiyat Teklifi Alın</a>
+                <a href="/musteri-giris" onClick={(e) => handleNavClick(e, '/musteri-giris')} className="bg-slate-900 border border-amber-500/30 text-amber-400 font-bold py-3 text-xs rounded-xl w-full text-center">🔑 VIP Müşteri Girişi</a>
               </div>
             </div>
           )}
@@ -10264,6 +10290,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     function PublicFooter({ navigateTo }) {
+      const handleFooterClick = (e, route) => {
+        if (e) e.preventDefault();
+        if (navigateTo) navigateTo(route);
+        else window.location.href = route;
+      };
+
       return (
         <footer className="bg-slate-950 border-t border-amber-500/30 text-slate-400 text-xs pt-16 pb-12 px-4 relative overflow-hidden">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
@@ -10284,21 +10316,21 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             <div className="space-y-3">
               <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-amber-500 pl-2">Hızlı Menü</h4>
               <ul className="space-y-2 text-slate-400 text-xs">
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/')}>Anasayfa</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/salonlar')}>Balo Salonlarımız</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/360-tur')}>360° Sanal Tur</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/organizasyonlar')}>Organizasyon Paketleri</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/videolar')}>Videolar & Galeri</span></li>
+                <li><a href="/" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/')}>Anasayfa</a></li>
+                <li><a href="/salonlar" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/salonlar')}>Balo Salonlarımız</a></li>
+                <li><a href="/360-tur" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/360-tur')}>360° Sanal Tur</a></li>
+                <li><a href="/organizasyonlar" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/organizasyonlar')}>Organizasyon Paketleri</a></li>
+                <li><a href="/videolar" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/videolar')}>Videolar & Galeri</a></li>
               </ul>
             </div>
 
             <div className="space-y-3">
               <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-amber-500 pl-2">Düğün Rehberi</h4>
               <ul className="space-y-2 text-slate-400 text-xs">
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/blog')}>Düğün Tarihi Seçim İpuçları</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/blog')}>Gelinlik & Damatlık Rehberi</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/hakkimizda')}>Hakkımızda & Kalite Belgelerimiz</span></li>
-                <li><span className="hover:text-amber-400 cursor-pointer transition" onClick={() => navigateTo('/musteri-giris')}>Müşteri VIP Portalı</span></li>
+                <li><a href="/blog" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/blog')}>Düğün Tarihi Seçim İpuçları</a></li>
+                <li><a href="/blog" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/blog')}>Gelinlik & Damatlık Rehberi</a></li>
+                <li><a href="/hakkimizda" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/hakkimizda')}>Hakkımızda & Kalite Belgelerimiz</a></li>
+                <li><a href="/musteri-giris" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/musteri-giris')}>Müşteri VIP Portalı</a></li>
               </ul>
             </div>
 
@@ -10314,7 +10346,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           <div className="max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
             <div>© 2026 İrem Düğün Sarayı & Balo Tesisleri. Tüm Hakları Saklıdır.</div>
             <div className="flex space-x-4">
-              <span className="hover:underline cursor-pointer" onClick={() => navigateTo('/yonetim')}>Tesis Yöneticisi Girişi 🔒</span>
+              <a href="/yonetim" className="hover:underline cursor-pointer">Tesis Yöneticisi Girişi 🔒</a>
             </div>
           </div>
         </footer>
@@ -10370,12 +10402,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-5 pt-2">
-                <button onClick={() => navigateTo('/iletisim')} className="gold-button font-extrabold text-sm px-9 py-4.5 rounded-2xl shadow-[0_10px_40px_rgba(245,158,11,0.4)] hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-2">
+                <a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateTo('/iletisim'); }} className="gold-button font-extrabold text-sm px-9 py-4.5 rounded-2xl shadow-[0_10px_40px_rgba(245,158,11,0.4)] hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-2">
                   <span>👑</span><span>Ücretsiz Fiyat Teklifi Alın</span>
-                </button>
-                <button onClick={() => navigateTo('/360-tur')} className="bg-slate-900/90 hover:bg-slate-800 text-amber-400 font-bold text-sm px-8 py-4.5 rounded-2xl border border-amber-500/40 shadow-2xl backdrop-blur-xl transition-all duration-300 cursor-pointer flex items-center space-x-2">
+                </a>
+                <a href="/360-tur" onClick={(e) => { e.preventDefault(); navigateTo('/360-tur'); }} className="bg-slate-900/90 hover:bg-slate-800 text-amber-400 font-bold text-sm px-8 py-4.5 rounded-2xl border border-amber-500/40 shadow-2xl backdrop-blur-xl transition-all duration-300 cursor-pointer flex items-center space-x-2">
                   <span>🌐</span><span>360° Sanal Turu Gezin</span>
-                </button>
+                </a>
               </div>
 
               {/* QUICK QUOTE CALCULATOR WIDGET */}
@@ -11412,7 +11444,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const navigateTo = (tab, queryParams = null) => {
         setIsPageTabLoading(false);
         setActiveTabState(tab);
-        let cleanPath = TAB_TO_PATH[tab] || `/yonetim/${tab}`;
+        let cleanPath = TAB_TO_PATH[tab];
+        if (!cleanPath) {
+          if (typeof tab === 'string' && tab.startsWith('/')) {
+            cleanPath = tab;
+          } else {
+            cleanPath = `/yonetim/${tab}`;
+          }
+        }
         if (tab === 'login') cleanPath = '/giris';
 
         let queryStr = '';
