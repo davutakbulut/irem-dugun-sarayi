@@ -5493,11 +5493,6 @@
 
       return (
         <div className="w-full space-y-6 animate-fade-in pb-12">
-          {/* ROTATING RESERVATION SVG ICONS SPINNER */}
-          <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 shadow-md">
-            <ReservationIconsRotatingLoader message={`${title} Modülü Yükleniyor...`} />
-          </div>
-
           {/* HEADER BANNER SKELETON */}
           <div className="glass-panel p-6 rounded-3xl space-y-3 border border-amber-500/20 relative overflow-hidden">
             <div className="h-4 w-32 rounded-full skeleton-shimmer" />
@@ -6216,8 +6211,13 @@ function ReservationsListComponent({
       const [currentPage, setCurrentPage] = useState(1);
       const [pageSize, setPageSize] = useState(10);
 
+      const [isListLoading, setIsListLoading] = useState(false);
+
       useEffect(() => {
         setCurrentPage(1);
+        setIsListLoading(true);
+        const timer = setTimeout(() => setIsListLoading(false), 200);
+        return () => clearTimeout(timer);
       }, [searchQuery, venueFilter, statusFilter, startDateFilter, endDateFilter]);
 
       const [selectedResForPreview, setSelectedResForPreview] = useState(null);
@@ -6654,7 +6654,11 @@ function ReservationsListComponent({
           )}
 
           {/* VIEW SWITCHER: TABLE OR MASTER CALENDAR */}
-          {viewMode === 'table' ? (
+          {isListLoading ? (
+            <div className="glass-panel p-8 rounded-3xl border border-amber-500/30 shadow-md my-4 flex items-center justify-center">
+              <ReservationIconsRotatingLoader message="Rezervasyon Kayıtları Listeleniyor ve İşleniyor..." />
+            </div>
+          ) : viewMode === 'table' ? (
             /* TABLE LIST VIEW WITH EDIT & DELETE BUTTONS */
             <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
               <div className="overflow-x-auto">
@@ -10675,10 +10679,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, []);
 
       const navigateTo = (tab, queryParams = null) => {
-        if (tab !== activeTab) {
-          setIsPageTabLoading(true);
-          setTimeout(() => setIsPageTabLoading(false), 450);
-        }
+        setIsPageTabLoading(false);
         setActiveTabState(tab);
         let cleanPath = TAB_TO_PATH[tab] || `/yonetim/${tab}`;
         if (tab === 'login') cleanPath = '/giris';
@@ -16901,8 +16902,13 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
       const [currentPage, setCurrentPage] = useState(1);
       const [pageSize, setPageSize] = useState(10);
 
+      const [isListLoading, setIsListLoading] = useState(false);
+
       useEffect(() => {
         setCurrentPage(1);
+        setIsListLoading(true);
+        const timer = setTimeout(() => setIsListLoading(false), 200);
+        return () => clearTimeout(timer);
       }, [searchTerm, taxTypeFilter]);
 
       const filteredCustomers = useMemo(() => {
@@ -17010,7 +17016,11 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
           </div>
 
           {/* CONTENT: GRID MODE vs TABLE MODE */}
-          {filteredCustomers.length === 0 ? (
+          {isListLoading ? (
+            <div className="glass-panel p-8 rounded-3xl border border-amber-500/30 shadow-md my-4 flex items-center justify-center">
+              <ReservationIconsRotatingLoader message="Müşteri Kayıtları Yükleniyor ve Filtreleniyor..." />
+            </div>
+          ) : filteredCustomers.length === 0 ? (
             <div className="glass-panel p-12 text-center rounded-3xl border border-dashed border-slate-300 dark:border-brand-border space-y-3">
               <ThemeIcon icon="search" fallbackEmoji="🔍" className="w-10 h-10 mx-auto text-slate-400 opacity-60" />
               <div className="font-bold text-slate-700 dark:text-gray-300 text-sm">Aramanızla Eşleşen Müşteri Bulunamadı</div>
