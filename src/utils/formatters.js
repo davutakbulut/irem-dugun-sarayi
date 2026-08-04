@@ -126,6 +126,16 @@ export const calculateReservationTotals = ({
 };
 
 export const TAB_TO_SLUG = {
+  'public-home': '',
+  'public-halls': 'salonlar',
+  'public-virtual-tour': '360-tur',
+  'public-organizations': 'organizasyonlar',
+  'public-videos': 'videolar',
+  'public-blog': 'blog',
+  'public-about': 'hakkimizda',
+  'public-contact': 'iletisim',
+  'public-customer-login': 'musteri-giris',
+  'public-customer-register': 'musteri-kayit',
   'dashboard': 'anasayfa',
   'create-reservation': 'yeni-rezervasyon',
   'venues': 'dugun-salonlari',
@@ -155,7 +165,19 @@ export const TAB_TO_SLUG = {
 };
 
 export const SLUG_TO_TAB = {
-  '': 'dashboard',
+  '': 'public-home',
+  'salonlar': 'public-halls',
+  'salonlarimiz': 'public-halls',
+  '360-tur': 'public-virtual-tour',
+  'sanal-tur': 'public-virtual-tour',
+  'organizasyonlar': 'public-organizations',
+  'videolar': 'public-videos',
+  'blog': 'public-blog',
+  'hakkimizda': 'public-about',
+  'kurumsal': 'public-about',
+  'iletisim': 'public-contact',
+  'musteri-giris': 'public-customer-login',
+  'musteri-kayit': 'public-customer-register',
   'yonetim': 'dashboard',
   'yonetim/anasayfa': 'dashboard',
   'dashboard': 'dashboard',
@@ -217,80 +239,60 @@ export const parseHashRoute = () => {
   const searchStr = window.location.search || (queryPart ? '?' + queryPart : '');
   const params = new URLSearchParams(searchStr);
 
-  let targetTab = 'public-home';
-  let slug = routePart || '';
+  const cleanRoute = (routePart || '').replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase();
 
-  // 1. PUBLIC ROUTES (STRICTLY PUBLIC TABS ONLY FOR ROOT /)
-  if (pathname === '/' || pathname === '' || pathname === '/index.html') {
-    if (routePart === 'salonlar' || routePart === 'salonlarimiz') {
-      targetTab = 'public-halls';
-      slug = 'salonlar';
-    } else if (routePart === '360-tur' || routePart === 'sanal-tur') {
-      targetTab = 'public-virtual-tour';
-      slug = '360-tur';
-    } else if (routePart === 'organizasyonlar') {
-      targetTab = 'public-organizations';
-      slug = 'organizasyonlar';
-    } else if (routePart === 'videolar') {
-      targetTab = 'public-videos';
-      slug = 'videolar';
-    } else if (routePart === 'blog') {
-      targetTab = 'public-blog';
-      slug = 'blog';
-    } else if (routePart === 'hakkimizda') {
-      targetTab = 'public-about';
-      slug = 'hakkimizda';
-    } else if (routePart === 'iletisim') {
-      targetTab = 'public-contact';
-      slug = 'iletisim';
-    } else if (routePart === 'musteri-giris') {
-      targetTab = 'public-customer-login';
-      slug = 'musteri-giris';
-    } else {
-      targetTab = 'public-home';
-      slug = '';
-    }
-  } else if (pathname === '/salonlar' || pathname === '/salonlarimiz') {
+  // If path is admin route (/yonetim, /giris, /login)
+  if (pathname.startsWith('/yonetim') || pathname === '/giris' || pathname === '/login') {
+    let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
+    if (!sub && cleanRoute) sub = cleanRoute;
+    const targetTab = SLUG_TO_TAB[sub] || 'dashboard';
+    return { tab: targetTab, slug: sub || 'dashboard', params };
+  }
+
+  // PUBLIC SITE ROUTING
+  let targetTab = 'public-home';
+  let slug = cleanRoute;
+
+  if (cleanRoute === 'salonlar' || cleanRoute === 'salonlarimiz' || cleanRoute === 'public-halls') {
     targetTab = 'public-halls';
     slug = 'salonlar';
-  } else if (pathname === '/360-tur' || pathname === '/sanal-tur') {
+  } else if (cleanRoute === '360-tur' || cleanRoute === 'sanal-tur' || cleanRoute === 'public-virtual-tour') {
     targetTab = 'public-virtual-tour';
     slug = '360-tur';
-  } else if (pathname === '/organizasyonlar' || pathname === '/organizasyon-paketleri') {
+  } else if (cleanRoute === 'organizasyonlar' || cleanRoute === 'public-organizations') {
     targetTab = 'public-organizations';
     slug = 'organizasyonlar';
-  } else if (pathname === '/videolar' || pathname === '/video-galeri') {
+  } else if (cleanRoute === 'videolar' || cleanRoute === 'public-videos') {
     targetTab = 'public-videos';
     slug = 'videolar';
-  } else if (pathname === '/blog' || pathname === '/dugun-rehberi') {
+  } else if (cleanRoute === 'blog' || cleanRoute === 'public-blog') {
     targetTab = 'public-blog';
     slug = 'blog';
-  } else if (pathname === '/hakkimizda' || pathname === '/kurumsal') {
+  } else if (cleanRoute === 'hakkimizda' || cleanRoute === 'kurumsal' || cleanRoute === 'public-about') {
     targetTab = 'public-about';
     slug = 'hakkimizda';
-  } else if (pathname === '/iletisim' || pathname === '/bize-ulasin') {
+  } else if (cleanRoute === 'iletisim' || cleanRoute === 'public-contact') {
     targetTab = 'public-contact';
     slug = 'iletisim';
-  } else if (pathname === '/musteri-giris' || pathname === '/vip-giris') {
+  } else if (cleanRoute === 'musteri-giris' || cleanRoute === 'public-customer-login') {
     targetTab = 'public-customer-login';
     slug = 'musteri-giris';
-  } else if (pathname === '/musteri-kayit' || pathname === '/cift-basvuru') {
+  } else if (cleanRoute === 'musteri-kayit' || cleanRoute === 'public-customer-register') {
     targetTab = 'public-customer-register';
     slug = 'musteri-kayit';
-  } else if (pathname === '/giris' || pathname === '/login') {
-    targetTab = 'login';
-    slug = 'giris';
-  } else if (pathname.startsWith('/medya') || pathname.startsWith('/m/')) {
-    targetTab = 'media';
-    slug = 'media';
-  } else if (pathname.startsWith('/yonetim')) {
-    let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
-    if (!sub && routePart) sub = routePart;
-    targetTab = SLUG_TO_TAB[sub] || 'dashboard';
-    slug = sub || 'dashboard';
+  } else if (cleanRoute === '' || cleanRoute === 'public-home' || cleanRoute === 'home') {
+    targetTab = 'public-home';
+    slug = '';
   } else {
-    targetTab = 'simulasyon-404';
-    slug = '404';
+    // Check if pathname has a specific public route
+    if (pathname === '/salonlar') targetTab = 'public-halls';
+    else if (pathname === '/360-tur') targetTab = 'public-virtual-tour';
+    else if (pathname === '/organizasyonlar') targetTab = 'public-organizations';
+    else if (pathname === '/videolar') targetTab = 'public-videos';
+    else if (pathname === '/blog') targetTab = 'public-blog';
+    else if (pathname === '/hakkimizda') targetTab = 'public-about';
+    else if (pathname === '/iletisim') targetTab = 'public-contact';
+    else targetTab = 'public-home';
   }
 
   const refKey = params.get('ref') || null;

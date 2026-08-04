@@ -190,6 +190,58 @@ export default function App() {
   }, []);
 
   const navigateTo = (tabKey) => {
+    if (!tabKey) return;
+    
+    let route = String(tabKey).trim();
+    if (route.startsWith('/')) {
+      route = route.replace(/^\/+/, '');
+    }
+
+    // Public route mapping
+    let targetPublicTab = null;
+    let targetSlug = route;
+
+    if (route === 'salonlar' || route === 'salonlarimiz' || route === 'public-halls') {
+      targetPublicTab = 'public-halls';
+      targetSlug = 'salonlar';
+    } else if (route === '360-tur' || route === 'sanal-tur' || route === 'public-virtual-tour') {
+      targetPublicTab = 'public-virtual-tour';
+      targetSlug = '360-tur';
+    } else if (route === 'organizasyonlar' || route === 'public-organizations') {
+      targetPublicTab = 'public-organizations';
+      targetSlug = 'organizasyonlar';
+    } else if (route === 'videolar' || route === 'public-videos') {
+      targetPublicTab = 'public-videos';
+      targetSlug = 'videolar';
+    } else if (route === 'blog' || route === 'public-blog') {
+      targetPublicTab = 'public-blog';
+      targetSlug = 'blog';
+    } else if (route === 'hakkimizda' || route === 'kurumsal' || route === 'public-about') {
+      targetPublicTab = 'public-about';
+      targetSlug = 'hakkimizda';
+    } else if (route === 'iletisim' || route === 'public-contact') {
+      targetPublicTab = 'public-contact';
+      targetSlug = 'iletisim';
+    } else if (route === 'musteri-giris' || route === 'public-customer-login') {
+      targetPublicTab = 'public-customer-login';
+      targetSlug = 'musteri-giris';
+    } else if (route === 'musteri-kayit' || route === 'public-customer-register') {
+      targetPublicTab = 'public-customer-register';
+      targetSlug = 'musteri-kayit';
+    } else if (route === '' || route === 'public-home' || route === 'home') {
+      targetPublicTab = 'public-home';
+      targetSlug = '';
+    }
+
+    if (targetPublicTab) {
+      setActiveTab(targetPublicTab);
+      if (typeof window !== 'undefined') {
+        window.location.hash = targetSlug ? `#/${targetSlug}` : '#/';
+      }
+      return;
+    }
+
+    // Admin tab navigation
     setActiveTab(tabKey);
     const slug = TAB_TO_SLUG[tabKey] || tabKey;
     if (typeof window !== 'undefined') {
