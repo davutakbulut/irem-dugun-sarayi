@@ -12,5 +12,9 @@
 - **Rotalar**: `/yonetim`, `/giris`, `/login`
 - **Kural**: **Kimlik Doğrulaması Zorunlu.** Yalnızca bu rotalarda `sessionUser` denetimi yapılır. Oturum yoksa `LoginComponent` ekranı gösterilir.
 
+### 3. 🎨 Tasarım ve UI/UX Standartları (`modern-web-design-mastery`)
+- **Tasarım Sistemi**: GitHub'da en çok yıldız alan modern UI/UX tasarım depoları (`awesome-claude-design`, `awesome-web-prompts`) standartları uygulanır.
+- **Visuals**: Glassmorphic paneller (`backdrop-blur-md`), Lüks Altın & Safir HSL renk paleti, Playfair Display/Outfit şık tipografi ve akıcı mikro animasyonlar.
+
 ---
 *Bu kural seti tüm geliştirme ve ajan oturumları için geçerlidir.*
