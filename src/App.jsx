@@ -368,25 +368,9 @@ export default function App() {
     showAlert('✏️ Personel Güncellendi', `${uObj.name} güncellendi.`);
   };
 
-  // 1. MANAGEMENT ROUTE DETECTION (REQUIRES AUTHENTICATION)
+  // 1. MANAGEMENT ROUTE DETECTION (STRICTLY FOR /yonetim, /giris, /login ONLY)
   const pathname = typeof window !== 'undefined' ? (window.location.pathname || '/').toLowerCase() : '/';
-  const hash = typeof window !== 'undefined' ? (window.location.hash || '').toLowerCase() : '';
-
-  const isManagementRoute = 
-    pathname.startsWith('/yonetim') || 
-    pathname === '/giris' || 
-    pathname === '/login' ||
-    hash.startsWith('#/yonetim') ||
-    hash.startsWith('#/giris') ||
-    hash.startsWith('#/dashboard') ||
-    hash.startsWith('#/rezervasyonlar') ||
-    hash.startsWith('#/takvim') ||
-    hash.startsWith('#/finans') ||
-    hash.startsWith('#/musteri-rehberi') ||
-    hash.startsWith('#/kullanici-yonetimi') ||
-    hash.startsWith('#/roller') ||
-    hash.startsWith('#/raporlar-ai') ||
-    hash.startsWith('#/ayarlar');
+  const isManagementRoute = pathname.startsWith('/yonetim') || pathname === '/giris' || pathname === '/login';
 
   // 2. MAIN PUBLIC DOMAIN GUARD (ALWAYS OPENS PUBLIC SITE WITHOUT LOGIN PROMPT)
   if (!isManagementRoute) {
