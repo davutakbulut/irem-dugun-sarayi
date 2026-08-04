@@ -239,20 +239,25 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(f.read())
                 return
 
+        # 3.8 Favicon Handling
+        if parsed_path.path == '/favicon.ico':
+            self.send_response(204)
+            self.end_headers()
+            return
+
         # 4. Main HTML & Routing (Excluding /api/ and /assets/ routes)
-        is_api_route = self.path.startswith('/api/')
-        is_asset_route = self.path.startswith('/assets/')
-        is_html_route = not is_api_route and not is_asset_route and (
-            self.path == '/' or
-            self.path.startswith('/yonetim') or
-            self.path.startswith('/giris') or
-            self.path.startswith('/?') or
-            not os.path.splitext(parsed_path.path)[1] or
-            parsed_path.path.endswith('.html')
-        )
+        is_api_route = parsed_path.path.startswith('/api/')
+        is_asset_route = parsed_path.path.startswith('/assets/') or parsed_path.path.startswith('/uploads/')
+        has_file_extension = bool(os.path.splitext(parsed_path.path)[1]) and not parsed_path.path.endswith('.html')
+        
+        is_html_route = not is_api_route and not is_asset_route and not has_file_extension
+
         if is_html_route:
-            dist_html = os.path.join(os.path.dirname(__file__), '..', 'dist', 'index.html')
-            target_html = dist_html if os.path.exists(dist_html) else 'index.html'
+            base_dir = os.path.join(os.path.dirname(__file__), '..')
+            dist_html = os.path.join(base_dir, 'dist', 'index.html')
+            root_html = os.path.join(base_dir, 'index.html')
+            target_html = dist_html if os.path.exists(dist_html) else root_html
+            
             if os.path.exists(target_html):
                 try:
                     with open(target_html, 'rb') as f:
@@ -261,15 +266,17 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     # 0ms Server HTML System Settings Injection (data-ui-theme & data-menu-layout) from db_system_settings.json
                     db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
                     if os.path.exists(db_file):
-                        with open(db_file, 'r', encoding='utf-8') as dbf:
-                            sys_cfg = json.load(dbf)
-                        active_t = sys_cfg.get('themeColor', 'nordic-light')
-                        active_m = sys_cfg.get('menuLayout', 'vertical')
-                        active_v = sys_cfg.get('systemVersion', 'v1.4.67')
-                        inject_tag = f'<html lang="tr" class="light" data-ui-theme="{active_t}" data-menu-layout="{active_m}" data-system-version="{active_v}">'
-                        content_str = content.decode('utf-8', errors='ignore')
-                        content_str = re.sub(r'<html[^>]*>', inject_tag, content_str, count=1)
-                        content = content_str.encode('utf-8')
+                        try:
+                            with open(db_file, 'r', encoding='utf-8') as dbf:
+                                sys_cfg = json.load(dbf)
+                            active_t = sys_cfg.get('themeColor', 'nordic-light')
+                            active_m = sys_cfg.get('menuLayout', 'vertical')
+                            active_v = sys_cfg.get('systemVersion', 'v1.5.31')
+                            inject_tag = f'<html lang="tr" class="light" data-ui-theme="{active_t}" data-menu-layout="{active_m}" data-system-version="{active_v}">'
+                            content_str = content.decode('utf-8', errors='ignore')
+                            content_str = re.sub(r'<html[^>]*>', inject_tag, content_str, count=1)
+                            content = content_str.encode('utf-8')
+                        except Exception: pass
 
                     self.send_response(200)
                     self.send_header('Content-Type', 'text/html; charset=utf-8')
