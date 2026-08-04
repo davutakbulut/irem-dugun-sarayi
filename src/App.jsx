@@ -38,8 +38,20 @@ import { RolesPageComponent as RolesPage } from './pages/RolesPage';
 import { SystemGuidePageComponent as SystemGuidePage } from './pages/SystemGuidePage';
 import { MediaComponent as MediaPage } from './pages/MediaPage';
 import { ProfileComponent as ProfilePage } from './pages/ProfilePage';
-import { MindMapPageComponent as MindMapPage } from './pages/MindMapPage';
 import { Page404, Page301, Page403, Page500 } from './pages/ErrorPages';
+
+// Public Standalone Front-End Website Components
+import PublicLayout from './components/public/PublicLayout';
+import HomePage from './pages/public/HomePage';
+import HallsPage from './pages/public/HallsPage';
+import VirtualTourPage from './pages/public/VirtualTourPage';
+import OrganizationsPage from './pages/public/OrganizationsPage';
+import VideosPage from './pages/public/VideosPage';
+import BlogPage from './pages/public/BlogPage';
+import AboutUsPage from './pages/public/AboutUsPage';
+import ContactPage from './pages/public/ContactPage';
+import CustomerLoginPage from './pages/public/CustomerLoginPage';
+import CustomerRegisterPage from './pages/public/CustomerRegisterPage';
 
 export default function App() {
   // Global State
@@ -356,7 +368,23 @@ export default function App() {
     showAlert('✏️ Personel Güncellendi', `${uObj.name} güncellendi.`);
   };
 
-  const activeUser = currentUser || users[0] || { name: 'Davut Akbulut', role: 'admin' };
+  // STANDALONE PUBLIC FRONT-END ROUTE GUARD
+  if (activeTab.startsWith('public-') || activeTab === 'home-gateway') {
+    return (
+      <PublicLayout currentRoute={typeof window !== 'undefined' ? window.location.pathname : '/'} navigateTo={navigateTo}>
+        {(activeTab === 'public-home' || activeTab === 'home-gateway') && <HomePage navigateTo={navigateTo} />}
+        {activeTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
+        {activeTab === 'public-virtual-tour' && <VirtualTourPage navigateTo={navigateTo} />}
+        {activeTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
+        {activeTab === 'public-videos' && <VideosPage navigateTo={navigateTo} />}
+        {activeTab === 'public-blog' && <BlogPage navigateTo={navigateTo} />}
+        {activeTab === 'public-about' && <AboutUsPage navigateTo={navigateTo} />}
+        {activeTab === 'public-contact' && <ContactPage navigateTo={navigateTo} />}
+        {activeTab === 'public-customer-login' && <CustomerLoginPage navigateTo={navigateTo} />}
+        {activeTab === 'public-customer-register' && <CustomerRegisterPage navigateTo={navigateTo} />}
+      </PublicLayout>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 dark:bg-brand-dark text-slate-800 dark:text-gray-200 font-sans relative w-full max-w-full overflow-x-hidden">
