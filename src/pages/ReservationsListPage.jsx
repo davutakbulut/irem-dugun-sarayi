@@ -473,11 +473,12 @@ export function ReservationsListComponent({
           {/* VIEW SWITCHER: TABLE OR MASTER CALENDAR */}
           {viewMode === 'table' ? (
             /* TABLE LIST VIEW WITH EDIT & DELETE BUTTONS */
-            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm">
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-brand-border text-slate-500 dark:text-gray-400 font-bold">
+                      <th className="py-3 px-3 w-12 text-center">#</th>
                       <th className="py-3 px-3">Sözleşme Kodu</th>
                       <th className="py-3 px-3">Müşteri / Çift</th>
                       <th className="py-3 px-3">Düğün Salonu</th>
@@ -492,17 +493,19 @@ export function ReservationsListComponent({
                   <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
                     {filteredReservations.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="py-8 text-center text-slate-400 font-bold">
+                        <td colSpan="10" className="py-8 text-center text-slate-400 font-bold">
                           Kriterlere uygun kayıtlı rezervasyon bulunamadı.
                         </td>
                       </tr>
                     ) : (
                       filteredReservations
                         .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                        .map(res => {
+                        .map((res, index) => {
                           const vObj = (venues || []).find(v => v.id === res.venueId);
+                          const sequenceNo = (currentPage - 1) * pageSize + index + 1;
                           return (
                             <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
+                              <td className="py-3.5 px-3 text-center font-mono font-bold text-slate-400 dark:text-slate-500">{sequenceNo}</td>
                               <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{res.id}</td>
                               <td className="py-3.5 px-3">
                                 <div className="font-bold">{res.customerName}</div>
@@ -572,6 +575,16 @@ export function ReservationsListComponent({
                   </tbody>
                 </table>
               </div>
+
+              {/* PAGINATION FOR RESERVATIONS (10 PER PAGE) */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredReservations.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[10, 20, 50, 100]}
+              />
             </div>
           ) : (
             /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID MATCHING USER SCREENSHOT) */
