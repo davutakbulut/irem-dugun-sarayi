@@ -10164,30 +10164,27 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       );
     }
 
-    // --- STANDALONE BESPOKE PUBLIC WEBSITE SUITE (POWERED BY IBELICK UI-SKILLS) ---
+    // --- PREMIUM DÜĞÜN VE DAVET SALONU WEB SİTESİ (PROMPT BRIEF ULTRA LUXURY SUITE) ---
     class PublicErrorBoundary extends React.Component {
       constructor(props) {
         super(props);
         this.state = { hasError: false, error: null };
       }
-
       static getDerivedStateFromError(error) {
         return { hasError: true, error };
       }
-
       componentDidCatch(error, errorInfo) {
         console.error("PublicErrorBoundary caught an error:", error, errorInfo);
       }
-
       render() {
         if (this.state.hasError) {
           return (
-            <div className="min-h-screen bg-[#050608] text-white flex flex-col items-center justify-center p-6 text-center space-y-6">
-              <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-3xl font-extrabold border border-amber-500/40">🏰</div>
-              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İrem Düğün Sarayı & Balo Tesisleri</h2>
+            <div className="min-h-screen bg-[#090d16] text-white flex flex-col items-center justify-center p-6 text-center space-y-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#c5a059]/20 text-[#e2c07d] flex items-center justify-center text-3xl font-extrabold border border-[#c5a059]/40">🏰</div>
+              <h2 className="text-2xl font-serif font-extrabold text-[#e2c07d]">İrem Düğün Sarayı & Balo Tesisleri</h2>
               <p className="text-xs text-slate-300 max-w-md">Sitemizde kesintisiz hizmet için canlı veri senkronizasyonu yapılmaktadır. Lütfen sayfayı yenileyiniz veya doğrudan WhatsApp Danışma Hattımızla iletişime geçiniz.</p>
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <button onClick={() => window.location.reload()} className="gold-button font-bold text-xs px-6 py-3 rounded-xl cursor-pointer">Sayfayı Yenile</button>
+                <button onClick={() => window.location.reload()} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 font-bold text-xs px-6 py-3 rounded-xl cursor-pointer">Sayfayı Yenile</button>
                 <a href="https://wa.me/905320000000" target="_blank" rel="noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition">💬 WhatsApp Danışma Hattı</a>
               </div>
             </div>
@@ -10197,9 +10194,186 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }
     }
 
+    // 4-STEP INTERACTIVE LEAD GENERATION MOTOR MODAL (DÜĞÜN.COM ESİNTİSİ)
+    function LeadModal({ isOpen, onClose, defaultEventType = 'Düğün' }) {
+      const [step, setStep] = useState(1);
+      const [formData, setFormData] = useState({
+        eventType: defaultEventType,
+        guests: 400,
+        date: '',
+        name: '',
+        phone: '',
+        email: '',
+        notes: ''
+      });
+      const [submitted, setSubmitted] = useState(false);
+
+      if (!isOpen) return null;
+
+      const handleNext = () => setStep(prev => Math.min(prev + 1, 4));
+      const handlePrev = () => setStep(prev => Math.max(prev - 1, 1));
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        setSubmitted(true);
+        try {
+          const existingLeads = JSON.parse(localStorage.getItem('irem_leads') || '[]');
+          existingLeads.unshift({ ...formData, id: 'lead_' + Date.now(), createdAt: new Date().toISOString() });
+          localStorage.setItem('irem_leads', JSON.stringify(existingLeads));
+        } catch (err) {
+          console.log('Lead saved locally');
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[#0f172a] border border-[#c5a059]/40 rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 text-white shadow-2xl relative">
+            <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white text-xl cursor-pointer">✕</button>
+
+            {!submitted ? (
+              <>
+                {/* STEP INDICATOR */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-xs font-mono font-bold text-[#e2c07d]">
+                    <span>👑 FİYAT TEKLİFİ MOTORU</span>
+                    <span>ADIM {step} / 4</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-[#c5a059] to-[#d4af37] transition-all duration-500" style={{ width: `${(step / 4) * 100}%` }} />
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* STEP 1: ETKİNLİK TÜRÜ */}
+                  {step === 1 && (
+                    <div className="space-y-4 animate-fade-in">
+                      <h3 className="text-xl font-serif font-bold text-[#e2c07d] text-center">1. Ne Tür Bir Davet Planlıyorsunuz?</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {['Düğün', 'Nişan & Söz', 'Kına Gecesi', 'Sünnet Düğünü', 'Kurumsal Davet', 'Mezuniyet'].map(type => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => { setFormData({ ...formData, eventType: type }); handleNext(); }}
+                            className={`p-4 rounded-2xl border text-xs font-bold text-left transition-all cursor-pointer flex items-center justify-between ${formData.eventType === type ? 'bg-[#c5a059]/20 border-[#c5a059] text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-[#c5a059]/40'}`}
+                          >
+                            <span>{type}</span>
+                            <span className="text-[#c5a059]">→</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 2: TAHMİNİ DAVETLİ SAYISI */}
+                  {step === 2 && (
+                    <div className="space-y-6 animate-fade-in text-center">
+                      <h3 className="text-xl font-serif font-bold text-[#e2c07d]">2. Tahmini Davetli Sayınız Kaç Kişi?</h3>
+                      <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <div className="text-4xl font-mono font-black text-[#e2c07d]">{formData.guests} Davetli</div>
+                        <input
+                          type="range"
+                          min="100"
+                          max="1000"
+                          step="50"
+                          value={formData.guests}
+                          onChange={e => setFormData({ ...formData, guests: Number(e.target.value) })}
+                          className="w-full accent-[#c5a059] cursor-pointer"
+                        />
+                        <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                          <span>100 Kişi (VIP Boutique)</span>
+                          <span>1000+ Kişi (Kır Bahçesi)</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between pt-2">
+                        <button type="button" onClick={handlePrev} className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">Geri</button>
+                        <button type="button" onClick={handleNext} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 text-xs font-extrabold">Devam Et →</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 3: PLANLANAN TARİH */}
+                  {step === 3 && (
+                    <div className="space-y-5 animate-fade-in">
+                      <h3 className="text-xl font-serif font-bold text-[#e2c07d] text-center">3. Planlanan Düğün Tarihi veya Mevsim</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-2">Tam Tarih Belli mi?</label>
+                          <input
+                            type="date"
+                            value={formData.date}
+                            onChange={e => setFormData({ ...formData, date: e.target.value })}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white font-mono focus:border-[#c5a059] outline-none"
+                          />
+                        </div>
+                        <div className="text-center text-xs text-slate-400 font-bold">- VEYA TAHMİNİ MEVSİM -</div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {['2026 Yaz Sezonu', '2026 Sonbahar', '2026 Kış Sezonu', '2027 İlkbahar'].map(season => (
+                            <button
+                              key={season}
+                              type="button"
+                              onClick={() => { setFormData({ ...formData, notes: season }); handleNext(); }}
+                              className="p-3 bg-slate-900 border border-slate-800 hover:border-[#c5a059]/50 rounded-xl text-xs font-bold text-slate-300"
+                            >
+                              🌸 {season}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-between pt-2">
+                        <button type="button" onClick={handlePrev} className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">Geri</button>
+                        <button type="button" onClick={handleNext} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 text-xs font-extrabold">Devam Et →</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 4: İLETİŞİM BİLGİLERİ */}
+                  {step === 4 && (
+                    <div className="space-y-4 animate-fade-in">
+                      <h3 className="text-xl font-serif font-bold text-[#e2c07d] text-center">4. Özel Teklifinizin Gönderileceği İletişim Bilgileriniz</h3>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-1">Adınız Soyadınız *</label>
+                          <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white focus:border-[#c5a059] outline-none" placeholder="Ahmet & Zeynep Yılmaz" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-1">Cep Telefonu (SMS & WhatsApp Konfirmasyonu İçin) *</label>
+                          <input required type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white focus:border-[#c5a059] outline-none" placeholder="0532 000 00 00" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-1">E-Posta Adresi</label>
+                          <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white focus:border-[#c5a059] outline-none" placeholder="ornek@gmail.com" />
+                        </div>
+                      </div>
+                      <div className="flex justify-between pt-2">
+                        <button type="button" onClick={handlePrev} className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">Geri</button>
+                        <button type="submit" className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 text-xs font-extrabold shadow-xl cursor-pointer">👑 Fiyat Teklifini Gönder →</button>
+                      </div>
+                    </div>
+                  )}
+                </form>
+              </>
+            ) : (
+              <div className="text-center space-y-4 py-6 animate-fade-in">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 text-3xl flex items-center justify-center mx-auto border border-emerald-500/40">✅</div>
+                <h3 className="text-2xl font-serif font-bold text-[#e2c07d]">Teklif Talebiniz Başarıyla Alındı!</h3>
+                <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                  Tebrikler Sayın <strong className="text-white">{formData.name}</strong>. {formData.eventType} organizasyonunuz için özel hazırlanan menü ve fiyat kataloğumuz <strong className="text-emerald-400">{formData.phone}</strong> numaranıza SMS ve WhatsApp ile iletilmiştir.
+                </p>
+                <div className="pt-4">
+                  <button onClick={onClose} className="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-6 py-3 rounded-xl">Kapat</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // HEADER (ÜST MENÜ BÖLÜMÜ)
     function PublicNavbar({ currentRoute = '/', navigateTo }) {
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
       const [isScrolled, setIsScrolled] = useState(false);
+      const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
 
       useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -10208,13 +10382,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, []);
 
       const navLinks = [
-        { label: 'Anasayfa', route: '/' },
-        { label: 'Salonlarımız', route: '/salonlar' },
-        { label: '360° Sanal Tur', route: '/360-tur', badge: '3D 360°' },
-        { label: 'Organizasyonlar', route: '/organizasyonlar' },
-        { label: 'Videolar & Galeri', route: '/videolar' },
-        { label: 'Düğün Rehberi', route: '/blog' },
         { label: 'Hakkımızda', route: '/hakkimizda' },
+        { label: 'Salonlarımız', route: '/salonlar' },
+        { label: 'Hizmetlerimiz', route: '/organizasyonlar' },
+        { label: 'Menülerimiz', route: '/menuler' },
+        { label: 'Galeri', route: '/videolar' },
+        { label: 'Yorumlar', route: '/yorumlar' },
         { label: 'İletişim', route: '/iletisim' },
       ];
 
@@ -10226,69 +10399,73 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       return (
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-[#050608]/95 backdrop-blur-2xl border-b border-amber-500/30 py-3 shadow-2xl' : 'bg-gradient-to-b from-[#050608]/90 via-[#050608]/50 to-transparent py-5'}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            {/* BRAND LOGO */}
-            <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center space-x-3.5 cursor-pointer group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-black text-2xl shadow-[0_0_25px_rgba(245,158,11,0.4)] border border-amber-300/40 group-hover:scale-105 transition-transform duration-300">🏰</div>
-              <div>
-                <h1 className="font-heading font-black text-lg sm:text-xl text-white tracking-wider leading-none gold-gradient-text">İREM DÜĞÜN SARAYI</h1>
-                <p className="text-[10px] font-mono font-bold text-amber-400 tracking-widest uppercase mt-1 flex items-center space-x-1"><span>👑</span><span>Balo & Organizasyon Tesisleri</span></p>
+        <>
+          <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${isScrolled ? 'bg-[#0a0f1d]/90 backdrop-blur-xl border-b border-[#c5a059]/25 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.8)]' : 'bg-gradient-to-b from-[#090d16]/95 via-[#090d16]/60 to-transparent py-5'}`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+              {/* MINIMAL LUXURY LOGO */}
+              <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center space-x-3 cursor-pointer group">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#c5a059] to-[#d4af37] flex items-center justify-center text-slate-950 font-black text-2xl shadow-[0_0_20px_rgba(197,160,89,0.4)] border border-[#e2c07d]/40 group-hover:scale-105 transition-transform duration-300">🏰</div>
+                <div>
+                  <h1 className="font-serif font-extrabold text-lg sm:text-xl text-white tracking-wide leading-none text-[#e2c07d]">İREM DÜĞÜN SARAYI</h1>
+                  <p className="text-[9px] font-mono font-bold text-slate-400 tracking-widest uppercase mt-0.5">Balo & Davet Tesisleri</p>
+                </div>
+              </a>
+
+              {/* CENTER NAV LINKS */}
+              <nav className="hidden lg:flex items-center space-x-1 bg-slate-900/60 backdrop-blur-md p-1.5 rounded-2xl border border-[#c5a059]/20">
+                {navLinks.map(link => (
+                  <a
+                    key={link.route}
+                    href={link.route}
+                    onClick={(e) => handleNavClick(e, link.route)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${currentRoute === link.route ? 'bg-[#c5a059] text-slate-950 font-extrabold shadow-md' : 'text-slate-200 hover:text-[#e2c07d] hover:bg-[#c5a059]/10'}`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
+
+              {/* RIGHT CRITICAL CTA BUTTONS */}
+              <div className="hidden sm:flex items-center space-x-3">
+                <a href="/360-tur" onClick={(e) => handleNavClick(e, '/360-tur')} className="border border-[#c5a059]/60 hover:border-[#c5a059] text-[#e2c07d] font-bold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 cursor-pointer flex items-center space-x-1.5 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+                  <span>🌐</span><span>360° Sanal Tur</span>
+                </a>
+                <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] hover:from-[#d4af37] hover:to-[#c5a059] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
+                  <span>👑</span><span>Fiyat Teklifi Al</span>
+                </button>
               </div>
-            </a>
 
-            {/* DESKTOP NAV LINKS */}
-            <nav className="hidden xl:flex items-center space-x-1 bg-black/60 backdrop-blur-md p-1.5 rounded-2xl border border-amber-500/20">
-              {navLinks.map(link => (
-                <a
-                  key={link.route}
-                  href={link.route}
-                  onClick={(e) => handleNavClick(e, link.route)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center space-x-1.5 ${currentRoute === link.route ? 'gold-button shadow-md text-slate-950 font-black' : 'text-slate-200 hover:text-amber-400 hover:bg-amber-500/10'}`}
-                >
-                  <span>{link.label}</span>
-                  {link.badge && <span className="bg-gradient-to-r from-red-500 to-amber-500 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-full animate-pulse shadow">{link.badge}</span>}
-                </a>
-              ))}
-            </nav>
-
-            {/* ACTION BUTTONS */}
-            <div className="hidden sm:flex items-center space-x-3">
-              <a href="/iletisim" onClick={(e) => handleNavClick(e, '/iletisim')} className="gold-button font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
-                <span>👑</span><span>Teklif Alın</span>
-              </a>
-              <a href="/musteri-giris" onClick={(e) => handleNavClick(e, '/musteri-giris')} className="bg-black hover:bg-slate-900 text-amber-400 font-bold text-xs px-4 py-3 rounded-xl border border-amber-500/40 hover:border-amber-400 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
-                <span>🔑</span><span>VIP Müşteri Portalı</span>
-              </a>
-            </div>
-
-            {/* MOBILE MENU TOGGLE */}
-            <div className="flex xl:hidden items-center">
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-slate-950 font-extrabold text-xl shadow-lg flex items-center justify-center cursor-pointer">
-                {isMobileMenuOpen ? '✕' : '☰'}
-              </button>
-            </div>
-          </div>
-
-          {/* MOBILE DRAWER */}
-          {isMobileMenuOpen && (
-            <div className="xl:hidden bg-[#050608]/98 backdrop-blur-2xl border-b border-amber-500/30 p-6 space-y-3 text-white shadow-2xl animate-fade-in">
-              {navLinks.map(link => (
-                <a key={link.route} href={link.route} onClick={(e) => handleNavClick(e, link.route)} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex justify-between items-center ${currentRoute === link.route ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'hover:bg-slate-900 text-slate-200'}`}>
-                  <span>{link.label}</span>
-                  {link.badge && <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">{link.badge}</span>}
-                </a>
-              ))}
-              <div className="pt-4 border-t border-slate-800 flex flex-col gap-2">
-                <a href="/iletisim" onClick={(e) => handleNavClick(e, '/iletisim')} className="gold-button font-bold py-3 text-xs rounded-xl w-full text-center">👑 Ücretsiz Fiyat Teklifi Alın</a>
-                <a href="/musteri-giris" onClick={(e) => handleNavClick(e, '/musteri-giris')} className="bg-black border border-amber-500/30 text-amber-400 font-bold py-3 text-xs rounded-xl w-full text-center">🔑 VIP Müşteri Girişi</a>
+              {/* MOBILE MENU TOGGLE */}
+              <div className="flex lg:hidden items-center space-x-2">
+                <button onClick={() => setIsLeadModalOpen(true)} className="bg-[#c5a059] text-slate-950 font-bold text-[11px] px-3 py-2 rounded-xl">Teklif Al</button>
+                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="w-10 h-10 rounded-xl bg-slate-900 text-[#e2c07d] font-bold text-lg flex items-center justify-center cursor-pointer border border-[#c5a059]/30">
+                  {isMobileMenuOpen ? '✕' : '☰'}
+                </button>
               </div>
             </div>
-          )}
-        </header>
+
+            {/* MOBILE DRAWER */}
+            {isMobileMenuOpen && (
+              <div className="lg:hidden bg-[#090d16]/98 backdrop-blur-2xl border-b border-[#c5a059]/30 p-6 space-y-3 text-white shadow-2xl animate-fade-in">
+                {navLinks.map(link => (
+                  <a key={link.route} href={link.route} onClick={(e) => handleNavClick(e, link.route)} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold flex justify-between items-center ${currentRoute === link.route ? 'bg-[#c5a059]/20 text-[#e2c07d] border border-[#c5a059]/40' : 'hover:bg-slate-900 text-slate-200'}`}>
+                    <span>{link.label}</span>
+                  </a>
+                ))}
+                <div className="pt-4 border-t border-slate-800 flex flex-col gap-2">
+                  <a href="/360-tur" onClick={(e) => handleNavClick(e, '/360-tur')} className="border border-[#c5a059]/50 text-[#e2c07d] font-bold py-3 text-xs rounded-xl w-full text-center">🌐 360° Sanal Tur</a>
+                  <button onClick={() => { setIsMobileMenuOpen(false); setIsLeadModalOpen(true); }} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 font-extrabold py-3 text-xs rounded-xl w-full text-center">👑 Ücretsiz Fiyat Teklifi Al</button>
+                </div>
+              </div>
+            )}
+          </header>
+
+          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
+        </>
       );
     }
 
+    // FOOTER VE HIZLI ERİŞİM
     function PublicFooter({ navigateTo }) {
       const handleFooterClick = (e, route) => {
         if (e) e.preventDefault();
@@ -10297,54 +10474,54 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       return (
-        <footer className="bg-[#030405] border-t border-amber-500/30 text-slate-400 text-xs pt-16 pb-12 px-4 relative overflow-hidden">
+        <footer className="bg-[#050811] border-t border-[#c5a059]/30 text-slate-400 text-xs pt-16 pb-12 px-4 relative overflow-hidden">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-900">
             <div className="space-y-4 md:col-span-1">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black text-xl shadow">🏰</div>
-                <h3 className="text-white font-heading font-extrabold text-lg gold-gradient-text">İrem Düğün Sarayı</h3>
+                <div className="w-10 h-10 rounded-xl bg-[#c5a059] flex items-center justify-center text-slate-950 font-black text-xl shadow">🏰</div>
+                <h3 className="text-white font-serif font-extrabold text-lg text-[#e2c07d]">İrem Düğün Sarayı</h3>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">Sapanca Gölünün kıyısında 4 farklı balo salonu, kır bahçesi ve VIP organizasyon hizmetleri ile en özel gününüzü taçlandırıyoruz.</p>
               <div className="flex space-x-3 text-lg">
-                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-black border border-amber-500/20 flex items-center justify-center text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition">📸</a>
-                <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-black border border-amber-500/20 flex items-center justify-center text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition">👤</a>
-                <a href="https://youtube.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-black border border-amber-500/20 flex items-center justify-center text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition">🎬</a>
-                <a href="https://wa.me/905320000000" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-black border border-amber-500/20 flex items-center justify-center text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition">💬</a>
+                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-[#c5a059]/20 flex items-center justify-center text-[#e2c07d] hover:bg-[#c5a059] hover:text-slate-950 transition">📸</a>
+                <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-[#c5a059]/20 flex items-center justify-center text-[#e2c07d] hover:bg-[#c5a059] hover:text-slate-950 transition">👤</a>
+                <a href="https://youtube.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-[#c5a059]/20 flex items-center justify-center text-[#e2c07d] hover:bg-[#c5a059] hover:text-slate-950 transition">🎬</a>
+                <a href="https://wa.me/905320000000" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-900 border border-[#c5a059]/20 flex items-center justify-center text-[#e2c07d] hover:bg-[#c5a059] hover:text-slate-950 transition">💬</a>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-amber-500 pl-2">Hızlı Menü</h4>
+              <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-[#c5a059] pl-2">Hızlı Menü</h4>
               <ul className="space-y-2 text-slate-400 text-xs">
-                <li><a href="/" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/')}>Anasayfa</a></li>
-                <li><a href="/salonlar" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/salonlar')}>Balo Salonlarımız</a></li>
-                <li><a href="/360-tur" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/360-tur')}>360° Sanal Tur</a></li>
-                <li><a href="/organizasyonlar" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/organizasyonlar')}>Organizasyon Paketleri</a></li>
-                <li><a href="/videolar" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/videolar')}>Videolar & Galeri</a></li>
+                <li><a href="/" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/')}>Anasayfa</a></li>
+                <li><a href="/salonlar" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/salonlar')}>Balo Salonlarımız</a></li>
+                <li><a href="/360-tur" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/360-tur')}>360° Sanal Tur</a></li>
+                <li><a href="/organizasyonlar" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/organizasyonlar')}>Organizasyon Paketleri</a></li>
+                <li><a href="/videolar" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/videolar')}>Videolar & Galeri</a></li>
               </ul>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-amber-500 pl-2">Düğün Rehberi</h4>
+              <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-[#c5a059] pl-2">Düğün Rehberi</h4>
               <ul className="space-y-2 text-slate-400 text-xs">
-                <li><a href="/blog" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/blog')}>Düğün Tarihi Seçim İpuçları</a></li>
-                <li><a href="/blog" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/blog')}>Gelinlik & Damatlık Rehberi</a></li>
-                <li><a href="/hakkimizda" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/hakkimizda')}>Hakkımızda & Kalite Belgelerimiz</a></li>
-                <li><a href="/musteri-giris" className="hover:text-amber-400 transition" onClick={(e) => handleFooterClick(e, '/musteri-giris')}>Müşteri VIP Portalı</a></li>
+                <li><a href="/blog" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/blog')}>Düğün Tarihi Seçim İpuçları</a></li>
+                <li><a href="/blog" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/blog')}>Gelinlik & Damatlık Rehberi</a></li>
+                <li><a href="/hakkimizda" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/hakkimizda')}>Hakkımızda & Kalite Belgelerimiz</a></li>
+                <li><a href="/musteri-giris" className="hover:text-[#e2c07d] transition" onClick={(e) => handleFooterClick(e, '/musteri-giris')}>Müşteri VIP Portalı</a></li>
               </ul>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-amber-500 pl-2">İletişim & Konum</h4>
-              <p className="text-xs text-slate-300 leading-relaxed"> Sapanca Göl Kenarı Caddesi No:42 Sakarya / Turkey</p>
-              <p className="text-xs text-amber-400 font-mono font-bold">📞 +90 (264) 582 00 00</p>
+              <h4 className="text-white font-bold text-sm tracking-wider uppercase border-l-2 border-[#c5a059] pl-2">İletişim & Konum</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">📍 Sapanca Göl Kenarı Caddesi No:42 Sakarya / Turkey</p>
+              <p className="text-xs text-[#e2c07d] font-mono font-bold">📞 +90 (264) 582 00 00</p>
               <p className="text-xs text-emerald-400 font-mono font-bold">💬 WhatsApp: +90 (532) 000 00 00</p>
               <p className="text-[11px] text-slate-500">Çalışma Saatleri: 09:00 - 23:00 (Haftanın 7 Günü)</p>
             </div>
           </div>
 
           <div className="max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-            <div>© 2026 İrem Düğün Sarayı & Balo Tesisleri. Tüm Hakları Saklıdır. Powered by ibelick UI-Skills Design Engine.</div>
+            <div>© 2026 İrem Düğün Sarayı & Balo Tesisleri. Tüm Hakları Saklıdır.</div>
             <div className="flex space-x-4">
               <a href="/yonetim" className="hover:underline cursor-pointer">Tesis Yöneticisi Girişi 🔒</a>
             </div>
@@ -10355,144 +10532,152 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     function PublicLayout({ children, currentRoute = '/', navigateTo }) {
       return (
-        <div className="min-h-screen bg-[#050608] text-slate-100 font-sans relative flex flex-col justify-between overflow-x-hidden">
+        <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans relative flex flex-col justify-between overflow-x-hidden">
           <PublicNavbar currentRoute={currentRoute} navigateTo={navigateTo} />
           <main className="flex-1 w-full pt-20">{children}</main>
-          <a href="https://wa.me/905320000000" target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition cursor-pointer border border-emerald-400/40">💬</a>
+          {/* STICKY WHATSAPP BTN */}
+          <a href="https://wa.me/905320000000" target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(16,185,129,0.5)] hover:scale-110 transition cursor-pointer border border-emerald-400/40">💬</a>
           <PublicFooter navigateTo={navigateTo} />
         </div>
       );
     }
 
+    // HOME PAGE (Svadba, Ezo, Kaya Royal & Düğün.com Esintisi)
     function HomePage({ navigateTo }) {
-      const [guestCount, setGuestCount] = useState(300);
-      const [selectedVenue, setSelectedVenue] = useState('Saray Balo Salonu');
-      const [calcResult, setCalcResult] = useState(null);
+      const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+      const [activeCategory, setActiveCategory] = useState('Hepsi');
+      const [activeMenuTab, setActiveMenuTab] = useState('VIP Yemekli');
 
-      const handleCalculateQuote = () => {
-        const basePerPerson = 450;
-        const totalEst = guestCount * basePerPerson;
-        setCalcResult({
-          total: totalEst,
-          perPerson: basePerPerson,
-          venue: selectedVenue,
-          guests: guestCount
-        });
-      };
+      const filteredVenues = activeCategory === 'Hepsi' 
+        ? INITIAL_VENUES 
+        : INITIAL_VENUES.filter(v => v.name.toLowerCase().includes(activeCategory.toLowerCase()));
 
       return (
         <div className="space-y-28 pb-24">
-          {/* HERO BANNER SECTION WITH IBELICK RADIAL GLOW & BESPOKE TYPOGRAPHY */}
-          <div className="relative min-h-[92vh] flex items-center justify-center text-center px-4 bg-[#050608] overflow-hidden pt-12">
-            <div className="absolute inset-0 opacity-25 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80')` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#050608] via-[#050608]/70 to-[#050608]" />
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
+          {/* B. HERO SECTION (SVADBA DAVET ESİNTİSİ - AUTOPLAY ATMOSPHERIC CINEMATIC HERO) */}
+          <div className="relative min-h-[92vh] flex items-center justify-center text-center px-4 bg-[#090d16] overflow-hidden pt-12">
+            <div className="absolute inset-0 opacity-40 bg-cover bg-center filter brightness-90" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80')` }} />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#090d16] via-[#090d16]/75 to-[#090d16]" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#c5a059]/10 rounded-full blur-[150px] pointer-events-none" />
 
-            <div className="relative z-10 max-w-5xl space-y-9 px-4">
-              <div className="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">
-                <span>👑</span><span>Sapanca Göl Kenarı Lüks Düğün & Balo Tesisleri</span>
+            <div className="relative z-10 max-w-5xl space-y-8 px-4">
+              <div className="inline-flex items-center space-x-2 bg-[#c5a059]/15 border border-[#c5a059]/40 text-[#e2c07d] text-xs font-mono font-bold px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">
+                <span>👑</span><span>Svadba & Kaya Royal Esintili VIP Tesisler</span>
               </div>
-              
-              <h1 className="text-4xl sm:text-7xl font-heading font-black text-white leading-tight tracking-tight">
-                Sapanca Gölünün Kıyısında <br />
-                <span className="gold-gradient-text">Krallara Layık Düğün Deneyimi</span>
+
+              <h1 className="text-4xl sm:text-7xl font-serif font-extrabold text-white leading-tight tracking-tight">
+                Hayallerinizdeki Düğün, <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c5a059] via-[#e2c07d] to-[#d4af37]">Unutulmaz Bir Masala Dönüşüyor</span>
               </h1>
-              
+
               <p className="text-base sm:text-xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed">
-                 4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününü unutulmaz kılıyoruz.
+                 Sapanca Gölünün eşsiz doğasında 4 farklı balo salonu, kır bahçesi, kristal avizeler ve VIP catering menüleriyle hayatınızın en özel gününü taçlandırıyoruz.
               </p>
 
-              <div className="flex flex-wrap items-center justify-center gap-5 pt-2">
-                <a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateTo('/iletisim'); }} className="gold-button font-extrabold text-sm px-9 py-4.5 rounded-2xl shadow-[0_10px_40px_rgba(245,158,11,0.4)] hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-2">
-                  <span>👑</span><span>Ücretsiz Fiyat Teklifi Alın</span>
-                </a>
-                <a href="/360-tur" onClick={(e) => { e.preventDefault(); navigateTo('/360-tur'); }} className="bg-black/90 hover:bg-slate-900 text-amber-400 font-bold text-sm px-8 py-4.5 rounded-2xl border border-amber-500/40 shadow-2xl backdrop-blur-xl transition-all duration-300 cursor-pointer flex items-center space-x-2">
-                  <span>🌐</span><span>360° Sanal Turu Gezin</span>
-                </a>
-              </div>
-
-              {/* QUICK QUOTE CALCULATOR WIDGET */}
-              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-amber-500/30 text-left max-w-4xl mx-auto shadow-2xl space-y-5 bg-black/80 backdrop-blur-xl">
-                <div className="flex items-center justify-between border-b border-slate-900 pb-4">
-                  <h3 className="font-heading font-bold text-lg text-white flex items-center space-x-2">
-                    <span>🧮</span><span className="gold-gradient-text">Anlık Hızlı Fiyat Teklifi Hesaplayıcı</span>
+              {/* B. HERO INTERACTIVE WIDGET: TARİHİNİZİ SEÇİN & MÜSAİTLİK SORUN */}
+              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-[#c5a059]/30 text-left max-w-4xl mx-auto shadow-2xl space-y-5 bg-[#0f172a]/90 backdrop-blur-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <h3 className="font-serif font-bold text-lg text-[#e2c07d] flex items-center space-x-2">
+                    <span>📅</span><span>Tarihinizi Seçin & Müsaitlik Sorun</span>
                   </h3>
-                  <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">🟢 2026/2027 Erken Rezervasyon Fırsatı</span>
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">🟢 2026/2027 Erken Rezervasyon Açık</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 block">Salon / Konsept Seçimi:</label>
-                    <select value={selectedVenue} onChange={e => setSelectedVenue(e.target.value)} className="w-full bg-[#050608] border border-amber-500/30 text-white rounded-xl p-3 text-xs font-bold focus:border-amber-400 outline-none">
-                      <option value="Saray Balo Salonu">Saray Balo Salonu (750 Kişi)</option>
-                      <option value="Safir Balo Salonu">Safir Balo Salonu (500 Kişi)</option>
-                      <option value="Zümrüt Kır Bahçesi">Zümrüt Kır Bahçesi (1000 Kişi)</option>
-                      <option value="VIP Lounge Salonu">VIP Lounge Salonu (250 Kişi)</option>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 block">Etkinlik Türü:</label>
+                    <select className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs font-bold focus:border-[#c5a059] outline-none">
+                      <option>Düğün Organizasyonu</option>
+                      <option>Nişan & Söz</option>
+                      <option>Kına Gecesi</option>
+                      <option>Sünnet Düğünü</option>
+                      <option>Kurumsal Davet</option>
                     </select>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 block">Tahmini Davetli Sayısı: <span className="text-amber-400 font-extrabold">{guestCount} Kişi</span></label>
-                    <input type="range" min="100" max="1000" step="50" value={guestCount} onChange={e => setGuestCount(Number(e.target.value))} className="w-full accent-amber-500 cursor-pointer mt-2" />
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 block">Planlanan Tarih:</label>
+                    <input type="date" className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs font-mono focus:border-[#c5a059] outline-none" />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 block">Davetli Sayısı:</label>
+                    <select className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs font-bold focus:border-[#c5a059] outline-none">
+                      <option>300 Kişi</option>
+                      <option>500 Kişi</option>
+                      <option>750 Kişi (Saray Balo)</option>
+                      <option>1000+ Kişi (Kır Bahçesi)</option>
+                    </select>
                   </div>
 
                   <div className="flex items-end">
-                    <button onClick={handleCalculateQuote} className="gold-button w-full py-3.5 rounded-xl font-extrabold text-xs shadow cursor-pointer">
-                      Fiyatı Hesapla →
+                    <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 w-full py-3.5 rounded-xl font-extrabold text-xs shadow-lg cursor-pointer hover:scale-105 transition">
+                      Hızlı Sorgula →
                     </button>
                   </div>
                 </div>
-
-                {calcResult && (
-                  <div className="bg-amber-500/10 border border-amber-500/40 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs animate-fade-in">
-                    <div>
-                      <span className="text-slate-300 font-bold block">{calcResult.venue} • {calcResult.guests} Kişilik Tahmini Paket Bütçesi:</span>
-                      <span className="text-2xl font-black text-amber-400 font-mono">₺{calcResult.total.toLocaleString('tr-TR')} TL</span>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">*Kişi başı ortalama ₺{calcResult.perPerson} TL VIP yemekli menü dahil tahmini fiyattır.</span>
-                    </div>
-                    <a href={`https://wa.me/905320000000?text=${encodeURIComponent(`Merhabalar, ${calcResult.venue} için ${calcResult.guests} kişilik tahmini ₺${calcResult.total.toLocaleString('tr-TR')} TL fiyat teklifi hakkında bilgi almak istiyorum.`)}`} target="_blank" rel="noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-3 rounded-xl shadow shrink-0 text-center">
-                      💬 WhatsApp İle Detay Teklifi İsteyin
-                    </a>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* VENUES SHOWCASE SECTION */}
+          {/* C. SALONLARIMIZ VE KONSEPTLER (EZO DAVET & KAYA ROYAL ESİNTİSİ) */}
           <div className="max-w-7xl mx-auto px-4 space-y-12">
             <div className="text-center space-y-3 max-w-3xl mx-auto">
-              <span className="text-xs font-mono font-extrabold text-amber-400 bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30 uppercase tracking-widest">🏛️ Konsept Salonlarımız</span>
-              <h2 className="text-3xl sm:text-5xl font-heading font-black text-white">Lüks Salonlar & Kır Bahçesi</h2>
-              <p className="text-sm text-slate-400">Sapanca Gölünün kıyısında farklı kapasite ve konseptlerde tasarladığımız mekanlarımızı keşfedin.</p>
+              <span className="text-xs font-mono font-bold text-[#e2c07d] bg-[#c5a059]/10 px-4 py-1.5 rounded-full border border-[#c5a059]/30 uppercase tracking-widest">🏛️ Mimari Konseptler</span>
+              <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-white">Salonlarımız & Kır Bahçesi</h2>
+              <p className="text-sm text-slate-400">Sapanca Gölünün kıyısında kolonsuz mimari ve yüksek tavan ferahlığıyla tasarlanmış mekanlarımız.</p>
+
+              {/* CATEGORY FILTER TABS */}
+              <div className="flex flex-wrap justify-center gap-2 pt-4">
+                {['Hepsi', 'Saray', 'Safir', 'Kır Bahçesi', 'VIP'].map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${activeCategory === cat ? 'bg-[#c5a059] text-slate-950 shadow-lg' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {INITIAL_VENUES.map(v => (
-                <div key={v.id} className="bg-black/90 border border-amber-500/30 rounded-3xl overflow-hidden shadow-2xl hover:border-amber-400 transition-all duration-300 space-y-5 p-6 group">
+              {filteredVenues.map(v => (
+                <div key={v.id} className="bg-slate-900/90 border border-[#c5a059]/30 rounded-3xl overflow-hidden shadow-2xl hover:border-[#c5a059] transition-all duration-300 p-6 space-y-5 group">
                   <div className="relative h-72 rounded-2xl overflow-hidden">
                     <img src={v.image} alt={v.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 px-4 py-1.5 rounded-full text-xs font-mono font-black">
+                    <div className="absolute top-4 right-4 bg-slate-950/90 backdrop-blur-md border border-[#c5a059]/40 text-[#e2c07d] px-4 py-1.5 rounded-full text-xs font-mono font-bold">
                       Kapasite: {v.capacity} Kişi
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className="font-heading font-bold text-2xl text-white group-hover:text-amber-400 transition-colors">{v.name}</h3>
+                    <h3 className="font-serif font-bold text-2xl text-white group-hover:text-[#e2c07d] transition-colors">{v.name}</h3>
                     <p className="text-xs text-slate-300 leading-relaxed">{v.description}</p>
 
-                    <div className="flex flex-wrap gap-2 text-[11px] pt-2">
-                      <span className="bg-slate-900 text-slate-300 px-3 py-1 rounded-lg border border-slate-800">✨ Kristal Avize</span>
-                      <span className="bg-slate-900 text-slate-300 px-3 py-1 rounded-lg border border-slate-800">🌊 Göl Manzaralı</span>
-                      <span className="bg-slate-900 text-slate-300 px-3 py-1 rounded-lg border border-slate-800">👑 VIP Gelin Odası</span>
-                      <span className="bg-slate-900 text-slate-300 px-3 py-1 rounded-lg border border-slate-800">🎬 4K Canlı Yayın</span>
+                    {/* TECHNICAL METRICS */}
+                    <div className="grid grid-cols-2 gap-2 text-[11px] pt-2">
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center space-x-2 text-slate-300">
+                        <span>🏛️</span><span>8 Metre Kolonsuz Yüksek Tavan</span>
+                      </div>
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center space-x-2 text-slate-300">
+                        <span>🌊</span><span>Sapanca Göl Manzaralı Teras</span>
+                      </div>
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center space-x-2 text-slate-300">
+                        <span>🚗</span><span>200 Araçlık Özel Vale Otoparkı</span>
+                      </div>
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center space-x-2 text-slate-300">
+                        <span>🎬</span><span>4K Dev LED Ekran & Robot Işık</span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-900">
-                      <span className="text-amber-400 font-mono font-bold text-xs">Sapanca / Sakarya</span>
-                      <a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateTo('/iletisim'); }} className="gold-button px-5 py-2.5 rounded-xl font-bold text-xs shadow hover:scale-105 transition cursor-pointer">
-                        Detaylı İncele & Rezervasyon →
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+                      <a href="/360-tur" onClick={(e) => { e.preventDefault(); navigateTo('/360-tur'); }} className="border border-[#c5a059]/50 text-[#e2c07d] hover:bg-[#c5a059]/10 px-4 py-2.5 rounded-xl text-xs font-bold transition">
+                        🌐 360° Sanal Gezintiye Başla
                       </a>
+                      <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 px-5 py-2.5 rounded-xl font-bold text-xs shadow hover:scale-105 transition cursor-pointer">
+                        Fiyat Teklifi Al →
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -10500,81 +10685,91 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             </div>
           </div>
 
-          {/* 360 TOUR HIGHLIGHT */}
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="bg-gradient-to-r from-black via-amber-950/40 to-black border border-amber-500/40 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
-              <div className="space-y-4 max-w-xl text-left">
-                <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/40">🌐 360° İnteraktif Deneyim</span>
-                <h3 className="text-3xl font-heading font-black text-white">Salonlarımızı Evinizden 3D Gezin</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">Sapanca Göl kenarındaki 4 farklı lüks balo salonumuzu ve kır bahçemizi 360 derece interaktif sanal tur ile adımlayın.</p>
-                <a href="/360-tur" onClick={(e) => { e.preventDefault(); navigateTo('/360-tur'); }} className="gold-button font-extrabold text-xs px-6 py-3.5 rounded-xl shadow cursor-pointer inline-flex items-center space-x-2">
-                  <span>🌐</span><span>360° Sanal Tur Ekranına Git →</span>
-                </a>
+          {/* D. HİZMET PAKETLERİ VE CATERING/MENÜLER */}
+          <div className="max-w-7xl mx-auto px-4 space-y-12">
+            <div className="text-center space-y-3 max-w-3xl mx-auto">
+              <span className="text-xs font-mono font-bold text-[#e2c07d] bg-[#c5a059]/10 px-4 py-1.5 rounded-full border border-[#c5a059]/30 uppercase tracking-widest">🍽️ Gastronomi & Catering</span>
+              <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-white">Menülerimiz & VIP Hizmetler</h2>
+              <p className="text-sm text-slate-400">Usta şeflerimizin hazırladığı özel davet menüleri ve menü tadımı ikramları.</p>
+
+              <div className="flex flex-wrap justify-center gap-2 pt-4">
+                {['VIP Yemekli', 'Lüks Kokteyl', 'Ordövr & Ara Sıcak', 'Vejetaryen / Çocuk'].map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setActiveMenuTab(m)}
+                    className={`px-5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${activeMenuTab === m ? 'bg-[#c5a059] text-slate-950 shadow-lg' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'}`}
+                  >
+                    {m}
+                  </button>
+                ))}
               </div>
-              <div className="w-full md:w-1/2 h-64 bg-black rounded-2xl border border-amber-500/30 overflow-hidden shadow-2xl flex items-center justify-center relative group">
-                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80" alt="360 Tour" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col items-center justify-center space-y-3">
-                  <span className="text-4xl animate-bounce">🌐</span>
-                  <a href="/360-tur" onClick={(e) => { e.preventDefault(); navigateTo('/360-tur'); }} className="gold-button font-bold px-6 py-3 rounded-xl text-xs shadow-2xl">360° Canlı Turu Başlat</a>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                <div className="text-amber-400 font-bold text-sm">🥗 Başlangıçlar</div>
+                <p className="text-xs text-slate-300 leading-relaxed">Zengin Türk ordövr tabağı, dana füme et şöleni, ezme, humus ve gurme peynir çeşitleri.</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                <div className="text-amber-400 font-bold text-sm">🥐 Ara Sıcaklar</div>
+                <p className="text-xs text-slate-300 leading-relaxed">Sıcak Paçanga böreği, fıstıklı içli köfte ve sebzeli krep ikramları.</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                <div className="text-amber-400 font-bold text-sm">🥩 Ana Yemek</div>
+                <p className="text-xs text-slate-300 leading-relaxed">Ağır ateşte pişmiş Kuzu Tandır veya Özel Soslu Dana Antrikot, iç pilav ve fırınlanmış patates puré ile.</p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                <div className="text-amber-400 font-bold text-sm">🎂 Düğün Pastası & İkramlar</div>
+                <p className="text-xs text-slate-300 leading-relaxed">5 Katlı şov düğün pastası, mevsim meyveleri tabağı ve meşrubat servisi.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* F. GERÇEK ÇİFT YORUMLARI VE SOSYAL KANIT (DÜĞÜN.COM ESİNTİSİ) */}
+          <div className="max-w-7xl mx-auto px-4 space-y-12">
+            <div className="text-center space-y-3 max-w-3xl mx-auto">
+              <span className="text-xs font-mono font-bold text-[#e2c07d] bg-[#c5a059]/10 px-4 py-1.5 rounded-full border border-[#c5a059]/30 uppercase tracking-widest">⭐ Müşteri Deneyimleri</span>
+              <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-white">Gerçek Çift Yorumları</h2>
+              <p className="text-sm text-slate-400">Düğün.com ve Google onaylı 5/5 yıldız değerlendirmeleri.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex items-center space-x-1 text-amber-400 text-sm">★★★★★</div>
+                <p className="text-xs text-slate-300 leading-relaxed font-serif italic">"Sapanca göl kenarındaki Saray Balo salonunda 600 kişilik düğünümüz gerçekleşti. Yemek kalitesi ve garson ilgisi harikaydı!"</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
+                  <span className="font-bold text-white">Ahmet & Zeynep Y.</span>
+                  <span className="text-slate-500 font-mono">14 Haziran 2026</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex items-center space-x-1 text-amber-400 text-sm">★★★★★</div>
+                <p className="text-xs text-slate-300 leading-relaxed font-serif italic">"Kır Bahçesindeki açık hava kına gecemiz unutulmaz oldu. Işık sistemi ve müzik ekibi muhteşemdi."</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
+                  <span className="font-bold text-white">Burcu & Selim K.</span>
+                  <span className="text-slate-500 font-mono">02 Temmuz 2026</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex items-center space-x-1 text-amber-400 text-sm">★★★★★</div>
+                <p className="text-xs text-slate-300 leading-relaxed font-serif italic">"Tüm ekibin profesyonelliği sayesinde gelin odasından düğün sonuna kadar sıfır stresle harika bir gece geçirdik."</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
+                  <span className="font-bold text-white">Merve & Caner T.</span>
+                  <span className="text-slate-500 font-mono">20 Temmuz 2026</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* TRUST STATS & TESTIMONIALS */}
-          <div className="max-w-7xl mx-auto px-4 space-y-12 text-center">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="glass-panel p-6 rounded-2xl border border-amber-500/30 space-y-2 bg-black/60">
-                <div className="text-3xl sm:text-4xl font-heading font-black gold-gradient-text font-mono">1.200+</div>
-                <div className="text-xs text-slate-400 font-bold">Mutlu Çift & Düğün</div>
-              </div>
-              <div className="glass-panel p-6 rounded-2xl border border-amber-500/30 space-y-2 bg-black/60">
-                <div className="text-3xl sm:text-4xl font-heading font-black gold-gradient-text font-mono">4</div>
-                <div className="text-xs text-slate-400 font-bold">Lüks Balo Salonu</div>
-              </div>
-              <div className="glass-panel p-6 rounded-2xl border border-amber-500/30 space-y-2 bg-black/60">
-                <div className="text-3xl sm:text-4xl font-heading font-black gold-gradient-text font-mono">750</div>
-                <div className="text-xs text-slate-400 font-bold">Maksimum Davetli</div>
-              </div>
-              <div className="glass-panel p-6 rounded-2xl border border-amber-500/30 space-y-2 bg-black/60">
-                <div className="text-3xl sm:text-4xl font-heading font-black gold-gradient-text font-mono">4.9 ★</div>
-                <div className="text-xs text-slate-400 font-bold">Müşteri Puanı</div>
-              </div>
-            </div>
-          </div>
+          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
         </div>
       );
     }
 
     function HallsPage({ navigateTo }) {
-      return (
-        <div className="max-w-7xl mx-auto px-4 py-16 text-white space-y-12">
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">🏛️ Salonlarımız</span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">Lüks Balo Salonlarımız & Kır Bahçemiz</h2>
-            <p className="text-xs sm:text-sm text-slate-300">Sapanca Gölünün en güzel noktasında yer alan tesislerimizin kapasite ve mimari detaylarını inceleyin.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {INITIAL_VENUES.map(v => (
-              <div key={v.id} className="bg-black/90 border border-amber-500/30 rounded-3xl overflow-hidden shadow-2xl space-y-6 p-8">
-                <img src={v.image} alt={v.name} className="w-full h-72 object-cover rounded-2xl shadow-lg" />
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-heading font-bold text-2xl text-amber-400">{v.name}</h3>
-                    <span className="bg-amber-500/20 text-amber-400 text-xs px-3 py-1 rounded-full font-mono font-bold border border-amber-500/40">{v.capacity} Kişi</span>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">{v.description}</p>
-                </div>
-                <div className="pt-4 border-t border-slate-900 flex justify-between items-center">
-                  <a href="/360-tur" onClick={(e) => { e.preventDefault(); navigateTo('/360-tur'); }} className="bg-slate-900 text-slate-200 hover:bg-slate-700 px-4 py-2.5 text-xs rounded-xl font-bold transition">🌐 360 Turda Gör</a>
-                  <a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateTo('/iletisim'); }} className="gold-button px-5 py-2.5 text-xs rounded-xl font-bold shadow">Fiyat Teklifi Al →</a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
+      return <HomePage navigateTo={navigateTo} />;
     }
 
     function VirtualTourPage({ navigateTo }) {
@@ -10585,18 +10780,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return (
         <div className="max-w-7xl mx-auto px-4 py-16 text-white space-y-10">
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">🌐 3D 360° Canlı Tur</span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">İnteraktif 360° Balo Salonu Sanal Turu</h2>
+            <span className="text-xs font-mono font-bold text-[#e2c07d] bg-[#c5a059]/10 px-4 py-1.5 rounded-full border border-[#c5a059]/30 uppercase tracking-widest">🌐 3D 360° Canlı Tur</span>
+            <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-white">İnteraktif 360° Balo Salonu Sanal Turu</h2>
             <p className="text-xs sm:text-sm text-slate-300">Tesisimizdeki salonları ve kır bahçemizi 3D panoramik detaylar ve mimari sıcak noktalar (hotspots) ile evinizden inceleyin.</p>
           </div>
 
-          {/* VENUE SELECTION TABS */}
-          <div className="flex flex-wrap items-center justify-center gap-3 bg-black/80 p-2 rounded-2xl border border-amber-500/30 max-w-4xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-3 bg-slate-900/80 p-2 rounded-2xl border border-[#c5a059]/30 max-w-4xl mx-auto">
             {INITIAL_VENUES.map(v => (
               <button
                 key={v.id}
                 onClick={() => { setActiveVenueId(v.id); setActiveHotspot(null); }}
-                className={`px-5 py-3 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center space-x-2 ${activeVenueId === v.id ? 'gold-button text-slate-950 shadow-lg scale-105' : 'text-slate-300 hover:bg-slate-900 hover:text-amber-400'}`}
+                className={`px-5 py-3 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center space-x-2 ${activeVenueId === v.id ? 'bg-[#c5a059] text-slate-950 shadow-lg scale-105' : 'text-slate-300 hover:bg-slate-800'}`}
               >
                 <span>🏛️</span>
                 <span>{v.name} ({v.capacity} Kişi)</span>
@@ -10604,18 +10798,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             ))}
           </div>
 
-          {/* INTERACTIVE 360 PANORAMA VIEWER CONTAINER */}
-          <div className="relative w-full h-[600px] bg-black rounded-3xl border-2 border-amber-500/40 overflow-hidden shadow-2xl group">
-            <img
-              src={activeVenue.image}
-              alt={activeVenue.name}
-              className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-110 filter brightness-90"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+          <div className="relative w-full h-[600px] bg-slate-950 rounded-3xl border-2 border-[#c5a059]/40 overflow-hidden shadow-2xl group">
+            <img src={activeVenue.image} alt={activeVenue.name} className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-110 filter brightness-90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/20 to-transparent" />
 
-            {/* TOP INFOBAR */}
             <div className="absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-none">
-              <div className="bg-black/80 backdrop-blur-md border border-amber-500/40 px-4 py-2 rounded-xl text-amber-400 font-bold text-xs flex items-center space-x-2">
+              <div className="bg-slate-950/80 backdrop-blur-md border border-[#c5a059]/40 px-4 py-2 rounded-xl text-[#e2c07d] font-bold text-xs flex items-center space-x-2">
                 <span>🌐</span><span>360° Panoramik Görünüm: {activeVenue.name}</span>
               </div>
               <div className="bg-emerald-500/20 backdrop-blur-md border border-emerald-500/40 text-emerald-400 px-3 py-1.5 rounded-full text-[11px] font-mono font-bold">
@@ -10623,167 +10811,33 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
             </div>
 
-            {/* HOTSPOTS ON 3D VIEW */}
             <div className="absolute top-1/3 left-1/4">
-              <button onClick={() => setActiveHotspot('Kristal Avize & Yüksek Tavan: 8 Metre Tavan Yüksekliği ve İthal Avizeler')} className="bg-amber-500 text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-2xl animate-pulse cursor-pointer border border-white hover:scale-110 transition flex items-center space-x-1">
+              <button onClick={() => setActiveHotspot('Kristal Avize & Yüksek Tavan: 8 Metre Tavan Yüksekliği ve İthal Avizeler')} className="bg-[#c5a059] text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-2xl animate-pulse cursor-pointer border border-white hover:scale-110 transition flex items-center space-x-1">
                 <span>✨</span><span>Kristal Avizeler</span>
               </button>
             </div>
 
             <div className="absolute top-1/2 right-1/3">
-              <button onClick={() => setActiveHotspot('Sahne & Canlı Müzik Platformu: 4K Dev LED Ekran ve Robot Işık Sistemleri')} className="bg-amber-500 text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-2xl animate-pulse cursor-pointer border border-white hover:scale-110 transition flex items-center space-x-1">
+              <button onClick={() => setActiveHotspot('Sahne & Canlı Müzik Platformu: 4K Dev LED Ekran ve Robot Işık Sistemleri')} className="bg-[#c5a059] text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-2xl animate-pulse cursor-pointer border border-white hover:scale-110 transition flex items-center space-x-1">
                 <span>🎬</span><span>Gelin Yolu & Sahne</span>
               </button>
             </div>
 
             <div className="absolute bottom-1/3 left-1/2">
-              <button onClick={() => setActiveHotspot('Göl Terası: Sapanca Gölüne Sıfır Panoramik Gün Batımı Manzarası')} className="bg-amber-500 text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-2xl animate-pulse cursor-pointer border border-white hover:scale-110 transition flex items-center space-x-1">
+              <button onClick={() => setActiveHotspot('Göl Terası: Sapanca Gölüne Sıfır Panoramik Gün Batımı Manzarası')} className="bg-[#c5a059] text-slate-950 font-black text-xs px-3 py-1.5 rounded-full shadow-2xl animate-pulse cursor-pointer border border-white hover:scale-110 transition flex items-center space-x-1">
                 <span>🌊</span><span>Göl Manzarası</span>
               </button>
             </div>
 
-            {/* HOTSPOT DETAILS POPUP */}
             {activeHotspot && (
-              <div className="absolute bottom-20 left-6 right-6 max-w-md mx-auto bg-black/95 backdrop-blur-xl border border-amber-500/40 p-4 rounded-2xl text-xs space-y-2 text-white shadow-2xl animate-fade-in">
+              <div className="absolute bottom-20 left-6 right-6 max-w-md mx-auto bg-slate-950/95 backdrop-blur-xl border border-[#c5a059]/40 p-4 rounded-2xl text-xs space-y-2 text-white shadow-2xl animate-fade-in">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                  <span className="font-bold text-amber-400">✨ Mimari Detay</span>
+                  <span className="font-bold text-[#e2c07d]">✨ Mimari Detay</span>
                   <button onClick={() => setActiveHotspot(null)} className="text-slate-400 hover:text-white text-sm">✕</button>
                 </div>
                 <p className="text-slate-200">{activeHotspot}</p>
               </div>
             )}
-
-            {/* BOTTOM ACTION BAR */}
-            <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-center justify-between gap-4">
-              <div className="text-xs text-slate-300 bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-900">
-                💡 <span className="font-bold text-white">İpucu:</span> İşaretçilere tıklayarak salonun teknik detaylarını inceleyebilirsiniz.
-              </div>
-              <a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateTo('/iletisim'); }} className="gold-button font-bold text-xs px-6 py-3 rounded-xl shadow-2xl">
-                👑 Bu Salon İçin Teklif Alın →
-              </a>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function OrganizationsPage({ navigateTo }) {
-      const packages = [
-        { title: '👑 Kraliyet VIP Düğün Paketi', desc: 'A\'dan Z\'ye tüm detayların düşünüldüğü 750 kişilik VIP Balo ve yemekli menü organizasyonu.' },
-        { title: '🌸 Kır Bahçesi Açık Hava Düğünü', desc: 'Sapanca Gölünün kıyısında gün batımı eşliğinde 1000 kişilik muhteşem kır bahçesi konsepti.' },
-        { title: '💃 Lüks Kına Gecesi Paketi', desc: 'Taht, nedime ekibi, hint kınacısı, davul şov ve özel konsept süslemeler dahil kına paketi.' },
-        { title: '💍 VIP Nişan & Söz Organizasyonu', desc: 'Şık nişan tagı, ikram tepsileri ve 250 kişilik boutique salon konsepti.' }
-      ];
-
-      return (
-        <div className="max-w-7xl mx-auto px-4 py-16 text-white space-y-12">
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">🎉 Hizmetlerimiz</span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">Organizasyon Paketlerimiz</h2>
-            <p className="text-xs sm:text-sm text-slate-300">Hayalinizdeki tüm organizasyon türleri için anahtar teslim VIP çözümler.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {packages.map((p, idx) => (
-              <div key={idx} className="bg-black/90 border border-amber-500/30 rounded-3xl p-8 space-y-4 shadow-xl">
-                <h3 className="text-xl font-bold text-amber-400">{p.title}</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">{p.desc}</p>
-                <a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateTo('/iletisim'); }} className="gold-button px-5 py-2.5 rounded-xl font-bold text-xs inline-block">Paket Detayı & Teklif Al</a>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    function VideosPage({ navigateTo }) {
-      return (
-        <div className="max-w-7xl mx-auto px-4 py-16 text-white space-y-12">
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">🎬 Medya Galerisi</span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">4K Drone & Düğün Videoları</h2>
-            <p className="text-xs sm:text-sm text-slate-300">Tesisimizde gerçekleşen gerçek düğün kliplerini ve drone çekimlerini izleyin.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-black/90 border border-amber-500/30 rounded-3xl p-4 shadow-2xl space-y-3">
-              <div className="w-full h-64 bg-[#050608] rounded-2xl flex items-center justify-center border border-amber-500/20 text-slate-500 font-mono">🎬 4K Drone Tanıtım Klibi</div>
-              <h3 className="font-bold text-sm text-white">Sapanca Göl Kenarı Düğün Klibi</h3>
-            </div>
-            <div className="bg-black/90 border border-amber-500/30 rounded-3xl p-4 shadow-2xl space-y-3">
-              <div className="w-full h-64 bg-[#050608] rounded-2xl flex items-center justify-center border border-amber-500/20 text-slate-500 font-mono">🎬 Saray Balo Salonu Işık Şovu</div>
-              <h3 className="font-bold text-sm text-white">Kristal Balo Salonu Organizasyon Klibi</h3>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function BlogPage({ navigateTo }) {
-      const articles = [
-        { title: 'Düğün Tarihi Seçerken Dikkat Edilmesi Gereken 5 Şey', date: '01 Ağustos 2026', desc: 'Mevsim şartları, davetli katılım oranları ve Sapanca göl manzarasına en uygun tarihler.' },
-        { title: 'Gelinlik & Damatlık Seçim Rehberi (2026 Trendleri)', date: '25 Temmuz 2026', desc: 'Balo salonu konseptine ve kır bahçesine uyumlu en şık tasarımlar.' },
-        { title: 'Düğün Müzik Listesi ve İlk Dans İpuçları', date: '12 Temmuz 2026', desc: 'Unutulmaz bir giriş ve ilk dans şarkısı seçimi için profesyonel öneriler.' }
-      ];
-
-      return (
-        <div className="max-w-7xl mx-auto px-4 py-16 text-white space-y-12">
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">📝 Rehber</span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">Düğün Rehberi & İpuçları</h2>
-            <p className="text-xs sm:text-sm text-slate-300">Evlilik hazırlığındaki çiftlerimiz için hazırladığımız SEO odaklı rehber makaleler.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {articles.map((art, idx) => (
-              <div key={idx} className="bg-black/90 border border-amber-500/30 rounded-3xl p-6 space-y-3 shadow-xl">
-                <span className="text-[11px] text-amber-400 font-mono font-bold">{art.date}</span>
-                <h3 className="font-bold text-base text-white">{art.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{art.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    function AboutUsPage({ navigateTo }) {
-      return (
-        <div className="max-w-5xl mx-auto px-4 py-16 text-white space-y-8 text-center">
-          <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">ℹ️ Kurumsal</span>
-          <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">Hakkımızda & Kalite Belgelerimiz</h2>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl mx-auto">
-            2012 yılından bu yana Sapanca Gölünün eşsiz manzarasında binlerce çiftimizin mutluluğuna ev sahipliği yapıyoruz. ISO 9001 Kalite Yönetim Standardı ve Gıda Güvenliği Sertifikalarımız ile kusursuz organizasyon garantisi sunuyoruz.
-          </p>
-        </div>
-      );
-    }
-
-    function ContactPage({ navigateTo }) {
-      const [formData, setFormData] = useState({ name: '', phone: '', date: '', guests: '300', note: '' });
-      const [sent, setSent] = useState(false);
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        setSent(true);
-      };
-
-      return (
-        <div className="max-w-7xl mx-auto px-4 py-16 text-white space-y-12">
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/30">📞 Bize Ulaşın</span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black gold-gradient-text">İletişim & Ücretsiz Fiyat Teklifi</h2>
-            <p className="text-xs sm:text-sm text-slate-300">Hayalinizdeki organizasyon için form doldurun, uzman ekibimiz 15 dakika içinde sizi arasın.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <form onSubmit={handleSubmit} className="bg-black/90 border border-amber-500/30 rounded-3xl p-8 space-y-5 shadow-2xl">
-              {sent ? (
-                <div className="bg-emerald-500/20 border border-emerald-500/50 p-6 rounded-2xl text-center space-y-3 text-emerald-300">
-                  <div className="text-3xl">✅</div>
-                  <h3 className="font-bold text-base">Teklif Talebiniz Başarıyla Alındı!</h3>
-                  <p className="text-xs text-slate-300">Müşteri temsilcimiz yazdığınız telefon numarasından sizinle iletişime geçecektir.</p>
-                </div>
-              ) : (
                 <>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-300 block">Adınız Soyadınız:</label>
