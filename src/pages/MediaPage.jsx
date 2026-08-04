@@ -215,15 +215,38 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.files)) {
+            const diskFiles = data.files.filter(f => f && f.url && f.url.startsWith('/uploads/'));
             setReservations(prev => {
-              return prev.map(r => {
-                const isMatch = r.mediaKey === targetKey || r.id === targetKey || (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey));
-                if (isMatch) {
-                  const diskFiles = data.files.filter(f => f && f.url && f.url.startsWith('/uploads/'));
-                  return { ...r, mediaFiles: diskFiles };
-                }
-                return r;
+              const cleanTarget = targetKey.replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+              const hasMatch = prev.some(r => {
+                const k1 = (r.mediaKey || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+                const k2 = (r.id || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+                return k1 === cleanTarget || k2 === cleanTarget || r.mediaKey === targetKey || r.id === targetKey;
               });
+
+              if (hasMatch) {
+                return prev.map(r => {
+                  const k1 = (r.mediaKey || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+                  const k2 = (r.id || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+                  const isMatch = k1 === cleanTarget || k2 === cleanTarget || r.mediaKey === targetKey || r.id === targetKey;
+                  if (isMatch) {
+                    return { ...r, mediaKey: r.mediaKey || targetKey, mediaFiles: diskFiles };
+                  }
+                  return r;
+                });
+              } else {
+                // Dynamic fallback reservation entry if target key not in memory array yet
+                const newRes = {
+                  id: targetKey,
+                  mediaKey: targetKey,
+                  customerName: 'Canlı Etkinlik Albümü',
+                  eventType: 'Balo / Düğün Daveti',
+                  date: new Date().toISOString().split('T')[0],
+                  venueId: 'v1',
+                  mediaFiles: diskFiles
+                };
+                return [newRes, ...prev];
+              }
             });
           }
         }
