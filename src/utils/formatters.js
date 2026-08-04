@@ -220,18 +220,32 @@ export const parseHashRoute = () => {
   let targetTab = 'public-home';
   let slug = routePart || '';
 
-  // 1. PUBLIC ROUTES (Default for root / or explicit public paths)
+  // 1. PUBLIC ROUTES (STRICTLY PUBLIC TABS ONLY FOR ROOT /)
   if (pathname === '/' || pathname === '' || pathname === '/index.html') {
-    if (routePart.startsWith('yonetim')) {
-      const sub = routePart.replace(/^yonetim\/?/, '');
-      targetTab = SLUG_TO_TAB[sub] || 'dashboard';
-      slug = sub || 'dashboard';
-    } else if (routePart === 'giris' || routePart === 'login') {
-      targetTab = 'login';
-      slug = 'giris';
-    } else if (routePart && SLUG_TO_TAB[routePart]) {
-      targetTab = SLUG_TO_TAB[routePart];
-      slug = routePart;
+    if (routePart === 'salonlar' || routePart === 'salonlarimiz') {
+      targetTab = 'public-halls';
+      slug = 'salonlar';
+    } else if (routePart === '360-tur' || routePart === 'sanal-tur') {
+      targetTab = 'public-virtual-tour';
+      slug = '360-tur';
+    } else if (routePart === 'organizasyonlar') {
+      targetTab = 'public-organizations';
+      slug = 'organizasyonlar';
+    } else if (routePart === 'videolar') {
+      targetTab = 'public-videos';
+      slug = 'videolar';
+    } else if (routePart === 'blog') {
+      targetTab = 'public-blog';
+      slug = 'blog';
+    } else if (routePart === 'hakkimizda') {
+      targetTab = 'public-about';
+      slug = 'hakkimizda';
+    } else if (routePart === 'iletisim') {
+      targetTab = 'public-contact';
+      slug = 'iletisim';
+    } else if (routePart === 'musteri-giris') {
+      targetTab = 'public-customer-login';
+      slug = 'musteri-giris';
     } else {
       targetTab = 'public-home';
       slug = '';
