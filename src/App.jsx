@@ -368,18 +368,44 @@ export default function App() {
     showAlert('✏️ Personel Güncellendi', `${uObj.name} güncellendi.`);
   };
 
-  // STANDALONE PUBLIC FRONT-END ROUTE GUARD
-  const isPublicRoute = activeTab.startsWith('public-') || 
-                        activeTab === 'home-gateway' || 
-                        (typeof window !== 'undefined' && 
-                         (window.location.pathname === '/' || window.location.pathname === '') && 
-                         !window.location.hash.includes('yonetim') && 
-                         !window.location.hash.includes('giris'));
+  // 1. MANAGEMENT ROUTE DETECTION (REQUIRES AUTHENTICATION)
+  const pathname = typeof window !== 'undefined' ? (window.location.pathname || '/').toLowerCase() : '/';
+  const hash = typeof window !== 'undefined' ? (window.location.hash || '').toLowerCase() : '';
 
-  if (isPublicRoute) {
-    const currentPublicTab = activeTab.startsWith('public-') ? activeTab : 'public-home';
+  const isManagementRoute = 
+    pathname.startsWith('/yonetim') || 
+    pathname === '/giris' || 
+    pathname === '/login' ||
+    hash.startsWith('#/yonetim') ||
+    hash.startsWith('#/giris') ||
+    hash.startsWith('#/dashboard') ||
+    hash.startsWith('#/rezervasyonlar') ||
+    hash.startsWith('#/takvim') ||
+    hash.startsWith('#/finans') ||
+    hash.startsWith('#/musteri-rehberi') ||
+    hash.startsWith('#/kullanici-yonetimi') ||
+    hash.startsWith('#/roller') ||
+    hash.startsWith('#/raporlar-ai') ||
+    hash.startsWith('#/ayarlar');
+
+  // 2. MAIN PUBLIC DOMAIN GUARD (ALWAYS OPENS PUBLIC SITE WITHOUT LOGIN PROMPT)
+  if (!isManagementRoute) {
+    let currentPublicTab = activeTab;
+    if (!currentPublicTab || !currentPublicTab.startsWith('public-')) {
+      if (pathname === '/salonlar' || pathname === '/salonlarimiz') currentPublicTab = 'public-halls';
+      else if (pathname === '/360-tur' || pathname === '/sanal-tur') currentPublicTab = 'public-virtual-tour';
+      else if (pathname === '/organizasyonlar') currentPublicTab = 'public-organizations';
+      else if (pathname === '/videolar') currentPublicTab = 'public-videos';
+      else if (pathname === '/blog') currentPublicTab = 'public-blog';
+      else if (pathname === '/hakkimizda') currentPublicTab = 'public-about';
+      else if (pathname === '/iletisim') currentPublicTab = 'public-contact';
+      else if (pathname === '/musteri-giris') currentPublicTab = 'public-customer-login';
+      else if (pathname === '/musteri-kayit') currentPublicTab = 'public-customer-register';
+      else currentPublicTab = 'public-home';
+    }
+
     return (
-      <PublicLayout currentRoute={typeof window !== 'undefined' ? window.location.pathname : '/'} navigateTo={navigateTo}>
+      <PublicLayout currentRoute={pathname} navigateTo={navigateTo}>
         {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} />}
         {currentPublicTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
         {currentPublicTab === 'public-virtual-tour' && <VirtualTourPage navigateTo={navigateTo} />}
