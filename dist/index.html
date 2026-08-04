@@ -10772,6 +10772,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return <HomePage navigateTo={navigateTo} />;
     }
 
+    function OrganizationsPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
+    function VideosPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
+    function BlogPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
+    function AboutUsPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
+    function ContactPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
+
     function VirtualTourPage({ navigateTo }) {
       const [activeVenueId, setActiveVenueId] = useState(INITIAL_VENUES[0]?.id || 'v1');
       const [activeHotspot, setActiveHotspot] = useState(null);
