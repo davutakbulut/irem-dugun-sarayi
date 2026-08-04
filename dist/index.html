@@ -12304,6 +12304,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [referrerName, setReferrerName] = useState('');
       const [campaignCode, setCampaignCode] = useState('');
       const [hasDeposit, setHasDeposit] = useState(false); // Default: Hayır
+      const [depositPaid, setDepositPaid] = useState(0); // Default: 0 TL
       const [customDiscountAmount, setCustomDiscountAmount] = useState(0); // Default: 0 TL
       const [dipDiscountType, setDipDiscountType] = useState('amount'); // 'amount' (TL) or 'percent' (%)
       const [paymentStatus, setPaymentStatus] = useState('Bekliyor'); // Default: Bekliyor
