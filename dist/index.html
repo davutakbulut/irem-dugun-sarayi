@@ -18805,6 +18805,404 @@ const E2E_WORKFLOWS = [
           )}
         </div>
       );
+    // --- DAY DETAIL MODAL COMPONENT ---
+    function DayDetailModalComponent({ dayData, venues = [], onResClick, onCreateNewForDay, onClose, navigateTo }) {
+      if (!dayData) return null;
+      const { dateStr, dayNumber, reservations = [], drafts = [] } = dayData;
+
+      const dateObj = new Date(dateStr);
+      const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            {/* MODAL HEADER */}
+            <div className="flex justify-between items-start border-b border-slate-200 dark:border-brand-border pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-700 dark:text-gold-400 text-lg">
+                  {dayNumber}
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100">
+                    {formattedDate} Detayı
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400">
+                    Bu güne ait tüm rezervasyonlar, salon doluluk durumları ve yarım kalmış taslaklar
+                  </p>
+                </div>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg cursor-pointer">✕</button>
+            </div>
+
+            {/* DRAFT RESERVATIONS SECTION IF ANY */}
+            {drafts.length > 0 && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-dashed border-amber-500/50 space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-amber-700 dark:text-gold-400 flex items-center space-x-1.5">
+                    <span>⏳</span>
+                    <span>Yarım Kalmış Taslak Rezervasyonlar ({drafts.length})</span>
+                  </h4>
+                  <span className="text-[10px] font-bold text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded">
+                    Tamamlanmayı Bekliyor
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {drafts.map(d => (
+                    <div key={d.refKey} className="bg-white dark:bg-brand-dark p-3 rounded-xl border border-amber-500/30 flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                          <span>{d.customerName || 'İsimsiz Taslak Müşteri'}</span>
+                          <span className="text-[10px] text-slate-500 font-normal">({d.timeSlot || 'Seans Belirtilmedi'})</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-gray-400">
+                          Salon: <strong>{venues.find(v => v.id === d.venueId)?.name || 'Salon 1'}</strong> • Son Kayıt: {d.lastSaved || 'Bugün'}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          onClose();
+                          if (navigateTo) navigateTo('create-reservation', { ref: d.refKey });
+                        }}
+                        className="px-3 py-1.5 bg-amber-500 text-white rounded-xl text-xs font-bold shadow hover:bg-amber-600 transition flex items-center space-x-1 cursor-pointer"
+                      >
+                        <span>✍️</span>
+                        <span>Taslağı Tamamla</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* VENUES AVAILABILITY & CONFLICT MATRIX */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-gray-300">
+                  🏛️ Salon Doluluk & Seans Çakışma Analizi
+                </h4>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-gray-400 font-mono bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg">
+                  Toplam {reservations.length} Onaylı Rezervasyon
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {venues.map(venue => {
+                  const venueRes = reservations.filter(r => r.venueId === venue.id);
+                  const isOccupied = venueRes.length > 0;
+
+                  return (
+                    <div
+                      key={venue.id}
+                      className={`p-4 rounded-2xl border transition ${
+                        isOccupied
+                          ? 'bg-amber-500/10 border-amber-500/40 text-slate-800 dark:text-gray-100'
+                          : 'bg-emerald-500/5 border-emerald-500/30 text-slate-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-sm">{venue.name}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            isOccupied
+                              ? 'bg-amber-500/20 text-amber-800 dark:text-gold-400 border border-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+                          }`}>
+                            {isOccupied ? `⚠️ ${venueRes.length} Organizasyon Yapılacak` : '✅ TAMAMEN MÜSAİT'}
+                          </span>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-amber-700 dark:text-gold-400">
+                          {typeof formatCurrency === 'function' ? formatCurrency(venue.price) : `₺${venue.price}`}
+                        </span>
+                      </div>
+
+                      {/* RESERVATIONS IN THIS VENUE */}
+                      {isOccupied ? (
+                        <div className="mt-3 space-y-2 pt-2 border-t border-amber-500/20">
+                          {venueRes.map(r => (
+                            <div
+                              key={r.id}
+                              onClick={() => { onClose(); if (onResClick) onResClick(r); }}
+                              className="bg-white dark:bg-brand-card p-3 rounded-xl border border-amber-500/30 flex justify-between items-center hover:scale-[1.01] transition cursor-pointer shadow-sm"
+                            >
+                              <div className="space-y-0.5">
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-mono text-[10px] font-bold text-amber-700 dark:text-gold-400">{r.id}</span>
+                                  <span className="font-bold text-xs text-slate-800 dark:text-gray-100">{r.customerName}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-500 dark:text-gray-400 flex items-center space-x-2">
+                                  <span>⏰ Seans: <strong className="text-amber-800 dark:text-gold-300">{r.timeSlot}</strong></span>
+                                  <span>• 👥 {r.guestCount} Davetli</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                  {r.paymentStatus}
+                                </span>
+                                <span className="text-xs text-amber-700 dark:text-gold-400">Detay 🔍</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1.5">
+                          💡 Bu salon için {formattedDate} tarihinde henüz hiç rezervasyon yapılmamıştır. Gündüz veya Gece seansı hemen rezerve edilebilir!
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="pt-3 border-t border-slate-200 dark:border-brand-border flex justify-between items-center">
+              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold cursor-pointer">
+                Kapat
+              </button>
+              <button
+                onClick={() => { onClose(); if (onCreateNewForDay) onCreateNewForDay(dateStr); }}
+                className="gold-button font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg flex items-center space-x-2 cursor-pointer"
+              >
+                <span>➕</span>
+                <span>{formattedDate} İçin Yeni Rezervasyon Oluştur</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- CALENDAR COMPONENT ---
+    function CalendarComponent({ reservations = [], draftReservations = [], venues = [], onResClick, onReschedule, onCreateNewForDate, navigateTo }) {
+      const [draggedResId, setDraggedResId] = useState(null);
+      const [selectedDayData, setSelectedDayData] = useState(null);
+      const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1)); // August 2026 default
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+
+      const monthName = currentDate.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+
+      const handlePrevMonth = () => {
+        setCurrentDate(new Date(year, month - 1, 1));
+      };
+
+      const handleNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+      };
+
+      const handleToday = () => {
+        setCurrentDate(new Date());
+      };
+
+      return (
+        <div className="space-y-6">
+          {/* DAY DETAIL INSPECTOR MODAL */}
+          {selectedDayData && (
+            <DayDetailModalComponent
+              dayData={selectedDayData}
+              venues={venues}
+              onResClick={onResClick}
+              navigateTo={navigateTo}
+              onCreateNewForDay={(dateStr) => {
+                if (onCreateNewForDate) onCreateNewForDate(dateStr);
+              }}
+              onClose={() => setSelectedDayData(null)}
+            />
+          )}
+
+          <div className="flex justify-between items-center flex-wrap gap-3">
+            <div>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İnteraktif Takvim & Saat Çakışma Denetleyicisi</h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Günün üzerine tıklayarak tüm salon doluluklarını inceleyin veya sürükleyip bırakın</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handlePrevMonth}
+                className="px-3 py-1.5 bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border rounded-xl font-bold text-xs text-slate-700 dark:text-gray-200 transition border border-slate-200 dark:border-brand-border cursor-pointer"
+              >
+                ← Önceki Ay
+              </button>
+              <button
+                onClick={handleToday}
+                className="px-3 py-1.5 gold-button font-bold text-xs rounded-xl shadow transition cursor-pointer"
+              >
+                Bugün
+              </button>
+              <button
+                onClick={handleNextMonth}
+                className="px-3 py-1.5 bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border rounded-xl font-bold text-xs text-slate-700 dark:text-gray-200 transition border border-slate-200 dark:border-brand-border cursor-pointer"
+              >
+                Sonraki Ay →
+              </button>
+            </div>
+          </div>
+
+          <div className="glass-panel p-6 rounded-3xl space-y-4 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-brand-border pb-3">
+              <h3 className="font-bold text-lg text-amber-700 dark:text-gold-400 capitalize">📅 {monthName}</h3>
+              <div className="flex items-center space-x-3 text-xs">
+                <span className="text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+                  👑 Onaylı Rezervasyonlar
+                </span>
+                <span className="text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-dashed border-amber-500/40">
+                  ⏳ Yarım Kalmış Taslaklar
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2 text-center text-xs">
+              {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
+                <div key={d} className="font-bold text-slate-500 dark:text-gray-400 p-2 bg-slate-100 dark:bg-brand-card rounded-lg">{d}</div>
+              ))}
+
+              {/* Offset Blank Cells */}
+              {Array.from({ length: firstDayIndex }).map((_, i) => (
+                <div key={`blank-${i}`} className="min-h-[90px] p-2 rounded-xl bg-slate-50/50 dark:bg-brand-dark/20 opacity-30 border border-transparent"></div>
+              ))}
+
+              {/* Dynamic Days in Month */}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayRes = reservations.filter(r => r.date === dateStr || r.eventDate === dateStr || r.startDate === dateStr);
+                const dayDrafts = (draftReservations || []).filter(d => (d.startDate === dateStr || d.eventDate === dateStr || d.date === dateStr) && d.customerName);
+                const totalCount = dayRes.length + dayDrafts.length;
+
+                return (
+                  <div
+                    key={day}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => {
+                      e.preventDefault();
+                      if (draggedResId && onReschedule) {
+                        onReschedule(draggedResId, dateStr);
+                        setDraggedResId(null);
+                      }
+                    }}
+                    onClick={() => setSelectedDayData({ dateStr, dayNumber: day, reservations: dayRes, drafts: dayDrafts })}
+                    className={`min-h-[95px] p-2 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer hover:shadow-md ${
+                      totalCount > 0 ? 'bg-amber-50/80 dark:bg-brand-card border-amber-500/40 hover:border-amber-500' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-emerald-500'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-bold text-xs text-slate-700 dark:text-gray-300">{day}</span>
+                      {totalCount > 0 && (
+                        <div className="flex items-center space-x-1">
+                          {dayRes.length > 0 && (
+                            <span className="text-[9px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                              {dayRes.length} Etkinlik
+                            </span>
+                          )}
+                          {dayDrafts.length > 0 && (
+                            <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-dashed border-amber-500/40">
+                              ⏳ {dayDrafts.length} Taslak
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      {dayRes.map(r => (
+                        <div
+                          key={r.id}
+                          draggable={true}
+                          onDragStart={() => setDraggedResId(r.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onResClick) onResClick(r);
+                          }}
+                          className="bg-amber-500/20 text-amber-900 dark:text-gold-300 p-1 rounded text-[9px] font-bold truncate border border-amber-500/40 cursor-grab active:cursor-grabbing hover:bg-amber-500 hover:text-white transition"
+                        >
+                          ⋮⋮ {(r.customerName || 'Etkinlik').split(' ')[0]} ({r.timeSlot ? r.timeSlot.split('-')[0] : ''})
+                        </div>
+                      ))}
+                      {dayDrafts.map(d => (
+                        <div
+                          key={d.refKey}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (navigateTo) navigateTo('create-reservation', { ref: d.refKey });
+                          }}
+                          title="Taslağı tamamlamak için tıklayın"
+                          className="bg-amber-500/10 text-amber-700 dark:text-gold-400 p-1 rounded text-[9px] font-bold truncate border border-dashed border-amber-500/50 hover:bg-amber-500 hover:text-white transition cursor-pointer flex items-center space-x-1"
+                        >
+                          <span>⏳</span>
+                          <span className="truncate">{(d.customerName || 'Taslak').split(' ')[0]} (Taslak)</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- MIND MAP PAGE COMPONENT ---
+    function MindMapPageComponent({ navigateTo }) {
+      const [selectedNode, setSelectedNode] = useState(() => (typeof MIND_MAP_DATA !== 'undefined' ? MIND_MAP_DATA[0] : null));
+      const [searchQuery, setSearchQuery] = useState('');
+      const [activeCategoryFilter, setActiveCategoryFilter] = useState('ALL');
+
+      const dataList = typeof MIND_MAP_DATA !== 'undefined' ? MIND_MAP_DATA : [];
+
+      const filteredNodes = dataList.filter(node => {
+        const matchesSearch = node.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              node.summary.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCat = activeCategoryFilter === 'ALL' || node.category === activeCategoryFilter;
+        return matchesSearch && matchesCat;
+      });
+
+      return (
+        <div className="space-y-6 relative animate-fade-in pb-12">
+          <div className="bg-white dark:bg-brand-card p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-gold-400 flex items-center justify-center text-2xl font-bold">
+                  🧠
+                </div>
+                <div>
+                  <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">
+                    İnteraktif Sistem Zihin Haritası & Veri Akış Topolojisi
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+                    Modül Bağlantıları, State Bağımlılıkları, Uçtan Uca Kullanıcı Akışları & Mimari Kılavuz
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+              {filteredNodes.map(node => (
+                <div
+                  key={node.id}
+                  onClick={() => setSelectedNode(node)}
+                  className="p-5 rounded-2xl border-2 border-slate-200 dark:border-brand-border bg-white dark:bg-brand-card hover:border-amber-500 transition cursor-pointer space-y-3 shadow-sm"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                      <span>{node.fallbackEmoji || '📌'}</span>
+                      <span>{node.title}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-gold-400">
+                      {node.category}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-2">
+                    {node.summary}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
     }
 
     // --- DEDICATED ROLES PAGE COMPONENT ---
