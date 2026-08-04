@@ -11751,15 +11751,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                 {/* RIGHT: QUICK ACTION & CLICKABLE PROFILE AVATAR */}
                 <div className="flex items-center space-x-3">
-                  {activeTab !== 'create-reservation' && (
-                    <button
-                      onClick={() => navigateTo('create-reservation')}
-                      className="gold-button font-bold text-xs px-3.5 py-2 rounded-xl shadow flex items-center space-x-1.5 hover:scale-105 transition cursor-pointer"
-                    >
-                      <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
-                      <span className="hidden sm:inline">Yeni Rezervasyon</span>
-                    </button>
-                  )}
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs px-3.5 py-2 rounded-xl border border-amber-500/40 shadow-sm flex items-center space-x-1.5 hover:scale-105 transition cursor-pointer"
+                    title="Ön Yüz Web Sitesini Yeni Sekmede Aç"
+                  >
+                    <span className="text-sm">🌐</span>
+                    <span className="hidden sm:inline">Siteyi Gör</span>
+                  </a>
 
                   {/* PROFILE AVATAR DROPDOWN */}
                   <div className="relative shrink-0">
