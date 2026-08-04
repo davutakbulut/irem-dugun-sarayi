@@ -10141,6 +10141,38 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     // --- STANDALONE PUBLIC WEBSITE INLINE COMPONENTS FOR INDEX.HTML (MODERN DESIGN MASTERY) ---
+    class PublicErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error("PublicErrorBoundary caught an error:", error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center space-y-6">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-3xl font-extrabold border border-amber-500/40">🏰</div>
+              <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">İrem Düğün Sarayı & Balo Tesisleri</h2>
+              <p className="text-xs text-slate-300 max-w-md">Sitemizde kesintisiz hizmet için canlı veri senkronizasyonu yapılmaktadır. Lütfen sayfayı yenileyiniz veya doğrudan WhatsApp Danışma Hattımızla iletişime geçiniz.</p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <button onClick={() => window.location.reload()} className="gold-button font-bold text-xs px-6 py-3 rounded-xl cursor-pointer">Sayfayı Yenile</button>
+                <a href="https://wa.me/905320000000" target="_blank" rel="noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition">💬 WhatsApp Danışma Hattı</a>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
     function PublicNavbar({ currentRoute = '/', navigateTo }) {
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
       const [isScrolled, setIsScrolled] = useState(false);
