@@ -1198,9 +1198,9 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       {showCaptchaModal && typeof document !== 'undefined' && createPortal(
         <div 
           className="fixed inset-0 w-screen h-screen z-[999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in pointer-events-auto"
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 999999 }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
         >
-          <div className="bg-white dark:bg-brand-card p-6 rounded-3xl max-w-sm w-full space-y-4 border-2 border-amber-500 text-center shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-brand-card p-6 rounded-3xl max-w-sm w-full space-y-4 border-2 border-amber-500 text-center shadow-2xl max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }}>
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto font-bold text-xl">
               🤖
             </div>
@@ -1231,10 +1231,10 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       {/* A4 QR MASAKARTI PDF MODAL */}
       {showPdfModal && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 w-screen h-screen z-[999999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in overflow-y-auto pointer-events-auto"
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 999999 }}
+          className="fixed inset-0 w-screen h-screen z-[999999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in pointer-events-auto"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
         >
-          <div className="bg-white text-slate-900 w-full max-w-xl rounded-3xl shadow-2xl p-6 space-y-6 relative border-4 border-amber-500/40 my-auto max-h-[90vh] overflow-y-auto">
+          <div className="bg-white text-slate-900 w-full max-w-xl rounded-3xl shadow-2xl p-6 space-y-6 relative border-4 border-amber-500/40 max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }}>
             <button
               type="button"
               onClick={() => setShowPdfModal(false)}
@@ -1290,10 +1290,10 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       {deleteTarget && typeof document !== 'undefined' && createPortal(
         <div 
           className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in pointer-events-auto" 
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 999999 }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
           onClick={() => setDeleteTarget(null)}
         >
-          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/40 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/40 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 text-3xl shadow-inner">
               🗑️
             </div>
@@ -1331,10 +1331,10 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       {showBulkDeleteModal && typeof document !== 'undefined' && createPortal(
         <div 
           className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in pointer-events-auto" 
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 999999 }}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
           onClick={() => setShowBulkDeleteModal(false)}
         >
-          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/50 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/50 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-500 text-3xl shadow-inner animate-bounce">
               ⚠️
             </div>
