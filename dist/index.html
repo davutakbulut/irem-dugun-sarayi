@@ -11034,7 +11034,34 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         setTimeout(() => printWin.print(), 500);
       };
 
-      if (activeTab === 'login' || (!sessionUser && !isPublicGuestRoute && !isErrorPage)) {
+      // STANDALONE PUBLIC FRONT-END ROUTE GUARD
+      const isPublicRoute = activeTab.startsWith('public-') || 
+                            activeTab === 'home-gateway' || 
+                            isPublicGuestRoute ||
+                            (typeof window !== 'undefined' && 
+                             (window.location.pathname === '/' || window.location.pathname === '') && 
+                             !window.location.hash.includes('yonetim') && 
+                             !window.location.hash.includes('giris'));
+
+      if (isPublicRoute && !activeTab.startsWith('dashboard') && activeTab !== 'login') {
+        const currentPublicTab = activeTab.startsWith('public-') ? activeTab : 'public-home';
+        return (
+          <PublicLayout currentRoute={typeof window !== 'undefined' ? window.location.pathname : '/'} navigateTo={navigateTo}>
+            {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-virtual-tour' && <VirtualTourPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-videos' && <VideosPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-blog' && <BlogPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-about' && <AboutUsPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-contact' && <ContactPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-customer-login' && <CustomerLoginPage navigateTo={navigateTo} />}
+            {currentPublicTab === 'public-customer-register' && <CustomerRegisterPage navigateTo={navigateTo} />}
+          </PublicLayout>
+        );
+      }
+
+      if (activeTab === 'login' || (!sessionUser && !isPublicRoute && !isErrorPage)) {
         return (
           <LoginComponent
             onLoginSuccess={(userObj) => {

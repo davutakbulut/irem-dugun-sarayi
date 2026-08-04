@@ -369,19 +369,27 @@ export default function App() {
   };
 
   // STANDALONE PUBLIC FRONT-END ROUTE GUARD
-  if (activeTab.startsWith('public-') || activeTab === 'home-gateway') {
+  const isPublicRoute = activeTab.startsWith('public-') || 
+                        activeTab === 'home-gateway' || 
+                        (typeof window !== 'undefined' && 
+                         (window.location.pathname === '/' || window.location.pathname === '') && 
+                         !window.location.hash.includes('yonetim') && 
+                         !window.location.hash.includes('giris'));
+
+  if (isPublicRoute) {
+    const currentPublicTab = activeTab.startsWith('public-') ? activeTab : 'public-home';
     return (
       <PublicLayout currentRoute={typeof window !== 'undefined' ? window.location.pathname : '/'} navigateTo={navigateTo}>
-        {(activeTab === 'public-home' || activeTab === 'home-gateway') && <HomePage navigateTo={navigateTo} />}
-        {activeTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
-        {activeTab === 'public-virtual-tour' && <VirtualTourPage navigateTo={navigateTo} />}
-        {activeTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
-        {activeTab === 'public-videos' && <VideosPage navigateTo={navigateTo} />}
-        {activeTab === 'public-blog' && <BlogPage navigateTo={navigateTo} />}
-        {activeTab === 'public-about' && <AboutUsPage navigateTo={navigateTo} />}
-        {activeTab === 'public-contact' && <ContactPage navigateTo={navigateTo} />}
-        {activeTab === 'public-customer-login' && <CustomerLoginPage navigateTo={navigateTo} />}
-        {activeTab === 'public-customer-register' && <CustomerRegisterPage navigateTo={navigateTo} />}
+        {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-virtual-tour' && <VirtualTourPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-videos' && <VideosPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-blog' && <BlogPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-about' && <AboutUsPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-contact' && <ContactPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-customer-login' && <CustomerLoginPage navigateTo={navigateTo} />}
+        {currentPublicTab === 'public-customer-register' && <CustomerRegisterPage navigateTo={navigateTo} />}
       </PublicLayout>
     );
   }
