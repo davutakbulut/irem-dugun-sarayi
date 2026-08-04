@@ -7868,13 +7868,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    // PUBLIC GUEST MODE: 0 Polling! Admin Mode: Lightweight 10-second sync
-    let pollTimer = null;
-    if (!isPublicGuestMode) {
-      pollTimer = setInterval(syncFromCache, 10000);
-    }
-
-    // Real-Time EventSource (SSE - Server Sent Events) for 0ms Instant Push Notifications
+    // 0 POLLING ARCHITECTURE: Fully event-driven via Real-Time Socket.io & SSE Push Notifications
     let evtSource = null;
     try {
       if (typeof EventSource !== 'undefined') {
@@ -7888,7 +7882,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
-      if (pollTimer) clearInterval(pollTimer);
       if (evtSource) evtSource.close();
     };
   }, [isPublicGuestMode, setReservations]);

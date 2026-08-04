@@ -207,32 +207,12 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    // Adaptive Heartbeat: 15-second background sync (PAUSED completely when tab is hidden)
-    let pollTimer = null;
-    const startHeartbeat = () => {
-      if (!pollTimer) {
-        pollTimer = setInterval(syncFromCache, 15000);
-      }
-    };
-    const stopHeartbeat = () => {
-      if (pollTimer) {
-        clearInterval(pollTimer);
-        pollTimer = null;
-      }
-    };
-
+    // 0 POLLING ARCHITECTURE: Fully event-driven via Socket.io & SSE Push Notifications
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopHeartbeat();
-      } else {
+      if (!document.hidden) {
         syncFromCache();
-        startHeartbeat();
       }
     };
-
-    if (!document.hidden) {
-      startHeartbeat();
-    }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Real-Time EventSource (SSE - Server Sent Events) for 0ms Instant Push Notifications
@@ -271,7 +251,6 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      stopHeartbeat();
       if (bc) bc.close();
       if (evtSource) evtSource.close();
       if (socket) socket.disconnect();
