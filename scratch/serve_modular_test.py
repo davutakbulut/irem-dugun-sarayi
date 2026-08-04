@@ -306,7 +306,10 @@ class ModularTestHandler(http.server.SimpleHTTPRequestHandler):
 
         super().do_POST()
 
+class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+
 if __name__ == '__main__':
-    with socketserver.TCPServer(("", PORT), ModularTestHandler) as httpd:
-        print(f"🚀 MODULAR TEST SERVER RUNNING ON PORT {PORT} (Strictly serving Vite dist/index.html)")
+    with ThreadingTCPServer(("", PORT), ModularTestHandler) as httpd:
+        print(f"🚀 MODULAR TEST SERVER RUNNING ON PORT {PORT} (Multi-threaded SSE Enabled)")
         httpd.serve_forever()

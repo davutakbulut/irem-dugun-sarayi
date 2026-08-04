@@ -230,13 +230,39 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       } catch(e) {}
     };
 
-    // 0 POLLING ARCHITECTURE: Fully event-driven via Socket.io & SSE Push Notifications
+    // Fetch physical files directly from server disk on mount
+    syncFromServer();
+
+    // FAIL-SAFE REAL-TIME SYNC: 3-second active screen sync (PAUSED when tab is hidden)
+    let syncInterval = null;
+    const startSyncTimer = () => {
+      if (!syncInterval) {
+        syncInterval = setInterval(() => {
+          if (!document.hidden) {
+            syncFromServer();
+          }
+        }, 3000);
+      }
+    };
+    const stopSyncTimer = () => {
+      if (syncInterval) {
+        clearInterval(syncInterval);
+        syncInterval = null;
+      }
+    };
+
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         syncFromCache();
         syncFromServer();
+        startSyncTimer();
+      } else {
+        stopSyncTimer();
       }
     };
+    if (!document.hidden) {
+      startSyncTimer();
+    }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Real-Time EventSource (SSE - Server Sent Events) for 0ms Instant Push Notifications
@@ -254,7 +280,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     // Independent Node.js Socket.io Server (Port 8003) Listener
     let socket = null;
     try {
-      const socketUrl = window.location.protocol + '//' + window.location.hostname + ':8003';
+      const socketUrl = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
       socket = ioClient(socketUrl, {
         transports: ['websocket', 'polling'],
         reconnection: true
@@ -278,6 +304,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      stopSyncTimer();
       if (bc) bc.close();
       if (evtSource) evtSource.close();
       if (socket) socket.disconnect();
