@@ -434,6 +434,70 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(f'{{"success":false,"error":"Upload failed: {str(e)}"}}'.encode('utf-8'))
                 return
 
+        # 2.5 API: Media Delete POST (/api/delete-media)
+        if parsed_path.path == '/api/delete-media':
+            try:
+                content_len = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
+
+                raw_res_id = str(data.get('resId', ''))
+                raw_file_name = str(data.get('fileName', ''))
+                media_id = str(data.get('mediaId', ''))
+                media_key = str(data.get('mediaKey', ''))
+
+                safe_res_id = re.sub(r'[^A-Za-z0-9_-]', '', raw_res_id)
+                safe_file_name = os.path.basename(re.sub(r'[^A-Za-z0-9_.-]', '_', raw_file_name))
+
+                deleted_disk = False
+                if safe_res_id and safe_file_name:
+                    uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', safe_res_id)
+                    target_path = os.path.join(uploads_dir, safe_file_name)
+                    if os.path.exists(target_path):
+                        try:
+                            os.remove(target_path)
+                            deleted_disk = True
+                            print(f"🗑️ PHYSICALLY DELETED FILE FROM DISK: {target_path}")
+                        except Exception as ex:
+                            print("Error removing disk file:", ex)
+
+                # Remove from db_system_settings.json
+                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                if os.path.exists(db_file):
+                    try:
+                        with open(db_file, 'r', encoding='utf-8') as f:
+                            db_cfg = json.load(f)
+                        
+                        res_list = db_cfg.get('reservations', [])
+                        updated_res = False
+                        for r in res_list:
+                            if r.get('mediaKey') == media_key or r.get('id') == raw_res_id:
+                                m_files = r.get('mediaFiles', [])
+                                new_files = [m for m in m_files if str(m.get('id')) != media_id and str(m.get('url', '')).split('/')[-1] != safe_file_name]
+                                if len(new_files) != len(m_files):
+                                    r['mediaFiles'] = new_files
+                                    updated_res = True
+                        
+                        if updated_res:
+                            db_cfg['reservations'] = res_list
+                            with open(db_file, 'w', encoding='utf-8') as f:
+                                json.dump(db_cfg, f, indent=2, ensure_ascii=False)
+                    except Exception as e_db:
+                        print("Error updating db JSON on delete:", e_db)
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': True, 'deletedDisk': deleted_disk, 'mediaId': media_id}).encode('utf-8'))
+                return
+            except Exception as e:
+                print("DELETE API Error:", e)
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': False, 'error': str(e)}).encode('utf-8'))
+                return
+
         # 3. API: Large Video Chunked Upload POST (/api/upload-video-chunk for 100MB up to 2.2GB videos)
         if parsed_path.path == '/api/upload-video-chunk':
             try:
