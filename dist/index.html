@@ -18588,6 +18588,32 @@ const E2E_WORKFLOWS = [
       ];
 
       return (
+      const [publicTheme, setPublicTheme] = useState(() => CacheService.get('public_settings', {}).publicTheme || 'dark-gold');
+      const [publicBadge, setPublicBadge] = useState(() => CacheService.get('public_settings', {}).heroBadgeText || '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri');
+      const [publicTitle, setPublicTitle] = useState(() => CacheService.get('public_settings', {}).heroTitle || 'Hayalinizdeki Düğün İrem Düğün Sarayı\'nda Unutulmaz Oluyor');
+      const [publicSubtitle, setPublicSubtitle] = useState(() => CacheService.get('public_settings', {}).heroSubtitle || '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.');
+
+      const handleSavePublicSettings = async () => {
+        const payload = {
+          publicTheme,
+          heroBadgeText: publicBadge,
+          heroTitle: publicTitle,
+          heroSubtitle: publicSubtitle
+        };
+        CacheService.set('public_settings', payload);
+        try {
+          await fetch('/api/public-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (showToast) showToast('🌐 Ön Yüz Web Sitesi Ayarları Başarıyla Yayınlandı!');
+        } catch (e) {
+          if (showToast) showToast('🌐 Ön Yüz Ayarları Yerel Önbelleğe Kaydedildi!');
+        }
+      };
+
+      return (
         <div className="w-full space-y-6 animate-fade-in pb-16">
           {/* PAGE HEADER */}
           <div className="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
@@ -18599,7 +18625,7 @@ const E2E_WORKFLOWS = [
                 </h2>
               </div>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 font-medium">
-                Tema tercihlerini, görünüm mimarisini, önbellek ve hata simülasyonlarını tam ekranda yönetin.
+                Tema tercihlerini, görünüm mimarisini, ön yüz web sitesini ve önbellekleri yönetin.
               </p>
             </div>
 
@@ -18622,7 +18648,17 @@ const E2E_WORKFLOWS = [
               }`}
             >
               <ThemeIcon icon="sparkles" fallbackEmoji="🎨" className="w-4 h-4 shrink-0" />
-              <span>Görünüm & Temalar</span>
+              <span>Görünüm & Temalar (Yönetim Paneli)</span>
+            </button>
+
+            <button
+              onClick={() => setSettingsTab('public-website')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 flex items-center space-x-2 cursor-pointer ${
+                settingsTab === 'public-website' ? 'gold-button shadow-md' : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-500/50'
+              }`}
+            >
+              <ThemeIcon icon="globe" fallbackEmoji="🌐" className="w-4 h-4 shrink-0" />
+              <span>🌐 Ön Yüz Web Sitesi Yönetimi</span>
             </button>
 
             <button
@@ -19035,6 +19071,122 @@ const E2E_WORKFLOWS = [
                       🗑️ Önbelleği Temizle & Sıfırla
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: PUBLIC WEBSITE MANAGEMENT */}
+          {settingsTab === 'public-website' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="glass-panel p-6 rounded-3xl space-y-6 border border-amber-500/30 shadow-md">
+                <div className="border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <span className="text-xl">🌐</span>
+                    <span>Bağımsız Ön Yüz Web Sitesi Görünüm & İçerik Düzenleyici</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                    Bu panelden yapılan değişiklikler <strong>SADECE Ön Yüz Web Sitesine (Ana Domain)</strong> etki eder. Yönetim paneli temasından tamamen bağımsızdır.
+                  </p>
+                </div>
+
+                {/* PUBLIC THEME SELECTION */}
+                <div className="space-y-3">
+                  <label className="font-bold text-xs text-slate-700 dark:text-gray-200 block">
+                    👑 Ön Yüz Web Sitesi Tema Stili:
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setPublicTheme('dark-gold')}
+                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'dark-gold' ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-2 ring-amber-500/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
+                    >
+                      <div className="flex justify-between items-center font-bold text-xs text-amber-400">
+                        <span>👑 Lüks Göl Kenarı Altın</span>
+                        {publicTheme === 'dark-gold' && <span>✓ Aktif</span>}
+                      </div>
+                      <p className="text-[11px] text-slate-400">Koyu arka plan, kristal avize ve şampanya altın detaylar.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPublicTheme('sapphire-dark')}
+                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'sapphire-dark' ? 'border-blue-500 bg-blue-500/10 shadow-lg ring-2 ring-blue-500/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
+                    >
+                      <div className="flex justify-between items-center font-bold text-xs text-blue-400">
+                        <span>🔷 Gece Siyahı & Safir</span>
+                        {publicTheme === 'sapphire-dark' && <span>✓ Aktif</span>}
+                      </div>
+                      <p className="text-[11px] text-slate-400">Derin safir mavisi ışıltı ve lüks gece konsepti.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPublicTheme('rose-romantic')}
+                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'rose-romantic' ? 'border-rose-500 bg-rose-500/10 shadow-lg ring-2 ring-rose-500/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
+                    >
+                      <div className="flex justify-between items-center font-bold text-xs text-rose-400">
+                        <span>🌸 Romantik Gül & Kır Bahçesi</span>
+                        {publicTheme === 'rose-romantic' && <span>✓ Aktif</span>}
+                      </div>
+                      <p className="text-[11px] text-slate-400">Açık hava kır bahçesi, pembe ve gül tonlu düğün atmosferi.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPublicTheme('cream-light')}
+                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'cream-light' ? 'border-slate-300 bg-slate-800/80 shadow-lg ring-2 ring-white/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
+                    >
+                      <div className="flex justify-between items-center font-bold text-xs text-slate-200">
+                        <span>⚪ Klasik Saray & Krem Minimal</span>
+                        {publicTheme === 'cream-light' && <span>✓ Aktif</span>}
+                      </div>
+                      <p className="text-[11px] text-slate-400">Ferah ve aydınlık minimal saray konsepti.</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* HERO CONTENT EDITORS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-2">
+                    <label className="font-bold text-xs text-slate-700 dark:text-gray-200 block">✨ Hero Slogan Rozeti:</label>
+                    <input
+                      type="text"
+                      value={publicBadge}
+                      onChange={e => setPublicBadge(e.target.value)}
+                      className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-3 text-xs font-bold text-slate-800 dark:text-gray-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-bold text-xs text-slate-700 dark:text-gray-200 block">👑 Ana Başlık (H1):</label>
+                    <input
+                      type="text"
+                      value={publicTitle}
+                      onChange={e => setPublicTitle(e.target.value)}
+                      className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-3 text-xs font-bold text-slate-800 dark:text-gray-200"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="font-bold text-xs text-slate-700 dark:text-gray-200 block">📝 Hero Alt Açıklama Metni:</label>
+                  <textarea
+                    rows={3}
+                    value={publicSubtitle}
+                    onChange={e => setPublicSubtitle(e.target.value)}
+                    className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-3 text-xs font-medium text-slate-800 dark:text-gray-200"
+                  />
+                </div>
+
+                {/* SAVE BUTTON */}
+                <div className="pt-4 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSavePublicSettings}
+                    className="gold-button px-6 py-3 rounded-xl font-bold text-xs shadow-lg cursor-pointer hover:scale-105 transition"
+                  >
+                    💾 Ön Yüz Web Sitesi Ayarlarını Kaydet & Yayınla
+                  </button>
                 </div>
               </div>
             </div>

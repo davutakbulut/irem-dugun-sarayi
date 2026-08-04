@@ -117,6 +117,31 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(b'{"themeColor":"nordic-light","menuLayout":"vertical"}')
                 return
 
+        # 1.4. API: Public Settings GET (/api/public-settings)
+        if parsed_path.path == '/api/public-settings':
+            db_pub = os.path.join(os.path.dirname(__file__), 'db_public_settings.json')
+            pub_data = {
+                "publicTheme": "dark-gold",
+                "heroBadgeText": "✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri",
+                "heroTitle": "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
+                "heroSubtitle": "4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.",
+                "phone": "+90 (264) 582 00 00",
+                "whatsapp": "905320000000",
+                "address": "Sapanca Göl Kenarı, Sakarya"
+            }
+            if os.path.exists(db_pub):
+                try:
+                    with open(db_pub, 'r', encoding='utf-8') as pf:
+                        pub_data.update(json.load(pf))
+                except Exception: pass
+            
+            res_json = json.dumps(pub_data, indent=2).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(res_json)
+            return
+
         # 1.5. API: Direct Folder Files GET (/api/media-files?resId=...)
         if parsed_path.path == '/api/media-files':
             try:
@@ -330,6 +355,38 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(f'{{"error":"Failed to save settings: {str(e)}"}}'.encode('utf-8'))
+                return
+
+        # 1.8. API: Public Settings POST
+        if parsed_path.path == '/api/public-settings':
+            try:
+                content_len = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
+                
+                db_pub = os.path.join(os.path.dirname(__file__), 'db_public_settings.json')
+                existing = {}
+                if os.path.exists(db_pub):
+                    try:
+                        with open(db_pub, 'r', encoding='utf-8') as f:
+                            existing = json.load(f)
+                    except Exception: pass
+                
+                existing.update(data)
+                
+                with open(db_pub, 'w', encoding='utf-8') as f:
+                    json.dump(existing, f, indent=2)
+                    
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok","message":"Public site settings saved successfully"}')
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(f'{{"error":"Failed to save public settings: {str(e)}"}}'.encode('utf-8'))
                 return
 
         # 2. API: Media Upload POST with Full Security Hardening
