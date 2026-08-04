@@ -10842,53 +10842,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <button onClick={() => setActiveHotspot(null)} className="text-slate-400 hover:text-white text-sm">✕</button>
                 </div>
                 <p className="text-slate-200">{activeHotspot}</p>
-              </div>
-            )}
-                <>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 block">Adınız Soyadınız:</label>
-                    <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-[#050608] border border-slate-800 rounded-xl p-3 text-xs text-white" placeholder="Örn: Ahmet Yılmaz" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 block">Telefon Numarası:</label>
-                    <input required type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-[#050608] border border-slate-800 rounded-xl p-3 text-xs text-white" placeholder="0532 000 00 00" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-300 block">Tahmini Düğün Tarihi:</label>
-                      <input type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-300 block">Kişi Sayısı:</label>
-                      <input type="number" value={formData.guests} onChange={e => setFormData({ ...formData, guests: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 block">Notunuz / Özel İstekleriniz:</label>
-                    <textarea rows={3} value={formData.note} onChange={e => setFormData({ ...formData, note: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white" placeholder="Yemekli/yemeksiz menü tercihi vb." />
-                  </div>
-                  <button type="submit" className="gold-button w-full py-4 rounded-xl font-extrabold text-xs shadow-lg cursor-pointer">
-                    👑 Fiyat Teklifi Talebini Gönder →
-                  </button>
-                </>
-              )}
-            </form>
-
-            <div className="bg-slate-900 border border-amber-500/30 rounded-3xl p-8 space-y-6 shadow-2xl flex flex-col justify-between">
-              <div className="space-y-4">
-                <h3 className="font-heading font-bold text-xl text-amber-400">Tesis Konum & İletişim Bilgileri</h3>
-                <div className="space-y-3 text-xs text-slate-300">
-                  <p>📍 <strong>Adres:</strong> Sapanca Göl Kenarı Caddesi No:42 Sakarya / Turkey</p>
-                  <p>📞 <strong>Telefon:</strong> +90 (264) 582 00 00</p>
-                  <p>💬 <strong>WhatsApp:</strong> +90 (532) 000 00 00</p>
-                  <p>✉️ <strong>E-Posta:</strong> bilgi@iremdugunsarayi.com</p>
-                </div>
-              </div>
-
-              <div className="w-full h-56 bg-slate-950 rounded-2xl border border-amber-500/30 flex items-center justify-center text-slate-500 text-xs">
-                🗺️ Google Maps İnteraktif Harita Konumu (Sapanca Göl Kenarı)
-              </div>
-            </div>
           </div>
         </div>
       );
