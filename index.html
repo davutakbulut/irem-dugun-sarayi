@@ -9904,14 +9904,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => { CacheService.set('draft_reservations', draftReservations); }, [draftReservations]);
       useEffect(() => { CacheService.set('users', users); }, [users]);
 
-      // SESSION USER STATE & CACHE
-      const [sessionUser, setSessionUser] = useState(() => CacheService.get('session_user', {
-        id: 'u-admin',
-        name: 'Davut Akbulut',
-        email: 'davut@iremdugunsarayi.com',
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-      }));
+      // SESSION USER STATE & CACHE (DEFAULT NULL FOR STRICT AUTHENTICATION GUARD)
+      const [sessionUser, setSessionUser] = useState(() => CacheService.get('session_user', null));
 
       useEffect(() => {
         CacheService.set('session_user', sessionUser);
