@@ -446,38 +446,61 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 media_id = str(data.get('mediaId', ''))
                 media_key = str(data.get('mediaKey', ''))
 
-                safe_res_id = re.sub(r'[^A-Za-z0-9_-]', '', raw_res_id)
                 safe_file_name = os.path.basename(re.sub(r'[^A-Za-z0-9_.-]', '_', raw_file_name))
 
+                # Determine candidate folder names: resId, mediaKey, or search all folders in uploads/
+                possible_folders = []
+                if raw_res_id: possible_folders.append(re.sub(r'[^A-Za-z0-9_-]', '', raw_res_id))
+                if media_key: possible_folders.append(re.sub(r'[^A-Za-z0-9_-]', '', media_key))
+
                 deleted_disk = False
-                if safe_res_id and safe_file_name:
-                    uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads', safe_res_id)
-                    target_path = os.path.join(uploads_dir, safe_file_name)
+                uploads_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
+
+                # 1. Try candidate folders
+                for folder in possible_folders:
+                    if not folder: continue
+                    target_path = os.path.join(uploads_base, folder, safe_file_name)
                     if os.path.exists(target_path):
                         try:
                             os.remove(target_path)
                             deleted_disk = True
-                            print(f"🗑️ PHYSICALLY DELETED FILE FROM DISK: {target_path}")
+                            print(f"🗑️ DELETED FROM CANDIDATE FOLDER ({folder}): {target_path}")
+                            break
                         except Exception as ex:
-                            print("Error removing disk file:", ex)
+                            print("Error removing file:", ex)
 
-                # Remove from db_system_settings.json
+                # 2. Fallback: Search all subdirectories in uploads/ for safe_file_name
+                if not deleted_disk and safe_file_name and os.path.exists(uploads_base):
+                    for folder_name in os.listdir(uploads_base):
+                        sub_dir = os.path.join(uploads_base, folder_name)
+                        if os.path.isdir(sub_dir):
+                            candidate = os.path.join(sub_dir, safe_file_name)
+                            if os.path.exists(candidate):
+                                try:
+                                    os.remove(candidate)
+                                    deleted_disk = True
+                                    print(f"🗑️ DELETED FROM SEARCHED SUBDIR ({folder_name}): {candidate}")
+                                    break
+                                except Exception as ex:
+                                    print("Error removing file from subdir:", ex)
+
+                # 3. Update db_system_settings.json
                 db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
                 if os.path.exists(db_file):
                     try:
                         with open(db_file, 'r', encoding='utf-8') as f:
                             db_cfg = json.load(f)
-                        
+
                         res_list = db_cfg.get('reservations', [])
                         updated_res = False
                         for r in res_list:
-                            if r.get('mediaKey') == media_key or r.get('id') == raw_res_id:
+                            if r.get('mediaKey') == media_key or r.get('id') == raw_res_id or r.get('id') == media_key:
                                 m_files = r.get('mediaFiles', [])
                                 new_files = [m for m in m_files if str(m.get('id')) != media_id and str(m.get('url', '')).split('/')[-1] != safe_file_name]
                                 if len(new_files) != len(m_files):
                                     r['mediaFiles'] = new_files
                                     updated_res = True
-                        
+
                         if updated_res:
                             db_cfg['reservations'] = res_list
                             with open(db_file, 'w', encoding='utf-8') as f:

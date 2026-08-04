@@ -411,7 +411,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     if (e) e.stopPropagation();
     setDeleteTarget({
       item,
-      resId: currentRes?.id || 'GENERAL',
+      resId: currentRes?.id || activeMediaKey || 'GENERAL',
       fileName: item.name || (item.url ? item.url.split('/').pop() : ''),
       mediaId: item.id
     });
@@ -438,10 +438,10 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
     setReservations(prev => {
       const updated = prev.map(r => {
-        if (r.mediaKey === activeMediaKey || r.id === currentRes?.id) {
+        if (r.mediaKey === activeMediaKey || r.id === currentRes?.id || r.id === activeMediaKey) {
           return {
             ...r,
-            mediaFiles: (r.mediaFiles || []).filter(m => String(m.id) !== String(mediaId))
+            mediaFiles: (r.mediaFiles || []).filter(m => String(m.id) !== String(mediaId) && String(m.url).split('/').pop() !== fileName)
           };
         }
         return r;
