@@ -190,16 +190,56 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       }
     };
 
+    // BroadcastChannel for instant 0ms cross-tab sync without network requests
+    let bc = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        bc = new BroadcastChannel('irem_media_channel');
+        bc.onmessage = (e) => {
+          if (e.data && Array.isArray(e.data)) {
+            setReservations(e.data);
+          }
+        };
+      }
+    } catch(err){}
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    // Fast 1-second polling fallback so guest uploads appear on Admin panel in under 1 second without page refresh
-    const pollTimer = setInterval(syncFromCache, 1000);
+    // Adaptive Heartbeat: 15-second background sync (PAUSED completely when tab is hidden)
+    let pollTimer = null;
+    const startHeartbeat = () => {
+      if (!pollTimer) {
+        pollTimer = setInterval(syncFromCache, 15000);
+      }
+    };
+    const stopHeartbeat = () => {
+      if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopHeartbeat();
+      } else {
+        syncFromCache();
+        startHeartbeat();
+      }
+    };
+
+    if (!document.hidden) {
+      startHeartbeat();
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
-      clearInterval(pollTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      stopHeartbeat();
+      if (bc) bc.close();
     };
   }, [setReservations]);
 
