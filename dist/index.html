@@ -9862,7 +9862,47 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [venues, setVenues] = useState(() => CacheService.get('venues', INITIAL_VENUES));
       const [services, setServices] = useState(() => CacheService.get('services', INITIAL_SERVICES));
       const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', INITIAL_CAMPAIGNS));
-      const [customers, setCustomers] = useState(() => CacheService.get('customers', INITIAL_CUSTOMERS));
+      const [customers, setCustomers] = useState(() => {
+        const cached = CacheService.get('customers', INITIAL_CUSTOMERS);
+        const cachedArray = Array.isArray(cached) ? cached : [];
+
+        const customerMap = new Map();
+
+        // 1. Initial customers
+        INITIAL_CUSTOMERS.forEach(c => {
+          customerMap.set(c.id, c);
+        });
+
+        // 2. Cached customers
+        cachedArray.forEach(c => {
+          customerMap.set(c.id, c);
+        });
+
+        // 3. Extract & Auto-create full Customer records from all 45+ reservations
+        const activeResList = CacheService.get('reservations', INITIAL_RESERVATIONS) || INITIAL_RESERVATIONS;
+        (activeResList || []).forEach(r => {
+          const cId = r.customerId || `cust_${(r.id || '').toLowerCase()}`;
+          if (r.customerName && !customerMap.has(cId)) {
+            customerMap.set(cId, {
+              id: cId,
+              name: r.customerName,
+              email: r.customerEmail || `${cId}@example.com`,
+              phone: r.customerPhone || '+90 532 000 0000',
+              secondaryPhone: r.secondaryPhone || '',
+              address: r.invoiceAddress || 'Atatürk Mah. Sapanca / Sakarya',
+              taxType: r.invoiceType || 'individual',
+              tcNo: r.tcNo || '12345678901',
+              taxOffice: r.taxOffice || 'Sapanca VD',
+              vknNo: r.vknNo || '',
+              followUp: false,
+              followUpNote: `Ağustos 2026 Rezervasyonu (${r.venueName || 'Balo Salonu'})`,
+              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+            });
+          }
+        });
+
+        return Array.from(customerMap.values());
+      });
       // Auto-normalize mediaKey on all reservations while PRESERVING custom initial keys like MEDIA-8X92M1KP
       const normalizeReservationsMediaKeys = (list) => {
         if (!Array.isArray(list)) return [];
