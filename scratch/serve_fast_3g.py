@@ -82,7 +82,7 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                                     })
                             disk_media[res_id] = file_list
 
-                # Merge disk scanned media into storedMedia
+                # Merge disk scanned media into storedMedia & filter out non-existent disk files
                 existing_stored = cfg_data.get('storedMedia', {})
                 for k, v in disk_media.items():
                     existing_list = existing_stored.get(k, [])
@@ -90,7 +90,18 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                     for disk_item in v:
                         if disk_item['url'] not in existing_urls:
                             existing_list.append(disk_item)
-                    existing_stored[k] = existing_list
+                    
+                    # Sanitize: Keep ONLY files that actually exist on disk
+                    clean_list = []
+                    for item in existing_list:
+                        if isinstance(item, dict) and item.get('url', '').startswith('/uploads/'):
+                            rel_path = item['url'].lstrip('/')
+                            abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', rel_path)
+                            if os.path.exists(abs_path):
+                                clean_list.append(item)
+                        else:
+                            clean_list.append(item)
+                    existing_stored[k] = clean_list
                 cfg_data['storedMedia'] = existing_stored
 
                 res_json = json.dumps(cfg_data, indent=2).encode('utf-8')
@@ -491,17 +502,26 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                         with open(db_file, 'r', encoding='utf-8') as f:
                             db_cfg = json.load(f)
 
+                        updated_db = False
                         res_list = db_cfg.get('reservations', [])
-                        updated_res = False
                         for r in res_list:
                             if r.get('mediaKey') == media_key or r.get('id') == raw_res_id or r.get('id') == media_key:
                                 m_files = r.get('mediaFiles', [])
                                 new_files = [m for m in m_files if str(m.get('id')) != media_id and str(m.get('url', '')).split('/')[-1] != safe_file_name]
                                 if len(new_files) != len(m_files):
                                     r['mediaFiles'] = new_files
-                                    updated_res = True
+                                    updated_db = True
 
-                        if updated_res:
+                        stored_media = db_cfg.get('storedMedia', {})
+                        for k in list(stored_media.keys()):
+                            m_list = stored_media[k]
+                            new_m_list = [m for m in m_list if isinstance(m, dict) and str(m.get('id')) != media_id and str(m.get('url', '')).split('/')[-1] != safe_file_name]
+                            if len(new_m_list) != len(m_list):
+                                stored_media[k] = new_m_list
+                                updated_db = True
+                        db_cfg['storedMedia'] = stored_media
+
+                        if updated_db:
                             db_cfg['reservations'] = res_list
                             with open(db_file, 'w', encoding='utf-8') as f:
                                 json.dump(db_cfg, f, indent=2, ensure_ascii=False)

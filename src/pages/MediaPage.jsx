@@ -807,7 +807,15 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                         </span>
                       </div>
                     ) : (
-                      <img src={item.url} alt="Galeri Fotoğrafı" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      <img
+                        src={item.url}
+                        alt="Galeri Fotoğrafı"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.closest('.group')?.remove();
+                        }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
                     )}
 
                     {/* OVERLAY INFORMATION WITH DELETE BUTTON */}

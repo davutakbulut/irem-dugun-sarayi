@@ -186,17 +186,26 @@ class ModularTestHandler(http.server.SimpleHTTPRequestHandler):
                         with open(db_file, 'r', encoding='utf-8') as f:
                             db_cfg = json.load(f)
                         
+                        updated_db = False
                         res_list = db_cfg.get('reservations', [])
-                        updated_res = False
                         for r in res_list:
                             if r.get('mediaKey') == media_key or r.get('id') == raw_res_id or r.get('id') == media_key:
                                 m_files = r.get('mediaFiles', [])
                                 new_files = [m for m in m_files if str(m.get('id')) != media_id and str(m.get('url', '')).split('/')[-1] != safe_file_name]
                                 if len(new_files) != len(m_files):
                                     r['mediaFiles'] = new_files
-                                    updated_res = True
+                                    updated_db = True
                         
-                        if updated_res:
+                        stored_media = db_cfg.get('storedMedia', {})
+                        for k in list(stored_media.keys()):
+                            m_list = stored_media[k]
+                            new_m_list = [m for m in m_list if isinstance(m, dict) and str(m.get('id')) != media_id and str(m.get('url', '')).split('/')[-1] != safe_file_name]
+                            if len(new_m_list) != len(m_list):
+                                stored_media[k] = new_m_list
+                                updated_db = True
+                        db_cfg['storedMedia'] = stored_media
+
+                        if updated_db:
                             db_cfg['reservations'] = res_list
                             with open(db_file, 'w', encoding='utf-8') as f:
                                 json.dump(db_cfg, f, indent=2, ensure_ascii=False)

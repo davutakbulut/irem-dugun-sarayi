@@ -8709,7 +8709,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <img
                         src={item.url}
                         alt="Galeri Fotoğrafı"
-                        onError={(e) => { e.currentTarget.src = VALID_SVG_PLACEHOLDER; }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.closest('.group')?.remove();
+                        }}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                       />
                     )}
