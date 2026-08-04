@@ -165,11 +165,28 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setReservations(prev => {
-              // Only update state if JSON strings differ to avoid infinite re-render loop
-              if (JSON.stringify(prev) !== raw) {
-                return parsed;
-              }
-              return prev;
+              let hasNewFiles = false;
+              const merged = prev.map(pRes => {
+                const cRes = parsed.find(c => c.id === pRes.id || c.mediaKey === pRes.mediaKey);
+                if (!cRes) return pRes;
+
+                const existingFiles = pRes.mediaFiles || [];
+                const incomingFiles = cRes.mediaFiles || [];
+
+                const existingKeys = new Set(existingFiles.map(f => f.url || f.id || f.fileName));
+                const newOnlyFiles = incomingFiles.filter(f => f && (f.url || f.id) && !existingKeys.has(f.url || f.id || f.fileName));
+
+                if (newOnlyFiles.length > 0) {
+                  hasNewFiles = true;
+                  return {
+                    ...pRes,
+                    mediaFiles: [...newOnlyFiles, ...existingFiles]
+                  };
+                }
+                return pRes;
+              });
+
+              return hasNewFiles ? merged : prev;
             });
           }
         }
@@ -206,82 +223,31 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    const syncFromServer = async () => {
-      const targetKey = activeMediaKey || selectedResKey || currentRes?.mediaKey || currentRes?.id;
-      if (!targetKey) return;
-      try {
-        const res = await fetch(`/api/media-files?resId=${targetKey}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && Array.isArray(data.files)) {
-            const diskFiles = data.files.filter(f => f && f.url && f.url.startsWith('/uploads/'));
-            setReservations(prev => {
-              const cleanTarget = targetKey.replace(/[^A-Za-z0-9]/g, '').toLowerCase();
-              const hasMatch = prev.some(r => {
-                const k1 = (r.mediaKey || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
-                const k2 = (r.id || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
-                return k1 === cleanTarget || k2 === cleanTarget || r.mediaKey === targetKey || r.id === targetKey;
-              });
-
-              if (hasMatch) {
-                return prev.map(r => {
-                  const k1 = (r.mediaKey || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
-                  const k2 = (r.id || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
-                  const isMatch = k1 === cleanTarget || k2 === cleanTarget || r.mediaKey === targetKey || r.id === targetKey;
-                  if (isMatch) {
-                    return { ...r, mediaKey: r.mediaKey || targetKey, mediaFiles: diskFiles };
-                  }
-                  return r;
-                });
-              } else {
-                // Dynamic fallback reservation entry if target key not in memory array yet
-                const newRes = {
-                  id: targetKey,
-                  mediaKey: targetKey,
-                  customerName: 'Canlı Etkinlik Albümü',
-                  eventType: 'Balo / Düğün Daveti',
-                  date: new Date().toISOString().split('T')[0],
-                  venueId: 'v1',
-                  mediaFiles: diskFiles
-                };
-                return [newRes, ...prev];
-              }
-            });
-          }
-        }
-      } catch(e) {}
-    };
-
-    // 15-SECOND POLLING HEARTBEAT (PAUSED WHEN TAB IS HIDDEN)
-    let syncInterval = null;
-    const startSyncTimer = () => {
-      if (!syncInterval) {
-        syncInterval = setInterval(() => {
-          if (!document.hidden) {
-            syncFromServer();
-          }
-        }, 15000);
+    // Adaptive Heartbeat: 10-second background sync for new media only (PAUSED completely when tab is hidden)
+    let pollTimer = null;
+    const startHeartbeat = () => {
+      if (!pollTimer) {
+        pollTimer = setInterval(syncFromCache, 10000);
       }
     };
-    const stopSyncTimer = () => {
-      if (syncInterval) {
-        clearInterval(syncInterval);
-        syncInterval = null;
+    const stopHeartbeat = () => {
+      if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
       }
     };
 
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        syncFromCache();
-        syncFromServer();
-        startSyncTimer();
+      if (document.hidden) {
+        stopHeartbeat();
       } else {
-        stopSyncTimer();
+        syncFromCache();
+        startHeartbeat();
       }
     };
 
     if (!document.hidden) {
-      startSyncTimer();
+      startHeartbeat();
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -289,7 +255,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      stopSyncTimer();
+      stopHeartbeat();
       if (bc) bc.close();
     };
   }, [setReservations]);

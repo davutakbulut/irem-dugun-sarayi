@@ -7761,8 +7761,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               return prev.map(r => {
                 const isMatch = r.mediaKey === targetKey || r.id === targetKey || (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey));
                 if (isMatch) {
-                  // Direct 1:1 disk folder state: data.files is the single source of truth for physical files!
                   const diskFiles = data.files.filter(f => f && f.url && f.url.startsWith('/uploads/'));
+                  const existingFiles = r.mediaFiles || [];
+                  // INCREMENTAL DELTA CHECK: If disk file count & order match existing files, skip state mutation!
+                  if (diskFiles.length === existingFiles.length && diskFiles.every((df, i) => existingFiles[i] && existingFiles[i].url === df.url)) {
+                    return r;
+                  }
                   return { ...r, mediaFiles: diskFiles };
                 }
                 return r;
@@ -7773,9 +7777,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       } catch(e) {}
     };
 
-    // ONCE ON MOUNT: Load initial physical disk files
     fetchDiskFolderFiles();
-  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, setReservations]);
+
+    // PUBLIC GUEST MODE: 0 Background Polling! Guests do NOT need continuous server requests.
+    if (isPublicGuestMode) return;
+
+    // ADMIN / MANAGEMENT MODE: Lightweight 10-second background polling for live updates
+    const diskInterval = setInterval(fetchDiskFolderFiles, 10000);
+    return () => clearInterval(diskInterval);
+  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, isPublicGuestMode, setReservations]);
 
   // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (EVENT DRIVEN)
   useEffect(() => {
@@ -7862,21 +7872,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('irem_media_sync', handleCustomSync);
 
-    // 0 POLLING ARCHITECTURE: Fully event-driven via Real-Time Socket.io & SSE Push Notifications
-    let evtSource = null;
-    try {
-      if (typeof EventSource !== 'undefined') {
-        evtSource = new EventSource('/api/media-stream');
-        evtSource.addEventListener('media_update', () => {
-          syncFromBackendAndCache();
-        });
-      }
-    } catch(e){}
+    // PUBLIC GUEST MODE: 0 Polling! Admin Mode: Lightweight 10-second sync
+    let pollTimer = null;
+    if (!isPublicGuestMode) {
+      pollTimer = setInterval(syncFromCache, 10000);
+    }
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
-      if (evtSource) evtSource.close();
+      if (pollTimer) clearInterval(pollTimer);
     };
   }, [isPublicGuestMode, setReservations]);
 
