@@ -2,8 +2,14 @@
 <html lang="tr" class="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>İrem Düğün Sarayı & Organizasyon Yönetim Platformu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>İrem Düğün Sarayı & Balo Tesisleri Yönetim Platformu</title>
+  <meta name="description" content="İrem Düğün Sarayı & Balo Tesisleri dijital rezervasyon, salon takvimi, müşteri rehberi ve finans yönetim platformu.">
+  <meta name="theme-color" content="#d97706">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
   
   <!-- SILENCE DEV CDN WARNINGS (Tailwind CDN, In-browser Babel & 500KB Deopt Note) -->
   <script>
@@ -9704,25 +9710,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 {/* DYNAMIC IDENTITY INPUT (EMAIL OR PHONE) */}
                 {loginMethod === 'email' ? (
                   <div>
-                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5">
+                    <label htmlFor="login-email-input" className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5 cursor-pointer">
                       <ThemeIcon icon="mail" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
                       <span>E-Posta Adresi</span>
                       <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
+                        id="login-email-input"
+                        name="username"
                         type="email"
+                        autoComplete="username"
+                        aria-label="E-Posta Adresi"
                         required
                         value={emailInput}
                         onChange={e => setEmailInput(e.target.value)}
                         placeholder="E-Posta Adresinizi giriniz..."
-                        className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3 text-slate-800 dark:text-white font-medium focus:bg-white outline-none transition ${
+                        className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3.5 text-slate-800 dark:text-white font-medium focus:bg-white outline-none transition min-h-[48px] ${
                           emailInput && !inputValidation.isValid
                             ? 'border-red-400 focus:border-red-500'
                             : 'border-slate-200 dark:border-brand-border focus:border-orange-500'
                         }`}
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                         <ThemeIcon icon="mail" fallbackEmoji="" className="w-4 h-4" />
                       </span>
                     </div>
@@ -9742,25 +9752,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5">
+                    <label htmlFor="login-phone-input" className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5 cursor-pointer">
                       <ThemeIcon icon="phone" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
                       <span>Telefon Numarası</span>
                       <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
+                        id="login-phone-input"
+                        name="phone"
                         type="tel"
+                        autoComplete="tel"
+                        aria-label="Telefon Numarası"
                         required
                         value={phoneInput}
                         onChange={e => setPhoneInput(e.target.value)}
                         placeholder="05XX XXX XX XX"
-                        className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3 text-slate-800 dark:text-white font-medium focus:bg-white outline-none transition ${
+                        className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-3.5 text-slate-800 dark:text-white font-medium focus:bg-white outline-none transition min-h-[48px] ${
                           phoneInput && !inputValidation.isValid
                             ? 'border-red-400 focus:border-red-500'
                             : 'border-slate-200 dark:border-brand-border focus:border-orange-500'
                         }`}
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                         <ThemeIcon icon="phone" fallbackEmoji="" className="w-4 h-4" />
                       </span>
                     </div>
@@ -9782,23 +9796,28 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                 {/* PASSWORD INPUT */}
                 <div>
-                  <label className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5">
+                  <label htmlFor="login-password-input" className="block text-slate-700 dark:text-gray-300 font-bold mb-1.5 flex items-center space-x-1.5 cursor-pointer">
                     <ThemeIcon icon="lock" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
                     <span>Şifre</span>
                     <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
+                      id="login-password-input"
+                      name="password"
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      aria-label="Şifre"
                       required
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Şifrenizi giriniz..."
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-3 pr-10 text-slate-800 dark:text-white font-medium focus:bg-white focus:border-orange-500 outline-none transition"
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-3.5 pr-10 text-slate-800 dark:text-white font-medium focus:bg-white focus:border-orange-500 outline-none transition min-h-[48px]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label="Şifreyi Göster veya Gizle"
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
                       title="Şifreyi Göster/Gizle"
                     >
@@ -9809,7 +9828,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                 {/* REMEMBER ME & FORGOT PASSWORD ROW */}
                 <div className="flex items-center justify-between pt-1">
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                  <label className="flex items-center space-x-2 cursor-pointer py-1">
                     <input
                       type="checkbox"
                       checked={rememberMe}
@@ -9822,7 +9841,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer flex items-center space-x-1"
+                    className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer flex items-center space-x-1 py-1"
                   >
                     <ThemeIcon icon="key" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
                     <span>Şifremi Unuttum</span>
@@ -9833,7 +9852,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold py-3.5 rounded-xl text-sm shadow-md hover:shadow-lg transition transform active:scale-[0.99] flex items-center justify-center space-x-2 mt-3 cursor-pointer"
+                  aria-label="Sisteme Giriş Yap"
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold py-3.5 min-h-[48px] rounded-xl text-sm shadow-md hover:shadow-lg transition transform active:scale-[0.99] flex items-center justify-center space-x-2 mt-3 cursor-pointer"
                 >
                   {isLoading ? (
                     <>
@@ -9869,8 +9889,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               <img
                 src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
                 alt="İrem Düğün Sarayı Balo Salonu"
+                width="1200"
+                height="800"
                 fetchPriority="high"
                 loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover object-center opacity-25 scale-105 transform transition duration-1000"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#F7F2EA] via-[#F7F2EA]/60 to-transparent dark:from-slate-950 dark:via-slate-950/70 dark:to-transparent" />
