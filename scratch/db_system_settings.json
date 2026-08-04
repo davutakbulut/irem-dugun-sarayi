@@ -3731,28 +3731,6 @@
         "isGuest": true
       },
       {
-        "id": "mf_1785597398288",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-03-02_at_21.32.31.jpeg",
-        "fileName": "WhatsApp Image 2026-03-02 at 21.32.31.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785597396372",
-        "type": "image",
-        "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
-        "thumbnail": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-02-16_at_16.58.26.jpeg",
-        "fileName": "WhatsApp Image 2026-02-16 at 16.58.26.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:16",
-        "isGuest": true
-      },
-      {
         "id": "mf_1785597395005",
         "type": "image",
         "url": "/uploads/MEDIA-RES2026003/WhatsApp_Image_2026-07-01_at_16.17.52.jpeg",
@@ -3887,17 +3865,6 @@
         "isGuest": true
       },
       {
-        "id": "mf_1785598575487",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n.jpg",
-        "fileName": "969454_17930137260336302_5816159898068853577_n.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
         "id": "mf_1785598574988",
         "type": "image",
         "url": "/uploads/MEDIA-8X92M1KP/969454_17930137260336302_5816159898068853577_n__1_.jpg",
@@ -3988,30 +3955,7 @@
         "isGuest": true
       }
     ],
-    "MEDIA-AUG26-31": [
-      {
-        "id": "mf_1785702289707",
-        "type": "image",
-        "url": "/uploads/MEDIA-AUG26-31/THY-EVRAK.jpg",
-        "thumbnail": "/uploads/MEDIA-AUG26-31/THY-EVRAK.jpg",
-        "fileName": "THY-EVRAK.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-02 23:24",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785702203774",
-        "type": "image",
-        "url": "/uploads/MEDIA-AUG26-31/Kimlik_Kart__G_r_nt_s_.jpg",
-        "thumbnail": "/uploads/MEDIA-AUG26-31/Kimlik_Kart__G_r_nt_s_.jpg",
-        "fileName": "Kimlik Kartı Görüntüsü.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-02 23:23",
-        "isGuest": true
-      }
-    ]
+    "MEDIA-AUG26-31": []
   },
   "releaseNotes": [
     {

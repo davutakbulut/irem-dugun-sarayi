@@ -222,6 +222,8 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     return () => clearInterval(timer);
   }, [cooldownSeconds]);
 
+  const [failedMediaIds, setFailedMediaIds] = useState([]);
+
   const mediaList = useMemo(() => {
     if (!currentRes) return [];
     let files = currentRes.mediaFiles || [];
@@ -230,10 +232,12 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       files = files.filter(f => guestSessionUploadIds.includes(f.id));
     }
 
+    files = files.filter(f => !failedMediaIds.includes(f.id));
+
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType]);
+  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType, failedMediaIds]);
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
   const handleFilesSelect = (e) => {
@@ -807,9 +811,8 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                       <img
                         src={item.url}
                         alt="Galeri Fotoğrafı"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.closest('.group')?.remove();
+                        onError={() => {
+                          setFailedMediaIds(prev => [...prev, item.id]);
                         }}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                       />

@@ -7901,6 +7901,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     return () => clearInterval(timer);
   }, [cooldownSeconds]);
 
+  const [failedMediaIds, setFailedMediaIds] = useState([]);
+
   const mediaList = useMemo(() => {
     if (!currentRes) return [];
     let files = (currentRes.mediaFiles || []).filter(f => {
@@ -7919,9 +7921,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return true;
     });
 
-    // GUEST PRIVACY RULE: Guests ONLY see photos uploaded by themselves in their current session!
-    // If guest uploaded 0 items, they see 0 items (no previous items from other guests!).
-    // Authorized Users / Admins see ALL uploaded photos across all devices in real-time!
     if (isPublicGuestMode) {
       files = files.filter(f => 
         guestSessionUploadIds && (
@@ -7932,7 +7931,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       );
     }
 
-    // DEDUPLICATE FILES BY URL & FILENAME: Guarantee 0 duplicates are ever rendered or counted!
+    // Filter out images that failed to load (404 deleted)
+    files = files.filter(f => !failedMediaIds.includes(f.id));
+
     const uniqueMap = new Map();
     files.forEach(f => {
       const key = f.url || f.fileName || f.id;
@@ -7945,7 +7946,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, activeMediaKey, isPublicGuestMode, guestSessionUploadIds, filterType]);
+  }, [currentRes, activeMediaKey, isPublicGuestMode, guestSessionUploadIds, filterType, failedMediaIds]);
 
   // TWO-STAGE DUPLICATE DETECTION LOGIC (Stage 1: Device Local Check -> Stage 2: Reservation Album Check)
   const handleFilesSelect = (e) => {
@@ -8672,9 +8673,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <img
                         src={item.url}
                         alt="Galeri Fotoğrafı"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.closest('.group')?.remove();
+                        onError={() => {
+                          setFailedMediaIds(prev => [...prev, item.id]);
                         }}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                       />
