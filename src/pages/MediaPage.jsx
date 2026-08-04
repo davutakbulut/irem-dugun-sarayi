@@ -1195,8 +1195,8 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       )}
 
       {/* CAPTCHA MODAL */}
-      {showCaptchaModal && (
-        <div className="fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+      {showCaptchaModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 w-screen h-screen z-[999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in pointer-events-auto">
           <div className="bg-white dark:bg-brand-card p-6 rounded-3xl max-w-sm w-full space-y-4 border-2 border-amber-500 text-center shadow-2xl">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto font-bold text-xl">
               🤖
@@ -1221,12 +1221,13 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               ✓ Ben Robot Değilim (Devam Et)
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* A4 QR MASAKARTI PDF MODAL */}
-      {showPdfModal && (
-        <div className="fixed inset-0 z-[99999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in overflow-y-auto">
+      {showPdfModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 w-screen h-screen z-[999999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in overflow-y-auto pointer-events-auto">
           <div className="bg-white text-slate-900 w-full max-w-xl rounded-3xl shadow-2xl p-6 space-y-6 relative border-4 border-amber-500/40 my-8">
             <button
               type="button"
@@ -1275,10 +1276,13 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in" onClick={() => setDeleteTarget(null)}>
+
+      {/* SINGLE DELETE CONFIRMATION MODAL */}
+      {deleteTarget && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in pointer-events-auto" onClick={() => setDeleteTarget(null)}>
           <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/40 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up" onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 text-3xl shadow-inner">
               🗑️
@@ -1309,12 +1313,13 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* BULK DELETE CONFIRMATION MODAL */}
-      {showBulkDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in" onClick={() => setShowBulkDeleteModal(false)}>
+      {showBulkDeleteModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in pointer-events-auto" onClick={() => setShowBulkDeleteModal(false)}>
           <div className="bg-white dark:bg-brand-card p-6 sm:p-8 rounded-3xl border border-red-500/50 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up" onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-500 text-3xl shadow-inner animate-bounce">
               ⚠️
@@ -1353,7 +1358,8 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
