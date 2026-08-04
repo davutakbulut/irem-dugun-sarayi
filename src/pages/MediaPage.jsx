@@ -893,25 +893,25 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
               <div className="flex flex-wrap items-center justify-between gap-2 w-full md:w-auto">
                 {/* FILTER BUTTONS */}
-                <div className="flex items-center space-x-1 bg-slate-100 dark:bg-brand-dark p-1 rounded-xl">
+                <div className="flex items-center space-x-1 bg-slate-200/80 dark:bg-brand-dark p-1 rounded-xl border border-slate-300/60 dark:border-brand-border/60">
                   <button
                     type="button"
                     onClick={() => setFilterType('all')}
-                    className={filterType === 'all' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
+                    className={filterType === 'all' ? 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition gold-button shadow-sm' : 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}
                   >
                     Tümü
                   </button>
                   <button
                     type="button"
                     onClick={() => setFilterType('image')}
-                    className={filterType === 'image' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
+                    className={filterType === 'image' ? 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition gold-button shadow-sm' : 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}
                   >
                     Fotoğraflar
                   </button>
                   <button
                     type="button"
                     onClick={() => setFilterType('video')}
-                    className={filterType === 'video' ? 'px-3 py-1 rounded-lg text-xs font-bold transition gold-button shadow-xs' : 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-gray-400'}
+                    className={filterType === 'video' ? 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition gold-button shadow-sm' : 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}
                   >
                     Videolar
                   </button>
@@ -919,18 +919,18 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
                 {/* BULK SELECTION & DELETE ACTION BUTTONS */}
                 {!isPublicGuestMode && mediaList.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {/* TOGGLE MULTI-SELECT MODE BUTTON */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* TOGGLE MULTI-SELECT MODE BUTTON (SECONDARY ACTION) */}
                     <button
                       type="button"
                       onClick={() => {
                         setIsSelectMode(!isSelectMode);
                         if (isSelectMode) setSelectedMediaIds([]);
                       }}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-xs ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center space-x-1.5 cursor-pointer shadow-xs ${
                         isSelectMode
-                          ? 'bg-amber-500 text-slate-950 font-black border border-amber-400 ring-2 ring-amber-500/20'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700'
+                          ? 'gold-button text-slate-950 font-black ring-2 ring-amber-500/40 shadow-sm'
+                          : 'bg-slate-200/90 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 border border-slate-300 dark:border-slate-700'
                       }`}
                     >
                       <span>{isSelectMode ? '✓ Seçim Modu Açık' : '☑ Görsel Seçimi'}</span>
@@ -941,13 +941,13 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                       <button
                         type="button"
                         onClick={toggleSelectAll}
-                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-200/90 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 border border-slate-300 dark:border-slate-700 transition cursor-pointer shadow-xs"
                       >
                         {selectedMediaIds.length === mediaList.length ? 'Seçimi Kaldır' : 'Tümünü Seç'}
                       </button>
                     )}
 
-                    {/* DELETE SELECTED BUTTON */}
+                    {/* DELETE SELECTED BUTTON (DANGER ACTION) */}
                     <button
                       type="button"
                       disabled={selectedMediaIds.length === 0}
@@ -955,27 +955,27 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                         setBulkDeleteType('selected');
                         setShowBulkDeleteModal(true);
                       }}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center space-x-1.5 cursor-pointer ${
                         selectedMediaIds.length > 0
-                          ? 'bg-red-600 hover:bg-red-500 text-white shadow-md'
-                          : 'bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-800'
+                          ? 'bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-500/20 active:scale-95 animate-pulse'
+                          : 'bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-900/60 dark:text-slate-500 dark:border-slate-800 cursor-not-allowed'
                       }`}
                     >
-                      <ThemeIcon icon="trash" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
                       <span>Seçilileri Sil ({selectedMediaIds.length})</span>
                     </button>
 
-                    {/* DELETE ALL BUTTON */}
+                    {/* DELETE ALL BUTTON (CRITICAL DESTRUCTIVE ACTION - HIGH CONTRAST) */}
                     <button
                       type="button"
                       onClick={() => {
                         setBulkDeleteType('all');
                         setShowBulkDeleteModal(true);
                       }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-800/50 transition flex items-center space-x-1 cursor-pointer shadow-xs"
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border-2 border-red-600 dark:bg-red-950/60 dark:hover:bg-red-600 dark:text-red-300 dark:hover:text-white dark:border-red-500 transition duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm"
                       title="Albümdeki Tüm İçerikleri Sil"
                     >
-                      <ThemeIcon icon="trash" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0 text-red-500" />
+                      <ThemeIcon icon="trash" fallbackEmoji="⚠️" className="w-3.5 h-3.5 shrink-0" />
                       <span>Tümünü Sil</span>
                     </button>
                   </div>
