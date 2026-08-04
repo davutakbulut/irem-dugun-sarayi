@@ -3,6 +3,7 @@ import { RedAlertConfirmModal } from '../components/Modals.jsx';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
 import { TAB_LABELS } from '../constants/mockData.js';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function RolesPageComponent({ activeRole, roles, users = [], tabPermissions, onAddRole, onEditRole, onDeleteRole, onToggleTabPermission, showToast, navigateTo }) {
       const [newRoleId, setNewRoleId] = useState('');
@@ -10,6 +11,13 @@ export function RolesPageComponent({ activeRole, roles, users = [], tabPermissio
       const [editingRole, setEditingRole] = useState(null); // { id, name }
       const [deletingRole, setDeletingRole] = useState(null); // { id, name }
       const [searchQuery, setSearchQuery] = useState('');
+
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(8);
+
+      useEffect(() => {
+        setCurrentPage(1);
+      }, [searchQuery]);
 
       const filteredRoles = useMemo(() => {
         if (!searchQuery.trim()) return Object.keys(roles);
@@ -131,51 +139,65 @@ export function RolesPageComponent({ activeRole, roles, users = [], tabPermissio
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredRoles.map(roleId => {
-                const assignedUsersCount = (users || []).filter(u => u.role === roleId).length;
-                const isSystemAdmin = roleId === 'admin';
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredRoles
+                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  .map(roleId => {
+                  const assignedUsersCount = (users || []).filter(u => u.role === roleId).length;
+                  const isSystemAdmin = roleId === 'admin';
 
-                return (
-                  <div key={roleId} className="bg-slate-50/80 dark:bg-brand-dark/60 p-4 rounded-2xl border border-slate-200 dark:border-brand-border/60 space-y-3 relative hover:border-amber-500/50 transition">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="font-bold text-sm text-slate-900 dark:text-gray-100 flex items-center space-x-1">
-                          <span>{roles[roleId]}</span>
+                  return (
+                    <div key={roleId} className="bg-slate-50/80 dark:bg-brand-dark/60 p-4 rounded-2xl border border-slate-200 dark:border-brand-border/60 space-y-3 relative hover:border-amber-500/50 transition">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-bold text-sm text-slate-900 dark:text-gray-100 flex items-center space-x-1">
+                            <span>{roles[roleId]}</span>
+                          </div>
+                          <div className="text-[10px] font-mono text-amber-700 dark:text-gold-400 font-bold mt-0.5">
+                            ID: {roleId}
+                          </div>
                         </div>
-                        <div className="text-[10px] font-mono text-amber-700 dark:text-gold-400 font-bold mt-0.5">
-                          ID: {roleId}
-                        </div>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isSystemAdmin ? 'bg-red-500 text-white' : 'bg-amber-500/20 text-amber-700 dark:text-gold-400'}`}>
+                          {assignedUsersCount} Kullanıcı
+                        </span>
                       </div>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isSystemAdmin ? 'bg-red-500 text-white' : 'bg-amber-500/20 text-amber-700 dark:text-gold-400'}`}>
-                        {assignedUsersCount} Kullanıcı
-                      </span>
-                    </div>
 
-                    <div className="pt-2 border-t border-slate-200 dark:border-brand-border/40 flex items-center justify-between gap-2 text-xs">
-                      <button
-                        type="button"
-                        onClick={() => setEditingRole({ id: roleId, name: roles[roleId] })}
-                        className="px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg font-bold transition flex items-center space-x-1"
-                      >
-                        <ThemeIcon icon="edit" fallbackEmoji="" className="w-3.5 h-3.5 inline-block mr-1" /><span>Düzenle</span>
-                      </button>
-
-                      {isSystemAdmin ? (
-                        <span className="text-[10px] text-slate-400 font-bold italic px-2 py-1">Korunan Admin</span>
-                      ) : (
+                      <div className="pt-2 border-t border-slate-200 dark:border-brand-border/40 flex items-center justify-between gap-2 text-xs">
                         <button
                           type="button"
-                          onClick={() => setDeletingRole({ id: roleId, name: roles[roleId] })}
-                          className="px-2.5 py-1 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-lg font-bold transition flex items-center space-x-1 cursor-pointer"
+                          onClick={() => setEditingRole({ id: roleId, name: roles[roleId] })}
+                          className="px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg font-bold transition flex items-center space-x-1"
                         >
-                          <ThemeIcon icon="trash" fallbackEmoji="" className="w-3.5 h-3.5 inline-block mr-1" /><span>Sil</span>
+                          <ThemeIcon icon="edit" fallbackEmoji="" className="w-3.5 h-3.5 inline-block mr-1" /><span>Düzenle</span>
                         </button>
-                      )}
+
+                        {isSystemAdmin ? (
+                          <span className="text-[10px] text-slate-400 font-bold italic px-2 py-1">Korunan Admin</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setDeletingRole({ id: roleId, name: roles[roleId] })}
+                            className="px-2.5 py-1 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-lg font-bold transition flex items-center space-x-1 cursor-pointer"
+                          >
+                            <ThemeIcon icon="trash" fallbackEmoji="" className="w-3.5 h-3.5 inline-block mr-1" /><span>Sil</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+
+              {/* PAGINATION FOR ROLES */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredRoles.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[8, 16, 32]}
+              />
             </div>
           </div>
 

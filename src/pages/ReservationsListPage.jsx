@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { formatCurrency, formatDate, formatPhoneNumber } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function ReservationsListComponent({
       reservations = [],
@@ -28,6 +29,13 @@ export function ReservationsListComponent({
       const [statusFilter, setStatusFilter] = useState('ALL');
       const [startDateFilter, setStartDateFilter] = useState('');
       const [endDateFilter, setEndDateFilter] = useState('');
+
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(10);
+
+      useEffect(() => {
+        setCurrentPage(1);
+      }, [searchQuery, venueFilter, statusFilter, startDateFilter, endDateFilter]);
 
       const [selectedResForPreview, setSelectedResForPreview] = useState(null);
       const [selectedDayInspector, setSelectedDayInspector] = useState(null);
@@ -489,77 +497,77 @@ export function ReservationsListComponent({
                         </td>
                       </tr>
                     ) : (
-                      filteredReservations.map(res => {
-                        const vObj = (venues || []).find(v => v.id === res.venueId);
-                        return (
-                          <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
-                            <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{res.id}</td>
-                            <td className="py-3.5 px-3">
-                              <div className="font-bold">{res.customerName}</div>
-                              <div className="text-[10px] text-slate-400">{res.customerPhone}</div>
-                            </td>
-                            <td className="py-3.5 px-3 font-bold">{vObj?.name || res.venueId}</td>
-                            <td className="py-3.5 px-3 font-mono">
-                              <div>{formatDate(res.eventDate || res.date)}</div>
-                              <div className="text-[10px] text-slate-500">{res.startTime || '18:00'} - {res.endTime || '23:00'}</div>
-                            </td>
-                            <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
-                            <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
-                            <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
-                              {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
-                            </td>
-                            <td className="py-3.5 px-3">
-                              {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
-                                  <ThemeIcon icon="check-circle" fallbackEmoji="✅" className="w-3.5 h-3.5 mr-1 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                                  <span>Ödeme Tamamlandı</span>
-                                </span>
-                              ) : res.paymentStatus === 'Kapora Alındı' ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-gold-400 border border-amber-500/40 shadow-xs">
-                                  <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
-                                  <span>Kapora Alındı</span>
-                                </span>
-                              ) : res.paymentStatus === 'İptal' ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shadow-xs">
-                                  <ThemeIcon icon="x-circle" fallbackEmoji="❌" className="w-3.5 h-3.5 mr-1 shrink-0 text-rose-600 dark:text-rose-400" />
-                                  <span>İptal Edildi</span>
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 shadow-xs">
-                                  <ThemeIcon icon="clock" fallbackEmoji="🕒" className="w-3.5 h-3.5 mr-1 shrink-0 text-blue-600 dark:text-blue-400" />
-                                  <span>{res.paymentStatus || 'Ödeme Bekliyor'}</span>
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-3 text-right">
-                              <div className="flex items-center justify-end space-x-1.5">
-                                <button
-                                  onClick={() => setSelectedResForPreview(res)}
-                                  className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 hover:bg-amber-500/20 transition font-bold text-xs flex items-center space-x-1"
-                                  title="Detaylı Önizle"
-                                >
-                                  <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
-                                </button>
-                                <button
-                                  onClick={() => handleOpenEdit(res)}
-                                  className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold text-xs hover:bg-amber-500/30 transition flex items-center space-x-1"
-                                >
-                                  <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
-                                  <span>Düzenle</span>
-                                </button>
-                                <button
-                                  onClick={() => setDeletingRes(res)}
-                                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 font-bold text-xs transition flex items-center space-x-1 border border-red-500/20"
-                                  title="Rezervasyonu Sil"
-                                >
-                                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400" />
-                                  <span>Sil</span>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
+                      filteredReservations
+                        .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                        .map(res => {
+                          const vObj = (venues || []).find(v => v.id === res.venueId);
+                          return (
+                            <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
+                              <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{res.id}</td>
+                              <td className="py-3.5 px-3">
+                                <div className="font-bold">{res.customerName}</div>
+                                <div className="text-[10px] text-slate-400">{res.customerPhone}</div>
+                              </td>
+                              <td className="py-3.5 px-3 font-bold">{vObj?.name || res.venueId}</td>
+                              <td className="py-3.5 px-3 font-mono">
+                                <div>{formatDate(res.eventDate || res.date)}</div>
+                                <div className="text-[10px] text-slate-500">{res.startTime || '18:00'} - {res.endTime || '23:00'}</div>
+                              </td>
+                              <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
+                              <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
+                              <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
+                                {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
+                              </td>
+                              <td className="py-3.5 px-3">
+                                {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
+                                    <ThemeIcon icon="check-circle" fallbackEmoji="✅" className="w-3.5 h-3.5 mr-1 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                    <span>Ödeme Tamamlandı</span>
+                                  </span>
+                                ) : res.paymentStatus === 'Kapora Alındı' ? (
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-gold-400 border border-amber-500/40 shadow-xs">
+                                    <ThemeIcon icon="sparkles" fallbackEmoji="✨" className="w-3.5 h-3.5 mr-1 shrink-0 text-amber-600 dark:text-gold-400" />
+                                    <span>Kapora Alındı</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-500/15 text-slate-700 dark:text-gray-300 border border-slate-500/30 shadow-xs">
+                                    <span>{res.paymentStatus || 'Beklemede'}</span>
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3.5 px-3 text-right">
+                                <div className="flex items-center justify-end space-x-1.5">
+                                  <button
+                                    onClick={() => setSelectedResForPreview(res)}
+                                    className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-gold-400 font-bold text-xs transition flex items-center space-x-1 border border-amber-500/30"
+                                    title="Detay Görüntüle"
+                                  >
+                                    <ThemeIcon icon="eye" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-gold-400" />
+                                    <span>İncele</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleOpenEdit(res)}
+                                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 font-bold text-xs transition flex items-center space-x-1 border border-slate-200 dark:border-brand-border"
+                                    title="Düzenle"
+                                  >
+                                    <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0 text-slate-600 dark:text-gray-300" />
+                                    <span>Düzenle</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => setDeletingRes(res)}
+                                    className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 font-bold text-xs transition flex items-center space-x-1 border border-red-500/20"
+                                    title="Rezervasyonu Sil"
+                                  >
+                                    <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400" />
+                                    <span>Sil</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
                     )}
                   </tbody>
                 </table>

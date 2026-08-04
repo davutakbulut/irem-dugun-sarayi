@@ -4,12 +4,20 @@ import { OptimizedImage } from '../components/OptimizedImage.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function VenuesComponent({ venues, services = [], onAddClick, onEditClick, onDeleteClick }) {
       const [selectedVenueDetail, setSelectedVenueDetail] = useState(null);
       const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
       const [searchTerm, setSearchTerm] = useState('');
       const [categoryFilter, setCategoryFilter] = useState('ALL');
+
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(8);
+
+      useEffect(() => {
+        setCurrentPage(1);
+      }, [searchTerm, categoryFilter]);
 
       const categories = useMemo(() => {
         const set = new Set(venues.map(v => v.category).filter(Boolean));
@@ -143,129 +151,147 @@ export function VenuesComponent({ venues, services = [], onAddClick, onEditClick
                 Filtreleri Temizle
               </button>
             </div>
-          ) : viewMode === 'grid' ? (
-            /* --- KART IZGARA GÖRÜNÜMÜ --- */
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredVenues.map(v => (
-                <div key={v.id} className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden space-y-3 shadow-sm flex flex-col justify-between hover:border-amber-500/50 transition group">
-                  <div>
-                    <div className="cursor-pointer overflow-hidden relative" onClick={() => setSelectedVenueDetail(v)}>
-                      <OptimizedImage src={v.image || v.images[0]} alt={`${v.name} Görseli`} className="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
-                      <span className="absolute top-3 right-3 text-[10px] text-amber-950 font-black bg-amber-400 px-2.5 py-1 rounded-full shadow-md">
-                        {v.category}
-                      </span>
-                    </div>
-                    <div className="p-4 space-y-2">
-                      <h3
-                        onClick={() => setSelectedVenueDetail(v)}
-                        className="font-bold text-base text-slate-800 dark:text-gray-100 cursor-pointer hover:text-amber-500 transition"
-                      >
-                        {v.name}
-                      </h3>
-                      <div className="flex justify-between items-center text-xs text-slate-600 dark:text-gray-300 font-bold border-b border-slate-100 dark:border-brand-border/30 pb-2">
-                        <span className="flex items-center space-x-1">
-                          <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-                          <span>Kapasite: {v.capacity} Kişi</span>
-                        </span>
-                        <span className="text-amber-600 dark:text-gold-400 font-extrabold">{formatCurrency(v.price)}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-2">{v.description}</p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 pt-0 flex space-x-2">
-                    <button
-                      onClick={() => setSelectedVenueDetail(v)}
-                      className="flex-1 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs shadow hover:bg-amber-400 transition flex items-center justify-center space-x-1.5"
-                    >
-                      <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
-                      <span>Detay İncele</span>
-                    </button>
-                    <button onClick={() => onEditClick(v)} className="py-2 px-3 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/30 flex items-center justify-center space-x-1 hover:bg-amber-500/20 transition">
-                      <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
-                      <span>Düzenle</span>
-                    </button>
-                    <button onClick={() => onDeleteClick(v.id)} className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-xs uppercase border border-red-500/30 inline-flex items-center space-x-1 transition">
-                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
-                      <span>SİL</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
           ) : (
-            /* --- TABLO GÖRÜNÜMÜ --- */
-            <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
-                      <th className="py-3.5 px-4">Salon Görseli</th>
-                      <th className="py-3.5 px-4">Salon Adı & Konsept</th>
-                      <th className="py-3.5 px-4">Kapasite</th>
-                      <th className="py-3.5 px-4">Başlangıç Fiyatı</th>
-                      <th className="py-3.5 px-4">Açıklama</th>
-                      <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
-                    {filteredVenues.map(v => (
-                      <tr key={v.id} className="hover:bg-amber-500/5 transition">
-                        <td className="py-3 px-4">
-                          <div className="w-14 h-10 rounded-xl overflow-hidden cursor-pointer border border-amber-500/30 shrink-0" onClick={() => setSelectedVenueDetail(v)}>
-                            <OptimizedImage src={v.image || v.images[0]} alt={v.name} className="w-full h-full object-cover hover:scale-110 transition" />
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="font-bold text-slate-900 dark:text-gray-100 cursor-pointer hover:text-amber-500 transition" onClick={() => setSelectedVenueDetail(v)}>
-                            {v.name}
-                          </div>
-                          <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block mt-0.5">
+            <div className="space-y-4">
+              {viewMode === 'grid' ? (
+                /* --- KART IZGARA GÖRÜNÜMÜ --- */
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {filteredVenues
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map(v => (
+                    <div key={v.id} className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden space-y-3 shadow-sm flex flex-col justify-between hover:border-amber-500/50 transition group">
+                      <div>
+                        <div className="cursor-pointer overflow-hidden relative" onClick={() => setSelectedVenueDetail(v)}>
+                          <OptimizedImage src={v.image || v.images[0]} alt={`${v.name} Görseli`} className="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
+                          <span className="absolute top-3 right-3 text-[10px] text-amber-950 font-black bg-amber-400 px-2.5 py-1 rounded-full shadow-md">
                             {v.category}
                           </span>
-                        </td>
-                        <td className="py-3 px-4 font-mono font-bold text-slate-800 dark:text-gray-200 flex items-center space-x-1">
-                          <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-                          <span>{v.capacity} Kişi</span>
-                        </td>
-                        <td className="py-3 px-4 font-mono font-extrabold text-amber-600 dark:text-gold-400">
-                          {formatCurrency(v.price)}
-                        </td>
-                        <td className="py-3 px-4 max-w-xs truncate text-slate-500 dark:text-gray-400">
-                          {v.description}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end space-x-1.5">
-                            <button
-                              onClick={() => setSelectedVenueDetail(v)}
-                              className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px] shadow hover:bg-amber-400 transition flex items-center space-x-1"
-                              title="Salon Detayını İncele"
-                            >
-                              <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3 h-3 shrink-0" />
-                              <span>Detay</span>
-                            </button>
-                            <button
-                              onClick={() => onEditClick(v)}
-                              className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
-                              title="Salonu Düzenle"
-                            >
-                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
-                              <span>Düzenle</span>
-                            </button>
-                            <button
-                              onClick={() => onDeleteClick(v.id)}
-                              className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
-                              title="Salonu Sil"
-                            >
-                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
-                            </button>
+                        </div>
+                        <div className="p-4 space-y-2">
+                          <h3
+                            onClick={() => setSelectedVenueDetail(v)}
+                            className="font-bold text-base text-slate-800 dark:text-gray-100 cursor-pointer hover:text-amber-500 transition"
+                          >
+                            {v.name}
+                          </h3>
+                          <div className="flex justify-between items-center text-xs text-slate-600 dark:text-gray-300 font-bold border-b border-slate-100 dark:border-brand-border/30 pb-2">
+                            <span className="flex items-center space-x-1">
+                              <ThemeIcon icon="user" fallbackEmoji="👥" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                              <span>Kapasite: {v.capacity} Kişi</span>
+                            </span>
+                            <span className="text-amber-600 dark:text-gold-400 font-extrabold">{formatCurrency(v.price)}</span>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-2">{v.description}</p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 pt-0 flex space-x-2">
+                        <button
+                          onClick={() => setSelectedVenueDetail(v)}
+                          className="flex-1 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs shadow hover:bg-amber-400 transition flex items-center justify-center space-x-1.5"
+                        >
+                          <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3.5 h-3.5 shrink-0" />
+                          <span>İncele</span>
+                        </button>
+                        <button
+                          onClick={() => onEditClick(v)}
+                          className="p-2 rounded-xl bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center justify-center"
+                          title="Salonu Düzenle"
+                        >
+                          <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3.5 h-3.5 shrink-0" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteClick(v.id)}
+                          className="p-2 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white transition flex items-center justify-center"
+                          title="Salonu Sil"
+                        >
+                          <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* --- TABLO GÖRÜNÜMÜ --- */
+                <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
+                          <th className="py-3.5 px-4">Salon Adı</th>
+                          <th className="py-3.5 px-4">Kategori</th>
+                          <th className="py-3.5 px-4">Kapasite</th>
+                          <th className="py-3.5 px-4">Başlangıç Fiyatı</th>
+                          <th className="py-3.5 px-4">Açıklama</th>
+                          <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
+                        {filteredVenues
+                          .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                          .map(v => (
+                          <tr key={v.id} className="hover:bg-amber-500/5 transition">
+                            <td className="py-3 px-4 font-bold text-slate-900 dark:text-gray-100">
+                              {v.name}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30">
+                                {v.category}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 font-mono font-bold">
+                              {v.capacity} Kişi
+                            </td>
+                            <td className="py-3 px-4 font-mono font-extrabold text-amber-600 dark:text-gold-400">
+                              {formatCurrency(v.price)}
+                            </td>
+                            <td className="py-3 px-4 max-w-xs truncate text-slate-500 dark:text-gray-400">
+                              {v.description}
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end space-x-1.5">
+                                <button
+                                  onClick={() => setSelectedVenueDetail(v)}
+                                  className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px] shadow hover:bg-amber-400 transition flex items-center space-x-1"
+                                  title="Salon Detayını İncele"
+                                >
+                                  <ThemeIcon icon="preview" fallbackEmoji="👁️" className="w-3 h-3 shrink-0" />
+                                  <span>Detay</span>
+                                </button>
+                                <button
+                                  onClick={() => onEditClick(v)}
+                                  className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
+                                  title="Salonu Düzenle"
+                                >
+                                  <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                                  <span>Düzenle</span>
+                                </button>
+                                <button
+                                  onClick={() => onDeleteClick(v.id)}
+                                  className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
+                                  title="Salonu Sil"
+                                >
+                                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* PAGINATION FOR VENUES */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredVenues.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[8, 16, 32]}
+              />
             </div>
           )}
         </div>

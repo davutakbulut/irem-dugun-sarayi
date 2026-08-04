@@ -2,8 +2,12 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
 import { generateSmartAIRecommendations } from '../constants/mockData.js';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function CampaignsComponent({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice }) {
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(6);
+
       const aiRecs = React.useMemo(() => {
         return generateSmartAIRecommendations(reservations, venues, services);
       }, [reservations, venues, services]);
@@ -58,25 +62,25 @@ export function CampaignsComponent({ campaigns = [], venues = [], services = [],
                       <ThemeIcon icon="target" fallbackEmoji="🎯" className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span>{ai.title}</span>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-gray-300 leading-tight">{ai.description}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-gray-400 line-clamp-2 leading-relaxed">{ai.description}</p>
                   </div>
 
-                  <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-brand-border/40">
+                  <div className="flex space-x-1.5 pt-2 border-t border-slate-100 dark:border-brand-border/40 text-[10px]">
                     <button
+                      type="button"
                       onClick={() => onConvertToCampaign && onConvertToCampaign(ai)}
-                      className="w-full gold-button font-bold text-[11px] py-2 px-3 rounded-xl shadow inline-flex items-center justify-center space-x-1.5"
+                      className="flex-1 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition shadow-xs flex items-center justify-center space-x-1"
                     >
-                      <ThemeIcon icon="sparkles" fallbackEmoji="🚀" className="w-3.5 h-3.5 shrink-0" />
-                      <span>Tek Tıkla Kampanyaya Dönüştür</span>
+                      <span>Aktif Et</span>
                     </button>
-
-                    {ai.canUpdatePrice && (
+                    {ai.suggestedVenueId && (
                       <button
-                        onClick={() => onUpdateVenuePrice && onUpdateVenuePrice(ai.venueId, ai.suggestedPrice)}
-                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] py-1.5 px-3 rounded-xl shadow transition inline-flex items-center justify-center space-x-1.5"
+                        type="button"
+                        onClick={() => onUpdateVenuePrice && onUpdateVenuePrice(ai.suggestedVenueId, ai.discountPercent)}
+                        className="py-1.5 px-2 rounded-xl bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 font-bold border border-slate-200 dark:border-brand-border hover:bg-slate-200 transition"
+                        title="Salon Fiyatına Uygula"
                       >
-                        <ThemeIcon icon="money" fallbackEmoji="💰" className="w-3.5 h-3.5 shrink-0" />
-                        <span>Fiyatı Güncelle & Uygula</span>
+                        Salon Fiyatına Ekle
                       </button>
                     )}
                   </div>
@@ -91,47 +95,59 @@ export function CampaignsComponent({ campaigns = [], venues = [], services = [],
               <span>Aktif Promosyon ve Kampanyalar ({campaigns.length})</span>
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {campaigns.map(c => (
-                <div
-                  key={c.id}
-                  className={`glass-panel p-5 rounded-3xl space-y-3 flex flex-col justify-between shadow-md hover:scale-[1.01] transition border ${
-                    c.isAiGenerated ? 'border-amber-500/60 bg-amber-500/5' : 'border-amber-500/30'
-                  }`}
-                >
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-mono font-bold text-xs text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/20">
-                        {c.code}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        {c.isAiGenerated && (
-                          <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/40">
-                            ✨ AI Üretimi
-                          </span>
-                        )}
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
-                          {c.type === 'percent' ? `%${c.value} İndirim` : c.type === 'amount' ? `${c.value} TL İndirim` : 'Hediye Paket'}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {campaigns
+                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  .map(c => (
+                  <div
+                    key={c.id}
+                    className={`glass-panel p-5 rounded-3xl space-y-3 flex flex-col justify-between shadow-md hover:scale-[1.01] transition border ${
+                      c.isAiGenerated ? 'border-amber-500/60 bg-amber-500/5' : 'border-amber-500/30'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono font-bold text-xs text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/20">
+                          {c.code}
                         </span>
+                        <div className="flex items-center space-x-1">
+                          {c.isAiGenerated && (
+                            <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/40">
+                              ✨ AI Üretimi
+                            </span>
+                          )}
+                          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
+                            {c.type === 'percent' ? `%${c.value} İndirim` : c.type === 'amount' ? `${c.value} TL İndirim` : 'Hediye Paket'}
+                          </span>
+                        </div>
                       </div>
+                      <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.title}</h3>
+                      <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">{c.description}</p>
                     </div>
-                    <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.title}</h3>
-                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">{c.description}</p>
-                  </div>
 
-                  <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40 text-xs">
-                    <button onClick={() => onEditClick(c)} className="px-3 py-1.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl font-bold hover:bg-amber-500/20">Düzenle</button>
-                    <button onClick={() => onDeleteClick(c.id)} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group">
-                      <span className="group-hover:text-white transition">SİL</span>
-                      <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
-                    </button>
+                    <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border/40 text-xs">
+                      <button onClick={() => onEditClick(c)} className="px-3 py-1.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl font-bold hover:bg-amber-500/20">Düzenle</button>
+                      <button onClick={() => onDeleteClick(c.id)} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-wider border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs group">
+                        <span className="group-hover:text-white transition">SİL</span>
+                        <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0 text-red-600 dark:text-red-400 group-hover:text-white transition" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              {/* PAGINATION FOR CAMPAIGNS */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={campaigns.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[6, 12, 24]}
+              />
             </div>
           </div>
         </div>
       );
     }
-
-    // --- REPORTS COMPONENT ---

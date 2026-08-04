@@ -2,11 +2,19 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { WhatsAppButton } from '../components/CommonUI.jsx';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick }) {
       const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
       const [searchTerm, setSearchTerm] = useState('');
       const [taxTypeFilter, setTaxTypeFilter] = useState('ALL'); // 'ALL' | 'individual' | 'corporate'
+
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(10);
+
+      useEffect(() => {
+        setCurrentPage(1);
+      }, [searchTerm, taxTypeFilter]);
 
       const filteredCustomers = useMemo(() => {
         return customers.filter(c => {
@@ -122,136 +130,150 @@ export function CustomersComponent({ customers, onAddClick, onEditClick, onDelet
                 Filtreleri Temizle
               </button>
             </div>
-          ) : viewMode === 'grid' ? (
-            /* --- KART IZGARA GÖRÜNÜMÜ --- */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredCustomers.map(c => (
-                <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4 shadow-sm border border-slate-200 dark:border-brand-border/40 hover:border-amber-500/50 transition">
-                  <img src={c.avatar} alt={`${c.name} Avatarı`} className="w-14 h-14 rounded-2xl object-cover border border-amber-500/40 shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
-                      <div className="flex space-x-1.5 items-center">
-                        <button onClick={() => onEditClick(c)} className="text-[11px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center space-x-1 hover:bg-amber-500/20 transition">
-                          <span>Düzenle</span>
-                          <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
-                        </button>
-                        <button onClick={() => onDeleteClick(c.id)} className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-xs uppercase border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs">
-                          <span>SİL</span>
-                          <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
-                    <div className="text-[11px] text-slate-600 dark:text-gray-400">
-                      <span className="font-bold text-amber-600 dark:text-gold-400 inline-flex items-center space-x-1">
-                        {c.taxType === 'corporate' ? (
-                          <>
-                            <ThemeIcon icon="briefcase" fallbackEmoji="🏢" className="w-3.5 h-3.5 shrink-0" />
-                            <span>Kurumsal</span>
-                          </>
-                        ) : (
-                          <>
-                            <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3.5 h-3.5 shrink-0" />
-                            <span>Bireysel</span>
-                          </>
-                        )}
-                      </span>
-                      <span> - </span>
-                      <span>{c.taxType === 'corporate' ? `VKN: ${c.vknNo || c.tcNo || '-'}` : `TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</span>
-                    </div>
-                    <div className="pt-1">
-                      <WhatsAppButton phone={c.phone} customerName={c.name} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           ) : (
-            /* --- TABLO GÖRÜNÜMÜ --- */
-            <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
-                      <th className="py-3.5 px-4">Müşteri</th>
-                      <th className="py-3.5 px-4">İletişim Bilgileri</th>
-                      <th className="py-3.5 px-4">Müşteri Türü & Kimlik / Vergi No</th>
-                      <th className="py-3.5 px-4">Vergi Dairesi & Adres</th>
-                      <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
-                    {filteredCustomers.map(c => (
-                      <tr key={c.id} className="hover:bg-amber-500/5 transition">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center space-x-3">
-                            <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-xl object-cover border border-amber-500/30 shrink-0" />
-                            <div>
-                              <div className="font-bold text-slate-900 dark:text-gray-100">{c.name}</div>
-                              <div className="text-[10px] text-slate-400">ID: #{c.id}</div>
-                            </div>
+            <div className="space-y-4">
+              {viewMode === 'grid' ? (
+                /* --- KART IZGARA GÖRÜNÜMÜ --- */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredCustomers
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map(c => (
+                    <div key={c.id} className="glass-panel p-5 rounded-2xl flex items-start space-x-4 shadow-sm border border-slate-200 dark:border-brand-border/40 hover:border-amber-500/50 transition">
+                      <img src={c.avatar} alt={`${c.name} Avatarı`} className="w-14 h-14 rounded-2xl object-cover border border-amber-500/40 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{c.name}</h3>
+                          <div className="flex space-x-1.5 items-center">
+                            <button onClick={() => onEditClick(c)} className="text-[11px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center space-x-1 hover:bg-amber-500/20 transition">
+                              <span>Düzenle</span>
+                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                            </button>
+                            <button onClick={() => onDeleteClick(c.id)} className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-xs uppercase border border-red-500/30 inline-flex items-center space-x-1.5 transition shadow-2xs">
+                              <span>SİL</span>
+                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                            </button>
                           </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="font-mono text-slate-800 dark:text-gray-200 font-bold">{c.phone}</div>
-                          <div className="text-[11px] text-slate-500 dark:text-gray-400">{c.email}</div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
-                            c.taxType === 'corporate'
-                              ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                              : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                          }`}>
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-gray-400">{c.phone} | {c.email}</div>
+                        <div className="text-[11px] text-slate-600 dark:text-gray-400">
+                          <span className="font-bold text-amber-600 dark:text-gold-400 inline-flex items-center space-x-1">
                             {c.taxType === 'corporate' ? (
                               <>
-                                <ThemeIcon icon="briefcase" fallbackEmoji="🏢" className="w-3 h-3 shrink-0" />
+                                <ThemeIcon icon="briefcase" fallbackEmoji="🏢" className="w-3.5 h-3.5 shrink-0" />
                                 <span>Kurumsal</span>
                               </>
                             ) : (
                               <>
-                                <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3 h-3 shrink-0" />
+                                <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3.5 h-3.5 shrink-0" />
                                 <span>Bireysel</span>
                               </>
                             )}
                           </span>
-                          <div className="text-[11px] font-mono text-slate-600 dark:text-gray-300 mt-1">
-                            {c.taxType === 'corporate' ? `VKN: ${c.vknNo || '-'}` : `TC: ${c.tcNo || '-'}`}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-slate-500 dark:text-gray-400">
-                          <div>{c.taxOffice || 'Sapanca VD'}</div>
-                          <div className="text-[10px] truncate max-w-xs">{c.address || 'Sakarya / Sapanca'}</div>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end space-x-1.5">
-                            <WhatsAppButton phone={c.phone} customerName={c.name} />
-                            <button
-                              onClick={() => onEditClick(c)}
-                              className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
-                              title="Müşteri Bilgilerini Düzenle"
-                            >
-                              <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
-                            </button>
-                            <button
-                              onClick={() => onDeleteClick(c.id)}
-                              className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
-                              title="Müşteriyi Sil"
-                            >
-                              <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
-                            </button>
-                          </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                          <span> - </span>
+                          <span>{c.taxType === 'corporate' ? `VKN: ${c.vknNo || c.tcNo || '-'}` : `TC: ${c.tcNo || '-'}`} ({c.taxOffice || 'Sapanca VD'})</span>
+                        </div>
+                        <div className="pt-1">
+                          <WhatsAppButton phone={c.phone} customerName={c.name} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* --- TABLO GÖRÜNÜMÜ --- */
+                <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border/40 overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-brand-border/60 bg-slate-50/80 dark:bg-brand-dark/80 text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-wider">
+                          <th className="py-3.5 px-4">Müşteri</th>
+                          <th className="py-3.5 px-4">İletişim Bilgileri</th>
+                          <th className="py-3.5 px-4">Müşteri Türü & Kimlik / Vergi No</th>
+                          <th className="py-3.5 px-4">Vergi Dairesi & Adres</th>
+                          <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30 text-xs font-semibold text-slate-700 dark:text-gray-200">
+                        {filteredCustomers
+                          .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                          .map(c => (
+                          <tr key={c.id} className="hover:bg-amber-500/5 transition">
+                            <td className="py-3 px-4">
+                              <div className="flex items-center space-x-3">
+                                <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-xl object-cover border border-amber-500/30 shrink-0" />
+                                <div>
+                                  <div className="font-bold text-slate-900 dark:text-gray-100">{c.name}</div>
+                                  <div className="text-[10px] text-slate-400">ID: #{c.id}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-mono text-slate-800 dark:text-gray-200 font-bold">{c.phone}</div>
+                              <div className="text-[11px] text-slate-500 dark:text-gray-400">{c.email}</div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
+                                c.taxType === 'corporate'
+                                  ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                              }`}>
+                                {c.taxType === 'corporate' ? (
+                                  <>
+                                    <ThemeIcon icon="briefcase" fallbackEmoji="🏢" className="w-3 h-3 shrink-0" />
+                                    <span>Kurumsal</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ThemeIcon icon="user" fallbackEmoji="👤" className="w-3 h-3 shrink-0" />
+                                    <span>Bireysel</span>
+                                  </>
+                                )}
+                              </span>
+                              <div className="text-[11px] font-mono mt-0.5">{c.taxType === 'corporate' ? `VKN: ${c.vknNo || c.tcNo || '-'}` : `TC: ${c.tcNo || '-'}`}</div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div>{c.taxOffice || 'Sapanca VD'}</div>
+                              <div className="text-[10px] text-slate-400 truncate max-w-xs">{c.address || 'Sakarya'}</div>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end space-x-1.5">
+                                <button
+                                  onClick={() => onEditClick(c)}
+                                  className="px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-gold-400 font-bold text-[11px] border border-amber-500/30 transition flex items-center justify-center"
+                                  title="Müşteri Bilgilerini Düzenle"
+                                >
+                                  <ThemeIcon icon="edit" fallbackEmoji="✏️" className="w-3 h-3 shrink-0" />
+                                </button>
+                                <button
+                                  onClick={() => onDeleteClick(c.id)}
+                                  className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white font-extrabold text-[11px] border border-red-500/30 transition flex items-center justify-center"
+                                  title="Müşteriyi Sil"
+                                >
+                                  <ThemeIcon icon="trash" fallbackEmoji="🗑️" className="w-3.5 h-3.5 shrink-0" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* PAGINATION FOR CUSTOMERS */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredCustomers.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+              />
+            </div>
+          )}
         </div>
-      </div>
-    )}
-  </div>
-);
-}
+      );
+    }
 
 // --- MIND MAP COMPONENT & INTERACTIVE SYSTEM TOPOLOGY ---
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function FinanceComponent({ financialStats, reservations }) {
       const [expenses, setExpenses] = useState([
@@ -15,6 +16,13 @@ export function FinanceComponent({ financialStats, reservations }) {
       const [filterTab, setFilterTab] = useState('all');
       const [searchQuery, setSearchQuery] = useState('');
       const [isModalOpen, setIsModalOpen] = useState(false);
+
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(10);
+
+      useEffect(() => {
+        setCurrentPage(1);
+      }, [filterTab, searchQuery]);
 
       const [newTitle, setNewTitle] = useState('');
       const [newCategory, setNewCategory] = useState('Genel Harcama');
@@ -207,7 +215,9 @@ export function FinanceComponent({ financialStats, reservations }) {
                       </td>
                     </tr>
                   ) : (
-                    filteredTransactions.map(t => (
+                    filteredTransactions
+                      .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                      .map(t => (
                       <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-brand-card/50 transition">
                         <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-400">{formatDate(t.date)}</td>
                         <td className="p-3.5 font-bold text-slate-800 dark:text-gray-100">{t.title}</td>
@@ -245,6 +255,15 @@ export function FinanceComponent({ financialStats, reservations }) {
                 </tbody>
               </table>
             </div>
+
+            {/* PAGINATION FOR FINANCE TRANSACTIONS */}
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredTransactions.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
           </div>
 
           {isModalOpen && (

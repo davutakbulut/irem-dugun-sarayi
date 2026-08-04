@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ThemeIcon } from '../components/ThemeIcon.jsx';
+import { Pagination } from '../components/Pagination.jsx';
 
 export function MediaComponent({ reservations = [], setReservations = () => {}, activeRole = 'admin', currentUserState = null, showToast = () => {} }) {
   // Extract URL key from both path route (#/medya/MEDIA-8X92M1KP) and query param (?key=MEDIA-8X92M1KP)
@@ -155,6 +156,13 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
   useEffect(() => {
     try { sessionStorage.setItem('guest_uploaded_ids', JSON.stringify(guestSessionUploadIds)); } catch(e){}
   }, [guestSessionUploadIds]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterType]);
 
   // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (POLLING + BROADCAST + STORAGE EVENT)
   useEffect(() => {
@@ -990,117 +998,132 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                 <div className="text-xs font-medium">Yukarıdaki alandan ilk fotoğrafı veya videoyu yükleyebilirsiniz.</div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {mediaList.map((item, idx) => {
-                  const isSelected = selectedMediaIds.includes(item.id);
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={(e) => {
-                        if (isSelectMode) {
-                          toggleSelectMedia(item.id, e);
-                        } else {
-                          setLightboxIndex(idx);
-                        }
-                      }}
-                      className={`group relative rounded-2xl overflow-hidden aspect-square border transition cursor-pointer ${
-                        isSelected
-                          ? 'border-2 border-amber-500 ring-4 ring-amber-500/30 scale-[1.02] shadow-xl'
-                          : 'border-slate-200 dark:border-brand-border/60 bg-slate-100 dark:bg-brand-dark shadow-xs hover:border-amber-500/60 hover:scale-[1.02]'
-                      }`}
-                    >
-                      {/* CHECKBOX FOR SELECTION MODE */}
-                      {!isPublicGuestMode && (
-                        <button
-                          type="button"
-                          onClick={(e) => toggleSelectMedia(item.id, e)}
-                          className={`absolute top-2 right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center transition border shadow-md cursor-pointer ${
-                            isSelected
-                              ? 'bg-amber-500 text-slate-950 border-amber-300 font-black text-xs scale-110'
-                              : 'bg-slate-900/70 text-transparent border-white/50 hover:bg-amber-500/80 hover:text-white'
-                          }`}
-                        >
-                          ✓
-                        </button>
-                      )}
-                    {item.type === 'video' ? (
-                      <div className="w-full h-full relative bg-slate-950 flex items-center justify-center overflow-hidden">
-                        <video
-                          src={item.url}
-                          preload="metadata"
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition duration-300 pointer-events-none"
-                        />
-                        <div className="absolute w-12 h-12 rounded-full bg-amber-500/90 text-slate-950 flex items-center justify-center shadow-2xl group-hover:scale-110 transition backdrop-blur-xs">
-                          <ThemeIcon icon="play" fallbackEmoji="▶" className="w-6 h-6 ml-0.5 shrink-0 text-slate-950" />
-                        </div>
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/90 border border-amber-500/40 text-amber-400 font-mono text-[9px] font-black tracking-widest shadow-md">
-                          ▶ VİDEO
-                        </span>
-                      </div>
-                    ) : (
-                      <img
-                        src={item.url}
-                        alt="Galeri Fotoğrafı"
-                        onError={() => {
-                          setFailedMediaIds(prev => [...prev, item.id]);
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {mediaList
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map((item, idx) => {
+                    const isSelected = selectedMediaIds.includes(item.id);
+                    const absoluteIdx = (currentPage - 1) * pageSize + idx;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={(e) => {
+                          if (isSelectMode) {
+                            toggleSelectMedia(item.id, e);
+                          } else {
+                            setLightboxIndex(absoluteIdx);
+                          }
                         }}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                    )}
-
-                    {/* OVERLAY INFORMATION WITH DELETE BUTTON */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2.5 flex flex-col justify-between text-white text-[10px]">
-                      <div className="flex justify-between items-center">
-                        {/* DELETE BUTTON */}
-                        <button
-                          type="button"
-                          onClick={(e) => requestDeleteMediaItem(item, e)}
-                          className="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded-md font-bold text-[9px] shadow transition flex items-center space-x-1 cursor-pointer"
-                          title="İçeriği Sil"
-                        >
-                          <ThemeIcon icon="trash" fallbackEmoji="" className="w-3 h-3 shrink-0" />
-                          <span>Sil</span>
-                        </button>
-
+                        className={`group relative rounded-2xl overflow-hidden aspect-square border transition cursor-pointer ${
+                          isSelected
+                            ? 'border-2 border-amber-500 ring-4 ring-amber-500/30 scale-[1.02] shadow-xl'
+                            : 'border-slate-200 dark:border-brand-border/60 bg-slate-100 dark:bg-brand-dark shadow-xs hover:border-amber-500/60 hover:scale-[1.02]'
+                        }`}
+                      >
+                        {/* CHECKBOX FOR SELECTION MODE */}
                         {!isPublicGuestMode && (
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm('Bu IP adresini engellemek (banlamak) istediğinize emin misiniz?')) {
-                                setBannedIPs(prev => Array.from(new Set([...prev, item.uploaderIp])));
-                                showToast('🚫 ' + item.uploaderIp + ' adresi engellendi!');
-                              }
-                            }}
-                            className="px-2 py-1 bg-slate-800/90 hover:bg-red-700 text-white rounded-md font-bold text-[9px]"
-                            title="Yükleyen IP Adresini Engelle"
+                            onClick={(e) => toggleSelectMedia(item.id, e)}
+                            className={`absolute top-2 right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center transition border shadow-md cursor-pointer ${
+                              isSelected
+                                ? 'bg-amber-500 text-slate-950 border-amber-300 font-black text-xs scale-110'
+                                : 'bg-slate-900/70 text-transparent border-white/50 hover:bg-amber-500/80 hover:text-white'
+                            }`}
                           >
-                            IP Ban
+                            ✓
                           </button>
                         )}
-                      </div>
-
-                      <div className="flex items-end justify-between gap-2 w-full">
-                        <div className="min-w-0">
-                          <div className="font-bold truncate">{item.uploaderName} ({item.tableNo})</div>
-                          <div className="text-[9px] opacity-75 font-mono">{item.timestamp}</div>
+                      {item.type === 'video' ? (
+                        <div className="w-full h-full relative bg-slate-950 flex items-center justify-center overflow-hidden">
+                          <video
+                            src={item.url}
+                            preload="metadata"
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition duration-300 pointer-events-none"
+                          />
+                          <div className="absolute w-12 h-12 rounded-full bg-amber-500/90 text-slate-950 flex items-center justify-center shadow-2xl group-hover:scale-110 transition backdrop-blur-xs">
+                            <ThemeIcon icon="play" fallbackEmoji="▶" className="w-6 h-6 ml-0.5 shrink-0 text-slate-950" />
+                          </div>
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/90 border border-amber-500/40 text-amber-400 font-mono text-[9px] font-black tracking-widest shadow-md">
+                            ▶ VİDEO
+                          </span>
                         </div>
-                        <a
-                          href={item.url}
-                          download={item.fileName || 'medya_icerigi'}
-                          onClick={(e) => e.stopPropagation()}
-                          className="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-md font-extrabold text-[9px] shadow-lg transition flex items-center space-x-1 shrink-0 cursor-pointer hover:scale-105"
-                          title="Cihaza İndir"
-                        >
-                          <ThemeIcon icon="download" fallbackEmoji="⬇️" className="w-3 h-3 shrink-0 text-slate-950" />
-                          <span>İndir</span>
-                        </a>
+                      ) : (
+                        <img
+                          src={item.url}
+                          alt="Galeri Fotoğrafı"
+                          onError={() => {
+                            setFailedMediaIds(prev => [...prev, item.id]);
+                          }}
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                      )}
+
+                      {/* OVERLAY INFORMATION WITH DELETE BUTTON */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2.5 flex flex-col justify-between text-white text-[10px]">
+                        <div className="flex justify-between items-center">
+                          {/* DELETE BUTTON */}
+                          <button
+                            type="button"
+                            onClick={(e) => requestDeleteMediaItem(item, e)}
+                            className="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded-md font-bold text-[9px] shadow transition flex items-center space-x-1 cursor-pointer"
+                            title="İçeriği Sil"
+                          >
+                            <ThemeIcon icon="trash" fallbackEmoji="" className="w-3 h-3 shrink-0" />
+                            <span>Sil</span>
+                          </button>
+
+                          {!isPublicGuestMode && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm('Bu IP adresini engellemek (banlamak) istediğinize emin misiniz?')) {
+                                  setBannedIPs(prev => Array.from(new Set([...prev, item.uploaderIp])));
+                                  showToast('🚫 ' + item.uploaderIp + ' adresi engellendi!');
+                                }
+                              }}
+                              className="px-2 py-1 bg-slate-800/90 hover:bg-red-700 text-white rounded-md font-bold text-[9px]"
+                              title="Yükleyen IP Adresini Engelle"
+                            >
+                              IP Ban
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex items-end justify-between gap-2 w-full">
+                          <div className="min-w-0">
+                            <div className="font-bold truncate">{item.uploaderName} ({item.tableNo})</div>
+                            <div className="text-[9px] opacity-75 font-mono">{item.timestamp}</div>
+                          </div>
+                          <a
+                            href={item.url}
+                            download={item.fileName || 'medya_icerigi'}
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-md font-extrabold text-[9px] shadow-lg transition flex items-center space-x-1 shrink-0 cursor-pointer hover:scale-105"
+                            title="Cihaza İndir"
+                          >
+                            <ThemeIcon icon="download" fallbackEmoji="⬇️" className="w-3 h-3 shrink-0 text-slate-950" />
+                            <span>İndir</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ); })}
+                  ); })}
+                </div>
+
+                {/* PAGINATION COMPONENT FOR MEDIA GALLERY */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={mediaList.length}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                  pageSizeOptions={[12, 24, 48, 96]}
+                />
               </div>
             )}
           </div>

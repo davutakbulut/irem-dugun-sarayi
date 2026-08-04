@@ -3766,33 +3766,11 @@
         "isGuest": true
       },
       {
-        "id": "mf_1785598602241",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
-        "fileName": "Gemini_Generated_Image_p7r86bp7r86bp7r8 (1).jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
         "id": "mf_1785598598409",
         "type": "image",
         "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
         "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
         "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-01 18:36",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785598594782",
-        "type": "image",
-        "url": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
-        "thumbnail": "/uploads/MEDIA-8X92M1KP/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
-        "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8 copy.jpg",
         "uploaderName": "Davetli Konuk",
         "tableNo": "Masa Davetlisi",
         "timestamp": "2026-08-01 18:36",
@@ -3946,44 +3924,11 @@
         "isGuest": true
       },
       {
-        "id": "mf_1785805477850",
-        "type": "image",
-        "url": "/uploads/MEDIA-AUG26-31/IMG_2592.jpg",
-        "thumbnail": "/uploads/MEDIA-AUG26-31/IMG_2592.jpg",
-        "fileName": "IMG_2592.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-04 04:04",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785805477617",
-        "type": "image",
-        "url": "/uploads/MEDIA-AUG26-31/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
-        "thumbnail": "/uploads/MEDIA-AUG26-31/Gemini_Generated_Image_igy8kwigy8kwigy8_copy.jpg",
-        "fileName": "Gemini_Generated_Image_igy8kwigy8kwigy8 copy.jpg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-04 04:04",
-        "isGuest": true
-      },
-      {
         "id": "mf_1785805477311",
         "type": "image",
         "url": "/uploads/MEDIA-AUG26-31/Gemini_Generated_Image_p7r86bp7r86bp7r8.jpeg",
         "thumbnail": "/uploads/MEDIA-AUG26-31/Gemini_Generated_Image_p7r86bp7r86bp7r8.jpeg",
         "fileName": "Gemini_Generated_Image_p7r86bp7r86bp7r8.jpeg",
-        "uploaderName": "Davetli Konuk",
-        "tableNo": "Masa Davetlisi",
-        "timestamp": "2026-08-04 04:04",
-        "isGuest": true
-      },
-      {
-        "id": "mf_1785805477097",
-        "type": "image",
-        "url": "/uploads/MEDIA-AUG26-31/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
-        "thumbnail": "/uploads/MEDIA-AUG26-31/Gemini_Generated_Image_p7r86bp7r86bp7r8__1_.jpeg",
-        "fileName": "Gemini_Generated_Image_p7r86bp7r86bp7r8 (1).jpeg",
         "uploaderName": "Davetli Konuk",
         "tableNo": "Masa Davetlisi",
         "timestamp": "2026-08-04 04:04",
@@ -4772,6 +4717,23 @@
       "email": "satis@iremdugunsarayi.com",
       "role": "satisci",
       "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "u3",
+      "name": "Murat Arslan (Sosyal Medya)",
+      "email": "sosyal@iremdugunsarayi.com",
+      "role": "sosyal_medyaci",
+      "avatar": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "u4",
+      "name": "Ahmet Yılmaz (Müşteri)",
+      "email": "ahmet.yilmaz@example.com",
+      "role": "musteri",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    }
+  ]
+}580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80"
     },
     {
       "id": "u3",
