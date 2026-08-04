@@ -5990,9 +5990,36 @@
         } else {
           targetTab = 'simulasyon-404';
         }
-      } else if (pathname === '/' && !rawHash) {
-        targetTab = 'home-gateway';
-        slug = 'home-gateway';
+      } else if (pathname === '/' || pathname === '/anasayfa') {
+        targetTab = 'public-home';
+        slug = '';
+      } else if (pathname === '/salonlar' || pathname === '/salonlarimiz') {
+        targetTab = 'public-halls';
+        slug = 'salonlar';
+      } else if (pathname === '/360-tur' || pathname === '/sanal-tur') {
+        targetTab = 'public-virtual-tour';
+        slug = '360-tur';
+      } else if (pathname === '/organizasyonlar' || pathname === '/organizasyon-paketleri') {
+        targetTab = 'public-organizations';
+        slug = 'organizasyonlar';
+      } else if (pathname === '/videolar' || pathname === '/video-galeri') {
+        targetTab = 'public-videos';
+        slug = 'videolar';
+      } else if (pathname === '/blog' || pathname === '/dugun-rehberi') {
+        targetTab = 'public-blog';
+        slug = 'blog';
+      } else if (pathname === '/hakkimizda' || pathname === '/kurumsal') {
+        targetTab = 'public-about';
+        slug = 'hakkimizda';
+      } else if (pathname === '/iletisim' || pathname === '/bize-ulasin') {
+        targetTab = 'public-contact';
+        slug = 'iletisim';
+      } else if (pathname === '/musteri-giris' || pathname === '/vip-giris') {
+        targetTab = 'public-customer-login';
+        slug = 'musteri-giris';
+      } else if (pathname === '/musteri-kayit' || pathname === '/cift-basvuru') {
+        targetTab = 'public-customer-register';
+        slug = 'musteri-kayit';
       } else {
         targetTab = 'simulasyon-404';
         slug = '404';
@@ -10497,13 +10524,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const hash = window.location.hash || '';
 
         const isPathHome = (pathname === '/' || pathname === '') && !hash;
-        const isHomeGatewayTab = activeTab === 'home-gateway';
+        const isPublicTab = activeTab.startsWith('public-') || activeTab === 'home-gateway';
         const isPathGuest = pathname.startsWith('/medya') || pathname.startsWith('/m/');
         const isSearchGuest = search.includes('mode=guest');
         const isHashGuest = /^#\/(?:medya|m)\//.test(hash) || hash.includes('mode=guest');
         const isUnauthenticatedMedia = activeTab === 'media' && !sessionUser;
 
-        return isPathHome || isHomeGatewayTab || isPathGuest || isSearchGuest || isHashGuest || isUnauthenticatedMedia;
+        return isPathHome || isPublicTab || isPathGuest || isSearchGuest || isHashGuest || isUnauthenticatedMedia;
       }, [activeTab, sessionUser]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
       const [menuLayout, setMenuLayout] = useState(() => {
