@@ -7773,15 +7773,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       } catch(e) {}
     };
 
+    // ONCE ON MOUNT: Load initial physical disk files
     fetchDiskFolderFiles();
-
-    // PUBLIC GUEST MODE: 0 Background Polling! Guests do NOT need continuous server requests.
-    if (isPublicGuestMode) return;
-
-    // ADMIN / MANAGEMENT MODE: Lightweight 10-second background polling for live updates
-    const diskInterval = setInterval(fetchDiskFolderFiles, 10000);
-    return () => clearInterval(diskInterval);
-  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, isPublicGuestMode, setReservations]);
+  }, [activeMediaKey, selectedResKey, currentRes?.id, currentRes?.mediaKey, setReservations]);
 
   // REAL-TIME INSTANT SYNC ACROSS TABS AND SAME WINDOW (EVENT DRIVEN)
   useEffect(() => {
