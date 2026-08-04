@@ -9,7 +9,26 @@ import urllib.parse
 import re
 import time
 
+import threading
+
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8002
+
+# REAL-TIME SERVER-SENT EVENTS (SSE) BROADCAST POOL
+SSE_CLIENTS = set()
+SSE_CLIENTS_LOCK = threading.Lock()
+
+def broadcast_sse(event_type, payload):
+    data_str = f"event: {event_type}\ndata: {json.dumps(payload)}\n\n"
+    with SSE_CLIENTS_LOCK:
+        dead = set()
+        for client_wfile in list(SSE_CLIENTS):
+            try:
+                client_wfile.write(data_str.encode('utf-8'))
+                client_wfile.flush()
+            except Exception:
+                dead.add(client_wfile)
+        for d in dead:
+            SSE_CLIENTS.discard(d)
 
 class ModularTestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -76,6 +95,29 @@ class ModularTestHandler(http.server.SimpleHTTPRequestHandler):
                 return
             except Exception as e:
                 print("API GET Error:", e)
+
+        # 1.1 API: Real-time SSE Stream GET (/api/media-stream)
+        if parsed_path.path == '/api/media-stream':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/event-stream')
+            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Connection', 'keep-alive')
+            self.end_headers()
+
+            with SSE_CLIENTS_LOCK:
+                SSE_CLIENTS.add(self.wfile)
+
+            try:
+                self.wfile.write(b"event: ping\ndata: {\"status\":\"connected\"}\n\n")
+                self.wfile.flush()
+                while True:
+                    time.sleep(15)
+                    self.wfile.write(b": keepalive\n\n")
+                    self.wfile.flush()
+            except Exception:
+                with SSE_CLIENTS_LOCK:
+                    SSE_CLIENTS.discard(self.wfile)
+            return
 
         # 2. HTML Routes (Strictly serves dist/index.html for Vite Modular build)
         is_html_route = (
@@ -211,6 +253,8 @@ class ModularTestHandler(http.server.SimpleHTTPRequestHandler):
                                 json.dump(db_cfg, f, indent=2, ensure_ascii=False)
                     except Exception as e_db:
                         print("Error updating db JSON on delete:", e_db)
+
+                broadcast_sse('media_update', {'action': 'delete', 'resId': raw_res_id, 'mediaId': media_id})
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')

@@ -9,7 +9,26 @@ import urllib.parse
 import re
 import time
 
+import threading
+
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8008
+
+# REAL-TIME SERVER-SENT EVENTS (SSE) BROADCAST POOL
+SSE_CLIENTS = set()
+SSE_CLIENTS_LOCK = threading.Lock()
+
+def broadcast_sse(event_type, payload):
+    data_str = f"event: {event_type}\ndata: {json.dumps(payload)}\n\n"
+    with SSE_CLIENTS_LOCK:
+        dead = set()
+        for client_wfile in list(SSE_CLIENTS):
+            try:
+                client_wfile.write(data_str.encode('utf-8'))
+                client_wfile.flush()
+            except Exception:
+                dead.add(client_wfile)
+        for d in dead:
+            SSE_CLIENTS.discard(d)
 
 # ENTERPRISE SECURITY HARDENING ENGINE & RATE LIMITING
 IP_UPLOAD_TRACKER = {}  # { ip_address: [timestamp1, timestamp2, ...] }
@@ -198,6 +217,29 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f'{{"error":"ZIP creation failed: {str(e)}"}}'.encode('utf-8'))
                 return
+
+        # 3.1 API: Real-time SSE Stream GET (/api/media-stream)
+        if parsed_path.path == '/api/media-stream':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/event-stream')
+            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Connection', 'keep-alive')
+            self.end_headers()
+
+            with SSE_CLIENTS_LOCK:
+                SSE_CLIENTS.add(self.wfile)
+
+            try:
+                self.wfile.write(b"event: ping\ndata: {\"status\":\"connected\"}\n\n")
+                self.wfile.flush()
+                while True:
+                    time.sleep(15)
+                    self.wfile.write(b": keepalive\n\n")
+                    self.wfile.flush()
+            except Exception:
+                with SSE_CLIENTS_LOCK:
+                    SSE_CLIENTS.discard(self.wfile)
+            return
 
         # 3. API: Ping GET
         if parsed_path.path == '/api/ping':
@@ -425,6 +467,9 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 with open(db_file, 'w', encoding='utf-8') as f:
                     json.dump(existing_db, f, indent=2)
 
+                # Broadcast instant SSE event to all connected browsers/devices
+                broadcast_sse('media_update', {'action': 'upload', 'resId': safe_res_id, 'url': rel_url})
+
                 res_body = json.dumps({
                     'success': True,
                     'status': 'ok',
@@ -527,6 +572,8 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                                 json.dump(db_cfg, f, indent=2, ensure_ascii=False)
                     except Exception as e_db:
                         print("Error updating db JSON on delete:", e_db)
+
+                broadcast_sse('media_update', {'action': 'delete', 'resId': raw_res_id, 'mediaId': media_id})
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')

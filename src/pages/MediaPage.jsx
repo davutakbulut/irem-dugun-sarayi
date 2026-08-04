@@ -234,12 +234,24 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
+    // Real-Time EventSource (SSE - Server Sent Events) for 0ms Instant Push Notifications
+    let evtSource = null;
+    try {
+      if (typeof EventSource !== 'undefined') {
+        evtSource = new EventSource('/api/media-stream');
+        evtSource.addEventListener('media_update', () => {
+          syncFromCache();
+        });
+      }
+    } catch(e){}
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('irem_media_sync', handleCustomSync);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       stopHeartbeat();
       if (bc) bc.close();
+      if (evtSource) evtSource.close();
     };
   }, [setReservations]);
 
