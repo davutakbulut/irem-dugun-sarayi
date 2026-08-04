@@ -1,8 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.font-great-vibes {
+  font-family: 'Great Vibes', cursive !important;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.bg-svadba-ivory {
+  background-color: #F5F2ED !important;
+}
+
+.bg-svadba-dark {
+  background-color: #1A1A1A !important;
+}
+
+.text-svadba-gold {
+  color: #C5B37D !important;
+}
+
+.bg-svadba-gold {
+  background-color: #C5B37D !important;
+}
+
+.border-svadba-gold {
+  border-color: #C5B37D !important;
+}
+
+.svadba-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #E6E1D8;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.svadba-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
 
 :root {
   --color-gold: #d97706;

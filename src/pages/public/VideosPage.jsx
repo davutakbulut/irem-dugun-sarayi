@@ -12,14 +12,14 @@ export default function VideosPage() {
       poster: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
     },
     {
-      title: 'Zeynep & Burak Çiftinin Masalsı Kır Düğünü Klipi',
+      title: 'Masalsı Göl Kır Düğünü Hikayesi',
       category: 'Düğün Hikayesi',
       duration: '04:20',
       embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       poster: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80',
     },
     {
-      title: 'Görkemli Saray Balo Salonu Işık & Sahne Şovu',
+      title: 'Görkemli Gold Balo Salonu Işık & Sahne Şovu',
       category: 'Işık & Sahne',
       duration: '02:15',
       embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
@@ -37,17 +37,17 @@ export default function VideosPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12 space-y-12">
+    <div className="bg-[#F5F2ED] min-h-screen text-[#1A1A1A] py-16 px-4 sm:px-8 max-w-7xl mx-auto space-y-12">
       
       {/* HEADER */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="text-amber-500 font-extrabold text-xs uppercase tracking-widest">
-          🎬 Medya Galeri & Drone Klipleri
+      <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <span className="text-[#C5B37D] font-bold text-xs uppercase tracking-[0.2em]">
+          MEDYA & GALERİ
         </span>
-        <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-white">
+        <h1 className="font-great-vibes text-5xl sm:text-6xl text-[#1A1A1A] font-normal">
           4K Video & Fotoğraf Galerimiz
         </h1>
-        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#666666] leading-relaxed">
           Tesisimizde gerçekleşen gerçek organizasyon kliplerini ve drone çekimlerimizi yüksek kalitede izleyin.
         </p>
       </div>
@@ -56,20 +56,24 @@ export default function VideosPage() {
       <div className="flex justify-center space-x-3">
         <button
           onClick={() => setActiveTab('videos')}
-          className={`px-6 py-3 rounded-2xl font-bold text-xs transition cursor-pointer ${
-            activeTab === 'videos' ? 'gold-button shadow-xl' : 'bg-slate-900 text-slate-300 border border-slate-800'
+          className={`px-8 py-3 rounded-full font-bold text-xs tracking-wider transition cursor-pointer uppercase ${
+            activeTab === 'videos'
+              ? 'bg-[#1A1A1A] text-[#F5F2ED] border border-[#C5B37D] shadow-lg'
+              : 'bg-white text-[#1A1A1A] border border-[#E6E1D8] hover:border-[#C5B37D]'
           }`}
         >
-          🎬 4K Video Klipler
+          4K VİDEO KLİPLER
         </button>
 
         <button
           onClick={() => setActiveTab('photos')}
-          className={`px-6 py-3 rounded-2xl font-bold text-xs transition cursor-pointer ${
-            activeTab === 'photos' ? 'gold-button shadow-xl' : 'bg-slate-900 text-slate-300 border border-slate-800'
+          className={`px-8 py-3 rounded-full font-bold text-xs tracking-wider transition cursor-pointer uppercase ${
+            activeTab === 'photos'
+              ? 'bg-[#1A1A1A] text-[#F5F2ED] border border-[#C5B37D] shadow-lg'
+              : 'bg-white text-[#1A1A1A] border border-[#E6E1D8] hover:border-[#C5B37D]'
           }`}
         >
-          📸 Fotoğraf Galerisi
+          FOTOĞRAF GALERİSİ
         </button>
       </div>
 
@@ -77,30 +81,30 @@ export default function VideosPage() {
       {activeTab === 'videos' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {videos.map((vid, i) => (
-            <div key={i} className="bg-slate-900/90 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl space-y-4 p-4">
-              <div className="relative h-48 rounded-2xl overflow-hidden group">
-                <img src={vid.poster} alt={vid.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
-                <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-xl font-bold shadow-2xl group-hover:scale-110 transition">
+            <div key={i} className="bg-white rounded-2xl border border-[#E6E1D8] overflow-hidden shadow-lg space-y-4 p-4">
+              <div className="relative h-52 rounded-xl overflow-hidden group cursor-pointer">
+                <img src={vid.poster} alt={vid.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-[#C5B37D] text-black flex items-center justify-center text-xl font-bold shadow-2xl group-hover:scale-110 transition">
                     ▶
                   </div>
                 </div>
-                <span className="absolute bottom-3 right-3 bg-slate-950/80 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded">
+                <span className="absolute bottom-3 right-3 bg-black/80 text-[#C5B37D] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                   {vid.duration}
                 </span>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-amber-400 uppercase">{vid.category}</span>
-                <h3 className="font-heading font-extrabold text-sm text-white">{vid.title}</h3>
+                <span className="text-[10px] font-bold text-[#C5B37D] uppercase tracking-widest">{vid.category}</span>
+                <h3 className="font-serif font-bold text-base text-[#1A1A1A]">{vid.title}</h3>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {photos.map((src, i) => (
-            <div key={i} className="h-64 rounded-2xl overflow-hidden border border-slate-800 group shadow-lg">
-              <img src={src} alt={`İrem Düğün Sarayı Foto ${i+1}`} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+            <div key={i} className="h-64 rounded-xl overflow-hidden border border-[#E6E1D8] group shadow-md">
+              <img src={src} alt={`İrem Düğün Sarayı Foto ${i+1}`} className="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
             </div>
           ))}
         </div>

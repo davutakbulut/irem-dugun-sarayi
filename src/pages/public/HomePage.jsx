@@ -28,277 +28,264 @@ export default function HomePage({ navigateTo }) {
     }, 4000);
   };
 
+  const handleNav = (route) => {
+    if (navigateTo) navigateTo(route);
+    else window.location.href = route;
+  };
+
   return (
-    <div className="space-y-24 pb-16">
+    <div className="bg-[#F5F2ED] text-[#1A1A1A] font-sans -mt-20 overflow-x-hidden">
       
-      {/* SECTION 1: FULL-SCREEN HERO SHOWCASE */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden -mt-20 pt-20">
-        {/* HERO BACKGROUND VIDEO / IMAGE */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80"
-            alt="İrem Düğün Sarayı Balo Tesisleri"
-            className="w-full h-full object-cover object-center transform scale-105 animate-pulse duration-[10000ms]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/60" />
+      {/* SECTION 1: SVADBA STYLE HERO WITH AMBIENT VIDEO & OVERLAY */}
+      <section className="relative min-h-screen flex flex-col justify-center items-center text-center overflow-hidden pt-20">
+        {/* BACKGROUND VIDEO / AMBIENT OVERLAY */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <video
+            className="w-full h-full object-cover scale-105"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80"
+          >
+            <source src="https://cdn.creafolks.com/svadba-davet/9e9fee9d-dc11-4bd5-bc7a-4614de2d7e2b.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/55" />
         </div>
 
-        {/* HERO CONTENT CONTAINER */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
-          
-          {/* LEFT HERO TEXT */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left text-white">
-            <div className="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-4 py-2 rounded-full text-xs font-extrabold shadow-inner">
-              <span>👑</span>
-              <span>Sapanca Göl Kenarında Lüks Düğün & Balo Deneyimi</span>
-            </div>
+        {/* HERO CONTENT */}
+        <div className="relative z-20 container mx-auto px-4 text-white max-w-4xl space-y-6">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-widest font-sans uppercase">
+            İREM DÜĞÜN SARAYI
+          </h1>
+          <p className="font-great-vibes text-3xl sm:text-5xl text-[#C5B37D] font-normal leading-relaxed">
+            Sapanca Göl Kenarı Masalsı Düğün Mekanları
+          </p>
 
-            <h1 className="text-4xl sm:text-6xl font-heading font-extrabold tracking-tight leading-tight">
-              Hayallerinizin Ötesinde Bir <br className="hidden sm:block" />
-              <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-                Masalsı Düğün Daveti
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium mx-auto lg:mx-0">
-              4 farklı konsept balo salonu, kır bahçesi, VIP ikram servisi ve yüksek kapasiteli organizasyon imkanları. Hayatınızın en özel gecesini kusursuz detaylarla tasarlıyoruz.
-            </p>
-
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <button
-                onClick={() => navigateTo && navigateTo('/salonlar')}
-                className="gold-button font-extrabold text-sm px-8 py-4 rounded-2xl shadow-2xl hover:scale-105 transition cursor-pointer flex items-center space-x-2 w-full sm:w-auto justify-center"
-              >
-                <span>Salonlarımızı Keşfedin</span>
-                <span>→</span>
-              </button>
-
-              <button
-                onClick={() => navigateTo && navigateTo('/360-tur')}
-                className="bg-slate-900/90 hover:bg-slate-800 text-amber-400 font-bold text-sm px-7 py-4 rounded-2xl border border-amber-500/40 backdrop-blur-md transition cursor-pointer flex items-center space-x-2.5 w-full sm:w-auto justify-center"
-              >
-                <span className="animate-pulse text-red-500">🔴</span>
-                <span>360° Sanal Turu Başlat</span>
-              </button>
-            </div>
-
-            {/* TRUST BADGES */}
-            <div className="pt-8 border-t border-slate-800/80 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0 text-center">
-              <div>
-                <div className="text-2xl font-black text-amber-400">1500+</div>
-                <div className="text-[11px] text-slate-400 font-medium">Mutlu Çift</div>
-              </div>
-              <div>
-                <div className="text-2xl font-black text-amber-400">4 Konsept</div>
-                <div className="text-[11px] text-slate-400 font-medium">Balo Salonu</div>
-              </div>
-              <div>
-                <div className="text-2xl font-black text-amber-400">%100</div>
-                <div className="text-[11px] text-slate-400 font-medium">Memnuniyet</div>
-              </div>
-            </div>
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => handleNav('/salonlar')}
+              className="bg-[#C5B37D] hover:bg-[#b09e6a] text-black font-bold text-xs px-8 py-4 rounded-full transition cursor-pointer tracking-widest uppercase shadow-2xl"
+            >
+              MEKANLARIMIZI KEŞFEDİN
+            </button>
+            <button
+              onClick={() => handleNav('/360-tur')}
+              className="bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md font-bold text-xs px-8 py-4 rounded-full transition cursor-pointer tracking-widest uppercase"
+            >
+              360° SANAL TUR
+            </button>
           </div>
-
-          {/* RIGHT QUICK QUOTE FORM CARD */}
-          <div className="lg:col-span-5">
-            <div className="bg-slate-900/95 backdrop-blur-2xl p-8 rounded-3xl border-2 border-amber-500/30 shadow-2xl text-white space-y-6">
-              
-              <div className="space-y-1">
-                <span className="text-amber-400 text-xs font-bold uppercase tracking-wider">
-                  ⚡ Hızlı Fiyat ve Tarih Sorgulama
-                </span>
-                <h3 className="text-2xl font-heading font-extrabold text-white">
-                  Düğün Unvanı & Tarih Alın
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Tarihinizi ve kişi sayınızı seçin, organizasyon ekibimiz 15 dakikada size özel fiyat teklifini hazırlasın.
-                </p>
-              </div>
-
-              {formSubmitted ? (
-                <div className="bg-emerald-500/10 border border-emerald-500/40 p-6 rounded-2xl text-center space-y-3 animate-fade-in">
-                  <div className="text-4xl">✅</div>
-                  <h4 className="text-lg font-bold text-emerald-400">Teklif Talebiniz Alındı!</h4>
-                  <p className="text-xs text-slate-300">
-                    Müşteri temsilcimiz vermiş olduğunuz telefon numarası üzerinden en kısa sürede size ulaşacaktır.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleQuoteSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                      Adınız ve Soyadınız *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Örn: Ayşe Yılmaz"
-                      value={quoteForm.name}
-                      onChange={(e) => setQuoteForm({ ...quoteForm, name: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 text-white text-xs px-4 py-3 rounded-xl outline-none transition"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                      Telefon Numarası *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="Örn: 0532 000 00 00"
-                      value={quoteForm.phone}
-                      onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 text-white text-xs px-4 py-3 rounded-xl outline-none transition"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                        Düğün / Etkinlik Tarihi
-                      </label>
-                      <input
-                        type="date"
-                        value={quoteForm.eventDate}
-                        onChange={(e) => setQuoteForm({ ...quoteForm, eventDate: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 text-white text-xs px-3 py-3 rounded-xl outline-none transition"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                        Tahmini Kişi Sayısı
-                      </label>
-                      <select
-                        value={quoteForm.guestCount}
-                        onChange={(e) => setQuoteForm({ ...quoteForm, guestCount: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 text-white text-xs px-3 py-3 rounded-xl outline-none transition"
-                      >
-                        <option value="100-250">100 - 250 Kişi</option>
-                        <option value="250-500">250 - 500 Kişi</option>
-                        <option value="500-1000">500 - 1000 Kişi</option>
-                        <option value="1000+">1000+ Kişi (Kır Bahçesi)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full gold-button font-extrabold text-sm py-4 rounded-xl shadow-xl hover:scale-[1.02] transition cursor-pointer"
-                  >
-                    Ücretsiz Özel Teklif Al →
-                  </button>
-                </form>
-              )}
-
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* SECTION 2: FEATURED HALLS SHOWCASE */}
-      <section className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <span className="text-amber-500 font-extrabold text-xs uppercase tracking-widest">
-            👑 Konsept Salonlarımız
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-heading font-extrabold">
-            Eşsiz Mimarisiyle 4 Farklı Balo Alanı
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            İster açık havada göl manzaralı kır düğünü, ister yüksek tavanlı saray ihtişamı.
-          </p>
-        </div>
+      {/* SECTION 2: SVADBA INTRO TEXT & CENTERED VIDEO */}
+      <section className="py-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        <div className="bg-[#F5F2ED] rounded-2xl p-6 sm:p-12 border border-[#E6E1D8] shadow-sm">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+            
+            {/* LEFT TEXT */}
+            <div className="flex-1 text-right text-sm leading-relaxed text-[#333333] space-y-4">
+              <p>
+                Sektöründe lider olma hedefi ile hiçbir fedakârlıktan kaçınılmadan sarf edilen gayretler karşılıksız kalmamış ve herkesin takdirini toplamayı başaran bir mekâna dönüşmüştür.
+              </p>
+              <p>
+                Bugüne kadar binlerce organizasyona ev sahipliği yapan <strong>İREM DÜĞÜN SARAYI</strong>, misafirlerinin teveccühleri ile her geçen gün hizmet kalitesini yükselterek alanında lider konuma yükselmiştir.
+              </p>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              title: 'Göl Manzaralı Kır Bahçesi',
-              capacity: '1.500 Kişi',
-              type: 'Açık Hava & Kır Düğünü',
-              img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
-              badge: 'AÇIK ALAN',
-            },
-            {
-              title: 'Saray Balo Salonu',
-              capacity: '1.000 Kişi',
-              type: 'Yüksek Tavan & Kolonsuz',
-              img: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=600&q=80',
-              badge: 'KAPALI LUXURY',
-            },
-            {
-              title: 'Safir Balo Salonu',
-              capacity: '600 Kişi',
-              type: 'Modern Işık & Ses Sistemi',
-              img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80',
-              badge: 'BUTİK DAVET',
-            },
-            {
-              title: 'VIP Lounge & Kına Salonu',
-              capacity: '300 Kişi',
-              type: 'Özel Taht & Nedime Alanı',
-              img: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=600&q=80',
-              badge: 'KINA & NİŞAN',
-            },
-          ].map((hall, idx) => (
-            <div
-              key={idx}
-              onClick={() => navigateTo && navigateTo('/salonlar')}
-              className="bg-slate-900/90 rounded-3xl border border-slate-800 hover:border-amber-500/60 overflow-hidden transition-all duration-300 hover:scale-[1.03] shadow-xl cursor-pointer group flex flex-col justify-between"
-            >
-              <div className="relative h-48 overflow-hidden">
+            {/* CENTER VIDEO & TITLE */}
+            <div className="flex-[1.4] text-center w-full min-w-[280px]">
+              <h2 className="font-great-vibes text-4xl sm:text-6xl text-[#1A1A1A] mb-6 font-normal">
+                İrem Düğün Sarayı
+              </h2>
+              <div className="w-full rounded-2xl overflow-hidden shadow-2xl bg-black border border-[#C5B37D]/30 relative aspect-video">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&controls=1"
+                  title="İrem Düğün Sarayı Tanıtım Filmi"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+
+            {/* RIGHT TEXT */}
+            <div className="flex-1 text-left text-sm leading-relaxed text-[#333333] space-y-4">
+              <p>
+                Hem mesleki tecrübe hem de profesyonel kadronun bir araya gelmesi bu başarının en önemli sebebi olarak tanımlanabilir.
+              </p>
+              <p>
+                Kendini her geçen gün yenileyen ve düğün salonu sektöründe ilklerin adresi konumuna gelen <strong>İREM DÜĞÜN SARAYI</strong>, göl manzaralı kır bahçesi ve lüks balo salonları ile unutulmaz anılar vaat ediyor.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: MASALSI DÜĞÜN MEKANLARI (DARK SECTION) */}
+      <section className="bg-[#1A1A1A] text-white py-20 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-12">
+          
+          <div className="text-center space-y-3">
+            <h2 className="font-great-vibes text-4xl sm:text-6xl text-white font-normal">
+              Masalsı Düğün Mekanları
+            </h2>
+            <p className="text-xs sm:text-sm text-white/60 tracking-wider uppercase">
+              Sapanca Gölünün Eşsiz Atmosferinde Hayalinizdeki Davet
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                title: 'İrem Göl Kır Bahçesi',
+                desc: 'Sapanca Gölünün yeşilliği içinde yer alan, hem açık hem kapalı alan seçenekleriyle 1500 kişilik kır düğünleri.',
+                img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+                route: '/salonlar',
+              },
+              {
+                title: 'İrem Gold Balo Salonu',
+                desc: 'Yüksek tavanlı mimarisi, kristal avizeleri ve 1000 kişilik yemekli kapasitesiyle zarafetin suyla buluştuğu balo mekanı.',
+                img: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80',
+                route: '/salonlar',
+              },
+              {
+                title: 'İrem Safir Davet Salonu',
+                desc: 'Doğayla iç içe atmosferi ve modern iklimlendirme altyapısıyla 600 kişilik şık ve ferah organizasyon alanı.',
+                img: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
+                route: '/salonlar',
+              },
+              {
+                title: 'İrem Panorama Teras',
+                desc: 'Göl manzarasına hakim teras alanı, özel kına tahtı ve 300 kişilik VIP davet salonu.',
+                img: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=800&q=80',
+                route: '/salonlar',
+              },
+            ].map((hall, idx) => (
+              <div
+                key={idx}
+                onClick={() => handleNav(hall.route)}
+                className="group relative overflow-hidden rounded-xl shadow-2xl cursor-pointer h-[500px] border border-white/10 hover:border-[#C5B37D] transition-all duration-500"
+              >
                 <img
                   src={hall.img}
                   alt={hall.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
                 />
-                <span className="absolute top-3 right-3 bg-amber-500 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-full shadow">
-                  {hall.badge}
-                </span>
-              </div>
-
-              <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-heading font-extrabold text-lg text-white group-hover:text-amber-400 transition">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/40 to-transparent p-6 flex flex-col justify-end transform transition-transform duration-300">
+                  <h3 className="font-great-vibes text-3xl text-white mb-2 group-hover:text-[#C5B37D] transition">
                     {hall.title}
                   </h3>
-                  <p className="text-xs text-slate-400">{hall.type}</p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs text-amber-400 font-bold">
-                  <span>Kapasite: {hall.capacity}</span>
-                  <span>İncele →</span>
+                  <p className="text-xs text-white/80 line-clamp-3 leading-relaxed">
+                    {hall.desc}
+                  </p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
         </div>
       </section>
 
-      {/* SECTION 3: 360 DEGREE VIRTUAL TOUR BANNER */}
-      <section className="max-w-7xl mx-auto px-6 sm:px-12">
-        <div className="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-8 sm:p-12 rounded-3xl border-2 border-amber-500/40 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-4 max-w-xl text-center md:text-left">
-            <span className="bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-extrabold px-3 py-1 rounded-full inline-flex items-center space-x-1.5">
-              <span className="animate-pulse">🔴</span>
-              <span>İnteraktif 3D Deneyim</span>
+      {/* SECTION 4: HIZLI TEKLİF & İLETİŞİM FORMU */}
+      <section className="py-20 px-4 sm:px-8 max-w-5xl mx-auto">
+        <div className="bg-white rounded-2xl p-8 sm:p-12 border border-[#E6E1D8] shadow-xl space-y-8 text-center">
+          
+          <div className="space-y-2">
+            <span className="text-[#C5B37D] font-bold text-xs uppercase tracking-[0.2em]">
+              ÜCRETSİZ DANIŞMANLIK
             </span>
-            <h2 className="text-2xl sm:text-4xl font-heading font-extrabold text-white">
-              Tesisimizi 360° Sanal Tur İle Evinizden Gezin
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#1A1A1A] font-bold">
+              Tarihinizi ve Fiyat Teklifinizi Alın
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Matterport 3D teknolojisi ile kır bahçemizi, gelin odalarını ve balo salonlarını detaylarıyla canlı olarak keşfedin.
+            <p className="text-xs sm:text-sm text-[#666666] max-w-xl mx-auto">
+              Tarihinizi ve tahmini davetli sayınızı iletin, düğün uzmanlarımız size en uygun paket teklifini sunsun.
             </p>
           </div>
 
-          <button
-            onClick={() => navigateTo && navigateTo('/360-tur')}
-            className="gold-button font-extrabold text-sm px-8 py-4 rounded-2xl shadow-xl hover:scale-105 transition cursor-pointer shrink-0"
-          >
-            360° Sanal Tura Başla 🌐
-          </button>
+          {formSubmitted ? (
+            <div className="bg-[#F5F2ED] border border-[#C5B37D] p-8 rounded-xl text-center space-y-3">
+              <div className="text-4xl">✨</div>
+              <h4 className="text-xl font-serif text-[#1A1A1A] font-bold">Teklif Talebiniz Alındı!</h4>
+              <p className="text-xs text-[#666666]">
+                Müşteri temsilcimiz en kısa sürede vermiş olduğunuz telefon numarasından sizinle iletişime geçecektir.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleQuoteSubmit} className="space-y-4 max-w-3xl mx-auto text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1">
+                    Adınız ve Soyadınız *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ad Soyad"
+                    value={quoteForm.name}
+                    onChange={(e) => setQuoteForm({ ...quoteForm, name: e.target.value })}
+                    className="w-full bg-[#F5F2ED] border border-[#E6E1D8] focus:border-[#C5B37D] text-[#1A1A1A] text-xs px-4 py-3 rounded-lg outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1">
+                    Telefon Numarası *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="05XX XXX XX XX"
+                    value={quoteForm.phone}
+                    onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
+                    className="w-full bg-[#F5F2ED] border border-[#E6E1D8] focus:border-[#C5B37D] text-[#1A1A1A] text-xs px-4 py-3 rounded-lg outline-none transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1">
+                    Düğün / Etkinlik Tarihi
+                  </label>
+                  <input
+                    type="date"
+                    value={quoteForm.eventDate}
+                    onChange={(e) => setQuoteForm({ ...quoteForm, eventDate: e.target.value })}
+                    className="w-full bg-[#F5F2ED] border border-[#E6E1D8] focus:border-[#C5B37D] text-[#1A1A1A] text-xs px-4 py-3 rounded-lg outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1">
+                    Tahmini Davetli Sayısı
+                  </label>
+                  <select
+                    value={quoteForm.guestCount}
+                    onChange={(e) => setQuoteForm({ ...quoteForm, guestCount: e.target.value })}
+                    className="w-full bg-[#F5F2ED] border border-[#E6E1D8] focus:border-[#C5B37D] text-[#1A1A1A] text-xs px-4 py-3 rounded-lg outline-none transition"
+                  >
+                    <option value="100-250">100 - 250 Kişi</option>
+                    <option value="250-500">250 - 500 Kişi</option>
+                    <option value="500-1000">500 - 1000 Kişi</option>
+                    <option value="1000+">1000+ Kişi (Göl Kır Bahçesi)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2 text-center">
+                <button
+                  type="submit"
+                  className="bg-[#1A1A1A] hover:bg-[#2c2c2c] text-[#F5F2ED] border border-[#C5B37D] font-bold text-xs px-10 py-4 rounded-full transition cursor-pointer tracking-widest uppercase shadow-lg"
+                >
+                  ÜCRETSİZ FİYAT TEKLİFİ GÖNDER
+                </button>
+              </div>
+            </form>
+          )}
+
         </div>
       </section>
 
