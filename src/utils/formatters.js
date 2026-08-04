@@ -210,44 +210,73 @@ export const generateDraftRefKey = () => {
 };
 
 export const parseHashRoute = () => {
-  if (typeof window === 'undefined') return { tab: 'dashboard', slug: 'dashboard' };
+  if (typeof window === 'undefined') return { tab: 'public-home', slug: '' };
   const pathname = window.location.pathname || '/';
-  const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+  const rawHash = (window.location.hash || '').replace('#/', '').replace('#', '');
   const [routePart, queryPart] = rawHash.split('?');
   const searchStr = window.location.search || (queryPart ? '?' + queryPart : '');
   const params = new URLSearchParams(searchStr);
 
-  let targetTab = 'simulasyon-404';
-  let slug = routePart || pathname;
+  let targetTab = 'public-home';
+  let slug = routePart || '';
 
-  if (pathname === '/giris' || pathname === '/login' || pathname === '/yonetim/giris' || routePart === 'giris' || routePart === 'login') {
+  // 1. PUBLIC ROUTES (Default for root / or explicit public paths)
+  if (pathname === '/' || pathname === '' || pathname === '/index.html') {
+    if (routePart.startsWith('yonetim')) {
+      const sub = routePart.replace(/^yonetim\/?/, '');
+      targetTab = SLUG_TO_TAB[sub] || 'dashboard';
+      slug = sub || 'dashboard';
+    } else if (routePart === 'giris' || routePart === 'login') {
+      targetTab = 'login';
+      slug = 'giris';
+    } else if (routePart && SLUG_TO_TAB[routePart]) {
+      targetTab = SLUG_TO_TAB[routePart];
+      slug = routePart;
+    } else {
+      targetTab = 'public-home';
+      slug = '';
+    }
+  } else if (pathname === '/salonlar' || pathname === '/salonlarimiz') {
+    targetTab = 'public-halls';
+    slug = 'salonlar';
+  } else if (pathname === '/360-tur' || pathname === '/sanal-tur') {
+    targetTab = 'public-virtual-tour';
+    slug = '360-tur';
+  } else if (pathname === '/organizasyonlar' || pathname === '/organizasyon-paketleri') {
+    targetTab = 'public-organizations';
+    slug = 'organizasyonlar';
+  } else if (pathname === '/videolar' || pathname === '/video-galeri') {
+    targetTab = 'public-videos';
+    slug = 'videolar';
+  } else if (pathname === '/blog' || pathname === '/dugun-rehberi') {
+    targetTab = 'public-blog';
+    slug = 'blog';
+  } else if (pathname === '/hakkimizda' || pathname === '/kurumsal') {
+    targetTab = 'public-about';
+    slug = 'hakkimizda';
+  } else if (pathname === '/iletisim' || pathname === '/bize-ulasin') {
+    targetTab = 'public-contact';
+    slug = 'iletisim';
+  } else if (pathname === '/musteri-giris' || pathname === '/vip-giris') {
+    targetTab = 'public-customer-login';
+    slug = 'musteri-giris';
+  } else if (pathname === '/musteri-kayit' || pathname === '/cift-basvuru') {
+    targetTab = 'public-customer-register';
+    slug = 'musteri-kayit';
+  } else if (pathname === '/giris' || pathname === '/login') {
     targetTab = 'login';
     slug = 'giris';
-  } else if (pathname.startsWith('/medya') || pathname.startsWith('/m/') || pathname.startsWith('/medya-yukle') || routePart.startsWith('medya') || routePart.startsWith('m/')) {
+  } else if (pathname.startsWith('/medya') || pathname.startsWith('/m/')) {
     targetTab = 'media';
     slug = 'media';
-  } else {
-    // Strip leading /yonetim if present in pathname or hash
+  } else if (pathname.startsWith('/yonetim')) {
     let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
     if (!sub && routePart) sub = routePart;
-    if (sub.startsWith('yonetim/')) sub = sub.replace(/^yonetim\//, '');
-    if (sub === 'yonetim') sub = '';
-
+    targetTab = SLUG_TO_TAB[sub] || 'dashboard';
     slug = sub || 'dashboard';
-
-    if (!sub || sub === 'anasayfa' || sub === 'dashboard') {
-      targetTab = 'dashboard';
-    } else if (sub.startsWith('medya/') || sub.startsWith('m/') || sub === 'medya-yukle' || sub === 'medya') {
-      targetTab = 'media';
-    } else if (SLUG_TO_TAB[sub]) {
-      targetTab = SLUG_TO_TAB[sub];
-    } else if (['404', '301', '403', '500', 'simulasyon-404', 'simulasyon-301', 'simulasyon-403', 'simulasyon-500'].includes(sub)) {
-      targetTab = sub.startsWith('simulasyon-') ? sub : 'simulasyon-' + sub;
-    } else if (pathname === '/' || pathname === '/yonetim' || pathname === '/yonetim/') {
-      targetTab = 'dashboard';
-    } else {
-      targetTab = 'simulasyon-404';
-    }
+  } else {
+    targetTab = 'simulasyon-404';
+    slug = '404';
   }
 
   const refKey = params.get('ref') || null;
