@@ -1604,4 +1604,4 @@ export function ReservationsListComponent({
       );
     }
 
-// --- USERS COMPONENT ---
+export const ReservationsComponent = ReservationsListComponent;
