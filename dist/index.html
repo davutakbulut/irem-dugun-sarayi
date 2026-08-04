@@ -12304,8 +12304,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [referrerName, setReferrerName] = useState('');
       const [campaignCode, setCampaignCode] = useState('');
       const [hasDeposit, setHasDeposit] = useState(false); // Default: Hayır
-      const [depositPaid, setDepositPaid] = useState(0);
       const [customDiscountAmount, setCustomDiscountAmount] = useState(0); // Default: 0 TL
+      const [dipDiscountType, setDipDiscountType] = useState('amount'); // 'amount' (TL) or 'percent' (%)
       const [paymentStatus, setPaymentStatus] = useState('Bekliyor'); // Default: Bekliyor
 
       // 5. Invoicing Details (Bireysel / Tüzel) - DEFAULT TO UNCHECKED
@@ -12590,7 +12590,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           disc = 5000;
         }
 
-        let customDisc = Number(customDiscountAmount) || 0;
+        let customDisc = 0;
+        const rawVal = Number(customDiscountAmount) || 0;
+        if (dipDiscountType === 'percent') {
+          customDisc = sub * (rawVal / 100);
+        } else {
+          customDisc = rawVal;
+        }
         disc = disc + customDisc;
         disc = Math.max(0, Math.min(sub, disc));
         const afterDisc = Math.max(0, sub - disc);
@@ -12602,8 +12608,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const netDeductions = isFullyPaid ? grandTotal : (dep + paidServicesTotal);
         const remaining = isFullyPaid ? 0 : Math.max(0, grandTotal - netDeductions);
 
-        return { vPrice, servTotal, sub, disc, vat, grandTotal, dep, paidServicesTotal, paidServicesList, netDeductions, remaining, isFullyPaid, mappedServices };
-      }, [customVenuePrice, selectedServices, campaignCode, customDiscountAmount, hasDeposit, depositPaid, paymentStatus, isInvoiced, services]);
+        return { vPrice, servTotal, sub, disc, customDisc, vat, grandTotal, dep, paidServicesTotal, paidServicesList, netDeductions, remaining, isFullyPaid, mappedServices };
+      }, [customVenuePrice, selectedServices, campaignCode, customDiscountAmount, dipDiscountType, hasDeposit, depositPaid, paymentStatus, isInvoiced, services]);
 
       const handleAddFlowItem = () => {
         setFlowPlan(prev => [...prev, { time: '22:30', title: 'Yeni Akış Adımı' }]);
@@ -13545,17 +13551,41 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                   <div>
                     <label className="font-bold block mb-1 flex items-center justify-between">
-                      <span>Özel Manuel İskonto (TL):</span>
-                      <span className="text-[10px] text-amber-600 dark:text-gold-400 font-bold">🛡️ PIN Kalkanlı</span>
+                      <span className="text-amber-800 dark:text-gold-400 font-extrabold flex items-center space-x-1">
+                        <ThemeIcon icon="sparkles" fallbackEmoji="🏷️" className="w-4 h-4 text-amber-500 shrink-0 mr-1" />
+                        <span>Dip İskonto (Son İndirim):</span>
+                      </span>
+                      <div className="inline-flex rounded-lg bg-slate-200 dark:bg-brand-dark p-0.5 border border-slate-300 dark:border-brand-border">
+                        <button
+                          type="button"
+                          onClick={() => setDipDiscountType('amount')}
+                          className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition cursor-pointer ${dipDiscountType === 'amount' ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400'}`}
+                        >
+                          Nakit (TL)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDipDiscountType('percent')}
+                          className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition cursor-pointer ${dipDiscountType === 'percent' ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400'}`}
+                        >
+                          Yüzde (%)
+                        </button>
+                      </div>
                     </label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Örn: 5000"
-                      value={customDiscountAmount || ''}
-                      onChange={e => setCustomDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-red-500 font-mono"
-                    />
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        max={dipDiscountType === 'percent' ? 100 : undefined}
+                        placeholder={dipDiscountType === 'percent' ? 'Örn: 10 (%10 İndirim)' : 'Örn: 5000 (5000 ₺ İndirim)'}
+                        value={customDiscountAmount || ''}
+                        onChange={e => setCustomDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-red-500 font-mono text-sm pr-10"
+                      />
+                      <span className="absolute right-3 top-2.5 text-xs font-black text-amber-600 dark:text-gold-400">
+                        {dipDiscountType === 'percent' ? '%' : '₺'}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -13576,15 +13606,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   {customDiscountAmount > 0 && (
                     <div className="sm:col-span-3 bg-amber-500/10 border border-amber-500/30 p-3 rounded-2xl flex items-center justify-between text-xs animate-fade-in">
                       <div className="flex items-center space-x-2">
-                        <ThemeIcon icon="shield" fallbackEmoji="🛡️" className="w-4 h-4 text-amber-600 dark:text-gold-400 shrink-0" />
+                        <ThemeIcon icon="sparkles" fallbackEmoji="🏷️" className="w-4 h-4 text-amber-600 dark:text-gold-400 shrink-0" />
                         <span className="font-bold text-amber-800 dark:text-gold-300">
-                          Özel İskonto Yetkilendirme Kalkanı Aktif: {formatCurrency(customDiscountAmount)} İndirim Uygulandı
+                          Dip İskonto Uygulandı: {dipDiscountType === 'percent' ? `%${customDiscountAmount} (${formatCurrency(calculations.customDisc)})` : `${formatCurrency(customDiscountAmount)}`}
                         </span>
                       </div>
                       <span className="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/30">
-                        Yönetici PIN Onaylı (v1.5.07)
+                        Aktif İskonto
                       </span>
                     </div>
+                  )}
                   )}
                 </div>
 
@@ -14076,22 +14107,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         <span>Tahsil Edilen Kapora:</span>
                         <span className="font-mono">-{formatCurrency(calculations.dep)}</span>
                       </div>
-                    ) : (
-                      <div className="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl space-y-1 text-xs animate-fade-in my-1">
-                        <div className="flex items-center justify-between text-amber-800 dark:text-gold-300 font-bold">
-                          <span className="flex items-center space-x-1">
-                            <span>⏳</span>
-                            <span>Otomatik Kapora Takibi (v1.5.08):</span>
-                          </span>
-                          <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
-                            7 Gün Opsiyonlu
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 dark:text-gray-400">
-                          Kapora henüz alınmadı. Taslak kaydı 7 gün boyunca opsiyonlu tutulacak, süre aşımında müşteriye SMS uyarısı gönderilecektir.
-                        </p>
-                      </div>
-                    )
+                      null
                   )}
 
                   <div className={`flex justify-between font-bold text-sm p-2.5 rounded-xl border mt-2 ${
