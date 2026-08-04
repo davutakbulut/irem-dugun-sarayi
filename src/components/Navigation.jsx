@@ -208,20 +208,12 @@ export function HeaderComponent({
               <ThemeIcon icon="crown" fallbackEmoji="🏰" className="w-5 h-5 shrink-0" />
             </div>
             <div>
-              <h1 className="font-heading font-black text-xl sm:text-2xl lg:text-3xl gold-gradient-text leading-tight tracking-wider flex items-center gap-2">
-                <span>DAVUT</span>
-                <span className="text-xs sm:text-sm font-bold opacity-80 text-amber-600 dark:text-gold-400">• İREM DÜĞÜN SARAYI</span>
+              <h1 className="font-heading font-extrabold text-sm sm:text-base gold-gradient-text leading-tight tracking-tight">
+                İREM DÜĞÜN SARAYI
               </h1>
-              <p className="text-[9px] sm:text-[10px] text-amber-600 dark:text-gold-400 font-bold uppercase tracking-wider hidden sm:block">
+              <p className="text-[9px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider hidden sm:block">
                 Kurumsal Yönetim Portal
               </p>
-            </div>
-          </div>
-
-          {/* PROMINENT DAVUT HEADER BANNER */}
-          <div className="hidden sm:flex items-center justify-center mx-4">
-            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black text-base sm:text-xl lg:text-2xl px-5 py-1 rounded-2xl shadow-xl border-2 border-amber-300/80 tracking-widest uppercase transform hover:scale-105 transition-all duration-300">
-              👑 DAVUT
             </div>
           </div>
 
