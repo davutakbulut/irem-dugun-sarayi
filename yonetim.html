@@ -10400,25 +10400,25 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       return (
         <>
-          <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${isScrolled ? 'bg-[#0a0f1d]/90 backdrop-blur-xl border-b border-[#c5a059]/25 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.8)]' : 'bg-gradient-to-b from-[#090d16]/95 via-[#090d16]/60 to-transparent py-5'}`}>
+          <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${isScrolled ? 'bg-[#060913]/95 backdrop-blur-2xl border-b border-[#c5a059]/40 py-3.5 shadow-[0_15px_40px_rgba(0,0,0,0.9)]' : 'bg-gradient-to-b from-[#060913]/98 via-[#060913]/70 to-transparent py-5'}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
               {/* MINIMAL LUXURY LOGO */}
-              <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center space-x-3 cursor-pointer group">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#c5a059] to-[#d4af37] flex items-center justify-center text-slate-950 font-black text-2xl shadow-[0_0_20px_rgba(197,160,89,0.4)] border border-[#e2c07d]/40 group-hover:scale-105 transition-transform duration-300">🏰</div>
+              <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center space-x-3.5 cursor-pointer group">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#c5a059] via-[#e2c07d] to-[#d4af37] flex items-center justify-center text-slate-950 font-black text-2xl shadow-[0_0_25px_rgba(197,160,89,0.5)] border border-white/40 group-hover:scale-105 transition-transform duration-300">🏰</div>
                 <div>
-                  <h1 className="font-serif font-extrabold text-lg sm:text-xl text-white tracking-wide leading-none text-[#e2c07d]">İREM DÜĞÜN SARAYI</h1>
-                  <p className="text-[9px] font-mono font-bold text-slate-400 tracking-widest uppercase mt-0.5">Balo & Davet Tesisleri</p>
+                  <h1 className="font-serif font-extrabold text-xl sm:text-2xl text-white tracking-wide leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">İREM DÜĞÜN SARAYI</h1>
+                  <p className="text-[10px] font-mono font-bold text-[#e2c07d] tracking-widest uppercase mt-1">Balo & Davet Tesisleri</p>
                 </div>
               </a>
 
               {/* CENTER NAV LINKS */}
-              <nav className="hidden lg:flex items-center space-x-1 bg-slate-900/60 backdrop-blur-md p-1.5 rounded-2xl border border-[#c5a059]/20">
+              <nav className="hidden lg:flex items-center space-x-1 bg-[#0c1222]/80 backdrop-blur-xl p-1.5 rounded-2xl border border-[#c5a059]/30 shadow-xl">
                 {navLinks.map(link => (
                   <a
                     key={link.route}
                     href={link.route}
                     onClick={(e) => handleNavClick(e, link.route)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${currentRoute === link.route ? 'bg-[#c5a059] text-slate-950 font-extrabold shadow-md' : 'text-slate-200 hover:text-[#e2c07d] hover:bg-[#c5a059]/10'}`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${currentRoute === link.route ? 'bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 font-extrabold shadow-lg scale-105' : 'text-slate-100 hover:text-[#e2c07d] hover:bg-[#c5a059]/15'}`}
                   >
                     {link.label}
                   </a>
@@ -10427,10 +10427,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
               {/* RIGHT CRITICAL CTA BUTTONS */}
               <div className="hidden sm:flex items-center space-x-3">
-                <a href="/360-tur" onClick={(e) => handleNavClick(e, '/360-tur')} className="border border-[#c5a059]/60 hover:border-[#c5a059] text-[#e2c07d] font-bold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 cursor-pointer flex items-center space-x-1.5 hover:shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+                <a href="/360-tur" onClick={(e) => handleNavClick(e, '/360-tur')} className="bg-[#0c1222]/80 border border-[#c5a059]/60 hover:border-[#c5a059] text-[#e2c07d] font-bold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 cursor-pointer flex items-center space-x-2 hover:shadow-[0_0_20px_rgba(197,160,89,0.3)]">
                   <span>🌐</span><span>360° Sanal Tur</span>
                 </a>
-                <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] hover:from-[#d4af37] hover:to-[#c5a059] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-1.5">
+                <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] via-[#e2c07d] to-[#d4af37] hover:brightness-110 text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-[0_0_25px_rgba(197,160,89,0.4)] hover:scale-105 transition-all duration-300 cursor-pointer flex items-center space-x-2">
                   <span>👑</span><span>Fiyat Teklifi Al</span>
                 </button>
               </div>
@@ -10554,39 +10554,39 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       return (
         <div className="space-y-28 pb-24">
-          {/* B. HERO SECTION (SVADBA DAVET ESİNTİSİ - AUTOPLAY ATMOSPHERIC CINEMATIC HERO) */}
-          <div className="relative min-h-[92vh] flex items-center justify-center text-center px-4 bg-[#090d16] overflow-hidden pt-12">
-            <div className="absolute inset-0 opacity-40 bg-cover bg-center filter brightness-90" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80')` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#090d16] via-[#090d16]/75 to-[#090d16]" />
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#c5a059]/10 rounded-full blur-[150px] pointer-events-none" />
+          {/* B. HERO SECTION (AUTOPLAY ATMOSPHERIC CINEMATIC HERO WITH HIGH CONTRAST) */}
+          <div className="relative min-h-[92vh] flex items-center justify-center text-center px-4 bg-[#050811] overflow-hidden pt-12">
+            <div className="absolute inset-0 opacity-45 bg-cover bg-center filter brightness-95 scale-105 transition-transform duration-10000" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80')` }} />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#050811] via-[#050811]/70 to-[#050811]" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#c5a059]/15 rounded-full blur-[160px] pointer-events-none" />
 
             <div className="relative z-10 max-w-5xl space-y-8 px-4">
-              <div className="inline-flex items-center space-x-2 bg-[#c5a059]/15 border border-[#c5a059]/40 text-[#e2c07d] text-xs font-mono font-bold px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">
-                <span>👑</span><span>Svadba & Kaya Royal Esintili VIP Tesisler</span>
+              <div className="inline-flex items-center space-x-2 bg-[#0d1424]/90 border border-[#c5a059]/50 text-[#e2c07d] text-xs font-mono font-bold px-6 py-2.5 rounded-full uppercase tracking-widest shadow-2xl backdrop-blur-md">
+                <span>👑</span><span>SAKARYA SAPANCA'NIN EN PRESTİJLİ BALO & DAVET TESİSLERİ</span>
               </div>
 
-              <h1 className="text-4xl sm:text-7xl font-serif font-extrabold text-white leading-tight tracking-tight">
-                Hayallerinizdeki Düğün, <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c5a059] via-[#e2c07d] to-[#d4af37]">Unutulmaz Bir Masala Dönüşüyor</span>
+              <h1 className="text-4xl sm:text-7xl font-serif font-extrabold leading-[1.15] tracking-tight">
+                <span className="text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.95)]">Hayallerinizdeki Düğün,</span> <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e2c07d] via-[#f7e4b5] to-[#c5a059] drop-shadow-[0_4px_25px_rgba(0,0,0,0.8)]">Unutulmaz Bir Masala Dönüşüyor</span>
               </h1>
 
-              <p className="text-base sm:text-xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed">
-                 Sapanca Gölünün eşsiz doğasında 4 farklı balo salonu, kır bahçesi, kristal avizeler ve VIP catering menüleriyle hayatınızın en özel gününü taçlandırıyoruz.
+              <p className="text-base sm:text-xl text-slate-100 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+                Sapanca Gölünün eşsiz doğasında 4 farklı balo salonu, kır bahçesi, kristal avizeler ve VIP catering menüleriyle hayatınızın en özel gününü taçlandırıyoruz.
               </p>
 
               {/* B. HERO INTERACTIVE WIDGET: TARİHİNİZİ SEÇİN & MÜSAİTLİK SORUN */}
-              <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-[#c5a059]/30 text-left max-w-4xl mx-auto shadow-2xl space-y-5 bg-[#0f172a]/90 backdrop-blur-xl">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                  <h3 className="font-serif font-bold text-lg text-[#e2c07d] flex items-center space-x-2">
+              <div className="p-6 sm:p-8 rounded-3xl border-2 border-[#c5a059]/40 text-left max-w-4xl mx-auto shadow-[0_25px_70px_rgba(0,0,0,0.9)] space-y-5 bg-[#090e1a]/95 backdrop-blur-2xl">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                  <h3 className="font-serif font-bold text-lg sm:text-xl text-[#e2c07d] flex items-center space-x-2">
                     <span>📅</span><span>Tarihinizi Seçin & Müsaitlik Sorun</span>
                   </h3>
-                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">🟢 2026/2027 Erken Rezervasyon Açık</span>
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 px-3.5 py-1 rounded-full border border-emerald-500/40">🟢 2026/2027 Erken Rezervasyon Açık</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-300 block">Etkinlik Türü:</label>
-                    <select className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs font-bold focus:border-[#c5a059] outline-none">
+                    <label className="text-[11px] font-bold text-slate-200 block">Etkinlik Türü:</label>
+                    <select className="w-full bg-[#04060c] border border-[#c5a059]/30 text-white rounded-xl p-3.5 text-xs font-bold focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059] outline-none">
                       <option>Düğün Organizasyonu</option>
                       <option>Nişan & Söz</option>
                       <option>Kına Gecesi</option>
@@ -10596,13 +10596,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-300 block">Planlanan Tarih:</label>
-                    <input type="date" className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs font-mono focus:border-[#c5a059] outline-none" />
+                    <label className="text-[11px] font-bold text-slate-200 block">Planlanan Tarih:</label>
+                    <input type="date" className="w-full bg-[#04060c] border border-[#c5a059]/30 text-white rounded-xl p-3.5 text-xs font-mono focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059] outline-none" />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-300 block">Davetli Sayısı:</label>
-                    <select className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs font-bold focus:border-[#c5a059] outline-none">
+                    <label className="text-[11px] font-bold text-slate-200 block">Davetli Sayısı:</label>
+                    <select className="w-full bg-[#04060c] border border-[#c5a059]/30 text-white rounded-xl p-3.5 text-xs font-bold focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059] outline-none">
                       <option>300 Kişi</option>
                       <option>500 Kişi</option>
                       <option>750 Kişi (Saray Balo)</option>
@@ -10611,8 +10611,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   </div>
 
                   <div className="flex items-end">
-                    <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-slate-950 w-full py-3.5 rounded-xl font-extrabold text-xs shadow-lg cursor-pointer hover:scale-105 transition">
-                      Hızlı Sorgula →
+                    <button onClick={() => setIsLeadModalOpen(true)} className="bg-gradient-to-r from-[#c5a059] via-[#e2c07d] to-[#c5a059] text-slate-950 w-full py-3.5 rounded-xl font-black text-xs shadow-[0_0_20px_rgba(197,160,89,0.4)] cursor-pointer hover:brightness-110 hover:scale-105 transition duration-300">
+                      👑 Hızlı Sorgula →
                     </button>
                   </div>
                 </div>
