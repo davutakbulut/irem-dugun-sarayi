@@ -49,7 +49,11 @@ export function ReservationsListComponent({
         setSelectedResForPreview(null);
         setSelectedDayInspector(null);
         if (res && res.id) {
-          window.location.hash = `#/rezervasyon-olustur?editId=${res.id}`;
+          if (typeof navigateTo === 'function') {
+            navigateTo('create-reservation', { editId: res.id });
+          } else {
+            window.location.hash = `#/yeni-rezervasyon?editId=${res.id}`;
+          }
         }
       };
 

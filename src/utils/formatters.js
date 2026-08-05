@@ -240,13 +240,17 @@ export const parseHashRoute = () => {
   const params = new URLSearchParams(searchStr);
 
   const cleanRoute = (routePart || '').replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase();
+  const refKey = params.get('ref') || null;
+  const editId = params.get('editId') || params.get('edit') || null;
 
   // If path is admin route (/yonetim, /giris, /login)
   if (pathname.startsWith('/yonetim') || pathname === '/giris' || pathname === '/login') {
-    let sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
-    if (!sub && cleanRoute) sub = cleanRoute;
+    let sub = cleanRoute;
+    if (!sub) {
+      sub = pathname.replace(/^\/yonetim\/?/, '').replace(/\/$/, '');
+    }
     const targetTab = SLUG_TO_TAB[sub] || 'dashboard';
-    return { tab: targetTab, slug: sub || 'dashboard', params };
+    return { tab: targetTab, slug: sub || 'dashboard', refKey, editId, params };
   }
 
   // PUBLIC SITE ROUTING
@@ -291,12 +295,8 @@ export const parseHashRoute = () => {
     else if (pathname === '/videolar') targetTab = 'public-videos';
     else if (pathname === '/blog') targetTab = 'public-blog';
     else if (pathname === '/hakkimizda') targetTab = 'public-about';
-    else if (pathname === '/iletisim') targetTab = 'public-contact';
     else targetTab = 'public-home';
   }
-
-  const refKey = params.get('ref') || null;
-  const editId = params.get('editId') || params.get('edit') || null;
   return { tab: targetTab, slug, refKey, editId, params };
 };
 
