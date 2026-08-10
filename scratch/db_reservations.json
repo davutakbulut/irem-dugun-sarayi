@@ -1,0 +1,68 @@
+[
+  {
+    "id": "RES-2026-8848",
+    "venueId": "v1",
+    "customerId": "cust-1786296305399",
+    "customerName": "Test ",
+    "customerEmail": "test1@gmail.com",
+    "customerPhone": "0 (545) 353 45 82",
+    "secondaryPhone": "0 (545) 737 38 38",
+    "date": "2026-08-26",
+    "eventDate": "2026-08-26",
+    "startDate": "2026-08-26",
+    "endDate": "2026-08-26",
+    "startTime": "18:00",
+    "endTime": "23:00",
+    "timeSlot": "18:00 - 23:00",
+    "guestCount": "400",
+    "selectedServices": [],
+    "venuePrice": 85000,
+    "customVenuePrice": 85000,
+    "customDiscountAmount": "10000",
+    "dipDiscountType": "amount",
+    "subtotal": 85000,
+    "campaignCode": "",
+    "discountAmount": 10000,
+    "vatAmount": 0,
+    "totalAmount": 75000,
+    "depositPaid": 50000,
+    "remainingBalance": 25000,
+    "paymentStatus": "Kapora Alındı",
+    "isInvoiced": false,
+    "invoiceType": "individual",
+    "tcNo": "12345678901",
+    "vknNo": "",
+    "taxOffice": "Sapanca VD",
+    "invoiceAddress": "Atatürk Mah. Sapanca / Sakarya",
+    "notes": "Su ve org ücreti alınmıyor",
+    "flowPlan": [
+      {
+        "time": "19:00",
+        "title": "Misafir Karşılama & Kokteyl"
+      },
+      {
+        "time": "19:30",
+        "title": "Gelin Damat Giriş & İlk Dans"
+      },
+      {
+        "time": "20:15",
+        "title": "Yemek Servisi"
+      },
+      {
+        "time": "21:30",
+        "title": "Pasta Kesimi & Şov"
+      },
+      {
+        "time": "22:00",
+        "title": "Takı & Eğlence"
+      },
+      {
+        "time": "23:00",
+        "title": "Etkinlik Bitişi & Kapanış"
+      }
+    ],
+    "mediaGallery": [],
+    "status": "CONFIRMED",
+    "isDraft": false
+  }
+]

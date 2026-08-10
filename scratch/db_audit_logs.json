@@ -1,0 +1,29 @@
+[
+  {
+    "id": "log_1786019379869",
+    "timestamp": "2026-08-06 15:29:39",
+    "module": "VENUES",
+    "action": "VENUE_UPDATED",
+    "targetId": "VENUES",
+    "user": "Mustafa Beyazyüz (Yönetici)",
+    "details": "Etkinlik mekanları ve salon bilgileri güncellendi (3 adet salon)."
+  },
+  {
+    "id": "log_1786019378424",
+    "timestamp": "2026-08-06 15:29:38",
+    "module": "VENUES",
+    "action": "VENUE_UPDATED",
+    "targetId": "VENUES",
+    "user": "Mustafa Beyazyüz (Yönetici)",
+    "details": "Etkinlik mekanları ve salon bilgileri güncellendi (4 adet salon)."
+  },
+  {
+    "id": "log_1786019253780",
+    "timestamp": "2026-08-06 15:27:33",
+    "module": "RESERVATIONS",
+    "action": "RESERVATION_UPDATED",
+    "targetId": "RESERVATIONS",
+    "user": "Mustafa Beyazyüz (Yönetici)",
+    "details": "Rezervasyon sözleşme listesi güncellendi (38 adet rezervasyon)."
+  }
+]

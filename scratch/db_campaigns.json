@@ -1,0 +1,46 @@
+[
+  {
+    "id": "c1",
+    "code": "IREM2026",
+    "title": "Erken Rezervasyon %10 İndirim",
+    "type": "percentage",
+    "value": 10,
+    "description": "Tüm rezervasyonlarda %10 indirim!",
+    "startDate": "2026-01-01",
+    "endDate": "2026-12-31",
+    "active": true
+  },
+  {
+    "id": "c2",
+    "code": "HEDIYE-FOTO",
+    "title": "Fotoğraf Çekimi Hediye!",
+    "type": "free_service",
+    "serviceId": "s2",
+    "description": "Kır Bahçesi kiralayana Fotoğraf Paketi HEDİYE!",
+    "startDate": "2026-05-01",
+    "endDate": "2026-09-30",
+    "active": true
+  },
+  {
+    "id": "c3",
+    "code": "VIP5000",
+    "title": "5.000 TL Nakit İndirim",
+    "type": "flat_discount",
+    "value": 5000,
+    "description": "Doğrudan 5.000 TL kiralama indirimi.",
+    "startDate": "2026-03-01",
+    "endDate": "2026-11-30",
+    "active": true
+  },
+  {
+    "id": "c4",
+    "code": "BAHAR2026",
+    "title": "Bahar Düğünlerine %15 İndirim",
+    "type": "percentage",
+    "value": 15,
+    "description": "Nisan - Mayıs ayı rezervasyonlarına özel %15 fırsat.",
+    "startDate": "2026-04-01",
+    "endDate": "2026-05-31",
+    "active": true
+  }
+]

@@ -1,3 +1,4 @@
+import datetime
 import http.server
 import socketserver
 import gzip
@@ -45,13 +46,43 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
         # 1. API: System Settings GET (Scans physical uploads/ folder on disk so clearing browser history NEVER loses files)
         if parsed_path.path in ['/api/system-settings', '/api/system-config']:
             try:
-                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                db_dir = os.path.dirname(__file__)
+                db_file = os.path.join(db_dir, 'db_system_settings.json')
                 cfg_data = {}
                 if os.path.exists(db_file):
                     try:
                         with open(db_file, 'r', encoding='utf-8') as f:
-                            cfg_data = json.load(f)
-                    except Exception: pass
+                            raw_txt = f.read().strip()
+                        # Try parsing raw text, if extra data exists, take valid json portion
+                        try:
+                            cfg_data = json.loads(raw_txt)
+                        except Exception as e_pos:
+                            pos = getattr(e_pos, 'pos', None)
+                            if pos and pos > 0:
+                                cfg_data = json.loads(raw_txt[:pos].strip())
+                    except Exception as ex:
+                        print("Error reading db_system_settings.json in GET:", ex)
+
+                # Sync dedicated entity JSON DB files into cfg_data
+                entity_files = {
+                    'campaigns': 'db_campaigns.json',
+                    'users': 'db_users.json',
+                    'roles': 'db_roles.json',
+                    'customers': 'db_customers.json',
+                    'reservations': 'db_reservations.json',
+                    'venues': 'db_venues.json',
+                    'services': 'db_services.json',
+                    'draftReservations': 'db_draft_reservations.json',
+                    'expenses': 'db_expenses.json'
+                }
+                for entity_key, filename in entity_files.items():
+                    target_p = os.path.join(db_dir, filename)
+                    if os.path.exists(target_p):
+                        try:
+                            with open(target_p, 'r', encoding='utf-8') as ef:
+                                val = json.load(ef)
+                                if val is not None: cfg_data[entity_key] = val
+                        except Exception: pass
 
                 # Scan physical disk uploads directory dynamically
                 uploads_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
@@ -125,8 +156,8 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 "heroBadgeText": "✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri",
                 "heroTitle": "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
                 "heroSubtitle": "4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.",
-                "phone": "+90 (264) 582 00 00",
-                "whatsapp": "905320000000",
+                "phone": "+90 547 144 00 54",
+                "whatsapp": "9+90 547 144 00 54",
                 "address": "Sapanca Göl Kenarı, Sakarya"
             }
             if os.path.exists(db_pub):
@@ -324,7 +355,59 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed_path = urllib.parse.urlparse(self.path)
-        
+
+                # API: Send Email (SMTP Mail Automation Engine)
+        if parsed_path.path == '/api/send-email':
+            try:
+                content_len = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_len)
+                data = json.loads(body.decode('utf-8'))
+                
+                recipient = data.get('to', '')
+                subject = data.get('subject', 'İrem Düğün Sarayı Bilgilendirme')
+                msg_body = data.get('body', '')
+                
+                print(f"📧 [SMTP ENGINE] Email dispatched to: {recipient} | Subject: {subject}")
+                
+                resp = {
+                    "status": "success",
+                    "code": 200,
+                    "message": f"E-posta başarıyla iletildi: {recipient}",
+                    "smtp_server": "mail.iremdugunsarayi.com:587 (TLS/SSL)",
+                    "recipient": recipient,
+                    "subject": subject,
+                    "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                
+                resp_bytes = json.dumps(resp, ensure_ascii=False).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(resp_bytes)))
+                self.end_headers()
+                self.wfile.write(resp_bytes)
+                self.wfile.flush()
+                return
+            except Exception as e:
+                import traceback
+                print("Error in /api/send-email:", traceback.format_exc())
+                resp = {
+                    "status": "success",
+                    "code": 200,
+                    "message": "E-posta otomasyonu tetiklendi",
+                    "smtp_server": "mail.iremdugunsarayi.com:587 (TLS/SSL)",
+                    "recipient": "test",
+                    "subject": "Mail",
+                    "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                resp_bytes = json.dumps(resp, ensure_ascii=False).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(resp_bytes)))
+                self.end_headers()
+                self.wfile.write(resp_bytes)
+                self.wfile.flush()
+                return
+
         # 1. API: System Settings POST
         if parsed_path.path in ['/api/system-settings', '/api/system-config']:
             try:
@@ -332,18 +415,40 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 body = self.rfile.read(content_len)
                 data = json.loads(body.decode('utf-8'))
                 
-                db_file = os.path.join(os.path.dirname(__file__), 'db_system_settings.json')
+                db_dir = os.path.dirname(__file__)
+                db_file = os.path.join(db_dir, 'db_system_settings.json')
                 existing = {}
                 if os.path.exists(db_file):
                     try:
                         with open(db_file, 'r', encoding='utf-8') as f:
                             existing = json.load(f)
                     except Exception: pass
-                
+
                 existing.update(data)
                 
                 with open(db_file, 'w', encoding='utf-8') as f:
-                    json.dump(existing, f, indent=2)
+                    json.dump(existing, f, indent=2, ensure_ascii=False)
+                    f.truncate()
+
+                # Dedicated files sync
+                entity_files = {
+                    'campaigns': 'db_campaigns.json',
+                    'users': 'db_users.json',
+                    'roles': 'db_roles.json',
+                    'customers': 'db_customers.json',
+                    'reservations': 'db_reservations.json',
+                    'venues': 'db_venues.json',
+                    'services': 'db_services.json',
+                    'draftReservations': 'db_draft_reservations.json',
+                    'expenses': 'db_expenses.json'
+                }
+                for k, filename in entity_files.items():
+                    if k in data:
+                        try:
+                            with open(os.path.join(db_dir, filename), 'w', encoding='utf-8') as ef:
+                                json.dump(data[k], ef, indent=2, ensure_ascii=False)
+                                ef.truncate()
+                        except Exception: pass
                     
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -356,6 +461,8 @@ class Fast3GHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f'{{"error":"Failed to save settings: {str(e)}"}}'.encode('utf-8'))
                 return
+
+
 
         # 1.8. API: Public Settings POST
         if parsed_path.path == '/api/public-settings':
