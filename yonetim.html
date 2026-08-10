@@ -71,7 +71,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="dns-prefetch" href="https://images.unsplash.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -1223,6 +1223,33 @@
       border-radius: 9999px !important;
       -webkit-border-radius: 9999px !important;
       -moz-border-radius: 9999px !important;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 2 PRIMARY FONTS SYSTEM + 1 UNIVERSAL CROSS-PLATFORM SYSTEM FALLBACK    */
+    /* 1. Heading Font: 'Cormorant Garamond' / 'Great Vibes' (Şık, Zarif, Güven)*/
+    /* 2. Body Font: 'Plus Jakarta Sans' (Sade, Net ve Okunabilir)           */
+    /* 3. System Fallback: Georgia / system-ui, -apple-system, sans-serif    */
+    /* ---------------------------------------------------------------------- */
+    :root {
+      --font-heading: 'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --font-script: 'Great Vibes', 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Headings & Luxury Titles */
+    h1, h2, h3, h4, .font-serif, .font-heading {
+      font-family: var(--font-heading) !important;
+    }
+
+    /* Elegant Hand-script Accents */
+    .font-script, .script-accent {
+      font-family: var(--font-script) !important;
+    }
+
+    /* Body, UI Elements, Buttons & Paragraphs */
+    body, p, span, div, button, input, select, textarea, a, td, th, label, .font-sans {
+      font-family: var(--font-body) !important;
     }
 </style>
 
