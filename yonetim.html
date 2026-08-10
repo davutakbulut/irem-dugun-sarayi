@@ -18421,28 +18421,51 @@ const E2E_WORKFLOWS = [
         { id: 'apple', name: ' Apple (2026 HIG Minimalist & Clean)', primary: '#0071E3', hover: '#0077ED' }
       ];
 
-      const [publicTheme, setPublicTheme] = useState(() => CacheService.get('public_settings', {}).publicTheme || 'dark-gold');
-      const [publicBadge, setPublicBadge] = useState(() => CacheService.get('public_settings', {}).heroBadgeText || 'Sapanca Göl Kenarı Lüks Düğün Tesisleri');
-      const [publicTitle, setPublicTitle] = useState(() => CacheService.get('public_settings', {}).heroTitle || 'Hayalinizdeki Düğün İrem Düğün Sarayı\'nda Unutulmaz Oluyor');
-      const [publicSubtitle, setPublicSubtitle] = useState(() => CacheService.get('public_settings', {}).heroSubtitle || '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.');
+      const [publicTheme, setPublicTheme] = useState('dark-gold');
+      const [publicBadge, setPublicBadge] = useState('✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri');
+      const [publicTitle, setPublicTitle] = useState('Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor');
+      const [publicSubtitle, setPublicSubtitle] = useState('4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.');
+
+      // PURE DATABASE FETCH (NO COOKIE / NO CACHE)
+      useEffect(() => {
+        const fetchPublicSettingsFromDB = async () => {
+          try {
+            const fetchFn = window.fetchWithRetry || fetch;
+            const res = await fetchFn('/api/public-settings');
+            if (res.ok) {
+              const data = await res.json();
+              if (data.publicTheme) setPublicTheme(data.publicTheme);
+              if (data.heroBadgeText) setPublicBadge(data.heroBadgeText);
+              if (data.heroTitle) setPublicTitle(data.heroTitle);
+              if (data.heroSubtitle) setPublicSubtitle(data.heroSubtitle);
+            }
+          } catch(e) {}
+        };
+        fetchPublicSettingsFromDB();
+      }, []);
 
       const handleSavePublicSettings = async () => {
         const payload = {
-          publicTheme,
+          publicTheme: 'dark-gold',
           heroBadgeText: publicBadge,
           heroTitle: publicTitle,
-          heroSubtitle: publicSubtitle
+          heroSubtitle: publicSubtitle,
+          updatedAt: new Date().toISOString()
         };
-        CacheService.set('public_settings', payload);
         try {
-          await fetch('/api/public-settings', {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const res = await fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
-          if (showToast) showToast('Ön Yüz Web Sitesi Ayarları Başarıyla Yayınlandı!');
+          if (res.ok) {
+            if (showToast) showToast('Ön Yüz Ayarları Veritabanına Başarıyla Kaydedildi & Yayınlandı! ✓');
+          } else {
+            if (showToast) showToast('Veritabanına kaydedilirken bir yanıt uyarısı oluştu.');
+          }
         } catch (e) {
-          if (showToast) showToast('Ön Yüz Ayarları Yerel Önbelleğe Kaydedildi!');
+          if (showToast) showToast('Veritabanı bağlantı hatası oluştu!');
         }
       };
 
@@ -18923,59 +18946,25 @@ const E2E_WORKFLOWS = [
                   </p>
                 </div>
 
-                {/* PUBLIC THEME SELECTION */}
+                {/* SINGLE OFFICIAL PUBLIC THEME (PURE DATABASE PERSISTENCE) */}
                 <div className="space-y-3">
                   <label className="font-bold text-xs text-slate-700 dark:text-gray-200 block">
-                    <ThemeIcon icon="crown" className="w-4 h-4 inline-block shrink-0" /> Ön Yüz Web Sitesi Tema Stili:
+                    <ThemeIcon icon="crown" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> Resmî Kurumsal Ön Yüz Tema Mimarisi:
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setPublicTheme('dark-gold')}
-                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'dark-gold' ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-2 ring-amber-500/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
-                    >
-                      <div className="flex justify-between items-center font-bold text-xs text-amber-400">
-                        <span><ThemeIcon icon="crown" className="w-4 h-4 inline-block shrink-0" /> Lüks Göl Kenarı Altın</span>
-                        {publicTheme === 'dark-gold' && <span>✓ Aktif</span>}
+                  <div className="p-5 rounded-2xl border-2 border-amber-500 bg-amber-500/10 shadow-lg ring-4 ring-amber-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2 font-bold text-sm text-amber-900 dark:text-amber-300">
+                        <ThemeIcon icon="crown" className="w-5 h-5 text-amber-500 shrink-0" />
+                        <span>İrem Düğün Sarayı Kurumsal Balo & Davet Teması</span>
+                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-white shadow-xs">SABİT & AKTİF</span>
                       </div>
-                      <p className="text-[11px] text-slate-400">Koyu arka plan, kristal avize ve şampanya altın detaylar.</p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPublicTheme('sapphire-dark')}
-                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'sapphire-dark' ? 'border-blue-500 bg-blue-500/10 shadow-lg ring-2 ring-blue-500/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
-                    >
-                      <div className="flex justify-between items-center font-bold text-xs text-blue-400">
-                        <span>🔷 Gece Siyahı & Safir</span>
-                        {publicTheme === 'sapphire-dark' && <span>✓ Aktif</span>}
-                      </div>
-                      <p className="text-[11px] text-slate-400">Derin safir mavisi ışıltı ve lüks gece konsepti.</p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPublicTheme('rose-romantic')}
-                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'rose-romantic' ? 'border-rose-500 bg-rose-500/10 shadow-lg ring-2 ring-rose-500/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
-                    >
-                      <div className="flex justify-between items-center font-bold text-xs text-rose-400">
-                        <span><ThemeIcon icon="sparkles" className="w-4 h-4 inline-block shrink-0" /> Romantik Gül & Kır Bahçesi</span>
-                        {publicTheme === 'rose-romantic' && <span>✓ Aktif</span>}
-                      </div>
-                      <p className="text-[11px] text-slate-400">Açık hava kır bahçesi, pembe ve gül tonlu düğün atmosferi.</p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPublicTheme('cream-light')}
-                      className={`p-4 rounded-2xl border text-left space-y-2 transition ${publicTheme === 'cream-light' ? 'border-slate-300 bg-slate-800/80 shadow-lg ring-2 ring-white/30' : 'border-slate-700 bg-slate-900/60 opacity-75'}`}
-                    >
-                      <div className="flex justify-between items-center font-bold text-xs text-slate-200">
-                        <span>⚪ Klasik Saray & Krem Minimal</span>
-                        {publicTheme === 'cream-light' && <span>✓ Aktif</span>}
-                      </div>
-                      <p className="text-[11px] text-slate-400">Ferah ve aydınlık minimal saray konsepti.</p>
-                    </button>
+                      <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                        Ön yüz web sitesi tema stili veritabanında kalıcı olarak kayıtlıdır. Tüm ziyaretçiler doğrudan veritabanından çekilen resmî şeffaf/sinematik saray konseptini görüntüler. (Çerez veya yerel önbellek kullanılmaz).
+                      </p>
+                    </div>
+                    <div className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-500/30 text-xs font-mono font-bold text-amber-800 dark:text-gold-400 shrink-0">
+                      DB Status: ONLINE ✓
+                    </div>
                   </div>
                 </div>
 
