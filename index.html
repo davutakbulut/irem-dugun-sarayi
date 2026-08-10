@@ -119,8 +119,8 @@
             .then(function(r) { return r.json(); })
             .then(function(d) {
               if (d && d.themeColor) {
-                document.documentElement.setAttribute('data-ui-theme', d.themeColor);
-                document.documentElement.setAttribute('data-theme', d.themeColor);
+                document.documentElement.setAttribute('data-ui-theme', 'dark-gold');
+                document.documentElement.setAttribute('data-theme', 'dark-gold');
               }
               if (d && d.menuLayout) document.documentElement.setAttribute('data-menu-layout', d.menuLayout);
             }).catch(function() {});
