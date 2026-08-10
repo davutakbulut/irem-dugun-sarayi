@@ -8125,7 +8125,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             </>
           )}
 
-          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} />
+          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />
         </>
       );
     }
@@ -8986,7 +8986,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     // 5. MAIN HOMEPAGE ASSEMBLY WITH ISOLATED INDEPENDENT SECTIONS
-    function HomePage({ navigateTo }) {
+    function HomePage({ navigateTo, onSaveQuoteRequest, showToast }) {
       const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
 
       return (
@@ -9015,20 +9015,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             <PublicTestimonialsBlock />
           </BlockErrorBoundary>
 
-          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} />
+          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />
         </div>
       );
     }
 
-    function HallsPage({ navigateTo }) {
-      return <HomePage navigateTo={navigateTo} />;
+    function HallsPage({ navigateTo, onSaveQuoteRequest, showToast }) {
+      return <HomePage navigateTo={navigateTo} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />;
     }
 
-    function OrganizationsPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
-    function VideosPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
-    function BlogPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
-    function AboutUsPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
-    function ContactPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} />; }
+    function OrganizationsPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />; }
+    function VideosPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />; }
+    function BlogPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />; }
+    function AboutUsPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />; }
+    function ContactPage({ navigateTo }) { return <HomePage navigateTo={navigateTo} onSaveQuoteRequest={onSaveQuoteRequest} showToast={showToast} />; }
 
     function VirtualTourPage({ venues = [], navigateTo }) {
       const liveVenues = (venues && venues.length > 0) ? venues : INITIAL_VENUES;
@@ -10415,7 +10415,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return (
           <PublicErrorBoundary>
             <PublicLayout onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} currentRoute={pathname} navigateTo={navigateTo}>
-              {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} />}
+              {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} />}
               {currentPublicTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
               {currentPublicTab === 'public-virtual-tour' && <VirtualTourPage venues={venues} navigateTo={navigateTo} />}
               {currentPublicTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
