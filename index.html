@@ -7965,10 +7965,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             {/* Scroll Down Indicator */}
             <div 
               onClick={() => window.scrollTo({ top: window.innerHeight - 70, behavior: 'smooth' })}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-white/80 animate-bounce flex flex-col items-center cursor-pointer group"
+              className="absolute bottom-8 sm:bottom-10 left-0 right-0 z-20 text-white/90 animate-bounce flex flex-col items-center justify-center text-center cursor-pointer group pointer-events-auto mx-auto w-full px-4"
             >
-              <span className="text-[10px] font-extrabold tracking-widest uppercase mb-1 group-hover:text-amber-300 transition-colors">AŞAĞI KAYDIRIN</span>
-              <span className="text-2xl">↓</span>
+              <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] uppercase mb-1 group-hover:text-amber-300 transition-colors text-center w-full block drop-shadow-md">AŞAĞI KAYDIRIN</span>
+              <span className="text-2xl font-bold leading-none drop-shadow-md">↓</span>
             </div>
           </div>
 
