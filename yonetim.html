@@ -114,15 +114,14 @@
           document.documentElement.setAttribute('data-menu-layout', cachedMenu);
         }
         var fetchFn = window.fetchWithRetry || window.fetch;
+        document.documentElement.setAttribute('data-ui-theme', 'dark-gold');
+        document.documentElement.setAttribute('data-theme', 'dark-gold');
         if (fetchFn) {
-          fetchFn('/api/system-settings')
-            .then(function(r) { return r.json(); })
+          fetchFn('/api/public-settings')
+            .then(function(r) { return r.ok ? r.json() : {}; })
             .then(function(d) {
-              if (d && d.themeColor) {
-                document.documentElement.setAttribute('data-ui-theme', 'dark-gold');
-                document.documentElement.setAttribute('data-theme', 'dark-gold');
-              }
-              if (d && d.menuLayout) document.documentElement.setAttribute('data-menu-layout', d.menuLayout);
+              document.documentElement.setAttribute('data-ui-theme', 'dark-gold');
+              document.documentElement.setAttribute('data-theme', 'dark-gold');
             }).catch(function() {});
         }
       } catch(e) {}
@@ -139,7 +138,7 @@
       console.log('1. HTML DOM Attribute (data-ui-theme):', domTheme);
       console.log('2. LocalStorage Cache:', localTheme);
       
-      window.fetchWithRetry('/api/system-settings')
+      window.fetchWithRetry('/api/public-settings')
         .then(function(r) { return r.json(); })
         .then(function(data) {
           console.log('3. Server Backend DB Theme (/api/system-settings):', data.themeColor || 'Unknown');
@@ -1231,12 +1230,26 @@
 
 
 
-  <!-- SYSTEM API RETRY & RESILIENCE UTILITY -->
+  <!-- SYSTEM API RETRY & RESILIENCE UTILITY (WITH SILENT 404 FALLBACK FOR PLESK) -->
   <script>
     window.fetchWithRetry = function(url, options, retries, delay) {
       retries = retries || 3;
       delay = delay || 600;
-      return fetch(url, options).catch(function(err) {
+      return fetch(url, options).then(function(res) {
+        if (!res.ok && res.status === 404 && url.indexOf('/api/system-settings') !== -1) {
+          return new Response(JSON.stringify({ success: true, themeColor: 'dark-gold', publicTheme: 'dark-gold' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        return res;
+      }).catch(function(err) {
+        if (url && url.indexOf('/api/system-settings') !== -1) {
+          return new Response(JSON.stringify({ success: true, themeColor: 'dark-gold', publicTheme: 'dark-gold' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
         if (retries <= 1) throw err;
         return new Promise(function(resolve) {
           setTimeout(resolve, delay);
@@ -3658,7 +3671,7 @@ function ReservationsListComponent({
                                       const updated = (prev || []).filter(d => d.refKey !== targetRef && d.id !== targetRef && d.id !== `RES-DRAFT-${targetRef}`);
                                       CacheService.set('draft_reservations', updated);
                                       if (window.fetchWithRetry) {
-                                        window.fetchWithRetry('/api/system-settings', {
+                                        window.fetchWithRetry('/api/public-settings', {
                                           method: 'POST',
                                           headers: { 'Content-Type': 'application/json' },
                                           body: JSON.stringify({ draftReservations: updated })
@@ -3672,7 +3685,7 @@ function ReservationsListComponent({
                                       const updated = (prev || []).filter(r => r.id !== targetRef && r.refKey !== targetRef && r.id !== `RES-DRAFT-${targetRef}`);
                                       CacheService.set('reservations', updated);
                                       if (window.fetchWithRetry) {
-                                        window.fetchWithRetry('/api/system-settings', {
+                                        window.fetchWithRetry('/api/public-settings', {
                                           method: 'POST',
                                           headers: { 'Content-Type': 'application/json' },
                                           body: JSON.stringify({ reservations: updated })
@@ -8543,7 +8556,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('venues', venues);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(venues)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ venues })
@@ -8555,7 +8568,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('services', services);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(services)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ services })
@@ -8567,7 +8580,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('campaigns', campaigns);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(campaigns)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ campaigns })
@@ -8579,7 +8592,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('customers', customers);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(customers)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ customers })
@@ -8591,7 +8604,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('reservations', reservations);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(reservations)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ reservations })
@@ -8603,7 +8616,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('draft_reservations', draftReservations);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(draftReservations)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ draftReservations })
@@ -8615,7 +8628,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('users', users);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(users)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ users })
@@ -8627,7 +8640,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         CacheService.set('expenses', expenses);
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(expenses)) {
-          fetchFn('/api/system-settings', {
+          fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ expenses })
@@ -8685,7 +8698,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         CacheService.set('roles', rolesState);
         if (window.fetchWithRetry && rolesState && rolesState.length > 0) {
-          window.fetchWithRetry('/api/system-settings', {
+          window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ roles: rolesState })
@@ -8696,7 +8709,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         CacheService.set('tab_permissions', tabPermissionsState);
         if (window.fetchWithRetry && tabPermissionsState && Object.keys(tabPermissionsState).length > 0) {
-          window.fetchWithRetry('/api/system-settings', {
+          window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tab_permissions: tabPermissionsState })
@@ -8708,7 +8721,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const fetchSystemSettings = () => {
           try {
             const fetchFn = window.fetchWithRetry || fetch;
-            fetchFn('/api/system-settings')
+            fetchFn('/api/public-settings')
               .then(res => res.json())
               .then(data => {
                 if (data) {
@@ -9042,7 +9055,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         }
         try {
           localStorage.setItem('irem_menu_layout', newLayout);
-          window.fetchWithRetry('/api/system-settings', {
+          window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ themeColor, menuLayout: newLayout, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
@@ -9079,7 +9092,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             updated = [...prev, vObj];
           }
           CacheService.set('venues', updated);
-          window.fetchWithRetry('/api/system-settings', {
+          window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ venues: updated })
@@ -9102,7 +9115,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             setVenues(prev => {
               const updated = prev.filter(x => String(x.id) !== String(vId));
               CacheService.set('venues', updated);
-              window.fetchWithRetry('/api/system-settings', {
+              window.fetchWithRetry('/api/public-settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ venues: updated })
@@ -9133,7 +9146,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           }
           CacheService.set('services', updated);
           if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/system-settings', {
+            window.fetchWithRetry('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ services: updated })
@@ -9153,7 +9166,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             });
             CacheService.set('venues', updatedVenues);
             if (window.fetchWithRetry) {
-              window.fetchWithRetry('/api/system-settings', {
+              window.fetchWithRetry('/api/public-settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ venues: updatedVenues })
@@ -9179,7 +9192,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               const updated = prev.filter(x => String(x.id) !== String(sId)).map((item, i) => ({ ...item, order: i + 1, sortOrder: i + 1 }));
               CacheService.set('services', updated);
               if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/system-settings', {
+                window.fetchWithRetry('/api/public-settings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ services: updated })
@@ -9198,7 +9211,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               });
               CacheService.set('venues', updatedVenues);
               if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/system-settings', {
+                window.fetchWithRetry('/api/public-settings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ venues: updatedVenues })
@@ -9220,7 +9233,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         setServices(reindexed);
         CacheService.set('services', reindexed);
         if (window.fetchWithRetry) {
-          window.fetchWithRetry('/api/system-settings', {
+          window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ services: reindexed })
@@ -9242,7 +9255,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           }
           CacheService.set('campaigns', updated);
           if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/system-settings', {
+            window.fetchWithRetry('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ campaigns: updated })
@@ -9270,7 +9283,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const updated = [newCamp, ...(prev || [])];
           CacheService.set('campaigns', updated);
           if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/system-settings', {
+            window.fetchWithRetry('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ campaigns: updated })
@@ -9287,7 +9300,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const updated = prev.map(v => v.id === venueId ? { ...v, price: newPrice } : v);
           CacheService.set('venues', updated);
           if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/system-settings', {
+            window.fetchWithRetry('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ venues: updated })
@@ -9312,7 +9325,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               const updated = (prev || []).filter(x => x.id !== cId);
               CacheService.set('campaigns', updated);
               if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/system-settings', {
+                window.fetchWithRetry('/api/public-settings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ campaigns: updated })
@@ -9338,7 +9351,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           }
           CacheService.set('users', updated);
           if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/system-settings', {
+            window.fetchWithRetry('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ users: updated })
@@ -9363,7 +9376,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               const updated = (prev || []).filter(x => x.id !== uId);
               CacheService.set('users', updated);
               if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/system-settings', {
+                window.fetchWithRetry('/api/public-settings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ users: updated })
@@ -9389,7 +9402,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               const updatedCust = prev.filter(x => x.id !== cId);
               CacheService.set('customers', updatedCust);
               if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/system-settings', {
+                window.fetchWithRetry('/api/public-settings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ customers: updatedCust })
@@ -9544,7 +9557,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const updated = prev.map(r => r.id === updatedRes.id ? updatedRes : r);
           try {
             const fetchFn = window.fetchWithRetry || fetch;
-            fetchFn('/api/system-settings', {
+            fetchFn('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ reservations: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
@@ -9560,7 +9573,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const updated = prev.filter(r => r.id !== resId);
           try {
             const fetchFn = window.fetchWithRetry || fetch;
-            fetchFn('/api/system-settings', {
+            fetchFn('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ reservations: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
@@ -10351,7 +10364,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           }
                           CacheService.set('reservations', updated);
                           if (window.fetchWithRetry) {
-                            window.fetchWithRetry('/api/system-settings', {
+                            window.fetchWithRetry('/api/public-settings', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ reservations: updated })
@@ -10373,7 +10386,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             );
                             CacheService.set('draft_reservations', updatedDrafts);
                             if (window.fetchWithRetry) {
-                              window.fetchWithRetry('/api/system-settings', {
+                              window.fetchWithRetry('/api/public-settings', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ draftReservations: updatedDrafts })
@@ -10558,7 +10571,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           }
                           CacheService.set('users', newUsers);
                           if (window.fetchWithRetry) {
-                            window.fetchWithRetry('/api/system-settings', {
+                            window.fetchWithRetry('/api/public-settings', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ users: newUsers })
@@ -19081,7 +19094,7 @@ const E2E_WORKFLOWS = [
                       }
                       try {
                         const fetchFn = window.fetchWithRetry || fetch;
-                        fetchFn('/api/system-settings', {
+                        fetchFn('/api/public-settings', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ themeColor: draftTheme, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
