@@ -111,5 +111,485 @@
       "sosyal_medyaci",
       "musteri"
     ]
-  }
+  },
+  "venues": [
+    {
+      "id": "v1",
+      "name": "Kraliyet Balo Salonu",
+      "category": "Kapalı Salon",
+      "capacity": 750,
+      "price": 100000,
+      "costPrice": 35000,
+      "deposit": 15000,
+      "description": "Yüksek tavanlı, kristal avizeli, iklimlendirme sistemli ve lüks sahne düzenine sahip ana balo salonumuz.",
+      "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80"
+      ],
+      "occupancyRate": 85,
+      "eventTypes": [
+        "Düğün",
+        "Nişan",
+        "Kurumsal Kokteyl",
+        "Mezuniyet",
+        "Kına"
+      ],
+      "availableServices": [
+        "s1",
+        "s-tavuk-menu",
+        "s2",
+        "s3"
+      ]
+    }
+  ],
+  "services": [
+    {
+      "id": "s1",
+      "order": 1,
+      "sortOrder": 1,
+      "name": "Gurme Yemek Servisi (Et Menü)",
+      "category": "Catering",
+      "price": 750,
+      "costPrice": 290,
+      "pricingType": "per_person",
+      "description": "Et Kavurma, Et Döner, Patates Püresi, Izgara Sebze, Tatlı, İçecek",
+      "image": "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      "id": "s-tavuk-menu",
+      "order": 2,
+      "sortOrder": 2,
+      "name": "Gurme Yemek Servisi (Tavuk Menü)",
+      "category": "Genel Hizmetler",
+      "price": 600,
+      "costPrice": 200,
+      "pricingType": "per_person",
+      "description": "Tavuk Sote, Pilav, Patates püresi, Izgara Sebze, Tatlı, İçecek",
+      "image": "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      "id": "s2",
+      "order": 3,
+      "sortOrder": 3,
+      "name": "Fotoğraf & 4K Video Paketi",
+      "category": "Medya",
+      "price": 18000,
+      "costPrice": 10000,
+      "pricingType": "fixed",
+      "description": "Dış çekim, 4K sinematik albüm.",
+      "image": "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      "id": "s3",
+      "order": 4,
+      "sortOrder": 4,
+      "name": "Canlı Müzik Orkestrası & DJ",
+      "category": "Eğlence",
+      "price": 25000,
+      "costPrice": 15000,
+      "pricingType": "fixed",
+      "description": "6 kişilik orkestra ve DJ.",
+      "image": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "c1",
+      "code": "IREM2026",
+      "title": "Erken Rezervasyon %10 İndirim",
+      "type": "percentage",
+      "value": 10,
+      "description": "Tüm rezervasyonlarda %10 indirim!",
+      "startDate": "2026-01-01",
+      "endDate": "2026-12-31",
+      "active": true
+    },
+    {
+      "id": "c2",
+      "code": "HEDIYE-FOTO",
+      "title": "Fotoğraf Çekimi Hediye!",
+      "type": "free_service",
+      "serviceId": "s2",
+      "description": "Kır Bahçesi kiralayana Fotoğraf Paketi HEDİYE!",
+      "startDate": "2026-05-01",
+      "endDate": "2026-09-30",
+      "active": true
+    },
+    {
+      "id": "c3",
+      "code": "VIP5000",
+      "title": "5.000 TL Nakit İndirim",
+      "type": "flat_discount",
+      "value": 5000,
+      "description": "Doğrudan 5.000 TL kiralama indirimi.",
+      "startDate": "2026-03-01",
+      "endDate": "2026-11-30",
+      "active": true
+    },
+    {
+      "id": "c4",
+      "code": "BAHAR2026",
+      "title": "Bahar Düğünlerine %15 İndirim",
+      "type": "percentage",
+      "value": 15,
+      "description": "Nisan - Mayıs ayı rezervasyonlarına özel %15 fırsat.",
+      "startDate": "2026-04-01",
+      "endDate": "2026-05-31",
+      "active": true
+    }
+  ],
+  "reservations": [
+    {
+      "id": "RES-2026-8848",
+      "venueId": "v1",
+      "customerId": "cust-1786296305399",
+      "customerName": "Test ",
+      "customerEmail": "test1@gmail.com",
+      "customerPhone": "0 (545) 353 45 82",
+      "secondaryPhone": "0 (545) 737 38 38",
+      "date": "2026-08-26",
+      "eventDate": "2026-08-26",
+      "startDate": "2026-08-26",
+      "endDate": "2026-08-26",
+      "startTime": "18:00",
+      "endTime": "23:00",
+      "timeSlot": "18:00 - 23:00",
+      "guestCount": "400",
+      "selectedServices": [],
+      "venuePrice": 85000,
+      "customVenuePrice": 85000,
+      "customDiscountAmount": "10000",
+      "dipDiscountType": "amount",
+      "subtotal": 85000,
+      "campaignCode": "",
+      "discountAmount": 10000,
+      "vatAmount": 0,
+      "totalAmount": 75000,
+      "depositPaid": 50000,
+      "remainingBalance": 25000,
+      "paymentStatus": "Kapora Alındı",
+      "isInvoiced": false,
+      "invoiceType": "individual",
+      "tcNo": "12345678901",
+      "vknNo": "",
+      "taxOffice": "Sapanca VD",
+      "invoiceAddress": "Atatürk Mah. Sapanca / Sakarya",
+      "notes": "Su ve org ücreti alınmıyor",
+      "flowPlan": [
+        {
+          "time": "19:00",
+          "title": "Misafir Karşılama & Kokteyl"
+        },
+        {
+          "time": "19:30",
+          "title": "Gelin Damat Giriş & İlk Dans"
+        },
+        {
+          "time": "20:15",
+          "title": "Yemek Servisi"
+        },
+        {
+          "time": "21:30",
+          "title": "Pasta Kesimi & Şov"
+        },
+        {
+          "time": "22:00",
+          "title": "Takı & Eğlence"
+        },
+        {
+          "time": "23:00",
+          "title": "Etkinlik Bitişi & Kapanış"
+        }
+      ],
+      "mediaGallery": [],
+      "status": "CONFIRMED",
+      "isDraft": false
+    }
+  ],
+  "users": [
+    {
+      "id": "u0",
+      "name": "Mustafa Beyazyüz",
+      "email": "mustafa@iremdugunsarayi.com",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80",
+      "password": "Mstf289498",
+      "phone": "+90 547 144 00 54"
+    },
+    {
+      "id": "u-1786216122089",
+      "name": "Sümeyra ",
+      "email": "sumeyra@iremdugunsarayi.com",
+      "role": "satisci",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      "password": "Sumbul1234.."
+    },
+    {
+      "id": "u-1786217661652",
+      "name": "Davut Akbulut",
+      "email": "dvtakblt@gmail.com",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      "password": "a"
+    },
+    {
+      "id": "u-cust-1786296305399",
+      "name": "Test ",
+      "email": "test1@gmail.com",
+      "phone": "0 (545) 353 45 82",
+      "role": "musteri",
+      "roleName": "Müşteri",
+      "status": "Aktif",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      "createdAt": "2026-08-09T17:25:05.399Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp-101",
+      "resId": "RES-2026-3791",
+      "resTitle": "Selin & Emre Çifti Düğün Organizasyonu",
+      "title": "Garson & Komi Yevmiye Ödemesi (6 Personel)",
+      "category": "Yevmiye & Personel",
+      "amount": 7500,
+      "date": "2026-08-08",
+      "notes": "Etkinlik sonrası nakit elden ödendi",
+      "createdAt": "2026-08-08T18:00:00.000Z"
+    },
+    {
+      "id": "exp-102",
+      "resId": "RES-2026-3791",
+      "resTitle": "Selin & Emre Çifti Düğün Organizasyonu",
+      "title": "Sahne Işık Sistemleri & Ekipman Kiralama Bedeli",
+      "category": "Teknik & Ekipman",
+      "amount": 12000,
+      "date": "2026-08-08",
+      "notes": "Fatura kesildi - Banka Havalesi",
+      "createdAt": "2026-08-08T18:30:00.000Z"
+    }
+  ],
+  "draftReservations": [
+    {
+      "id": "RES-DRAFT-nL6wYo78",
+      "refKey": "nL6wYo78A9b4",
+      "status": "DRAFT",
+      "isDraft": true,
+      "venueId": "v1",
+      "venueName": "Kraliyet Balo Salonu",
+      "customerId": "cust1",
+      "customerName": "İsimsiz Müşteri",
+      "customerEmail": "",
+      "customerPhone": "",
+      "secondaryPhone": "",
+      "date": "2026-08-25",
+      "eventDate": "2026-08-25",
+      "startDate": "2026-08-25",
+      "endDate": "2026-08-25",
+      "startTime": "19:00",
+      "endTime": "23:00",
+      "timeSlot": "19:00-23:00",
+      "guestCount": 0,
+      "selectedServices": [],
+      "paymentStatus": "Taslak",
+      "completionPercentage": 38,
+      "totalAmount": 100000,
+      "depositPaid": 0,
+      "remainingBalance": 100000,
+      "updatedAt": "2026-08-10T13:12:35.048Z",
+      "createdAt": "2026-08-10T13:12:35.048Z",
+      "createdBy": {
+        "id": "u-admin",
+        "name": "Davut Akbulut",
+        "role": "admin"
+      },
+      "customerInfo": {
+        "name": "İsimsiz Müşteri",
+        "phone": "",
+        "venueName": "Kraliyet Balo Salonu",
+        "date": "2026-08-25"
+      },
+      "accessLogs": [
+        {
+          "userId": "u-admin",
+          "userName": "Davut Akbulut",
+          "action": "AUTO_SAVE",
+          "timestamp": "2026-08-10T13:12:35.048Z"
+        }
+      ],
+      "formData": {
+        "venueId": "v1",
+        "customVenuePrice": 100000,
+        "startDate": "2026-08-25",
+        "startTime": "19:00",
+        "endDate": "2026-08-25",
+        "endTime": "23:00",
+        "guestCount": "",
+        "customerMode": "new",
+        "selectedCustomerId": "cust1",
+        "newCustName": "",
+        "newCustEmail": "",
+        "newCustPhone": "",
+        "newCustSecondaryPhone": "",
+        "selectedServices": [],
+        "referrerName": "",
+        "campaignCode": "",
+        "customDiscountAmount": "",
+        "dipDiscountType": "amount",
+        "hasDeposit": false,
+        "depositPaid": "",
+        "paymentStatus": "Bekliyor",
+        "isInvoiced": false,
+        "invoiceType": "individual",
+        "tcNo": "12345678901",
+        "vknNo": "9876543210",
+        "taxOffice": "Sapanca VD",
+        "invoiceAddress": "Atatürk Mah. Sapanca / Sakarya",
+        "notes": "Özel çiçek süslemeleri ve gelin odası ikramları dahildir.",
+        "flowPlan": [
+          {
+            "time": "19:00",
+            "title": "Misafir Karşılama & Kokteyl"
+          },
+          {
+            "time": "19:30",
+            "title": "Gelin Damat Giriş & İlk Dans"
+          },
+          {
+            "time": "20:15",
+            "title": "Yemek Servisi"
+          },
+          {
+            "time": "21:30",
+            "title": "Pasta Kesimi & Şov"
+          },
+          {
+            "time": "22:00",
+            "title": "Takı & Eğlence"
+          },
+          {
+            "time": "23:00",
+            "title": "Etkinlik Bitişi & Kapanış"
+          }
+        ]
+      }
+    }
+  ],
+  "customers": [
+    {
+      "id": "cust1",
+      "name": "Ahmet Yılmaz & Ayşe Kaya",
+      "email": "ahmet.yilmaz@example.com",
+      "phone": "+90 547 144 00 54",
+      "secondaryPhone": "+90 535 999 8877",
+      "address": "Atatürk Mah. Sapanca / Sakarya",
+      "taxType": "individual",
+      "tcNo": "12345678901",
+      "taxOffice": "Sapanca VD",
+      "followUp": true,
+      "followUpNote": "Sünnet düğünü için 2 yıl sonra görüşülecek.",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust2",
+      "name": "Mehmet Demir (Demir İnşaat)",
+      "email": "mehmet@demiras.com",
+      "phone": "+90 547 144 00 54",
+      "secondaryPhone": "+90 216 333 2211",
+      "address": "Bağdat Cad. Kadıköy / İstanbul",
+      "taxType": "corporate",
+      "vknNo": "9876543210",
+      "taxOffice": "Kadıköy VD",
+      "followUp": false,
+      "followUpNote": "",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust3",
+      "name": "Zeynep Çelik & Burak Şahin",
+      "email": "zeynep.celik@example.com",
+      "phone": "+90 547 144 00 54",
+      "secondaryPhone": "+90 544 111 3344",
+      "address": "Serdivan Mah. Adapazarı / Sakarya",
+      "taxType": "individual",
+      "tcNo": "23456789012",
+      "taxOffice": "Adapazarı VD",
+      "followUp": true,
+      "followUpNote": "Kına gecesi için ek masa talebi olabilir.",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust4",
+      "name": "Elif Aydın (Aydın Holding)",
+      "email": "elif@aydinholding.com",
+      "phone": "+90 547 144 00 54",
+      "secondaryPhone": "+90 212 444 0011",
+      "address": "Levent Mah. Beşiktaş / İstanbul",
+      "taxType": "corporate",
+      "vknNo": "1122334455",
+      "taxOffice": "Zincirlikuyu VD",
+      "followUp": false,
+      "followUpNote": "",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust-1786210839919",
+      "name": "TEST4",
+      "email": "TEST4@gmail.com",
+      "phone": "+90 547 144 00 54",
+      "secondaryPhone": "0 (555) 512 33 33",
+      "address": "Atatürk Mah. Sapanca / Sakarya",
+      "taxType": "individual",
+      "tcNo": "12345678901",
+      "vknNo": "",
+      "taxOffice": "Sapanca VD",
+      "followUp": false,
+      "followUpNote": "Otomatik kayıt oluşturan üye",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust-1786211458643",
+      "name": "Mustafa Beyazyüz",
+      "email": "mustafa.beyazyuzz@gmail.com",
+      "phone": "+90 547 144 00 54",
+      "secondaryPhone": "0 (545) 258 34 62",
+      "address": "Atatürk Mah. Sapanca / Sakarya",
+      "taxType": "individual",
+      "tcNo": "12345678901",
+      "vknNo": "",
+      "taxOffice": "Sapanca VD",
+      "followUp": false,
+      "followUpNote": "Otomatik kayıt oluşturan üye",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust-1786229619517",
+      "name": "Test1",
+      "email": "test1@gmail.com",
+      "phone": "0 (544) 545 34 34",
+      "secondaryPhone": "0 (545) 223 12 43",
+      "address": "Atatürk Mah. Sapanca / Sakarya",
+      "taxType": "individual",
+      "tcNo": "12345678901",
+      "vknNo": "",
+      "taxOffice": "Sapanca VD",
+      "followUp": false,
+      "followUpNote": "Otomatik kayıt oluşturan üye",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    {
+      "id": "cust-1786296305399",
+      "name": "Test ",
+      "email": "test1@gmail.com",
+      "phone": "0 (545) 353 45 82",
+      "secondaryPhone": "0 (545) 737 38 38",
+      "address": "Atatürk Mah. Sapanca / Sakarya",
+      "taxType": "individual",
+      "tcNo": "12345678901",
+      "vknNo": "",
+      "taxOffice": "Sapanca VD",
+      "followUp": false,
+      "followUpNote": "Otomatik kayıt oluşturan üye",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    }
+  ]
 }
