@@ -116,5 +116,294 @@
       "followUpNote": "Otomatik kayıt oluşturan üye",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
     }
+  ],
+  "tab_permissions": {
+    "dashboard": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "create-reservation": [
+      "admin",
+      "satisci"
+    ],
+    "venues": [
+      "admin",
+      "satisci"
+    ],
+    "services": [
+      "admin",
+      "satisci"
+    ],
+    "reservations": [
+      "admin",
+      "satisci"
+    ],
+    "calendar": [
+      "admin",
+      "satisci"
+    ],
+    "campaigns": [
+      "admin"
+    ],
+    "finance": [
+      "admin"
+    ],
+    "customers": [
+      "admin",
+      "satisci"
+    ],
+    "users": [
+      "admin"
+    ],
+    "roles": [
+      "admin"
+    ],
+    "reports": [
+      "admin"
+    ],
+    "media": [
+      "admin",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "profile": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "mind-map": [
+      "admin"
+    ],
+    "settings": [
+      "admin"
+    ],
+    "settings-appearance": [
+      "admin"
+    ],
+    "settings-performance": [
+      "admin"
+    ],
+    "settings-rbac": [
+      "admin"
+    ],
+    "settings-indexing": [
+      "admin"
+    ],
+    "settings-errors": [
+      "admin"
+    ],
+    "email-templates": [
+      "admin",
+      "satisci"
+    ],
+    "system-guide": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "simulasyon-404": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "simulasyon-301": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "simulasyon-403": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ],
+    "simulasyon-500": [
+      "admin",
+      "satisci",
+      "sosyal_medyaci",
+      "musteri"
+    ]
+  },
+  "campaigns": [
+    {
+      "id": "c1",
+      "code": "IREM2026",
+      "title": "Erken Rezervasyon %10 İndirim",
+      "type": "percentage",
+      "value": 10,
+      "description": "Tüm rezervasyonlarda %10 indirim!",
+      "startDate": "2026-01-01",
+      "endDate": "2026-12-31",
+      "active": true
+    },
+    {
+      "id": "c2",
+      "code": "HEDIYE-FOTO",
+      "title": "Fotoğraf Çekimi Hediye!",
+      "type": "free_service",
+      "serviceId": "s2",
+      "description": "Kır Bahçesi kiralayana Fotoğraf Paketi HEDİYE!",
+      "startDate": "2026-05-01",
+      "endDate": "2026-09-30",
+      "active": true
+    },
+    {
+      "id": "c3",
+      "code": "VIP5000",
+      "title": "5.000 TL Nakit İndirim",
+      "type": "flat_discount",
+      "value": 5000,
+      "description": "Doğrudan 5.000 TL kiralama indirimi.",
+      "startDate": "2026-03-01",
+      "endDate": "2026-11-30",
+      "active": true
+    },
+    {
+      "id": "c4",
+      "code": "BAHAR2026",
+      "title": "Bahar Düğünlerine %15 İndirim",
+      "type": "percentage",
+      "value": 15,
+      "description": "Nisan - Mayıs ayı rezervasyonlarına özel %15 fırsat.",
+      "startDate": "2026-04-01",
+      "endDate": "2026-05-31",
+      "active": true
+    }
+  ],
+  "reservations": [
+    {
+      "id": "RES-2026-8848",
+      "venueId": "v1",
+      "customerId": "cust-1786296305399",
+      "customerName": "Test ",
+      "customerEmail": "test1@gmail.com",
+      "customerPhone": "0 (545) 353 45 82",
+      "secondaryPhone": "0 (545) 737 38 38",
+      "date": "2026-08-26",
+      "eventDate": "2026-08-26",
+      "startDate": "2026-08-26",
+      "endDate": "2026-08-26",
+      "startTime": "18:00",
+      "endTime": "23:00",
+      "timeSlot": "18:00 - 23:00",
+      "guestCount": "400",
+      "selectedServices": [],
+      "venuePrice": 85000,
+      "customVenuePrice": 85000,
+      "customDiscountAmount": "10000",
+      "dipDiscountType": "amount",
+      "subtotal": 85000,
+      "campaignCode": "",
+      "discountAmount": 10000,
+      "vatAmount": 0,
+      "totalAmount": 75000,
+      "depositPaid": 50000,
+      "remainingBalance": 25000,
+      "paymentStatus": "Kapora Alındı",
+      "isInvoiced": false,
+      "invoiceType": "individual",
+      "tcNo": "12345678901",
+      "vknNo": "",
+      "taxOffice": "Sapanca VD",
+      "invoiceAddress": "Atatürk Mah. Sapanca / Sakarya",
+      "notes": "Su ve org ücreti alınmıyor",
+      "flowPlan": [
+        {
+          "time": "19:00",
+          "title": "Misafir Karşılama & Kokteyl"
+        },
+        {
+          "time": "19:30",
+          "title": "Gelin Damat Giriş & İlk Dans"
+        },
+        {
+          "time": "20:15",
+          "title": "Yemek Servisi"
+        },
+        {
+          "time": "21:30",
+          "title": "Pasta Kesimi & Şov"
+        },
+        {
+          "time": "22:00",
+          "title": "Takı & Eğlence"
+        },
+        {
+          "time": "23:00",
+          "title": "Etkinlik Bitişi & Kapanış"
+        }
+      ],
+      "mediaGallery": [],
+      "status": "CONFIRMED",
+      "isDraft": false
+    }
+  ],
+  "users": [
+    {
+      "id": "u0",
+      "name": "Mustafa Beyazyüz",
+      "email": "mustafa@iremdugunsarayi.com",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80",
+      "password": "Mstf289498",
+      "phone": "+90 547 144 00 54"
+    },
+    {
+      "id": "u-1786216122089",
+      "name": "Sümeyra ",
+      "email": "sumeyra@iremdugunsarayi.com",
+      "role": "satisci",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      "password": "Sumbul1234.."
+    },
+    {
+      "id": "u-1786217661652",
+      "name": "Davut Akbulut",
+      "email": "dvtakblt@gmail.com",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      "password": "a"
+    },
+    {
+      "id": "u-cust-1786296305399",
+      "name": "Test ",
+      "email": "test1@gmail.com",
+      "phone": "0 (545) 353 45 82",
+      "role": "musteri",
+      "roleName": "Müşteri",
+      "status": "Aktif",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      "createdAt": "2026-08-09T17:25:05.399Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp-101",
+      "resId": "RES-2026-3791",
+      "resTitle": "Selin & Emre Çifti Düğün Organizasyonu",
+      "title": "Garson & Komi Yevmiye Ödemesi (6 Personel)",
+      "category": "Yevmiye & Personel",
+      "amount": 7500,
+      "date": "2026-08-08",
+      "notes": "Etkinlik sonrası nakit elden ödendi",
+      "createdAt": "2026-08-08T18:00:00.000Z"
+    },
+    {
+      "id": "exp-102",
+      "resId": "RES-2026-3791",
+      "resTitle": "Selin & Emre Çifti Düğün Organizasyonu",
+      "title": "Sahne Işık Sistemleri & Ekipman Kiralama Bedeli",
+      "category": "Teknik & Ekipman",
+      "amount": 12000,
+      "date": "2026-08-08",
+      "notes": "Fatura kesildi - Banka Havalesi",
+      "createdAt": "2026-08-08T18:30:00.000Z"
+    }
   ]
 }
