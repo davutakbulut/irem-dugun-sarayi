@@ -1,10 +1,28 @@
+# ============================================================
+# İREM DÜĞÜN SARAYI & ORGANİZASYON - APACHE & PLESK CONFIG
+# ============================================================
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # 1. /api/ isteklerini Node.js API Sunucusuna (Port 5001) Yönlendir (Proxy)
+  <IfModule mod_proxy.c>
+    RewriteRule ^api/(.*)$ http://127.0.0.1:5001/api/$1 [P,L]
+  </IfModule>
+
+  # 2. Yonetim & Login URL Yönlendirmeleri
   RewriteRule ^yonetim/?$ yonetim.html [L,QSA]
   RewriteRule ^(giris|login)/?$ yonetim.html [L,QSA]
+
+  # 3. Statik Dosya Kontrolü & SPA Fallback
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !^/api/
   RewriteRule . /index.html [L]
+</IfModule>
+
+# Gzip & Tarayıcı Önbellekleme Ayarları
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
 </IfModule>

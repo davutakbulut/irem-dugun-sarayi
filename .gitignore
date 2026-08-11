@@ -2,3 +2,5 @@ node_modules/
 venv/
 .DS_Store
 *.log
+.env
+db_*.json

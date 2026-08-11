@@ -1305,23 +1305,30 @@
       return fetch(url, options).then(function(res) {
         if (!res.ok && (res.status === 404 || res.status === 500)) {
           if (url && url.indexOf('/api/') !== -1) {
-            if (options && (options.method === 'POST' || options.method === 'PUT') && options.body) {
-              try {
-                var parsed = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
-                if (parsed.publicTheme && typeof localStorage !== 'undefined') {
-                  localStorage.setItem('public_theme', parsed.publicTheme);
-                }
-              } catch(e) {}
+            var fallbackData = {};
+            if (url.indexOf('/api/venues') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/services') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/customers') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/reservations') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/expenses') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/campaigns') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/users') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/roles') !== -1) fallbackData = [];
+            else if (url.indexOf('/api/public-settings') !== -1) {
+              var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
+              fallbackData = {
+                success: true,
+                themeColor: 'dark-gold',
+                publicTheme: storedPublicTheme,
+                heroBadgeText: '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri',
+                heroTitle: "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
+                heroSubtitle: '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.',
+                venues: [], services: [], customers: [], users: [], expenses: [], campaigns: [], roles: [], reservations: []
+              };
+            } else {
+              fallbackData = { success: true };
             }
-            var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
-            return new Response(JSON.stringify({
-              success: true,
-              themeColor: 'dark-gold',
-              publicTheme: storedPublicTheme,
-              heroBadgeText: '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri',
-              heroTitle: "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
-              heroSubtitle: '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.'
-            }), {
+            return new Response(JSON.stringify(fallbackData), {
               status: 200,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -1330,12 +1337,8 @@
         return res;
       }).catch(function(err) {
         if (url && url.indexOf('/api/') !== -1) {
-          var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
-          return new Response(JSON.stringify({
-            success: true,
-            themeColor: 'dark-gold',
-            publicTheme: storedPublicTheme
-          }), {
+          var fallbackData = url.indexOf('/api/public-settings') !== -1 ? { success: true, venues: [], services: [], reservations: [] } : [];
+          return new Response(JSON.stringify(fallbackData), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
           });
@@ -9538,10 +9541,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
-      const [venues, setVenues] = useState([]);
-      const [services, setServices] = useState([]);
-      const [campaigns, setCampaigns] = useState([]);
-      const [customers, setCustomers] = useState([]);
+      const [venues, setVenues] = useState(() => CacheService.get('venues', INITIAL_VENUES) || INITIAL_VENUES);
+      const [services, setServices] = useState(() => CacheService.get('services', INITIAL_SERVICES) || INITIAL_SERVICES);
+      const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', INITIAL_CAMPAIGNS) || INITIAL_CAMPAIGNS);
+      const [customers, setCustomers] = useState(() => CacheService.get('customers', INITIAL_CUSTOMERS) || INITIAL_CUSTOMERS);
       const [quoteRequests, setQuoteRequests] = useState(() => CacheService.get('quote_requests', INITIAL_QUOTE_REQUESTS));
 
       const handleSaveQuoteRequest = (newQuote) => {
@@ -9576,9 +9579,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         });
       };
 
-      const [reservations, setReservations] = useState([]);
+      const [reservations, setReservations] = useState(() => {
+        const cached = CacheService.get('reservations', INITIAL_RESERVATIONS) || INITIAL_RESERVATIONS;
+        return normalizeReservationsMediaKeys(cached);
+      });
       const [draftReservations, setDraftReservations] = useState([]);
-      const [expenses, setExpenses] = useState([]);
+      const [expenses, setExpenses] = useState(() => CacheService.get('expenses', (typeof INITIAL_EXPENSES !== 'undefined' ? INITIAL_EXPENSES : [])) || []);
       const isInitialLoadDoneRef = useRef(false);
       const [users, setUsers] = useState(() => {
         const cachedUsers = CacheService.get('users', null);
@@ -9793,55 +9799,55 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
             // Fetch Venues
             fetchFn('/api/venues')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setVenues(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setVenues(data); })
               .catch(() => {});
 
             // Fetch Services
             fetchFn('/api/services')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setServices(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setServices(data); })
               .catch(() => {});
 
             // Fetch Customers
             fetchFn('/api/customers')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setCustomers(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setCustomers(data); })
               .catch(() => {});
 
             // Fetch Users
             fetchFn('/api/users')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setUsers(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setUsers(data); })
               .catch(() => {});
 
             // Fetch Reservations
             fetchFn('/api/reservations')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setReservations(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setReservations(data); })
               .catch(() => {});
 
             // Fetch Expenses
             fetchFn('/api/expenses')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setExpenses(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setExpenses(data); })
               .catch(() => {});
 
             // Fetch Campaigns
             fetchFn('/api/campaigns')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setCampaigns(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setCampaigns(data); })
               .catch(() => {});
 
             // Fetch Roles
             fetchFn('/api/roles')
-              .then(res => res.json())
-              .then(data => { if (Array.isArray(data)) setRolesState(data); })
+              .then(res => res.ok ? res.json() : null)
+              .then(data => { if (Array.isArray(data) && data.length > 0) setRolesState(data); })
               .catch(() => {});
 
             // Fetch Public/System Settings
             fetchFn('/api/public-settings')
-              .then(res => res.json())
+              .then(res => res.ok ? res.json() : null)
               .then(data => {
                 if (data) {
                   if (data.publicTheme) setPublicThemeState(data.publicTheme);
