@@ -3,29 +3,24 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    outDir: 'dist',
-    chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom'],
-          'page-create-reservation': ['./src/pages/CreateReservationPage.jsx'],
-          'page-reservations-list': ['./src/pages/ReservationsListPage.jsx'],
-          'page-dashboard': ['./src/pages/DashboardPage.jsx'],
-          'page-calendar': ['./src/pages/CalendarPage.jsx'],
-          'page-finance': ['./src/pages/FinancePage.jsx'],
-          'page-customers': ['./src/pages/CustomersPage.jsx'],
-          'page-media': ['./src/pages/MediaPage.jsx'],
-          'page-settings': ['./src/pages/SettingsPage.jsx'],
-          'page-roles': ['./src/pages/RolesPage.jsx'],
-          'page-system-guide': ['./src/pages/SystemGuidePage.jsx']
-        }
+  server: {
+    port: 3000,
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5001',
+        changeOrigin: true,
+        secure: false
+      },
+      '/uploads': {
+        target: 'http://127.0.0.1:5001',
+        changeOrigin: true,
+        secure: false
       }
     }
   },
-  server: {
-    port: 8000,
-    host: true
+  build: {
+    outDir: 'dist',
+    chunkSizeWarningLimit: 1000
   }
 });

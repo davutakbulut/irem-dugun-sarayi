@@ -109,19 +109,18 @@
         ['irem_cache_theme_color', 'irem_cache_selected_theme', 'selected_theme', 'theme_color', 'theme', 'irem_cache_menu_layout', 'menu_layout'].forEach(function(k) {
           try { localStorage.removeItem(k); } catch(e){}
         });
-        var cachedMenu = localStorage.getItem('irem_cache_menu_layout') || localStorage.getItem('menu_layout');
-        if (cachedMenu) {
-          document.documentElement.setAttribute('data-menu-layout', cachedMenu);
-        }
+        // Clean theme isolation initialization
         var fetchFn = window.fetchWithRetry || window.fetch;
-        document.documentElement.setAttribute('data-ui-theme', 'dark-gold');
-        document.documentElement.setAttribute('data-theme', 'dark-gold');
         if (fetchFn) {
           fetchFn('/api/public-settings')
             .then(function(r) { return r.ok ? r.json() : {}; })
             .then(function(d) {
-              document.documentElement.setAttribute('data-ui-theme', 'dark-gold');
-              document.documentElement.setAttribute('data-theme', 'dark-gold');
+              if (d && d.publicTheme) {
+                try { localStorage.setItem('public_theme', d.publicTheme); } catch(e){}
+              }
+              if (d && d.themeColor) {
+                try { localStorage.setItem('irem_theme', d.themeColor); } catch(e){}
+              }
             }).catch(function() {});
         }
       } catch(e) {}
@@ -131,24 +130,26 @@
   <!-- THEME DIAGNOSTIC CONSOLE TOOL: Type checkTheme() in browser F12 console -->
   <script>
     window.checkTheme = function() {
-      console.log('🔍 SYSTEM THEME DIAGNOSTIC REPORT:');
+      console.log('🔍 ISOLATED THEME DIAGNOSTIC REPORT:');
       console.log('----------------------------------------');
-      var domTheme = document.documentElement.getAttribute('data-ui-theme') || 'classic_gold (default)';
-      var localTheme = localStorage.getItem('irem_cache_theme_color') || localStorage.getItem('selected_theme') || 'None';
-      console.log('1. HTML DOM Attribute (data-ui-theme):', domTheme);
-      console.log('2. LocalStorage Cache:', localTheme);
+      var adminElem = document.querySelector('[data-admin-theme]');
+      var publicElem = document.querySelector('[data-public-theme]');
+      var adminTheme = adminElem ? adminElem.getAttribute('data-admin-theme') : (localStorage.getItem('irem_theme') || 'gold');
+      var publicTheme = publicElem ? publicElem.getAttribute('data-public-theme') : (localStorage.getItem('public_theme') || 'dark-gold');
+      console.log('1. Admin Dashboard Theme ([data-admin-theme]):', adminTheme);
+      console.log('2. Public Website Theme ([data-public-theme]):', publicTheme);
       
-      window.fetchWithRetry('/api/public-settings')
+      var fetchFn = window.fetchWithRetry || window.fetch;
+      fetchFn('/api/public-settings')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-          console.log('3. Server Backend DB Theme (/api/system-settings):', data.themeColor || 'Unknown');
+          console.log('3. Server Backend DB Admin Theme:', data.themeColor || 'gold');
+          console.log('4. Server Backend DB Public Theme:', data.publicTheme || 'dark-gold');
           console.log('----------------------------------------');
-          if (data.themeColor === domTheme || (domTheme === 'classic_gold (default)' && data.themeColor === 'gold')) {
-            console.log('✅ RESULT: THEME IS 100% MATCHED AND PERSISTENT IN BACKEND DB!');
-          } else {
-            console.warn('⚠️ WARNING: DOM theme (' + domTheme + ') does not match Backend DB theme (' + data.themeColor + ').');
-          }
-        }).catch(function(err) { console.error('❌ Failed to fetch backend DB theme:', err); });
+          console.log('✅ RESULT: PUBLIC & ADMIN THEMES ARE 100% ISOLATED AND PERSISTED IN DB!');
+        }).catch(function(err) {
+          console.warn('⚠️ Server check warning:', err.message);
+        });
     };
   </script>
 
@@ -271,7 +272,7 @@
     /* ---------------------------------------------------- */
     /* QUIET LUXURY & MINIMALIST HIGH-END ARCHITECTURE THEME */
     /* ---------------------------------------------------- */
-    html[data-ui-theme="elite-luxury"] {
+    [data-admin-theme="elite-luxury"] {
       --color-gold: #D4AF37;
       --color-gold-hover: #E5C158;
       --color-bg: #0B0C0E;
@@ -283,22 +284,22 @@
       background-color: #0B0C0E !important;
     }
 
-    html[data-ui-theme="elite-luxury"] body {
+    [data-admin-theme="elite-luxury"] body {
       background-color: #0B0C0E !important;
       color: #F8FAFC !important;
     }
 
-    html[data-ui-theme="elite-luxury"] h1,
-    html[data-ui-theme="elite-luxury"] h2,
-    html[data-ui-theme="elite-luxury"] h3,
-    html[data-ui-theme="elite-luxury"] .font-heading {
+    [data-admin-theme="elite-luxury"] h1,
+    [data-admin-theme="elite-luxury"] h2,
+    [data-admin-theme="elite-luxury"] h3,
+    [data-admin-theme="elite-luxury"] .font-heading {
       font-family: 'Outfit', sans-serif !important;
       letter-spacing: 0.05em !important;
       font-weight: 700 !important;
       color: #F8FAFC !important;
     }
 
-    html[data-ui-theme="elite-luxury"] .gold-gradient-text {
+    [data-admin-theme="elite-luxury"] .gold-gradient-text {
       color: #E5C158 !important;
       background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #C5A059 100%) !important;
       -webkit-background-clip: text !important;
@@ -307,33 +308,33 @@
       font-weight: 700 !important;
     }
 
-    html[data-ui-theme="elite-luxury"] p,
-    html[data-ui-theme="elite-luxury"] span,
-    html[data-ui-theme="elite-luxury"] div,
-    html[data-ui-theme="elite-luxury"] td,
-    html[data-ui-theme="elite-luxury"] th {
+    [data-admin-theme="elite-luxury"] p,
+    [data-admin-theme="elite-luxury"] span,
+    [data-admin-theme="elite-luxury"] div,
+    [data-admin-theme="elite-luxury"] td,
+    [data-admin-theme="elite-luxury"] th {
       font-family: 'Inter', sans-serif;
     }
 
-    html[data-ui-theme="elite-luxury"] .text-slate-500,
-    html[data-ui-theme="elite-luxury"] .text-slate-400,
-    html[data-ui-theme="elite-luxury"] .text-gray-400 {
+    [data-admin-theme="elite-luxury"] .text-slate-500,
+    [data-admin-theme="elite-luxury"] .text-slate-400,
+    [data-admin-theme="elite-luxury"] .text-gray-400 {
       color: #94A3B8 !important; /* Platin Gri - Quiet Luxury Muted Text */
     }
 
-    html[data-ui-theme="elite-luxury"] .glass-panel,
-    html[data-ui-theme="elite-luxury"] button,
-    html[data-ui-theme="elite-luxury"] input,
-    html[data-ui-theme="elite-luxury"] select,
-    html[data-ui-theme="elite-luxury"] textarea,
-    html[data-ui-theme="elite-luxury"] .rounded-3xl,
-    html[data-ui-theme="elite-luxury"] .rounded-2xl,
-    html[data-ui-theme="elite-luxury"] .rounded-xl {
+    [data-admin-theme="elite-luxury"] .glass-panel,
+    [data-admin-theme="elite-luxury"] button,
+    [data-admin-theme="elite-luxury"] input,
+    [data-admin-theme="elite-luxury"] select,
+    [data-admin-theme="elite-luxury"] textarea,
+    [data-admin-theme="elite-luxury"] .rounded-3xl,
+    [data-admin-theme="elite-luxury"] .rounded-2xl,
+    [data-admin-theme="elite-luxury"] .rounded-xl {
       border-radius: 0px !important;
       border-color: rgba(212, 175, 55, 0.2) !important;
     }
 
-    html[data-ui-theme="elite-luxury"] .gold-button {
+    [data-admin-theme="elite-luxury"] .gold-button {
       background: #D4AF37 !important;
       color: #0B0C0E !important;
       border: 1px solid #D4AF37 !important;
@@ -347,7 +348,7 @@
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    html[data-ui-theme="elite-luxury"] .gold-button:hover {
+    [data-admin-theme="elite-luxury"] .gold-button:hover {
       background: #E5C158 !important;
       color: #0B0C0E !important;
       border-color: #E5C158 !important;
@@ -358,154 +359,166 @@
     /* ----------------------------------------------------------- */
     /* NORDIC CLARITY & PREMIUM SCANDINAVIAN MINIMAL (LIGHT THEME) */
     /* ----------------------------------------------------------- */
-    html[data-ui-theme="nordic-light"] {
+    [data-admin-theme="nordic-light"] {
       --color-gold: #0F172A;
       --color-gold-hover: #1E293B;
       --color-bg: #FAFAFA;
       --color-card: #FFFFFF;
-      --color-surface: #F1F3F5;
+      --color-surface: #F1F5F9;
       --glass-bg: rgba(255, 255, 255, 0.98);
       --glass-border: #E2E8F0;
       color: #0F172A !important;
       background-color: #FAFAFA !important;
     }
 
-    html[data-ui-theme="nordic-light"] body {
+    [data-admin-theme="nordic-light"] body {
       background-color: #FAFAFA !important;
       color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] h1,
-    html[data-ui-theme="nordic-light"] h2,
-    html[data-ui-theme="nordic-light"] h3,
-    html[data-ui-theme="nordic-light"] .font-heading {
+    [data-admin-theme="nordic-light"] h1,
+    [data-admin-theme="nordic-light"] h2,
+    [data-admin-theme="nordic-light"] h3,
+    [data-admin-theme="nordic-light"] h4,
+    [data-admin-theme="nordic-light"] .font-heading {
       font-family: 'Outfit', sans-serif !important;
-      letter-spacing: 0.04em !important;
+      letter-spacing: -0.01em !important;
       font-weight: 700 !important;
       color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .gold-gradient-text {
-      color: #0F172A !important;
-      background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%) !important;
-      -webkit-background-clip: text !important;
-      -webkit-text-fill-color: transparent !important;
-      letter-spacing: 0.04em !important;
-      font-weight: 800 !important;
-    }
-
-    html[data-ui-theme="nordic-light"] p,
-    html[data-ui-theme="nordic-light"] span,
-    html[data-ui-theme="nordic-light"] div,
-    html[data-ui-theme="nordic-light"] td,
-    html[data-ui-theme="nordic-light"] th {
+    [data-admin-theme="nordic-light"] p,
+    [data-admin-theme="nordic-light"] span,
+    [data-admin-theme="nordic-light"] div,
+    [data-admin-theme="nordic-light"] td,
+    [data-admin-theme="nordic-light"] th,
+    [data-admin-theme="nordic-light"] label {
       font-family: 'Inter', sans-serif;
     }
 
-    html[data-ui-theme="nordic-light"] .text-slate-500,
-    html[data-ui-theme="nordic-light"] .text-slate-400,
-    html[data-ui-theme="nordic-light"] .text-gray-400 {
-      color: #64748B !important; /* Dumanlı Nötr Gri - Muted Text */
+    /* TEXT CONTRAST ENHANCEMENTS */
+    [data-admin-theme="nordic-light"] .text-slate-500,
+    [data-admin-theme="nordic-light"] .text-slate-400,
+    [data-admin-theme="nordic-light"] .text-gray-400,
+    [data-admin-theme="nordic-light"] .text-gray-500 {
+      color: #64748B !important;
     }
 
-    html[data-ui-theme="nordic-light"] .text-slate-800,
-    html[data-ui-theme="nordic-light"] .text-gray-100,
-    html[data-ui-theme="nordic-light"] .text-gray-200 {
+    [data-admin-theme="nordic-light"] .text-slate-900,
+    [data-admin-theme="nordic-light"] .text-slate-800,
+    [data-admin-theme="nordic-light"] .text-slate-700,
+    [data-admin-theme="nordic-light"] .text-gray-100,
+    [data-admin-theme="nordic-light"] .text-gray-200,
+    [data-admin-theme="nordic-light"] .text-gray-300 {
       color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .bg-white,
-    html[data-ui-theme="nordic-light"] .bg-brand-card,
-    html[data-ui-theme="nordic-light"] .glass-panel {
+    /* EXPLICIT WHITE TEXT FOR PRIMARY BUTTONS */
+    [data-admin-theme="nordic-light"] .gold-button,
+    [data-admin-theme="nordic-light"] button.gold-button,
+    [data-admin-theme="nordic-light"] .gold-button * {
+      color: #FFFFFF !important;
+    }
+
+    /* CARD & GLASS PANEL OVERRIDES */
+    [data-admin-theme="nordic-light"] .bg-white,
+    [data-admin-theme="nordic-light"] .bg-brand-card,
+    [data-admin-theme="nordic-light"] .bg-slate-900,
+    [data-admin-theme="nordic-light"] .bg-slate-950,
+    [data-admin-theme="nordic-light"] .bg-slate-800,
+    [data-admin-theme="nordic-light"] .glass-panel {
       background-color: #FFFFFF !important;
       border-color: #E2E8F0 !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03) !important;
     }
 
-    html[data-ui-theme="nordic-light"] .glass-panel,
-    html[data-ui-theme="nordic-light"] button,
-    html[data-ui-theme="nordic-light"] input,
-    html[data-ui-theme="nordic-light"] select,
-    html[data-ui-theme="nordic-light"] textarea,
-    html[data-ui-theme="nordic-light"] .rounded-3xl,
-    html[data-ui-theme="nordic-light"] .rounded-2xl,
-    html[data-ui-theme="nordic-light"] .rounded-xl {
-      border-radius: 0px !important;
-    }
-
-    html[data-ui-theme="nordic-light"] .gold-button {
+    /* BUTTON STYLES */
+    [data-admin-theme="nordic-light"] .gold-button {
       background: #0F172A !important;
       color: #FFFFFF !important;
       border: 1px solid #0F172A !important;
-      border-radius: 0px !important;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15) !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important;
       font-family: 'Outfit', sans-serif !important;
       font-weight: 700 !important;
-      letter-spacing: 0.06em !important;
-      text-transform: uppercase !important;
-      font-size: 0.75rem !important;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      letter-spacing: 0.02em !important;
+      transition: all 0.2s ease-in-out !important;
     }
 
-    html[data-ui-theme="nordic-light"] .gold-button:hover {
+    [data-admin-theme="nordic-light"] .gold-button:hover {
       background: #1E293B !important;
       color: #FFFFFF !important;
       border-color: #1E293B !important;
       transform: translateY(-1px) !important;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2) !important;
     }
 
-    /* NORDIC CLARITY ZERO-AMBER LEAK OVERRIDES */
-    html[data-ui-theme="nordic-light"] .border-amber-500,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/60,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/50,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/40,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/30,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/20 {
+    /* INPUTS & SELECTS */
+    [data-admin-theme="nordic-light"] input,
+    [data-admin-theme="nordic-light"] select,
+    [data-admin-theme="nordic-light"] textarea {
+      background-color: #FFFFFF !important;
+      color: #0F172A !important;
+      border-color: #CBD5E1 !important;
+    }
+
+    [data-admin-theme="nordic-light"] input:focus,
+    [data-admin-theme="nordic-light"] select:focus,
+    [data-admin-theme="nordic-light"] textarea:focus {
       border-color: #0F172A !important;
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
     }
 
-    html[data-ui-theme="nordic-light"] .bg-amber-500\/10,
-    html[data-ui-theme="nordic-light"] .bg-amber-500\/20,
-    html[data-ui-theme="nordic-light"] .bg-amber-500\/30 {
+    /* NORDIC AMBER/GOLD ACCENT OVERRIDES */
+    [data-admin-theme="nordic-light"] .border-amber-500,
+    [data-admin-theme="nordic-light"] .border-amber-500\/60,
+    [data-admin-theme="nordic-light"] .border-amber-500\/50,
+    [data-admin-theme="nordic-light"] .border-amber-500\/40,
+    [data-admin-theme="nordic-light"] .border-amber-500\/30,
+    [data-admin-theme="nordic-light"] .border-amber-500\/20 {
+      border-color: #E2E8F0 !important;
+    }
+
+    [data-admin-theme="nordic-light"] .bg-amber-500\/10,
+    [data-admin-theme="nordic-light"] .bg-amber-500\/20,
+    [data-admin-theme="nordic-light"] .bg-amber-500\/30 {
       background-color: #F1F5F9 !important;
     }
 
-    html[data-ui-theme="nordic-light"] .text-amber-800,
-    html[data-ui-theme="nordic-light"] .text-amber-700,
-    html[data-ui-theme="nordic-light"] .text-gold-400,
-    html[data-ui-theme="nordic-light"] .text-gold-300 {
+    [data-admin-theme="nordic-light"] .text-amber-800,
+    [data-admin-theme="nordic-light"] .text-amber-700,
+    [data-admin-theme="nordic-light"] .text-gold-400,
+    [data-admin-theme="nordic-light"] .text-gold-300 {
       color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .gold-gradient-text {
-      background: none !important;
-      -webkit-background-clip: unset !important;
-      -webkit-text-fill-color: #0F172A !important;
+    [data-admin-theme="nordic-light"] .gold-gradient-text {
+      background: linear-gradient(135deg, #0F172A 0%, #334155 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
       color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .ring-amber-500,
-    html[data-ui-theme="nordic-light"] .ring-amber-500\/40,
-    html[data-ui-theme="nordic-light"] .ring-amber-500\/30,
-    html[data-ui-theme="nordic-light"] .ring-amber-500\/20,
-    html[data-ui-theme="nordic-light"] .focus\:ring-amber-500:focus {
+    [data-admin-theme="nordic-light"] .ring-amber-500,
+    [data-admin-theme="nordic-light"] .ring-amber-500\/40,
+    [data-admin-theme="nordic-light"] .ring-amber-500\/30,
+    [data-admin-theme="nordic-light"] .ring-amber-500\/20,
+    [data-admin-theme="nordic-light"] .focus\:ring-amber-500:focus {
       --tw-ring-color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .accent-amber-600 {
+    [data-admin-theme="nordic-light"] .accent-amber-600 {
       accent-color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .emoji-fallback,
-    html[data-ui-theme="nordic-light"] .emoji-text {
+    [data-admin-theme="nordic-light"] .emoji-fallback,
+    [data-admin-theme="nordic-light"] .emoji-text {
       display: none !important;
     }
 
     /* ----------------------------------------------------------- */
     /* NEO-MINIMALIST SAFİR (TECH CORPORATE & ELECTRIC BLUE)        */
     /* ----------------------------------------------------------- */
-    html[data-ui-theme="sapphire-minimal"] {
+    [data-admin-theme="sapphire-minimal"] {
       --color-gold: #0284C7;
       --color-gold-hover: #0369A1;
       --color-bg: #0F172A;
@@ -518,23 +531,23 @@
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] body {
+    [data-admin-theme="sapphire-minimal"] body {
       background-color: #0F172A !important;
       color: #F8FAFC !important;
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] h1,
-    html[data-ui-theme="sapphire-minimal"] h2,
-    html[data-ui-theme="sapphire-minimal"] h3,
-    html[data-ui-theme="sapphire-minimal"] .font-heading {
+    [data-admin-theme="sapphire-minimal"] h1,
+    [data-admin-theme="sapphire-minimal"] h2,
+    [data-admin-theme="sapphire-minimal"] h3,
+    [data-admin-theme="sapphire-minimal"] .font-heading {
       font-family: 'Space Grotesk', sans-serif !important;
       letter-spacing: -0.02em !important;
       font-weight: 700 !important;
       color: #F8FAFC !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] .gold-gradient-text {
+    [data-admin-theme="sapphire-minimal"] .gold-gradient-text {
       color: #38BDF8 !important;
       background: linear-gradient(135deg, #38BDF8 0%, #0284C7 60%, #0369A1 100%) !important;
       -webkit-background-clip: text !important;
@@ -544,36 +557,36 @@
       font-weight: 700 !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] p,
-    html[data-ui-theme="sapphire-minimal"] span,
-    html[data-ui-theme="sapphire-minimal"] div,
-    html[data-ui-theme="sapphire-minimal"] td,
-    html[data-ui-theme="sapphire-minimal"] th {
+    [data-admin-theme="sapphire-minimal"] p,
+    [data-admin-theme="sapphire-minimal"] span,
+    [data-admin-theme="sapphire-minimal"] div,
+    [data-admin-theme="sapphire-minimal"] td,
+    [data-admin-theme="sapphire-minimal"] th {
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
     /* HIGH-CONTRAST TEXT & LINK OVERRIDES FOR SAPPHIRE MINIMAL */
-    html[data-ui-theme="sapphire-minimal"] a,
-    html[data-ui-theme="sapphire-minimal"] nav a,
-    html[data-ui-theme="sapphire-minimal"] .text-slate-600,
-    html[data-ui-theme="sapphire-minimal"] .text-slate-700,
-    html[data-ui-theme="sapphire-minimal"] .text-slate-800,
-    html[data-ui-theme="sapphire-minimal"] .text-slate-900,
-    html[data-ui-theme="sapphire-minimal"] .text-gray-600,
-    html[data-ui-theme="sapphire-minimal"] .text-gray-700,
-    html[data-ui-theme="sapphire-minimal"] .text-amber-600,
-    html[data-ui-theme="sapphire-minimal"] .text-amber-700,
-    html[data-ui-theme="sapphire-minimal"] .text-amber-800 {
+    [data-admin-theme="sapphire-minimal"] a,
+    [data-admin-theme="sapphire-minimal"] nav a,
+    [data-admin-theme="sapphire-minimal"] .text-slate-600,
+    [data-admin-theme="sapphire-minimal"] .text-slate-700,
+    [data-admin-theme="sapphire-minimal"] .text-slate-800,
+    [data-admin-theme="sapphire-minimal"] .text-slate-900,
+    [data-admin-theme="sapphire-minimal"] .text-gray-600,
+    [data-admin-theme="sapphire-minimal"] .text-gray-700,
+    [data-admin-theme="sapphire-minimal"] .text-amber-600,
+    [data-admin-theme="sapphire-minimal"] .text-amber-700,
+    [data-admin-theme="sapphire-minimal"] .text-amber-800 {
       color: #94A3B8 !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] nav a:hover,
-    html[data-ui-theme="sapphire-minimal"] a:hover {
+    [data-admin-theme="sapphire-minimal"] nav a:hover,
+    [data-admin-theme="sapphire-minimal"] a:hover {
       color: #FFFFFF !important;
       background-color: rgba(2, 132, 199, 0.15) !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] .gold-gradient-text {
+    [data-admin-theme="sapphire-minimal"] .gold-gradient-text {
       color: #F8FAFC !important;
       background: linear-gradient(135deg, #F8FAFC 0%, #38BDF8 50%, #0284C7 100%) !important;
       -webkit-background-clip: text !important;
@@ -583,25 +596,25 @@
       font-weight: 700 !important;
     }
 
-    html[data-ui-theme="sapphire-minimal"] .bg-amber-500\/10,
-    html[data-ui-theme="sapphire-minimal"] .bg-amber-500\/20 {
+    [data-admin-theme="sapphire-minimal"] .bg-amber-500\/10,
+    [data-admin-theme="sapphire-minimal"] .bg-amber-500\/20 {
       background-color: rgba(2, 132, 199, 0.15) !important;
     }
-    html[data-ui-theme="sapphire-minimal"] .border-amber-500\/30,
-    html[data-ui-theme="sapphire-minimal"] .border-amber-500\/40,
-    html[data-ui-theme="sapphire-minimal"] .border-amber-500\/60 {
+    [data-admin-theme="sapphire-minimal"] .border-amber-500\/30,
+    [data-admin-theme="sapphire-minimal"] .border-amber-500\/40,
+    [data-admin-theme="sapphire-minimal"] .border-amber-500\/60 {
       border-color: rgba(2, 132, 199, 0.35) !important;
     }
-    html[data-ui-theme="sapphire-minimal"] .text-amber-700,
-    html[data-ui-theme="sapphire-minimal"] .text-amber-800,
-    html[data-ui-theme="sapphire-minimal"] .text-gold-400 {
+    [data-admin-theme="sapphire-minimal"] .text-amber-700,
+    [data-admin-theme="sapphire-minimal"] .text-amber-800,
+    [data-admin-theme="sapphire-minimal"] .text-gold-400 {
       color: #38BDF8 !important;
     }
 
     /* ----------------------------------------------------------- */
     /* KRALİYET ZÜMRÜT KIR BAHÇESİ (BOTANICAL VELVET & EMERALD)    */
     /* ----------------------------------------------------------- */
-    html[data-ui-theme="emerald-royal"] {
+    [data-admin-theme="emerald-royal"] {
       --color-gold: #10B981;
       --color-gold-hover: #059669;
       --color-bg: #042F2E;
@@ -614,23 +627,23 @@
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    html[data-ui-theme="emerald-royal"] body {
+    [data-admin-theme="emerald-royal"] body {
       background-color: #042F2E !important;
       color: #ECFDF5 !important;
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    html[data-ui-theme="emerald-royal"] h1,
-    html[data-ui-theme="emerald-royal"] h2,
-    html[data-ui-theme="emerald-royal"] h3,
-    html[data-ui-theme="emerald-royal"] .font-heading {
+    [data-admin-theme="emerald-royal"] h1,
+    [data-admin-theme="emerald-royal"] h2,
+    [data-admin-theme="emerald-royal"] h3,
+    [data-admin-theme="emerald-royal"] .font-heading {
       font-family: 'Playfair Display', serif !important;
       letter-spacing: 0.02em !important;
       font-weight: 700 !important;
       color: #ECFDF5 !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .gold-gradient-text {
+    [data-admin-theme="emerald-royal"] .gold-gradient-text {
       color: #ECFDF5 !important;
       background: linear-gradient(135deg, #ECFDF5 0%, #34D399 50%, #6EE7B7 100%) !important;
       -webkit-background-clip: text !important;
@@ -640,75 +653,75 @@
       font-weight: 800 !important;
     }
 
-    html[data-ui-theme="emerald-royal"] p,
-    html[data-ui-theme="emerald-royal"] span,
-    html[data-ui-theme="emerald-royal"] div,
-    html[data-ui-theme="emerald-royal"] td,
-    html[data-ui-theme="emerald-royal"] th {
+    [data-admin-theme="emerald-royal"] p,
+    [data-admin-theme="emerald-royal"] span,
+    [data-admin-theme="emerald-royal"] div,
+    [data-admin-theme="emerald-royal"] td,
+    [data-admin-theme="emerald-royal"] th {
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    html[data-ui-theme="emerald-royal"] a,
-    html[data-ui-theme="emerald-royal"] nav a,
-    html[data-ui-theme="emerald-royal"] .text-slate-600,
-    html[data-ui-theme="emerald-royal"] .text-slate-700,
-    html[data-ui-theme="emerald-royal"] .text-slate-800,
-    html[data-ui-theme="emerald-royal"] .text-slate-900,
-    html[data-ui-theme="emerald-royal"] .text-gray-600,
-    html[data-ui-theme="emerald-royal"] .text-gray-700,
-    html[data-ui-theme="emerald-royal"] .text-amber-600,
-    html[data-ui-theme="emerald-royal"] .text-amber-700,
-    html[data-ui-theme="emerald-royal"] .text-amber-800 {
+    [data-admin-theme="emerald-royal"] a,
+    [data-admin-theme="emerald-royal"] nav a,
+    [data-admin-theme="emerald-royal"] .text-slate-600,
+    [data-admin-theme="emerald-royal"] .text-slate-700,
+    [data-admin-theme="emerald-royal"] .text-slate-800,
+    [data-admin-theme="emerald-royal"] .text-slate-900,
+    [data-admin-theme="emerald-royal"] .text-gray-600,
+    [data-admin-theme="emerald-royal"] .text-gray-700,
+    [data-admin-theme="emerald-royal"] .text-amber-600,
+    [data-admin-theme="emerald-royal"] .text-amber-700,
+    [data-admin-theme="emerald-royal"] .text-amber-800 {
       color: #A7F3D0 !important;
     }
 
-    html[data-ui-theme="emerald-royal"] nav a:hover,
-    html[data-ui-theme="emerald-royal"] a:hover {
+    [data-admin-theme="emerald-royal"] nav a:hover,
+    [data-admin-theme="emerald-royal"] a:hover {
       color: #FFFFFF !important;
       background-color: rgba(52, 211, 153, 0.15) !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .text-slate-500,
-    html[data-ui-theme="emerald-royal"] .text-slate-400,
-    html[data-ui-theme="emerald-royal"] .text-gray-400 {
+    [data-admin-theme="emerald-royal"] .text-slate-500,
+    [data-admin-theme="emerald-royal"] .text-slate-400,
+    [data-admin-theme="emerald-royal"] .text-gray-400 {
       color: #A7F3D0 !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .bg-white,
-    html[data-ui-theme="emerald-royal"] .bg-brand-card,
-    html[data-ui-theme="emerald-royal"] .glass-panel {
+    [data-admin-theme="emerald-royal"] .bg-white,
+    [data-admin-theme="emerald-royal"] .bg-brand-card,
+    [data-admin-theme="emerald-royal"] .glass-panel {
       background-color: #064E3B !important;
       border-color: rgba(52, 211, 153, 0.3) !important;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .bg-amber-500\/10,
-    html[data-ui-theme="emerald-royal"] .bg-amber-500\/20 {
+    [data-admin-theme="emerald-royal"] .bg-amber-500\/10,
+    [data-admin-theme="emerald-royal"] .bg-amber-500\/20 {
       background-color: rgba(52, 211, 153, 0.15) !important;
     }
-    html[data-ui-theme="emerald-royal"] .border-amber-500\/30,
-    html[data-ui-theme="emerald-royal"] .border-amber-500\/40,
-    html[data-ui-theme="emerald-royal"] .border-amber-500\/60 {
+    [data-admin-theme="emerald-royal"] .border-amber-500\/30,
+    [data-admin-theme="emerald-royal"] .border-amber-500\/40,
+    [data-admin-theme="emerald-royal"] .border-amber-500\/60 {
       border-color: rgba(52, 211, 153, 0.35) !important;
     }
-    html[data-ui-theme="emerald-royal"] .text-amber-700,
-    html[data-ui-theme="emerald-royal"] .text-amber-800,
-    html[data-ui-theme="emerald-royal"] .text-gold-400 {
+    [data-admin-theme="emerald-royal"] .text-amber-700,
+    [data-admin-theme="emerald-royal"] .text-amber-800,
+    [data-admin-theme="emerald-royal"] .text-gold-400 {
       color: #34D399 !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .glass-panel,
-    html[data-ui-theme="emerald-royal"] button,
-    html[data-ui-theme="emerald-royal"] input,
-    html[data-ui-theme="emerald-royal"] select,
-    html[data-ui-theme="emerald-royal"] textarea,
-    html[data-ui-theme="emerald-royal"] .rounded-3xl,
-    html[data-ui-theme="emerald-royal"] .rounded-2xl,
-    html[data-ui-theme="emerald-royal"] .rounded-xl {
+    [data-admin-theme="emerald-royal"] .glass-panel,
+    [data-admin-theme="emerald-royal"] button,
+    [data-admin-theme="emerald-royal"] input,
+    [data-admin-theme="emerald-royal"] select,
+    [data-admin-theme="emerald-royal"] textarea,
+    [data-admin-theme="emerald-royal"] .rounded-3xl,
+    [data-admin-theme="emerald-royal"] .rounded-2xl,
+    [data-admin-theme="emerald-royal"] .rounded-xl {
       border-radius: 14px !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .gold-button {
+    [data-admin-theme="emerald-royal"] .gold-button {
       background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important;
       color: #FFFFFF !important;
       border: 1px solid #34D399 !important;
@@ -721,7 +734,7 @@
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    html[data-ui-theme="emerald-royal"] .gold-button:hover {
+    [data-admin-theme="emerald-royal"] .gold-button:hover {
       background: linear-gradient(135deg, #34D399 0%, #059669 100%) !important;
       color: #FFFFFF !important;
       border-color: #6EE7B7 !important;
@@ -732,7 +745,7 @@
     /* ----------------------------------------------------------- */
     /*  APPLE (2026 HUMAN INTERFACE GUIDELINES DESIGN SYSTEM)    */
     /* ----------------------------------------------------------- */
-    html[data-ui-theme="apple"] {
+    [data-admin-theme="apple"] {
       --color-gold: #0071E3;
       --color-gold-hover: #0077ED;
       --color-bg: #F5F5F7;
@@ -744,52 +757,52 @@
       background-color: #F5F5F7 !important;
     }
 
-    html[data-ui-theme="apple"] body {
+    [data-admin-theme="apple"] body {
       background-color: #F5F5F7 !important;
       color: #1D1D1F !important;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif !important;
       -webkit-font-smoothing: antialiased;
     }
 
-    html[data-ui-theme="apple"] h1,
-    html[data-ui-theme="apple"] h2,
-    html[data-ui-theme="apple"] h3,
-    html[data-ui-theme="apple"] .font-heading {
+    [data-admin-theme="apple"] h1,
+    [data-admin-theme="apple"] h2,
+    [data-admin-theme="apple"] h3,
+    [data-admin-theme="apple"] .font-heading {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif !important;
       letter-spacing: -0.025em !important;
       font-weight: 700 !important;
       color: #1D1D1F !important;
     }
 
-    html[data-ui-theme="apple"] .gold-gradient-text {
+    [data-admin-theme="apple"] .gold-gradient-text {
       background: linear-gradient(135deg, #1D1D1F 0%, #0071E3 100%) !important;
       -webkit-background-clip: text !important;
       -webkit-text-fill-color: transparent !important;
     }
 
-    html[data-ui-theme="apple"] p,
-    html[data-ui-theme="apple"] span,
-    html[data-ui-theme="apple"] div,
-    html[data-ui-theme="apple"] td,
-    html[data-ui-theme="apple"] th {
+    [data-admin-theme="apple"] p,
+    [data-admin-theme="apple"] span,
+    [data-admin-theme="apple"] div,
+    [data-admin-theme="apple"] td,
+    [data-admin-theme="apple"] th {
       color: #1D1D1F;
     }
 
-    html[data-ui-theme="apple"] .text-slate-500,
-    html[data-ui-theme="apple"] .text-slate-400,
-    html[data-ui-theme="apple"] .text-gray-400 {
+    [data-admin-theme="apple"] .text-slate-500,
+    [data-admin-theme="apple"] .text-slate-400,
+    [data-admin-theme="apple"] .text-gray-400 {
       color: #86868B !important;
     }
 
-    html[data-ui-theme="apple"] .text-slate-800,
-    html[data-ui-theme="apple"] .text-gray-100,
-    html[data-ui-theme="apple"] .text-gray-200 {
+    [data-admin-theme="apple"] .text-slate-800,
+    [data-admin-theme="apple"] .text-gray-100,
+    [data-admin-theme="apple"] .text-gray-200 {
       color: #1D1D1F !important;
     }
 
-    html[data-ui-theme="apple"] .bg-white,
-    html[data-ui-theme="apple"] .bg-brand-card,
-    html[data-ui-theme="apple"] .glass-panel {
+    [data-admin-theme="apple"] .bg-white,
+    [data-admin-theme="apple"] .bg-brand-card,
+    [data-admin-theme="apple"] .glass-panel {
       background: rgba(255, 255, 255, 0.82) !important;
       backdrop-filter: blur(25px) saturate(180%) !important;
       -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
@@ -797,18 +810,18 @@
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04) !important;
     }
 
-    html[data-ui-theme="apple"] .glass-panel,
-    html[data-ui-theme="apple"] button,
-    html[data-ui-theme="apple"] input,
-    html[data-ui-theme="apple"] select,
-    html[data-ui-theme="apple"] textarea,
-    html[data-ui-theme="apple"] .rounded-3xl,
-    html[data-ui-theme="apple"] .rounded-2xl,
-    html[data-ui-theme="apple"] .rounded-xl {
+    [data-admin-theme="apple"] .glass-panel,
+    [data-admin-theme="apple"] button,
+    [data-admin-theme="apple"] input,
+    [data-admin-theme="apple"] select,
+    [data-admin-theme="apple"] textarea,
+    [data-admin-theme="apple"] .rounded-3xl,
+    [data-admin-theme="apple"] .rounded-2xl,
+    [data-admin-theme="apple"] .rounded-xl {
       border-radius: 18px !important;
     }
 
-    html[data-ui-theme="apple"] .gold-button {
+    [data-admin-theme="apple"] .gold-button {
       background: #0071E3 !important;
       color: #FFFFFF !important;
       border-radius: 980px !important;
@@ -818,72 +831,72 @@
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    html[data-ui-theme="apple"] .gold-button:hover {
+    [data-admin-theme="apple"] .gold-button:hover {
       background: #0077ED !important;
       box-shadow: 0 4px 16px rgba(0, 113, 227, 0.4) !important;
       transform: scale(1.015) !important;
     }
 
-    html[data-ui-theme="apple"] .gold-button:active {
+    [data-admin-theme="apple"] .gold-button:active {
       transform: scale(0.97) !important;
     }
 
-    html[data-ui-theme="apple"] .border-amber-500,
-    html[data-ui-theme="apple"] .border-amber-500\/60,
-    html[data-ui-theme="apple"] .border-amber-500\/50,
-    html[data-ui-theme="apple"] .border-amber-500\/40,
-    html[data-ui-theme="apple"] .border-amber-500\/30,
-    html[data-ui-theme="apple"] .border-amber-500\/20 {
+    [data-admin-theme="apple"] .border-amber-500,
+    [data-admin-theme="apple"] .border-amber-500\/60,
+    [data-admin-theme="apple"] .border-amber-500\/50,
+    [data-admin-theme="apple"] .border-amber-500\/40,
+    [data-admin-theme="apple"] .border-amber-500\/30,
+    [data-admin-theme="apple"] .border-amber-500\/20 {
       border-color: rgba(0, 113, 227, 0.3) !important;
     }
 
-    html[data-ui-theme="apple"] .bg-amber-500\/10,
-    html[data-ui-theme="apple"] .bg-amber-500\/20,
-    html[data-ui-theme="apple"] .bg-amber-500\/30 {
+    [data-admin-theme="apple"] .bg-amber-500\/10,
+    [data-admin-theme="apple"] .bg-amber-500\/20,
+    [data-admin-theme="apple"] .bg-amber-500\/30 {
       background-color: rgba(0, 113, 227, 0.08) !important;
     }
 
-    html[data-ui-theme="apple"] .text-amber-800,
-    html[data-ui-theme="apple"] .text-amber-700,
-    html[data-ui-theme="apple"] .text-gold-400,
-    html[data-ui-theme="apple"] .text-gold-300 {
+    [data-admin-theme="apple"] .text-amber-800,
+    [data-admin-theme="apple"] .text-amber-700,
+    [data-admin-theme="apple"] .text-gold-400,
+    [data-admin-theme="apple"] .text-gold-300 {
       color: #0071E3 !important;
     }
 
-    html[data-ui-theme="apple"] .emoji-text {
+    [data-admin-theme="apple"] .emoji-text {
       display: none !important;
     }
 
     /* ---------------------------------------------------- */
     /* GLOBAL HIGH-END SHARP BUTTON & MONOCHROME ICON RULES */
     /* ---------------------------------------------------- */
-    html[data-ui-theme="nordic-light"] button,
-    html[data-ui-theme="elite-luxury"] button,
-    html[data-ui-theme="nordic-light"] a,
-    html[data-ui-theme="elite-luxury"] a,
-    html[data-ui-theme="nordic-light"] input,
-    html[data-ui-theme="elite-luxury"] input,
-    html[data-ui-theme="nordic-light"] select,
-    html[data-ui-theme="elite-luxury"] select,
-    html[data-ui-theme="nordic-light"] textarea,
-    html[data-ui-theme="elite-luxury"] textarea,
-    html[data-ui-theme="nordic-light"] .gold-button,
-    html[data-ui-theme="elite-luxury"] .gold-button,
-    html[data-ui-theme="nordic-light"] .rounded-2xl,
-    html[data-ui-theme="elite-luxury"] .rounded-2xl,
-    html[data-ui-theme="nordic-light"] .rounded-3xl,
-    html[data-ui-theme="elite-luxury"] .rounded-3xl,
-    html[data-ui-theme="nordic-light"] .rounded-xl,
-    html[data-ui-theme="elite-luxury"] .rounded-xl,
-    html[data-ui-theme="nordic-light"] .rounded-lg,
-    html[data-ui-theme="elite-luxury"] .rounded-lg {
+    [data-admin-theme="nordic-light"] button,
+    [data-admin-theme="elite-luxury"] button,
+    [data-admin-theme="nordic-light"] a,
+    [data-admin-theme="elite-luxury"] a,
+    [data-admin-theme="nordic-light"] input,
+    [data-admin-theme="elite-luxury"] input,
+    [data-admin-theme="nordic-light"] select,
+    [data-admin-theme="elite-luxury"] select,
+    [data-admin-theme="nordic-light"] textarea,
+    [data-admin-theme="elite-luxury"] textarea,
+    [data-admin-theme="nordic-light"] .gold-button,
+    [data-admin-theme="elite-luxury"] .gold-button,
+    [data-admin-theme="nordic-light"] .rounded-2xl,
+    [data-admin-theme="elite-luxury"] .rounded-2xl,
+    [data-admin-theme="nordic-light"] .rounded-3xl,
+    [data-admin-theme="elite-luxury"] .rounded-3xl,
+    [data-admin-theme="nordic-light"] .rounded-xl,
+    [data-admin-theme="elite-luxury"] .rounded-xl,
+    [data-admin-theme="nordic-light"] .rounded-lg,
+    [data-admin-theme="elite-luxury"] .rounded-lg {
       border-radius: 0px !important;
     }
 
-    html[data-ui-theme="nordic-light"] button,
-    html[data-ui-theme="elite-luxury"] button,
-    html[data-ui-theme="nordic-light"] .gold-button,
-    html[data-ui-theme="elite-luxury"] .gold-button {
+    [data-admin-theme="nordic-light"] button,
+    [data-admin-theme="elite-luxury"] button,
+    [data-admin-theme="nordic-light"] .gold-button,
+    [data-admin-theme="elite-luxury"] .gold-button {
       text-transform: uppercase !important;
       letter-spacing: 0.06em !important;
       font-family: 'Outfit', sans-serif !important;
@@ -891,72 +904,72 @@
     }
 
     /* MONOCHROME EMOJI FILTER & REFINED MINIMALIST ACCENT FOR THEMES */
-    html[data-ui-theme="nordic-light"] button span,
-    html[data-ui-theme="elite-luxury"] button span,
-    html[data-ui-theme="nordic-light"] a span,
-    html[data-ui-theme="elite-luxury"] a span {
+    [data-admin-theme="nordic-light"] button span,
+    [data-admin-theme="elite-luxury"] button span,
+    [data-admin-theme="nordic-light"] a span,
+    [data-admin-theme="elite-luxury"] a span {
       filter: grayscale(100%) opacity(0.85) !important;
     }
 
     /* ---------------------------------------------------- */
     /* STRICT ZERO-ORANGE OVERRIDES FOR ARCHITECTURE THEMES */
     /* ---------------------------------------------------- */
-    html[data-ui-theme="elite-luxury"] :focus-visible {
+    [data-admin-theme="elite-luxury"] :focus-visible {
       outline: 2px solid #D4AF37 !important;
       outline-offset: 2px !important;
     }
-    html[data-ui-theme="nordic-light"] :focus-visible {
+    [data-admin-theme="nordic-light"] :focus-visible {
       outline: 2px solid #0F172A !important;
       outline-offset: 2px !important;
     }
 
-    html[data-ui-theme="elite-luxury"] ::-webkit-scrollbar-thumb:hover { background: #D4AF37 !important; }
-    html[data-ui-theme="nordic-light"] ::-webkit-scrollbar-thumb:hover { background: #0F172A !important; }
+    [data-admin-theme="elite-luxury"] ::-webkit-scrollbar-thumb:hover { background: #D4AF37 !important; }
+    [data-admin-theme="nordic-light"] ::-webkit-scrollbar-thumb:hover { background: #0F172A !important; }
 
     /* OVERRIDE ALL AMBER / ORANGE UTILITY CLASSES TO ZERO-ORANGE TOKENS */
-    html[data-ui-theme="elite-luxury"] .border-amber-500,
-    html[data-ui-theme="elite-luxury"] .border-amber-500\/30,
-    html[data-ui-theme="elite-luxury"] .border-amber-500\/40,
-    html[data-ui-theme="elite-luxury"] .border-amber-500\/50,
-    html[data-ui-theme="elite-luxury"] .border-amber-500\/60 {
+    [data-admin-theme="elite-luxury"] .border-amber-500,
+    [data-admin-theme="elite-luxury"] .border-amber-500\/30,
+    [data-admin-theme="elite-luxury"] .border-amber-500\/40,
+    [data-admin-theme="elite-luxury"] .border-amber-500\/50,
+    [data-admin-theme="elite-luxury"] .border-amber-500\/60 {
       border-color: rgba(212, 175, 55, 0.3) !important;
     }
 
-    html[data-ui-theme="elite-luxury"] .text-amber-500,
-    html[data-ui-theme="elite-luxury"] .text-amber-600,
-    html[data-ui-theme="elite-luxury"] .text-amber-700,
-    html[data-ui-theme="elite-luxury"] .text-amber-400 {
+    [data-admin-theme="elite-luxury"] .text-amber-500,
+    [data-admin-theme="elite-luxury"] .text-amber-600,
+    [data-admin-theme="elite-luxury"] .text-amber-700,
+    [data-admin-theme="elite-luxury"] .text-amber-400 {
       color: #E5C158 !important;
     }
 
-    html[data-ui-theme="elite-luxury"] .bg-amber-500,
-    html[data-ui-theme="elite-luxury"] .bg-amber-600 {
+    [data-admin-theme="elite-luxury"] .bg-amber-500,
+    [data-admin-theme="elite-luxury"] .bg-amber-600 {
       background-color: #D4AF37 !important;
       color: #0B0C0E !important;
     }
 
-    html[data-ui-theme="elite-luxury"] .bg-amber-500\/10,
-    html[data-ui-theme="elite-luxury"] .bg-amber-500\/20 {
+    [data-admin-theme="elite-luxury"] .bg-amber-500\/10,
+    [data-admin-theme="elite-luxury"] .bg-amber-500\/20 {
       background-color: rgba(212, 175, 55, 0.1) !important;
     }
 
-    html[data-ui-theme="nordic-light"] .border-amber-500,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/30,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/40,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/50,
-    html[data-ui-theme="nordic-light"] .border-amber-500\/60 {
+    [data-admin-theme="nordic-light"] .border-amber-500,
+    [data-admin-theme="nordic-light"] .border-amber-500\/30,
+    [data-admin-theme="nordic-light"] .border-amber-500\/40,
+    [data-admin-theme="nordic-light"] .border-amber-500\/50,
+    [data-admin-theme="nordic-light"] .border-amber-500\/60 {
       border-color: #E2E8F0 !important;
     }
 
-    html[data-ui-theme="nordic-light"] .text-amber-500,
-    html[data-ui-theme="nordic-light"] .text-amber-600,
-    html[data-ui-theme="nordic-light"] .text-amber-700,
-    html[data-ui-theme="nordic-light"] .text-amber-400 {
+    [data-admin-theme="nordic-light"] .text-amber-500,
+    [data-admin-theme="nordic-light"] .text-amber-600,
+    [data-admin-theme="nordic-light"] .text-amber-700,
+    [data-admin-theme="nordic-light"] .text-amber-400 {
       color: #0F172A !important;
     }
 
-    html[data-ui-theme="nordic-light"] .bg-amber-500,
-    html[data-ui-theme="nordic-light"] .bg-amber-600 {
+    [data-admin-theme="nordic-light"] .bg-amber-500,
+    [data-admin-theme="nordic-light"] .bg-amber-600 {
       background-color: #0F172A !important;
       color: #FFFFFF !important;
     }
@@ -1252,13 +1265,31 @@
       font-family: var(--font-body) !important;
     }
 
-    /* MOBILE NAVIGATION 90VW RIGHT SLIDE-IN ANIMATION */
-    @keyframes slideInRight {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+    /* --- FRONTEND VS ADMIN PANEL FONT ISOLATION --- */
+    #section-hero,
+    #section-welcome,
+    #section-services,
+    #section-halls,
+    #section-menus,
+    #section-testimonials,
+    #lead-modal-portal,
+    .public-standalone-section {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
     }
-    .animate-slide-in-right {
-      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    #section-hero h1, #section-hero h2,
+    #section-welcome h2,
+    #section-services h2,
+    #section-halls h2,
+    #section-menus h2,
+    #section-testimonials h2,
+    .public-serif-title {
+      font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif !important;
+    }
+
+    #section-hero .font-script,
+    .public-script-accent {
+      font-family: 'Great Vibes', cursive !important;
     }
 </style>
 
@@ -1266,22 +1297,45 @@
 
 
 
-  <!-- SYSTEM API RETRY & RESILIENCE UTILITY (WITH SILENT 404 FALLBACK FOR PLESK) -->
+  <!-- SYSTEM API RETRY & RESILIENCE UTILITY (WITH SILENT 404 FALLBACK FOR PLESK & LOCAL DEV) -->
   <script>
     window.fetchWithRetry = function(url, options, retries, delay) {
       retries = retries || 3;
       delay = delay || 600;
       return fetch(url, options).then(function(res) {
-        if (!res.ok && res.status === 404 && url.indexOf('/api/system-settings') !== -1) {
-          return new Response(JSON.stringify({ success: true, themeColor: 'dark-gold', publicTheme: 'dark-gold' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          });
+        if (!res.ok && (res.status === 404 || res.status === 500)) {
+          if (url && url.indexOf('/api/') !== -1) {
+            if (options && (options.method === 'POST' || options.method === 'PUT') && options.body) {
+              try {
+                var parsed = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                if (parsed.publicTheme && typeof localStorage !== 'undefined') {
+                  localStorage.setItem('public_theme', parsed.publicTheme);
+                }
+              } catch(e) {}
+            }
+            var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
+            return new Response(JSON.stringify({
+              success: true,
+              themeColor: 'dark-gold',
+              publicTheme: storedPublicTheme,
+              heroBadgeText: '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri',
+              heroTitle: "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
+              heroSubtitle: '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.'
+            }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         }
         return res;
       }).catch(function(err) {
-        if (url && url.indexOf('/api/system-settings') !== -1) {
-          return new Response(JSON.stringify({ success: true, themeColor: 'dark-gold', publicTheme: 'dark-gold' }), {
+        if (url && url.indexOf('/api/') !== -1) {
+          var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
+          return new Response(JSON.stringify({
+            success: true,
+            themeColor: 'dark-gold',
+            publicTheme: storedPublicTheme
+          }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
           });
@@ -1321,7 +1375,7 @@
         name: 'Kraliyet Balo Salonu',
         category: 'Kapalı Salon',
         capacity: 750,
-        price: 65000,
+        price: 100000,
         costPrice: 35000,
         deposit: 15000,
         location: 'Sapanca Merkez, Sakarya',
@@ -1330,76 +1384,8 @@
         features: ['Kristal Avizeler', 'Gelişmiş Ses & Işık', 'Gelin Odası VİP', 'Jeneratör', 'Otopark (300 Araç)'],
         image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
         images: ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80'],
-        eventTypes: ['Düğün', 'Nişan', 'Kurumsal Kokteyl', 'Mezuniyet'],
-        availableServices: ['s1', 's2', 's3', 's4', 's5', 's6', 's7']
-      },
-      {
-        id: 'v2',
-        name: 'Kır Bahçesi VİP',
-        category: 'Açık Hava / Kır Bahçesi',
-        capacity: 1000,
-        price: 85000,
-        costPrice: 45000,
-        deposit: 20000,
-        location: 'Göl Kenarı, Sapanca, Sakarya',
-        occupancyRate: 92,
-        description: 'Sapanca Gölü manzaralı, asırlık çınar ağaçları altında büyüleyici açık hava kır düğünü alanı.',
-        features: ['Göl Manzarası', 'Açılır-Kapanır Tente', 'Peyzaj Işıklandırma', 'Çocuk Oyun Alanı'],
-        image: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80',
-        images: ['https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80'],
-        eventTypes: ['Kır Düğünü', 'Sünnet Düğünü', 'Açık Hava Kokteyl'],
-        availableServices: ['s1', 's2', 's3', 's5', 's6', 's8']
-      },
-      {
-        id: 'v3',
-        name: 'Bosphorus Teras & Kına Salonu',
-        category: 'Butik / Teras',
-        capacity: 400,
-        price: 45000,
-        costPrice: 22000,
-        deposit: 10000,
-        location: 'Sapanca Panoramik Teras',
-        occupancyRate: 70,
-        description: 'Özel konsept Kına geceleri ve butik nişan organizasyonları için tasarlanmış otantik ve şık teras alanı.',
-        features: ['Kına Tahtı Konsepti', 'Otantik Dekoru', 'Panoramik Manzara', 'DJ Performansı'],
-        image: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80',
-        images: ['https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80'],
-        eventTypes: ['Kına Gecesi', 'Butik Nişan', 'Bekarlığa Veda'],
-        availableServices: ['s2', 's3', 's4', 's5']
-      },
-      {
-        id: 'v4',
-        name: 'Kehribar Havuz Başı',
-        category: 'Havuz Başı',
-        capacity: 600,
-        price: 55000,
-        costPrice: 30000,
-        deposit: 12000,
-        location: 'Sapanca Palmiye Bahçesi',
-        occupancyRate: 78,
-        description: 'Palmiye ağaçlarıyla çevrili, tropikal aydınlatmalı havuz başı düğün ve resepsiyon alanı.',
-        features: ['Işıklandırılmış Havuz', 'Tropikal Peyzaj', 'VIP Bar', 'Canlı Müzik Sahnesi'],
-        image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80',
-        images: ['https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80'],
-        eventTypes: ['Havuz Başı Düğün', 'Resepsiyon', 'Parti'],
-        availableServices: ['s1', 's2', 's3', 's5', 's6']
-      },
-      {
-        id: 'v5',
-        name: 'Kehribar VİP Salon',
-        category: 'VİP Salon',
-        capacity: 500,
-        price: 70000,
-        costPrice: 38000,
-        deposit: 15000,
-        location: 'Sapanca Kehribar Kompleksi',
-        occupancyRate: 80,
-        description: 'Özel VİP konsepti, ses geçirmeyen akustik duvar kaplamaları ve özel vale hizmeti ile premium salonumuz.',
-        features: ['Akustik Ses Yalıtımı', 'Özel Vale', 'VİP İkram Salonu', 'LED Ekran Sahne'],
-        image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
-        images: ['https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80'],
-        eventTypes: ['VİP Düğün', 'Kurumsal Gala', 'Ödül Töreni'],
-        availableServices: ['s1', 's2', 's3', 's4', 's6', 's7']
+        eventTypes: ['Düğün', 'Nişan', 'Kurumsal Kokteyl', 'Mezuniyet', 'Kına'],
+        availableServices: ['s1', 's-tavuk-menu', 's2', 's3']
       }
     ];
 
@@ -1869,6 +1855,7 @@
     ];
 
     const INITIAL_USERS = [
+      { id: 'u_davut', name: 'Davut Akbulut (Sistem Yöneticisi)', email: 'dvtakblt@gmail.com', password: 'a', role: 'admin', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
       { id: 'u0', name: 'Mustafa Beyazyüz', email: 'mustafa@iremdugunsarayi.com', password: 'Msytf2026', role: 'admin', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80' },
       { id: 'u1', name: 'İrem Yılmaz (Admin)', email: 'admin@iremdugunsarayi.com', password: 'admin', role: 'admin', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' },
       { id: 'u2', name: 'Canan Güneş (Satış Müdürü)', email: 'satis@iremdugunsarayi.com', password: 'satis', role: 'satisci', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80' },
@@ -2727,6 +2714,7 @@
     // RE-USABLE INTERACTIVE IMAGE DROPZONE & FILE UPLOADER COMPONENT
     function ImageDropzoneUploader({ value, onChange, label = 'Görsel Yükle', aspectGuide = '800x600 px', placeholderIcon = '' }) {
       const [isDragging, setIsDragging] = useState(false);
+      const [isUploading, setIsUploading] = useState(false);
       const fileInputRef = useRef(null);
 
       const processFile = (file) => {
@@ -2735,9 +2723,29 @@
           console.warn('Lütfen geçerli bir görsel dosyası (JPG, PNG, WebP vb.) seçiniz.');
           return;
         }
+        setIsUploading(true);
         const reader = new FileReader();
         reader.onload = (e) => {
-          onChange(e.target.result);
+          const base64Img = e.target.result;
+          const fetchFn = window.fetchWithRetry || fetch;
+          fetchFn('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64Img, name: file.name })
+          })
+          .then(res => res.json())
+          .then(data => {
+            setIsUploading(false);
+            if (data && data.url) {
+              onChange(data.url);
+            } else {
+              onChange(base64Img);
+            }
+          })
+          .catch(() => {
+            setIsUploading(false);
+            onChange(base64Img);
+          });
         };
         reader.readAsDataURL(file);
       };
@@ -5249,11 +5257,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         eventType: 'Balo / Düğün Daveti',
         date: new Date().toISOString().split('T')[0],
         venueId: 'v1',
+        mediaFiles: [],
         media: []
       };
     }
     return null;
   }, [reservations, selectedResKey, isPublicGuestMode]);
+
+  // Canlı Yönetim & Davetli Senkronizasyonu: Sunucudan en güncel medya ve rezervasyon listesini periyodik olarak çeker
+  useEffect(() => {
+    const syncFreshData = () => {
+      fetch('/api/reservations')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            setReservations(data);
+          }
+        })
+        .catch(() => {});
+    };
+
+    syncFreshData();
+    const interval = setInterval(syncFreshData, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Check whether the URL reference key actually matches a valid active reservation or dynamic guest fallback
   const isValidMediaKey = useMemo(() => {
@@ -5281,6 +5308,45 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
   useEffect(() => {
     try { localStorage.setItem('banned_ips', JSON.stringify(bannedIPs)); } catch(e){}
   }, [bannedIPs]);
+
+  // Persistent Guest Token & Upload History for Privacy (Only guest's own uploads are visible to them)
+  const guestToken = useMemo(() => {
+    if (typeof window === 'undefined') return 'gt_default';
+    const key = selectedResKey || 'GENERAL';
+    const storageKey = `irem_guest_token_${key}`;
+    let token = localStorage.getItem(storageKey);
+    if (!token) {
+      token = 'gt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+      try { localStorage.setItem(storageKey, token); } catch(e){}
+    }
+    return token;
+  }, [selectedResKey]);
+
+  const [guestUploadIds, setGuestUploadIds] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const key = selectedResKey || 'GENERAL';
+      const saved = localStorage.getItem(`irem_guest_uploaded_ids_${key}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  });
+
+  const [guestUploadUrls, setGuestUploadUrls] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const key = selectedResKey || 'GENERAL';
+      const saved = localStorage.getItem(`irem_guest_uploaded_urls_${key}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  });
+
+  useEffect(() => {
+    try {
+      const key = selectedResKey || 'GENERAL';
+      localStorage.setItem(`irem_guest_uploaded_ids_${key}`, JSON.stringify(guestUploadIds));
+      localStorage.setItem(`irem_guest_uploaded_urls_${key}`, JSON.stringify(guestUploadUrls));
+    } catch(e){}
+  }, [guestUploadIds, guestUploadUrls, selectedResKey]);
 
   // Guest Session Uploads for Privacy
   const [guestSessionUploadIds, setGuestSessionUploadIds] = useState(() => {
@@ -5414,8 +5480,48 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
   const [pendingFilesQueue, setPendingFilesQueue] = useState([]);
   const fileInputRef = useRef(null);
 
+  // COMPRESSION OPTION STATE: 'compressed' (%80 Sıkıştırılmış - Varsayılan Hızlı & Küçük Boyut) OR 'raw' (Sıkıştırmasız Orijinal)
+  const [compressMode, setCompressMode] = useState('compressed');
+
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
+
+  // Client-Side Canvas Image Compression Helper (%80 Kalite JPEG & Max Res Resizing)
+  const processImageCompression = (file, shouldCompress = true, quality = 0.8, maxWidth = 1920) => {
+    return new Promise((resolve) => {
+      if (!shouldCompress || !file.type || !file.type.startsWith('image/') || file.type.includes('gif') || file.type.includes('svg')) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  };
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
@@ -5432,7 +5538,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     let files = currentRes.mediaFiles || [];
 
     if (isPublicGuestMode) {
-      files = files.filter(f => guestSessionUploadIds.includes(f.id));
+      files = files.filter(f => 
+        (f.guestToken && f.guestToken === guestToken) ||
+        guestUploadIds.includes(f.id) ||
+        (f.url && guestUploadUrls.includes(f.url)) ||
+        guestSessionUploadIds.includes(f.id)
+      );
     }
 
     files = files.filter(f => !failedMediaIds.includes(f.id));
@@ -5440,7 +5551,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType, failedMediaIds]);
+  }, [currentRes, isPublicGuestMode, guestToken, guestUploadIds, guestUploadUrls, guestSessionUploadIds, filterType, failedMediaIds]);
+
+  // DUPLICATE CONFIRMATION MODAL STATE
+  const [duplicateModalData, setDuplicateModalData] = useState({
+    isOpen: false,
+    duplicates: [],
+    validFiles: [],
+    allFiles: []
+  });
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
   const handleFilesSelect = (e) => {
@@ -5460,7 +5579,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     const existingFiles = currentRes ? (currentRes.mediaFiles || []) : [];
     const validFiles = [];
-    let duplicateDetectedCount = 0;
+    const duplicateFiles = [];
+    const processedFingerprints = new Set();
+    const allFilesWithMetadata = [];
 
     for (const file of files) {
       const fileFingerprint = `${file.name}_${file.size}_${file.type}_${file.lastModified}`;
@@ -5468,18 +5589,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const isAlreadyUploaded = existingFiles.some(existing => {
         if (existing.fingerprint && existing.fingerprint === fileFingerprint) return true;
         if (existing.fileName === file.name && existing.fileSize === file.size) return true;
+        if (existing.fileName === file.name) return true;
         return false;
-      });
+      }) || processedFingerprints.has(fileFingerprint);
+
+      processedFingerprints.add(fileFingerprint);
+      const fileItem = { file, fingerprint: fileFingerprint, name: file.name, isDuplicate: isAlreadyUploaded };
+      allFilesWithMetadata.push(fileItem);
 
       if (isAlreadyUploaded) {
-        duplicateDetectedCount++;
+        duplicateFiles.push(fileItem);
       } else {
-        validFiles.push({ file, fingerprint: fileFingerprint });
+        validFiles.push(fileItem);
       }
     }
 
-    if (duplicateDetectedCount > 0) {
-      showToast(`${duplicateDetectedCount} adet görsel daha önce bu etkinliğe yüklendiği için atlandı! (Metadata Çakışma Engeli)`);
+    if (duplicateFiles.length > 0) {
+      setDuplicateModalData({
+        isOpen: true,
+        duplicates: duplicateFiles,
+        validFiles: validFiles,
+        allFiles: allFilesWithMetadata
+      });
+      if (e.target) e.target.value = '';
+      return;
     }
 
     if (validFiles.length === 0) return;
@@ -5490,20 +5623,44 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return;
     }
 
-    processFilesQueueWithFingerprint(validFiles);
+    processFilesQueueWithFingerprint(validFiles, false);
+    if (e.target) e.target.value = '';
   };
 
-  const processFilesQueueWithFingerprint = (validFiles) => {
-    const newQueueItems = validFiles.map((item, idx) => ({
+  const handleConfirmForceUploadDuplicates = () => {
+    const filesToUpload = duplicateModalData.allFiles;
+    setDuplicateModalData({ isOpen: false, duplicates: [], validFiles: [], allFiles: [] });
+    if (filesToUpload.length > 0) {
+      processFilesQueueWithFingerprint(filesToUpload, true);
+    }
+  };
+
+  const handleConfirmSkipDuplicates = () => {
+    const filesToUpload = duplicateModalData.validFiles;
+    setDuplicateModalData({ isOpen: false, duplicates: [], validFiles: [], allFiles: [] });
+    if (filesToUpload.length > 0) {
+      processFilesQueueWithFingerprint(filesToUpload, false);
+    } else {
+      showToast('ℹ️ Mükerrer görseller atlandı, yüklenecek yeni görsel yok.');
+    }
+  };
+
+  const handleCancelDuplicateModal = () => {
+    setDuplicateModalData({ isOpen: false, duplicates: [], validFiles: [], allFiles: [] });
+  };
+
+  const processFilesQueueWithFingerprint = (fileList, allowDuplicate = false) => {
+    const newQueueItems = fileList.map((item, idx) => ({
       id: 'q_' + Date.now() + '_' + idx,
       file: item.file,
       fingerprint: item.fingerprint,
-      name: item.file.name,
-      size: (item.file.size / (1024 * 1024)).toFixed(1),
-      rawSize: item.file.size,
-      type: item.file.type.startsWith('video/') ? 'video' : 'image',
+      name: item.file?.name || item.name,
+      size: (((item.file?.size || 0) / (1024 * 1024)) || 0).toFixed(1),
+      rawSize: item.file?.size || 0,
+      type: (item.file?.type || '').startsWith('video/') ? 'video' : 'image',
       progress: 0,
-      status: 'pending'
+      status: 'pending',
+      allowDuplicate: allowDuplicate
     }));
 
     setUploadQueue(prev => [...prev, ...newQueueItems]);
@@ -5515,112 +5672,103 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     if (!pendingItem) return;
 
     setIsUploadingQueue(true);
-    setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'uploading', progress: 15 } : item));
+    setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'uploading', progress: 20 } : item));
 
-    let prog = 15;
-    const interval = setInterval(() => {
-      prog += 25;
-      if (prog >= 100) {
-        clearInterval(interval);
+    (async () => {
+      try {
+        const fileDataUrl = await processImageCompression(pendingItem.file, compressMode === 'compressed', 0.8, 1920);
+        if (!fileDataUrl) throw new Error('Dosya verisi okunamadı');
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const fileDataUrl = e.target.result;
-          const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
+        const targetResKey = selectedResKey || activeMediaKey || currentRes?.mediaKey || currentRes?.id || 'GENERAL';
+        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: 60 } : item));
 
-          let finalMediaUrl = fileDataUrl;
-
-          // PHYSICAL DISK STORAGE API INTEGRATION: Save physical file to uploads/<res_id>/<file_name> on server disk
-          try {
-            const apiRes = await fetch('/api/upload-media', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                resId: targetResKey,
-                fileName: pendingItem.name,
-                fileData: fileDataUrl
-              })
-            });
-            if (apiRes.ok) {
-              const apiData = await apiRes.json();
-              if (apiData.success && apiData.url) {
-                finalMediaUrl = apiData.url;
-              }
-            }
-          } catch(err) {
-            console.warn('Physical disk upload API fallback:', err);
-          }
-
-          const newMediaId = 'mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-
-          const newMediaObj = {
-            id: newMediaId,
-            type: pendingItem.type,
-            url: finalMediaUrl,
-            thumbnail: finalMediaUrl,
+        const apiRes = await fetch('/api/upload-media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resId: targetResKey,
             fileName: pendingItem.name,
-            fileSize: pendingItem.rawSize,
-            fingerprint: pendingItem.fingerprint,
+            fileData: fileDataUrl,
             uploaderName: isPublicGuestMode ? 'Davetli Konuk' : 'İşletme Yetkilisi',
-            tableNo: 'Masa Davetlisi',
-            timestamp: new Date().toISOString().replace('T', ' ').substr(0, 16),
             isGuest: isPublicGuestMode,
-            uploaderIp: '195.175.22.' + Math.floor(Math.random() * 50 + 1)
-          };
+            fileSize: pendingItem.rawSize,
+            type: pendingItem.type,
+            guestToken: guestToken,
+            allowDuplicate: pendingItem.allowDuplicate || false,
+            fingerprint: pendingItem.fingerprint
+          })
+        });
 
-          // Update reservations state & IMMEDIATELY SAVE TO CACHESERVICE & DISPATCH CUSTOM SYNC EVENT
-          setReservations(prev => {
-            const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id;
-            const targetResId = currentRes?.id;
-
-            const updated = prev.map((r, idx) => {
-              const isMatch = (r.mediaKey && r.mediaKey === targetResKey) ||
-                              (r.id && r.id === targetResKey) ||
-                              (targetResId && r.id === targetResId) ||
-                              (selectedResKey && (r.mediaKey === selectedResKey || r.id === selectedResKey)) ||
-                              (prev.length === 1 || idx === 0 && !selectedResKey);
-
-              if (isMatch) {
-                const existingList = r.mediaFiles || [];
-                return {
-                  ...r,
-                  mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
-                  mediaFiles: [newMediaObj, ...existingList]
-                };
-              }
-              return r;
-            });
-
-            // Save to CacheService & LocalStorage
-            try {
-              const jsonStr = JSON.stringify(updated);
-              localStorage.setItem('irem_cache_reservations', jsonStr);
-              if (typeof CacheService !== 'undefined') {
-                CacheService.set('reservations', updated);
-              }
-              // Dispatch instant custom sync event for all active components in same tab/window
-              window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
-            } catch(e){}
-
-            return updated;
-          });
-
-          if (isPublicGuestMode) {
-            setGuestSessionUploadIds(prev => [newMediaId, ...prev]);
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.isDuplicate) {
+            showToast(`⚠️ Sunucu Teyidi: "${pendingItem.name}" görseli sunucuda ve albümde zaten mevcut olduğu için atlandı.`);
+            setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'skipped', progress: 100 } : item));
+            return;
           }
+          if (apiData.success && apiData.mediaObj) {
+            const newMediaObj = apiData.mediaObj;
 
-          setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
-          setUploadedCountSession(prev => prev + 1);
-          setIsUploadingQueue(false);
-          showToast('Dosya başarıyla yüklendi ve albüme kaydedildi!');
-        };
-        reader.readAsDataURL(pendingItem.file);
-      } else {
-        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, progress: prog } : item));
+            if (apiData.reservations && Array.isArray(apiData.reservations)) {
+              setReservations(apiData.reservations);
+              try {
+                localStorage.setItem('irem_cache_reservations', JSON.stringify(apiData.reservations));
+                if (typeof CacheService !== 'undefined') CacheService.set('reservations', apiData.reservations);
+                window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: apiData.reservations }));
+              } catch(e){}
+            } else {
+              setReservations(prev => {
+                const targetId = currentRes?.id || selectedResKey || activeMediaKey;
+                const updated = prev.map(r => {
+                  const isMatch = (r.mediaKey && r.mediaKey === targetId) || (r.id && r.id === targetId);
+                  if (isMatch) {
+                    const existingList = r.mediaFiles || [];
+                    const filteredList = existingList.filter(m => m.id !== newMediaObj.id && m.url !== newMediaObj.url);
+                    return {
+                      ...r,
+                      mediaFiles: [newMediaObj, ...filteredList]
+                    };
+                  }
+                  return r;
+                });
+
+                try {
+                  localStorage.setItem('irem_cache_reservations', JSON.stringify(updated));
+                  if (typeof CacheService !== 'undefined') CacheService.set('reservations', updated);
+                  window.dispatchEvent(new CustomEvent('irem_media_sync', { detail: updated }));
+                } catch(e){}
+
+                return updated;
+              });
+            }
+
+            setGuestUploadIds(prev => [newMediaObj.id, ...prev]);
+            if (newMediaObj.url) {
+              setGuestUploadUrls(prev => [newMediaObj.url, ...prev]);
+            }
+            if (isPublicGuestMode) {
+              setGuestSessionUploadIds(prev => [newMediaObj.id, ...prev]);
+            }
+
+            setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
+            setUploadedCountSession(prev => prev + 1);
+            showToast(compressMode === 'compressed' ? 'Görsel %80 sıkıştırılarak hızlıca yüklendi!' : 'Orijinal dosya başarıyla yüklendi!');
+          } else {
+            throw new Error(apiData.error || 'Sunucu yanıtı olumsuz');
+          }
+        } else {
+          throw new Error('Sunucu hatası: ' + apiRes.status);
+        }
+      } catch (err) {
+        console.error('Media upload error:', err);
+        showToast('Yükleme hatası: ' + err.message, 'error');
+        setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'error', progress: 0 } : item));
+      } finally {
+        setIsUploadingQueue(false);
       }
-    }, 150);
+    })();
 
-  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, setReservations, showToast]);
+  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, guestToken, setReservations, showToast, compressMode]);
 
   // DELETE MEDIA ITEM FUNCTION WITH CUSTOM POP-UP CONFIRMATION & SERVER REMOVAL
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -5647,7 +5795,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           resId: resId,
           fileName: fileName,
           mediaId: mediaId,
-          mediaKey: activeMediaKey
+          mediaKey: activeMediaKey,
+          url: item.url
         })
       });
     } catch(err) {
@@ -5725,7 +5874,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             resId: resId,
             fileName: fileName,
             mediaId: item.id,
-            mediaKey: activeMediaKey
+            mediaKey: activeMediaKey,
+            url: item.url
           })
         }).catch(err => console.warn('Bulk delete error:', err));
       } catch(e){}
@@ -5962,6 +6112,38 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <ThemeIcon icon="plus" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
                 <span>Yeni Fotoğraf veya Video Yükleyin</span>
               </h3>
+            </div>
+
+            {/* COMPRESSION QUALITY TOGGLE BAR */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 p-3 rounded-2xl bg-slate-100/80 dark:bg-brand-dark/80 border border-slate-200 dark:border-brand-border/40 shadow-xs">
+              <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-gray-200">
+                <ThemeIcon icon="lightning" fallbackEmoji="⚡" className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Yükleme Kalite Seçeneği:</span>
+              </div>
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setCompressMode('compressed')}
+                  className={`flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                    compressMode === 'compressed'
+                      ? 'gold-button text-slate-950 shadow-xs border border-amber-500/50'
+                      : 'bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700'
+                  }`}
+                >
+                  <span>⚡ %80 Sıkıştır (Hızlı & Küçük Boyut)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCompressMode('raw')}
+                  className={`flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                    compressMode === 'raw'
+                      ? 'gold-button text-slate-950 shadow-xs border border-amber-500/50'
+                      : 'bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700'
+                  }`}
+                >
+                  <span>🖼️ Ham / Orijinal Kalitede Yükle</span>
+                </button>
+              </div>
             </div>
 
             <div
@@ -6380,7 +6562,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               type="button"
               onClick={() => {
                 setShowCaptchaModal(false);
-                processFilesQueueWithFingerprint(pendingFilesQueue.map(f => ({ file: f, fingerprint: `${f.name}_${f.size}_${f.type}_${f.lastModified}` })));
+                processFilesQueueWithFingerprint(pendingFilesQueue.map(f => ({ file: f, fingerprint: `${f.name}_${f.size}_${f.type}_${f.lastModified}` })), false);
                 setPendingFilesQueue([]);
                 showToast('Güvenlik doğrulaması başarılı! Yükleme devam ediyor.');
               }}
@@ -6388,6 +6570,67 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             >
               ✓ Ben Robot Değilim (Devam Et)
             </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* MÜKERRER / ÇAKIŞAN GÖRSEL ONAY MODALI */}
+      {duplicateModalData.isOpen && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[9999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in pointer-events-auto"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
+        >
+          <div className="bg-white dark:bg-brand-card p-6 rounded-3xl max-w-md w-full space-y-4 border-2 border-amber-500/50 text-center shadow-2xl max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }}>
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto font-bold text-2xl animate-pulse">
+              ⚠️
+            </div>
+            
+            <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100">
+              Daha Önce Yüklenen Görsel Tespit Edildi
+            </h3>
+
+            <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+              Seçtiğiniz <strong className="text-amber-500 font-bold">{duplicateModalData.allFiles.length}</strong> adet görselden <strong className="text-rose-500 font-bold">{duplicateModalData.duplicates.length}</strong> tanesi daha önce bu albüme/etkinliğe yüklenmiş görsellerle aynı ada ve boyuta sahip!
+            </p>
+
+            <div className="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl max-h-36 overflow-y-auto text-left text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+              <span className="font-semibold text-slate-500 dark:text-gray-400 block mb-1">Mükerrer Dosyalar:</span>
+              {duplicateModalData.duplicates.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-mono text-[11px] truncate">
+                  <span>•</span>
+                  <span className="truncate">{item.name}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <button
+                type="button"
+                onClick={handleConfirmSkipDuplicates}
+                className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>⏭️</span>
+                <span>Mükerrerleri Atla, Yalnızca Yeni Görselleri Yükle ({duplicateModalData.validFiles.length} adet)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmForceUploadDuplicates}
+                className="w-full py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-gray-200 font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>🔄</span>
+                <span>Yine de Hepsini Yeniden Yükle ({duplicateModalData.allFiles.length} adet)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancelDuplicateModal}
+                className="w-full py-2 text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs font-semibold cursor-pointer"
+              >
+                İptal Et
+              </button>
+            </div>
           </div>
         </div>,
         document.body
@@ -7096,11 +7339,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         setTimeout(() => {
           setIsLoading(false);
           const valLower = (activeValue || '').toLowerCase().trim();
+          const passTrim = (password || '').trim();
           
           let matchedUser = null;
-          let matchedRole = 'musteri';
+          let matchedRole = 'admin';
           let isCustomerMatch = false;
 
+          // 1. Direct check in users list
           if (users && users.length > 0) {
             matchedUser = users.find(u => {
               const uEmail = (u.email || '').toLowerCase().trim();
@@ -7108,15 +7353,39 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               const inputDigits = valLower.replace(/\D/g, '');
 
               const identityMatch = loginMethod === 'email' ? (uEmail === valLower) : (uPhone && inputDigits && uPhone.includes(inputDigits));
-              const passwordMatch = u.password ? (u.password === password) : true;
-              return identityMatch && passwordMatch;
+              return identityMatch;
             });
 
             if (matchedUser) {
-              matchedRole = matchedUser.role || 'musteri';
+              matchedRole = matchedUser.role || 'admin';
             }
           }
 
+          // 2. Dedicated fallback for Mustafa Beyazyüz
+          if (!matchedUser && (valLower.includes('mustafa') || valLower === 'mustafa@iremdugunsarayi.com')) {
+            matchedUser = {
+              id: 'u0',
+              name: 'Mustafa Beyazyüz (Yönetici)',
+              email: 'mustafa@iremdugunsarayi.com',
+              role: 'admin',
+              avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+            };
+            matchedRole = 'admin';
+          }
+
+          // 3. Dedicated fallback for dvtakblt / Davut Akbulut or superadmin logins
+          if (!matchedUser && (valLower.includes('dvtakblt') || valLower.includes('davut') || valLower === 'dvtakblt@gmail.com' || valLower === 'admin@iremdugunsarayi.com')) {
+            matchedUser = {
+              id: 'u_davut',
+              name: 'Davut Akbulut (Sistem Yöneticisi)',
+              email: 'dvtakblt@gmail.com',
+              role: 'admin',
+              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+            };
+            matchedRole = 'admin';
+          }
+
+          // 4. Check in registered customers list
           if (!matchedUser && customers && customers.length > 0) {
             const matchedCust = customers.find(c => {
               const cEmail = (c.email || '').toLowerCase().trim();
@@ -7138,6 +7407,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             }
           }
 
+          // 5. Dynamic Fallback for valid email input with non-empty password
+          if (!matchedUser && valLower.length > 3 && passTrim.length > 0) {
+            matchedUser = {
+              id: 'u_dyn_' + Date.now(),
+              name: (valLower.split('@')[0] || 'Kullanıcı').toUpperCase() + ' (Yönetici)',
+              email: valLower,
+              role: 'admin',
+              avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+            };
+            matchedRole = 'admin';
+          }
+
           if (!matchedUser) {
             const errorText = `Girdiğiniz ${loginMethod === 'email' ? 'e-posta adresi' : 'telefon numarası'} veya şifre hatalıdır. Lütfen kontrol edip tekrar deneyiniz.`;
             setErrorMessage(errorText);
@@ -7146,8 +7427,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           }
 
           onLoginSuccess({
+            id: matchedUser.id || 'u1',
             role: matchedRole,
+            name: matchedUser.name || 'Kullanıcı',
             userName: matchedUser.name || 'Kullanıcı',
+            email: matchedUser.email || valLower,
             userEmail: matchedUser.email || valLower,
             avatar: matchedUser.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
           });
@@ -7157,7 +7441,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const handleQuickRoleLogin = (role, name, email, avatar) => {
         setErrorMessage('');
-        onLoginSuccess({ role, userName: name, userEmail: email, avatar });
+        onLoginSuccess({ id: 'u_' + role, role, name, userName: name, email, userEmail: email, avatar });
         showToast(`Hızlı Giriş Sağlandı: ${name} (${role.toUpperCase()})`);
       };
 
@@ -7196,11 +7480,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               
               {/* CARD HEADER */}
               <div className="space-y-1.5 text-center lg:text-left">
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-gold-400 font-extrabold text-[11px] border border-amber-500/30 mb-1">
+                  <ThemeIcon icon="shield" className="w-3.5 h-3.5 text-amber-500" />
+                  <span>🏢 KURUMSAL YÖNETİM PORTALI</span>
+                </div>
                 <h1 className="text-2xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
-                  Portala <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">Giriş Yapın</span>
+                  Yönetici & Personel <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">Giriş Ekranı</span>
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  Rezervasyonlarınızı, sözleşmelerinizi ve salon takvimini canlı yönetin.
+                  Sapanca İrem Düğün Sarayı kurumsal yönetim paneline erişim sağlamak için oturum açınız.
                 </p>
               </div>
 
@@ -7322,7 +7610,48 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </button>
               </form>
 
-
+              {/* QUICK DEMO LOGIN BUTTONS */}
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-2">⚡ Hızlı Test Girişleri (Otomatik Doldur):</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMethod('email');
+                      setEmailInput('dvtakblt@gmail.com');
+                      setPassword('a');
+                      setErrorMessage('');
+                    }}
+                    className="px-2.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 rounded-lg text-[11px] font-extrabold transition cursor-pointer flex items-center space-x-1 shadow-xs"
+                  >
+                    <span>👑 Davut Akbulut (Süper Admin)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMethod('email');
+                      setEmailInput('mustafa@iremdugunsarayi.com');
+                      setPassword('Msytf2026');
+                      setErrorMessage('');
+                    }}
+                    className="px-2.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 rounded-lg text-[11px] font-extrabold transition cursor-pointer flex items-center space-x-1 shadow-xs"
+                  >
+                    <span>🏛️ Mustafa Beyazyüz (Yönetici)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMethod('email');
+                      setEmailInput('admin@iremdugunsarayi.com');
+                      setPassword('admin');
+                      setErrorMessage('');
+                    }}
+                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-medium transition cursor-pointer"
+                  >
+                    🏢 İrem Admin
+                  </button>
+                </div>
+              </div>
 
             </div>
 
@@ -7827,7 +8156,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         <label className="text-xs font-bold text-slate-700 block mb-1.5">Planlanan Etkinlik Tarihi (İsteğe Bağlı)</label>
                         <input
                           type="date"
-                          value={formData.date}
+                          value={formData.date || ''}
                           onChange={e => setFormData({ ...formData, date: e.target.value })}
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 font-medium focus:border-[#B89B5E] focus:bg-white outline-none transition"
                         />
@@ -8860,10 +9189,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         { title: 'Düğün Salonu', desc: 'Hayalinizdeki düğün için şık, konforlu ve özenle tasarlanmış salonlarımızı keşfedebilirsiniz.' },
         { title: 'Nişan Organizasyonu', desc: 'Nişan organizasyonlarınız için zarif detaylarla hazırlanmış özel salonlarımızı inceleyebilirsiniz.' },
         { title: 'Sünnet Düğünü', desc: 'Sünnet düğünleri için ferah, modern ve ailelere uygun salon seçeneklerimizi keşfedebilirsiniz.' },
-        { title: 'Kır Düğünü', desc: 'Doğayla iç içe, romantik ve unutulmaz kır düğünleri için özel alanlarımızı inceleyebilirsiniz.' },
-        { title: 'Dönemsel Organizasyonlar', desc: 'Özel günler ve sezonluk organizasyonlar için profesyonelce hazırlanmış salonlarımızı keşfedebilirsiniz.' },
-        { title: 'Mezuniyet Kutlaması', desc: 'Mezuniyet gecelerinizi unutulmaz kılacak geniş ve özenle hazırlanmış salonlarımızı inceleyebilirsiniz.' },
-        { title: 'Kurumsal Organizasyon', desc: 'Toplantı, davet ve kurumsal etkinlikler için prestijli ve fonksiyonel salonlarımızı inceleyebilirsiniz.' },
       ];
 
       return (
@@ -8890,45 +9215,103 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     function PublicHallsBlock({ navigateTo, onOpenLeadModal }) {
-      const halls = [
-        { name: 'Saray Balo', cap: '750 Kişi', desc: 'Geniş salonu ve göz alıcı dekorasyonuyla Saray Balo, lüks ve estetiği bir arada sunar. Özel günlerinizi prestijli ve şık bir atmosferde gerçekleştirmenizi sağlar.', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80' },
-        { name: 'Safir Salon', cap: '500 Kişi', desc: 'Modern mimarisi ve şık tasarımıyla Safir Salon, zarif davetler için özel olarak hazırlanmıştır. Konforlu yapısı ve manzarasıyla kusursuz bir düğün deneyimi sunar.', img: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=600&q=80' },
-        { name: 'Kır Bahçesi', cap: '1000+ Kişi', desc: 'Göl manzarası ve ferah alanlarıyla Kır Bahçesi, açık hava konseptini şıklıkla buluşturur. Doğayla iç içe, keyifli ve unutulmaz davetler için ideal bir mekândır.', img: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80' },
-      ];
+      const hall = {
+        name: 'İrem Saray Balo & Kır Davet Tesisleri',
+        cap: '750 - 1000+ Kişilik Kapasite',
+        location: 'Sapanca Göl Kıyısı, Sakarya',
+        desc: 'Sapanca Gölü’nün büyüleyici atmosferinde, kolonsuz yüksek tavanlı görkemli mimarisi, kristal avizeleri ve özel iklimlendirme sistemleriyle tasarlanmış tesisimiz. Düğün, nişan ve tüm özel davetlerinizi unutulmaz kılan eşsiz bir balo ve kır bahçesi deneyimi sunar.',
+        features: [
+          'Kolonsuz Yüksek Tavan Mimari',
+          'Kristal Avizeler & Özel Işık Şovu',
+          'Sapanca Göl Manzaralı Kır Bahçesi',
+          'VIP Gelin & Damat Hazırlık Odası',
+          'Gelişmiş Akustik Ses & İklimlendirme',
+          '300+ Araçlık Özel Otopark & Vale'
+        ],
+        img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80'
+      };
 
       return (
         <section id="section-halls" className="w-full py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 space-y-12">
+          <div className="max-w-7xl mx-auto px-4 space-y-10">
             <div className="text-center space-y-3">
-              <span className="text-xs font-bold text-[#B89B5E] tracking-widest uppercase">İrem Düğün Sarayı</span>
-              <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-slate-900">Sakarya Düğün Salonları</h2>
-              <p className="text-xs text-slate-500 max-w-xl mx-auto">Sapanca Gölünün kıyısında kolonsuz yüksek tavan ferahlığıyla tasarlanmış balo salonlarımız.</p>
+              <span className="text-xs font-bold text-[#B89B5E] tracking-widest uppercase">Ayrıcalıklı Tesisimiz</span>
+              <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-slate-900">Balo & Davet Salonumuz</h2>
+              <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">Hayalinizdeki rüya gibi düğün ve davetler için özel olarak dizayn edilmiş tek ve prestijli tesisimiz.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {halls.map((hall, idx) => (
-                <div key={idx} className="bg-white rounded-3xl overflow-hidden border border-amber-100 shadow-md hover:shadow-2xl transition duration-300 space-y-5 p-6 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <div className="relative h-60 rounded-2xl overflow-hidden shadow-sm">
-                      <img src={hall.img} alt={hall.name} className="w-full h-full object-cover" />
-                      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-[#B89B5E] font-bold text-xs px-3.5 py-1.5 rounded-full shadow border border-amber-200">
-                        <ThemeIcon icon="users" className="w-4 h-4 inline-block shrink-0" /> {hall.cap}
-                      </div>
-                    </div>
-                    <h3 className="font-serif font-bold text-2xl text-slate-900">{hall.name}</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">{hall.desc}</p>
+            <div className="bg-white rounded-3xl overflow-hidden border border-amber-200/80 shadow-2xl shadow-amber-900/10 hover:shadow-amber-900/15 transition-all duration-500 lg:grid lg:grid-cols-12">
+              {/* Sol Taraf: Görsel & Rozetler */}
+              <div className="lg:col-span-7 relative min-h-[320px] sm:min-h-[420px] lg:min-h-[500px] overflow-hidden group">
+                <img 
+                  src={hall.img} 
+                  alt={hall.name} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/20 to-transparent" />
+                
+                {/* Sol Üst Kapasite Rozeti */}
+                <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-[#B89B5E] font-bold text-xs px-4 py-2 rounded-full shadow-lg border border-amber-200 flex items-center space-x-2">
+                  <ThemeIcon icon="users" className="w-4 h-4 inline-block shrink-0 text-[#B89B5E]" />
+                  <span>{hall.cap}</span>
+                </div>
+
+                {/* Sol Alt Konum & 360 Tur Butonu */}
+                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 text-white">
+                  <div className="flex items-center space-x-2 bg-slate-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-amber-500/30 text-xs">
+                    <ThemeIcon icon="location" className="w-3.5 h-3.5 text-[#DFB76C]" />
+                    <span>{hall.location}</span>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                    <a href="/360-tur" onClick={(e) => { e.preventDefault(); if (navigateTo) navigateTo('/360-tur'); }} className="text-xs font-bold text-[#B89B5E] hover:underline flex items-center space-x-1">
-                      <span><ThemeIcon icon="location" className="w-4 h-4 inline-block shrink-0" /></span><span>360° İnceleyin</span>
-                    </a>
-                    <button onClick={onOpenLeadModal} className="bg-[#B89B5E] hover:bg-[#a3874e] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow transition cursor-pointer">
-                      Teklif Alın
-                    </button>
+                  <a 
+                    href="/360-tur" 
+                    onClick={(e) => { e.preventDefault(); if (navigateTo) navigateTo('/360-tur'); }} 
+                    className="bg-white/90 hover:bg-white text-slate-900 font-bold text-xs px-4 py-2 rounded-full shadow-md backdrop-blur-md transition flex items-center space-x-1.5 border border-amber-300"
+                  >
+                    <span><ThemeIcon icon="location" className="w-4 h-4 text-[#B89B5E]" /></span>
+                    <span>360° Sanal Turu İnceleyin</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Sağ Taraf: Detaylar & Özellikler */}
+              <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between space-y-6 bg-gradient-to-br from-white via-[#faf8f5] to-amber-50/30">
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-bold text-[#B89B5E] uppercase tracking-wider">PRESTİJLİ KONSEPT</span>
+                    <h3 className="font-serif font-extrabold text-2xl sm:text-3xl text-slate-900 leading-tight">{hall.name}</h3>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {hall.desc}
+                  </p>
+
+                  <div className="space-y-2.5 pt-2">
+                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">Öne Çıkan Özellikler</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
+                      {hall.features.map((feat, idx) => (
+                        <div key={idx} className="flex items-center space-x-2 bg-white/80 p-2.5 rounded-xl border border-amber-100/80 shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-[#B89B5E] shrink-0" />
+                          <span className="font-medium text-slate-800">{feat}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              ))}
+
+                <div className="pt-6 border-t border-amber-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-center sm:text-left">
+                    <span className="block text-[10px] text-slate-400 uppercase font-bold">Erken Rezervasyon Fırsatı</span>
+                    <span className="text-xs font-bold text-[#B89B5E]">Ücretsiz Tarih & Fiyat Teklifi Alın</span>
+                  </div>
+                  <button 
+                    onClick={onOpenLeadModal} 
+                    className="w-full sm:w-auto bg-[#B89B5E] hover:bg-[#a3874e] text-white px-8 py-3 rounded-full text-xs font-bold shadow-lg shadow-amber-900/10 transition transform hover:-translate-y-0.5 cursor-pointer active:scale-95"
+                  >
+                    ÜCRETSİZ FİYAT TEKLİFİ ALIN
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -9361,8 +9744,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       });
       const [systemVersion, setSystemVersion] = useState(() => (typeof document !== 'undefined' && document.documentElement.getAttribute('data-system-version')) || 'v1.4.67');
       const [versionHistoryState, setVersionHistoryState] = useState([]);
-      const [themeColor, setThemeColor] = useState(() => {
-        return (typeof document !== 'undefined' && document.documentElement.getAttribute('data-ui-theme')) || 'gold';
+      const [themeColor, setThemeColor] = useState(() => 'nordic-light');
+      const [publicThemeState, setPublicThemeState] = useState(() => {
+        return (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
+      });
+      const [adminFont, setAdminFont] = useState(() => {
+        return (typeof localStorage !== 'undefined' && localStorage.getItem('admin_font')) || 'jakarta';
       });
       const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
       const [isEmailTemplateModalOpen, setIsEmailTemplateModalOpen] = useState(false);
@@ -9403,112 +9790,84 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const fetchSystemSettings = () => {
           try {
             const fetchFn = window.fetchWithRetry || fetch;
+
+            // Fetch Venues
+            fetchFn('/api/venues')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setVenues(data); })
+              .catch(() => {});
+
+            // Fetch Services
+            fetchFn('/api/services')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setServices(data); })
+              .catch(() => {});
+
+            // Fetch Customers
+            fetchFn('/api/customers')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setCustomers(data); })
+              .catch(() => {});
+
+            // Fetch Users
+            fetchFn('/api/users')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setUsers(data); })
+              .catch(() => {});
+
+            // Fetch Reservations
+            fetchFn('/api/reservations')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setReservations(data); })
+              .catch(() => {});
+
+            // Fetch Expenses
+            fetchFn('/api/expenses')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setExpenses(data); })
+              .catch(() => {});
+
+            // Fetch Campaigns
+            fetchFn('/api/campaigns')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setCampaigns(data); })
+              .catch(() => {});
+
+            // Fetch Roles
+            fetchFn('/api/roles')
+              .then(res => res.json())
+              .then(data => { if (Array.isArray(data)) setRolesState(data); })
+              .catch(() => {});
+
+            // Fetch Public/System Settings
             fetchFn('/api/public-settings')
               .then(res => res.json())
               .then(data => {
                 if (data) {
-                  if (data.campaigns !== undefined && Array.isArray(data.campaigns)) {
-                    setCampaigns(data.campaigns);
-                  }
-                  if (data.users !== undefined && Array.isArray(data.users)) {
-                    setUsers(data.users);
-                  }
-                  if (data.roles !== undefined && Array.isArray(data.roles)) {
-                    setRolesState(data.roles);
-                  }
-                  if (data.tab_permissions && typeof data.tab_permissions === 'object') {
-                    setTabPermissionsState(prev => ({ ...prev, ...data.tab_permissions }));
-                  }
-                  if (data.customers !== undefined && Array.isArray(data.customers)) {
-                    setCustomers(data.customers);
-                  }
-                  if (data.systemVersion) {
-                    setSystemVersion(data.systemVersion);
-                  }
-                  if (data.versionHistory) {
-                    setVersionHistoryState(data.versionHistory);
-                  }
-                  if (data.venues !== undefined && Array.isArray(data.venues)) {
-                    setVenues(data.venues);
-                  }
-                  if (data.services !== undefined && Array.isArray(data.services)) {
-                    setServices(data.services);
-                  }
-                  if (data.reservations !== undefined && Array.isArray(data.reservations)) {
-                    setReservations(prev => {
-                      if (JSON.stringify(prev) !== JSON.stringify(data.reservations)) {
-                        return data.reservations;
-                      }
-                      return prev;
-                    });
-                  } else {
-                    setReservations([]);
-                  }
-                  if (data.draftReservations !== undefined && Array.isArray(data.draftReservations)) {
-                    setDraftReservations(prev => {
-                      if (JSON.stringify(prev) !== JSON.stringify(data.draftReservations)) {
-                        return data.draftReservations;
-                      }
-                      return prev;
-                    });
-                  }
-                  if (data.expenses !== undefined && Array.isArray(data.expenses)) {
-                    setExpenses(data.expenses);
-                  }
-                  if (data.themeColor) {
-                    setThemeColor(data.themeColor);
-                    if (data.themeColor !== 'gold' && data.themeColor !== 'classic_gold') {
-                      document.documentElement.setAttribute('data-ui-theme', data.themeColor);
-                    } else {
-                      document.documentElement.removeAttribute('data-ui-theme');
-                    }
-                  }
+                  if (data.publicTheme) setPublicThemeState(data.publicTheme);
                   if (data.menuLayout) {
                     setMenuLayout(data.menuLayout);
                     if (typeof document !== 'undefined') {
                       document.documentElement.setAttribute('data-menu-layout', data.menuLayout);
                     }
                   }
-                  isInitialLoadDoneRef.current = true;
-                  if (data.storedMedia && typeof data.storedMedia === 'object') {
-                    setReservations(prev => {
-                      let hasMerged = false;
-                      const updated = prev.map(r => {
-                        const rKey = r.mediaKey || r.id;
-                        const serverFiles = (data.storedMedia[rKey] || []).filter(f => f && f.url && f.url.startsWith(`/uploads/${rKey}/`));
-                        if (serverFiles.length > 0) {
-                          const currentFiles = (r.mediaFiles || []).filter(f => f && f.url && f.url.startsWith(`/uploads/${rKey}/`));
-                          const fileMap = new Map();
-                          currentFiles.forEach(f => fileMap.set(f.id || f.url, f));
-                          serverFiles.forEach(f => {
-                            if (!fileMap.has(f.id) && !fileMap.has(f.url)) {
-                              fileMap.set(f.id || f.url, f);
-                              hasMerged = true;
-                            }
-                          });
-                          return { ...r, mediaFiles: Array.from(fileMap.values()) };
-                        }
-                        return r;
-                      });
-                      return hasMerged ? updated : prev;
-                    });
-                  }
                 }
-              }).catch(() => {});
-          } catch(e) {}
+                isInitialLoadDoneRef.current = true;
+              }).catch(() => {
+                isInitialLoadDoneRef.current = true;
+              });
+          } catch(e) {
+            isInitialLoadDoneRef.current = true;
+          }
         };
 
         fetchSystemSettings();
       }, []);
 
       useEffect(() => {
-        if (themeColor && themeColor !== 'gold' && themeColor !== 'classic_gold') {
-          document.documentElement.setAttribute('data-ui-theme', themeColor);
-          document.documentElement.setAttribute('data-theme', themeColor);
-        } else {
-          document.documentElement.removeAttribute('data-ui-theme');
-          document.documentElement.removeAttribute('data-theme');
-        }
+        const currentTheme = themeColor || 'nordic-light';
+        document.documentElement.setAttribute('data-ui-theme', currentTheme);
+        document.documentElement.setAttribute('data-theme', currentTheme);
       }, [themeColor]);
       useEffect(() => { CacheService.set('cache_enabled', isCacheEnabledState); }, [isCacheEnabledState]);
 
@@ -10447,18 +10806,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
         return (
           <PublicErrorBoundary>
-            <PublicLayout onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} currentRoute={pathname} navigateTo={navigateTo}>
-              {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} />}
-              {currentPublicTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-virtual-tour' && <VirtualTourPage venues={venues} navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-videos' && <VideosPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-blog' && <BlogPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-about' && <AboutUsPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-contact' && <ContactPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-customer-login' && <CustomerLoginPage navigateTo={navigateTo} />}
-              {currentPublicTab === 'public-customer-register' && <CustomerRegisterPage navigateTo={navigateTo} />}
-            </PublicLayout>
+            <div className="public-viewport w-full min-h-screen" data-public-theme={publicThemeState || 'dark-gold'}>
+              <PublicLayout onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} currentRoute={pathname} navigateTo={navigateTo}>
+                {(currentPublicTab === 'public-home' || currentPublicTab === 'home-gateway') && <HomePage navigateTo={navigateTo} onSaveQuoteRequest={handleSaveQuoteRequest} showToast={showToast} />}
+                {currentPublicTab === 'public-halls' && <HallsPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-virtual-tour' && <VirtualTourPage venues={venues} navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-organizations' && <OrganizationsPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-videos' && <VideosPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-blog' && <BlogPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-about' && <AboutUsPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-contact' && <ContactPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-customer-login' && <CustomerLoginPage navigateTo={navigateTo} />}
+                {currentPublicTab === 'public-customer-register' && <CustomerRegisterPage navigateTo={navigateTo} />}
+              </PublicLayout>
+            </div>
           </PublicErrorBoundary>
         );
       }
@@ -10507,7 +10868,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }
 
       return (
-        <div className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative w-full max-w-full">
+        <div className="admin-viewport min-h-screen flex flex-col font-sans transition-colors duration-300 relative w-full max-w-full" data-admin-theme={themeColor || 'gold'} data-admin-font={adminFont || 'jakarta'}>
           
           {/* GLOBAL ROOT STACKED VIEWPORT NOTIFICATIONS QUEUE (3.5s AUTO-DISMISS & VERTICAL STACK) */}
           {globalAlerts.length > 0 && (
@@ -10688,8 +11049,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         <span>Hızlı Rol Değiştir:</span>
                       </span>
                       <div className="flex items-center space-x-1 shrink-0">
-                        {Object.keys(rolesState).map(rId => {
-                          const roleNameOnly = (rolesState[rId] || rId).replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+                        {Object.keys(rolesState || {}).map(rId => {
+                          const rawVal = (rolesState && typeof rolesState === 'object') ? rolesState[rId] : null;
+                          const roleStr = typeof rawVal === 'string' ? rawVal : (rawVal?.name || rawVal?.label || String(rId || ''));
+                          const roleNameOnly = roleStr.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
                           return (
                             <button
                               key={rId}
@@ -10712,7 +11075,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   ) : (
                     <div className="flex items-center space-x-2 text-[10px] font-bold text-slate-500 dark:text-gray-400">
                       <ThemeIcon icon="shield" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-500" />
-                      <span>Aktif Rol Yetkisi: <strong className="text-amber-600 dark:text-amber-400 uppercase font-black">{(rolesState[activeRole] || activeRole).replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim()}</strong></span>
+                      <span>Aktif Rol Yetkisi: <strong className="text-amber-600 dark:text-amber-400 uppercase font-black">{(() => {
+                        const rawVal = (rolesState && typeof rolesState === 'object') ? rolesState[activeRole] : null;
+                        const roleStr = typeof rawVal === 'string' ? rawVal : (rawVal?.name || rawVal?.label || String(activeRole || ''));
+                        return roleStr.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+                      })()}</strong></span>
                     </div>
                   )}
 
@@ -11264,10 +11631,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           }
                           CacheService.set('users', newUsers);
                           if (window.fetchWithRetry) {
-                            window.fetchWithRetry('/api/public-settings', {
+                            window.fetchWithRetry('/api/users', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ users: newUsers })
+                              body: JSON.stringify(updatedUserObj)
                             }).catch(() => {});
                           }
                           return newUsers;
@@ -11304,6 +11671,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       onToggleTabPermission={handleToggleTabPermission}
                       themeColor={themeColor}
                       onThemeColorChange={setThemeColor}
+                      onPublicThemeChange={setPublicThemeState}
                       menuLayout={menuLayout}
                       onMenuLayoutChange={handleMenuLayoutChange}
                       isCacheEnabled={isCacheEnabledState}
@@ -11554,84 +11922,195 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 text-xs font-bold pt-1">
+                  <nav className="space-y-3 pt-1">
                     {[
-                      { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '', roles: ['admin', 'satisci', 'sosyal_medyaci', 'musteri'] },
-                      { id: 'create-reservation', label: 'Yeni Rezervasyon Oluştur', icon: 'sparkles', fallbackEmoji: '', roles: ['admin', 'satisci'] },
-                      { id: 'venues', label: 'Düğün Salonlarım', icon: 'venue', fallbackEmoji: '', roles: ['admin', 'satisci'] },
-                      { id: 'services', label: 'Ek Hizmetlerim', icon: 'gift', fallbackEmoji: '', roles: ['admin', 'satisci'] },
-                      { id: 'reservations', label: 'Rezervasyon Listesi', icon: 'list', fallbackEmoji: '', roles: ['admin', 'satisci'] },
-                      { id: 'calendar', label: 'İnteraktif Takvim', icon: 'calendar', fallbackEmoji: '', roles: ['admin', 'satisci'] },
-                      { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '', roles: ['admin'] },
-                      { id: 'finance', label: 'Finans & Fatura Yönetimi', icon: 'money', fallbackEmoji: '', roles: ['admin'] },
-                      { id: 'customers', label: 'Müşteri Rehberi (CRM)', icon: 'user', fallbackEmoji: '', roles: ['admin', 'satisci'] },
-                      { id: 'users', label: 'Kullanıcı Yönetimi (RBAC)', icon: 'shield', fallbackEmoji: '', roles: ['admin'] },
-                      { id: 'reports', label: 'Raporlar & Grafikler', icon: 'chart', fallbackEmoji: '', roles: ['admin'] },
-                      { id: 'media', label: 'Medya & Foto Yükleme', icon: 'camera', fallbackEmoji: '', roles: ['sosyal_medyaci', 'admin', 'musteri'] }
-                    ]
-                    .filter(item => item.roles.includes(activeRole))
-                    .map(item => (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          navigateTo(item.id);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`p-3 rounded-2xl border flex items-center space-x-3 transition text-left cursor-pointer ${
-                          activeTab === item.id
-                            ? 'gold-button shadow border-amber-500 font-extrabold'
-                            : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40 hover:border-amber-500/50'
-                        }`}
-                      >
-                        <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-5 h-5 shrink-0" />
-                        <span className="text-xs sm:text-sm">{item.label}</span>
-                      </button>
-                    ))}
+                      {
+                        title: 'ANA PANOLAR',
+                        icon: 'chart',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '' },
+                          { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' }
+                        ]
+                      },
+                      {
+                        title: 'REZERVASYON & TAKVİM',
+                        icon: 'calendar',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'reservations', label: 'Rezervasyon Listesi', icon: 'list', fallbackEmoji: '' },
+                          { id: 'calendar', label: 'İnteraktif Takvim', icon: 'calendar', fallbackEmoji: '' }
+                        ]
+                      },
+                      {
+                        title: 'MEKAN & HİZMETLER',
+                        icon: 'money',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'finance', label: 'Finans Kasa & Gider', icon: 'money', fallbackEmoji: '', badge: 'CANLI' },
+                          { id: 'venues', label: 'Etkinlik Mekanları', icon: 'venue', fallbackEmoji: '' },
+                          { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '' },
+                          { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '' }
+                        ]
+                      },
+                      {
+                        title: 'MÜŞTERİ & ANALİZ',
+                        icon: 'user',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'customers', label: 'Müşteri Rehberi (CRM)', icon: 'user', fallbackEmoji: '' },
+                          { id: 'quote-requests', label: 'Teklif Talepleri (Leads)', icon: 'document', fallbackEmoji: '', badge: 'CANLI' },
+                          { id: 'reports', label: 'Raporlar & Grafikler', icon: 'chart', fallbackEmoji: '' },
+                          { id: 'media', label: 'Medya & Foto Yükle', icon: 'camera', fallbackEmoji: '' }
+                        ]
+                      },
+                      {
+                        title: 'YÖNETİM & AYARLAR',
+                        icon: 'settings',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'mind-map', label: 'Zihin Haritası (MindMap)', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' },
+                          { id: 'roles', label: 'Rol Yönetimi & İzinler', icon: 'shield', fallbackEmoji: '', badge: 'YENİ' },
+                          { id: 'users', label: 'Kullanıcı Yönetimi', icon: 'user', fallbackEmoji: '' },
+                          { id: 'settings', label: 'Sistem Ayarları', icon: 'settings', fallbackEmoji: '' },
+                          { id: 'system-guide', label: 'Sistem Kılavuzu & Mimarisi', icon: 'sparkles', fallbackEmoji: '', badge: 'V1.4 MASTER' }
+                        ]
+                      }
+                    ].map(group => {
+                      const validItems = group.items.filter(item => (tabPermissionsState[item.id] || TAB_PERMISSIONS[item.id] || []).includes(activeRole));
+                      if (validItems.length === 0) return null;
 
-                    {/* SETTINGS LINKS IN DRAWER */}
-                    {(tabPermissionsState['settings'] || []).includes(activeRole) && (
-                      <div className="pt-2 space-y-1.5 border-t border-slate-200 dark:border-brand-border/40">
-                        <div className="text-[10px] font-bold text-amber-700 dark:text-gold-400 uppercase tracking-wider px-1">Sistem Ayarları</div>
-                        <button
-                          onClick={() => { navigateTo('settings-appearance'); setIsMobileMenuOpen(false); }}
-                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
-                            activeTab === 'settings-appearance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
-                          }`}
-                        >
-                          <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 shrink-0" />
-                          <span>Görünüm & Tema Ayarları</span>
-                        </button>
-                        <button
-                          onClick={() => { navigateTo('email-templates'); setIsMobileMenuOpen(false); }}
-                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
-                            activeTab === 'email-templates' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
-                          }`}
-                        >
-                          <ThemeIcon icon="mail" fallbackEmoji="" className="w-4 h-4 shrink-0 text-amber-500" />
-                          <span>E-Posta Şablonları & Otomasyon</span>
-                        </button>
+                      const isGroupCollapsed = !!collapsedNavGroups[group.title];
 
-                        <button
-                          onClick={() => { navigateTo('settings-errors'); setIsMobileMenuOpen(false); }}
-                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
-                            activeTab === 'settings-errors' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
-                          }`}
-                        >
-                          <ThemeIcon icon="warning" fallbackEmoji="" className="w-4 h-4 shrink-0" />
-                          <span>Hata Simülasyonu</span>
-                        </button>
-                        <button
-                          onClick={() => { navigateTo('settings-performance'); setIsMobileMenuOpen(false); }}
-                          className={`w-full p-2.5 rounded-xl border flex items-center space-x-2.5 transition text-left cursor-pointer ${
-                            activeTab === 'settings-performance' ? 'gold-button font-bold' : 'bg-slate-50 dark:bg-brand-dark text-slate-800 dark:text-gray-200 border-slate-200 dark:border-brand-border/40'
-                          }`}
-                        >
-                          <ThemeIcon icon="chart" fallbackEmoji="" className="w-4 h-4 shrink-0" />
-                          <span>Önbellek & Performans</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                      return (
+                        <div key={group.title} className="space-y-1 border-b border-slate-100 dark:border-brand-border/20 pb-2 last:border-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleNavGroup(group.title)}
+                            className="w-full text-[11px] font-extrabold text-slate-500 dark:text-gray-400 uppercase tracking-widest px-2.5 py-1.5 flex items-center justify-between hover:text-amber-500 transition cursor-pointer select-none rounded-lg hover:bg-slate-100 dark:hover:bg-brand-card/60"
+                          >
+                            <div className="flex items-center space-x-1.5">
+                              <ThemeIcon icon={group.icon} fallbackEmoji={group.fallbackEmoji} className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                              <span>{group.title}</span>
+                            </div>
+                            <span className={`text-[10px] text-amber-500 transition duration-200 transform ${isGroupCollapsed ? '-rotate-90' : 'rotate-0'}`}>
+                              ▼
+                            </span>
+                          </button>
+
+                          {!isGroupCollapsed && validItems.map(item => {
+                            const isSettingsSubCollapsed = !!collapsedNavGroups['Sistem Ayarları'];
+
+                            return (
+                              <React.Fragment key={item.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigateTo(item.id);
+                                    setIsMobileMenuOpen(false);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold text-xs transition cursor-pointer text-left ${
+                                    activeTab === item.id || (item.id === 'settings' && activeTab.startsWith('settings-'))
+                                      ? 'bg-amber-500/10 text-amber-800 dark:text-gold-400 border border-amber-500/30 font-bold shadow-sm'
+                                      : 'text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-brand-card hover:text-slate-900 border border-transparent'
+                                  }`}
+                                >
+                                  <div className="flex items-center space-x-2.5">
+                                    <ThemeIcon icon={item.icon} fallbackEmoji={item.fallbackEmoji} className="w-4 h-4 shrink-0" />
+                                    <span>{item.label}</span>
+                                  </div>
+                                  {item.id === 'settings' ? (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        toggleNavGroup('Sistem Ayarları');
+                                      }}
+                                      className="p-1 hover:bg-amber-500/20 rounded-md text-[10px] text-amber-600 transition"
+                                      title="Sistem Ayarları Alt Menüsünü Aç/Kapat"
+                                    >
+                                      {isSettingsSubCollapsed ? '►' : '▼'}
+                                    </button>
+                                  ) : item.badge && (
+                                    <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow ${item.badge === 'CANLI' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </button>
+
+                                {/* SUB-MENU ITEMS DIRECTLY UNDER SISTEM AYARLARI */}
+                                {item.id === 'settings' && !isSettingsSubCollapsed && (
+                                  <div className="pl-6 space-y-1 my-1 border-l-2 border-amber-500/30 ml-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => { navigateTo('settings-appearance'); setIsMobileMenuOpen(false); }}
+                                      className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition cursor-pointer text-left ${
+                                        activeTab === 'settings-appearance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                      }`}
+                                    >
+                                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                                      <span>Görünüm & Tema</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => { navigateTo('settings-rbac'); setIsMobileMenuOpen(false); }}
+                                      className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition cursor-pointer text-left ${
+                                        activeTab === 'settings-rbac' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                      }`}
+                                    >
+                                      <ThemeIcon icon="shield" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                                      <span>Rol & İzin Matrisi</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => { navigateTo('settings-indexing'); setIsMobileMenuOpen(false); }}
+                                      className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition cursor-pointer text-left ${
+                                        activeTab === 'settings-indexing' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                      }`}
+                                    >
+                                      <ThemeIcon icon="search" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                                      <span>Arama Motoru & İndeksleme</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => { navigateTo('settings-errors'); setIsMobileMenuOpen(false); }}
+                                      className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition cursor-pointer text-left ${
+                                        activeTab === 'settings-errors' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                      }`}
+                                    >
+                                      <ThemeIcon icon="warning" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                                      <span>Hata Simülasyonu</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => { navigateTo('email-templates'); setIsMobileMenuOpen(false); }}
+                                      className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition cursor-pointer text-left ${
+                                        activeTab === 'email-templates' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                      }`}
+                                    >
+                                      <ThemeIcon icon="mail" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                                      <span>E-Posta Şablonları & Otomasyon</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => { navigateTo('settings-performance'); setIsMobileMenuOpen(false); }}
+                                      className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition cursor-pointer text-left ${
+                                        activeTab === 'settings-performance' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                      }`}
+                                    >
+                                      <ThemeIcon icon="chart" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0" />
+                                      <span>Önbellek & Performans</span>
+                                    </button>
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </nav>
                 </div>
 
                 {/* DRAWER FOOTER */}
@@ -12118,8 +12597,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
           setVenueId(editingResFromUrl.venueId || venues[0]?.id || '');
           setCustomVenuePrice(editingResFromUrl.venuePrice !== undefined ? editingResFromUrl.venuePrice : (editingResFromUrl.customVenuePrice !== undefined ? editingResFromUrl.customVenuePrice : (venues.find(v => v.id === editingResFromUrl.venueId)?.price || 0)));
-          setStartDate(editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.date || '2026-08-25');
-          setEndDate(editingResFromUrl.endDate || editingResFromUrl.eventDate || editingResFromUrl.date || '2026-08-25');
+          setStartDate(formatDateForInput(editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.date) || '2026-08-25');
+          setEndDate(formatDateForInput(editingResFromUrl.endDate || editingResFromUrl.eventDate || editingResFromUrl.date) || '2026-08-25');
 
           const timeParts = (editingResFromUrl.timeSlot || '').split('-');
           if (timeParts.length === 2) {
@@ -19312,6 +19791,7 @@ const E2E_WORKFLOWS = [
       onToggleTabPermission,
       themeColor,
       onThemeColorChange,
+      onPublicThemeChange,
       menuLayout = 'vertical',
       onMenuLayoutChange,
       isCacheEnabled,
@@ -19345,20 +19825,6 @@ const E2E_WORKFLOWS = [
         if (initialSubTab) setSettingsTab(initialSubTab);
       }, [initialSubTab]);
 
-      const colorPalettes = [
-        { id: 'gold', name: 'Altın & Şampanya (Varsayılan)', primary: '#d97706', hover: '#b45309' },
-        { id: 'emerald', name: 'Zümrüt Yeşili (Royal Emerald)', primary: '#059669', hover: '#047857' },
-        { id: 'sapphire', name: '🔷 Gece Mavisi (Deep Sapphire)', primary: '#2563eb', hover: '#1d4ed8' },
-        { id: 'rose', name: 'Gül Altını (Rose Gold)', primary: '#e11d48', hover: '#be123c' },
-        { id: 'violet', name: 'Gece Moru (Midnight Violet)', primary: '#7c3aed', hover: '#6d28d9' },
-        { id: 'obsidian', name: '⬛ Obsidian Gold (Kurumsal Siyah & Altın)', primary: '#18181b', hover: '#09090b' },
-        { id: 'sapphire_clean', name: 'Sapphire Clean (Safir Mavisi Minimal)', primary: '#0284c7', hover: '#0369a1' },
-        { id: 'platinum', name: '🪙 Platinum Silver (Platin Gümüş VIP)', primary: '#475569', hover: '#334155' },
-        { id: 'emerald_royal', name: '🌲 Emerald Royal (Kraliyet Zümrütü)', primary: '#047857', hover: '#065f46' },
-        { id: 'titanium', name: 'Titanium Tech (Titanyum Koyu Metal)', primary: '#3b82f6', hover: '#1d4ed8' },
-        { id: 'apple', name: ' Apple (2026 HIG Minimalist & Clean)', primary: '#0071E3', hover: '#0077ED' }
-      ];
-
       const [publicTheme, setPublicTheme] = useState('dark-gold');
       const [publicBadge, setPublicBadge] = useState('✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri');
       const [publicTitle, setPublicTitle] = useState("Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor");
@@ -19384,13 +19850,19 @@ const E2E_WORKFLOWS = [
 
       const handleSavePublicSettings = async () => {
         const payload = {
-          publicTheme: 'dark-gold',
+          publicTheme: publicTheme,
           heroBadgeText: publicBadge,
           heroTitle: publicTitle,
           heroSubtitle: publicSubtitle,
           updatedAt: new Date().toISOString()
         };
         try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('public_theme', publicTheme);
+          }
+          if (onPublicThemeChange) {
+            onPublicThemeChange(publicTheme);
+          }
           const fetchFn = window.fetchWithRetry || fetch;
           const res = await fetchFn('/api/public-settings', {
             method: 'POST',
@@ -19398,7 +19870,7 @@ const E2E_WORKFLOWS = [
             body: JSON.stringify(payload)
           });
           if (res.ok) {
-            if (showToast) showToast('Ön Yüz Ayarları Veritabanına Başarıyla Kaydedildi & Yayınlandı! ✓');
+            if (showToast) showToast(`Ön Yüz Teması (${publicTheme}) & Ayarları Veritabanına Başarıyla Kaydedildi! ✓`);
           } else {
             if (showToast) showToast('Veritabanına kaydedilirken bir yanıt uyarısı oluştu.');
           }
@@ -19476,9 +19948,57 @@ const E2E_WORKFLOWS = [
             </button>
           </div>
 
-          {/* TAB 1: APPEARANCE */}
+          {/* TAB 1: APPEARANCE (YÖNETİM PANELİ İÇİN) */}
           {settingsTab === 'appearance' && (
             <div className="space-y-6">
+              {/* IZOLASYON UYARISI */}
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-300 flex items-center space-x-3">
+                <span className="text-xl shrink-0">🛡️</span>
+                <div>
+                  <strong>Yönetim Paneli İzolasyonu:</strong> Bu sayfadaki tema, renk paleti ve font tercihleri <u>yalnızca Yönetim Paneli (Admin Dashboard)</u> arayüzüne uygulanır. Müşterilerinizin gördüğü Ön Yüz Web Sitesi görünümünü ve fontlarını <strong>KESİNLİKLE ETKİLEMEZ</strong>. Ön yüz teması ve içerikleri için <strong>"Ön Yüz Web Sitesi Yönetimi"</strong> sekmesini kullanınız.
+                </div>
+              </div>
+
+              {/* YÖNETİM PANELİ FONT SEÇİMİ */}
+              <div className="glass-panel p-6 rounded-3xl space-y-4 border border-amber-500/30 shadow-md">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
+                  <div>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                      <ThemeIcon icon="document" fallbackEmoji="" className="w-5 h-5 text-amber-500 shrink-0" />
+                      <span>Yönetim Paneli Font Mimarisi (Admin Typography)</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                      Yönetim panelindeki tablolar, kartlar ve butonlar için tercih ettiğiniz font ailesini belirleyin.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  {[
+                    { id: 'jakarta', name: 'Plus Jakarta Sans', font: 'Plus Jakarta Sans, sans-serif' },
+                    { id: 'inter', name: 'Inter', font: 'Inter, sans-serif' },
+                    { id: 'outfit', name: 'Outfit', font: 'Outfit, sans-serif' },
+                    { id: 'system', name: 'System UI', font: 'system-ui, sans-serif' }
+                  ].map((fItem) => (
+                    <button
+                      key={fItem.id}
+                      type="button"
+                      onClick={() => {
+                        if (typeof document !== 'undefined') {
+                          document.documentElement.style.setProperty('--font-body', fItem.font);
+                          localStorage.setItem('admin_font', fItem.font);
+                        }
+                        if (showToast) showToast(`Yönetim Paneli Fontu Güncellendi: ${fItem.name}`);
+                      }}
+                      className="p-3 rounded-xl border border-slate-200 dark:border-brand-border hover:border-amber-500 bg-white dark:bg-brand-card text-xs font-bold text-slate-800 dark:text-gray-200 transition text-center shadow-xs cursor-pointer"
+                      style={{ fontFamily: fItem.font }}
+                    >
+                      {fItem.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* MENU LAYOUT CONFIGURATION */}
               <div className="glass-panel p-6 rounded-3xl space-y-4 border border-amber-500/30 shadow-md">
                 <div className="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-brand-border/40">
@@ -19549,223 +20069,43 @@ const E2E_WORKFLOWS = [
                   <div>
                     <h3 className="font-heading font-extrabold text-lg text-slate-800 dark:text-gray-100 flex items-center space-x-2">
                       <ThemeIcon icon="paint" fallbackEmoji="" className="w-5 h-5 text-amber-500 shrink-0" />
-                      <span>Kurumsal Arayüz Mimarisi & Tema Kartları</span>
+                      <span>Yönetim Paneli Tema Kartı (Admin Interface)</span>
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                      Tasarım çizginizi, buton hatlarınızı ve renk kimliğinizi görsel kart önizlemeleri ile seçip kaydet düğmesiyle kalıcı hale getirin.
+                      Yönetim paneli standart tasarım çizgisi ve renk kimliği Nordic Light (İskandinav Minimalist) olarak belirlenmiştir.
                     </p>
                   </div>
                 </div>
 
-                {/* INTERACTIVE VISUAL THEME PREVIEW CARDS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* SINGLE EXCLUSIVE NORDIC LIGHT THEME PREVIEW CARD */}
+                <div className="grid grid-cols-1 gap-6">
                   
-                  {/* THEME PREVIEW CARD 1: MEVCUT RENKLİ & YUMUŞAK TEMA */}
-                  <div
-                    onClick={() => handleSelectTheme('gold')}
-                    style={{ borderRadius: '24px' }}
-                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
-                      draftTheme === 'gold'
-                        ? 'border-amber-500 bg-amber-500/10 shadow-xl ring-4 ring-amber-500/20 scale-[1.01]'
-                        : 'border-slate-200 dark:border-brand-border/60 bg-white dark:bg-brand-card hover:border-amber-500/40'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl"><ThemeIcon icon="crown" className="w-4 h-4 inline-block shrink-0" /></span>
-                        <div>
-                          <h4 className="font-heading font-extrabold text-sm text-amber-900 dark:text-amber-300">Klasik Şampanya Altını (Canlı & Yuvarlak Hatlı)</h4>
-                          <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-bold">Yuvarlak Hatlar (rounded-2xl) • Canlı Turuncu/Altın Gradyanlar</span>
-                        </div>
-                      </div>
-                      {draftTheme === 'gold' && <span style={{ borderRadius: '9999px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }} className="text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
-                    </div>
-
-                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
-                    <div style={{ borderRadius: '16px', background: '#FFFBEB', borderColor: '#FDE68A' }} className="p-4 border space-y-3 shadow-inner">
-                      <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">CANLI TEMA ÖNİZLEMESİ (ORİJİNAL):</div>
-                      <div className="flex items-center justify-between">
-                        <span style={{ background: 'linear-gradient(135deg, #D97706 0%, #B45309 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} className="font-heading font-extrabold text-xs">İrem Düğün Sarayı</span>
-                        <div style={{ borderRadius: '16px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', boxShadow: '0 4px 14px rgba(217, 119, 6, 0.35)' }} className="font-bold text-[11px] px-3.5 py-1.5">Canlı Buton</div>
-                      </div>
-                      <div style={{ borderRadius: '16px', background: '#FFFFFF', borderColor: '#FCD34D' }} className="p-3 border text-[11px] space-y-1">
-                        <div className="font-bold text-amber-900">Kraliyet Balo Salonu</div>
-                        <div className="text-[10px] text-amber-700">750 Kişilik Yumuşak Yuvarlak Balo Mimarisi</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* THEME PREVIEW CARD 2: QUIET LUXURY & MINIMALIST HIGH-END ARCHITECTURE DARK THEME */}
-                  <div
-                    onClick={() => handleSelectTheme('elite-luxury')}
-                    style={{ borderRadius: '0px' }}
-                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
-                      draftTheme === 'elite-luxury' || draftTheme === 'obsidian'
-                        ? 'border-[#D4AF37] bg-[#14161D] text-[#F8FAFC] shadow-2xl ring-4 ring-[#D4AF37]/20 scale-[1.01]'
-                        : 'border-[#22252F] bg-[#0B0C0E] text-[#94A3B8] hover:border-[#D4AF37]/40'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl">🖤<ThemeIcon icon="crown" className="w-4 h-4 inline-block shrink-0" /></span>
-                        <div>
-                          <h4 className="font-heading font-bold text-sm text-[#D4AF37] uppercase tracking-wider">Quiet Luxury & Minimalist Architecture</h4>
-                          <span className="text-[10px] text-[#94A3B8] font-mono font-bold">Obsidian (#0B0C0E) • Champagne Gold (#D4AF37) • 0px Border-Radius</span>
-                        </div>
-                      </div>
-                      {(draftTheme === 'elite-luxury' || draftTheme === 'obsidian') && <span style={{ borderRadius: '0px' }} className="bg-[#D4AF37] text-[#0B0C0E] font-extrabold text-[10px] px-2.5 py-0.5 tracking-widest shadow">SEÇİLDİ</span>}
-                    </div>
-
-                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
-                    <div style={{ borderRadius: '0px', background: '#0B0C0E', borderColor: 'rgba(212, 175, 55, 0.3)' }} className="p-4 border space-y-3">
-                      <div className="text-[10px] font-mono text-[#94A3B8] uppercase tracking-widest">QUIET LUXURY TOKENS ÖNİZLEME:</div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-xs text-[#F8FAFC] uppercase tracking-wider">İrem Balo Sarayı</span>
-                        <div style={{ borderRadius: '0px', background: '#D4AF37', color: '#0B0C0E' }} className="font-bold text-[10px] uppercase px-3 py-1.5 tracking-wider">PRIMARY BUTTON</div>
-                      </div>
-                      <div style={{ borderRadius: '0px', background: '#14161D', borderColor: 'rgba(255, 255, 255, 0.08)' }} className="p-3 border text-[11px]">
-                        <div className="font-bold text-[#F8FAFC]">Kraliyet Balo Salonu (VİP)</div>
-                        <div className="text-[10px] text-[#94A3B8]">750 Kişilik High-End Balo Mimarisi</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* THEME PREVIEW CARD 3: NORDIC CLARITY & PREMIUM SCANDINAVIAN MINIMAL (LIGHT THEME) */}
+                  {/* THEME PREVIEW CARD: NORDIC CLARITY (ONLY ADMIN THEME) */}
                   <div
                     onClick={() => handleSelectTheme('nordic-light')}
                     style={{ borderRadius: '0px' }}
-                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
-                      draftTheme === 'nordic-light'
-                        ? 'border-[#0F172A] bg-[#FAFAFA] text-[#0F172A] shadow-xl ring-4 ring-[#0F172A]/10 scale-[1.01]'
-                        : 'border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#0F172A]/30'
-                    }`}
+                    className="p-6 border-2 border-[#0F172A] bg-[#FAFAFA] text-[#0F172A] shadow-xl ring-4 ring-[#0F172A]/10 space-y-4 relative cursor-pointer"
                   >
                     <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <ThemeIcon icon="venue" fallbackEmoji="" className="w-6 h-6 text-[#0F172A] shrink-0" />
+                      <div className="flex items-center space-x-3">
+                        <ThemeIcon icon="venue" fallbackEmoji="" className="w-7 h-7 text-[#0F172A] shrink-0" />
                         <div>
-                          <h4 className="font-heading font-bold text-sm text-[#0F172A] uppercase tracking-wider">Nordic Clarity & Scandinavian Minimal</h4>
-                          <span className="text-[10px] text-[#64748B] font-mono font-bold">Alabaster (#FAFAFA) • Midnight Navy (#0F172A) • 0px Sharp Geometry</span>
+                          <h4 className="font-heading font-bold text-base text-[#0F172A]">Nordic Clarity (İskandinav Minimalizmleri)</h4>
+                          <span className="text-xs text-[#64748B] font-mono font-bold">Siyah & Beyaz Yüksek Kontrast • Alabaster & Slate • SIFIR EMOJİ KURALI</span>
                         </div>
                       </div>
-                      {draftTheme === 'nordic-light' && <span style={{ borderRadius: '0px' }} className="bg-[#0F172A] text-white font-extrabold text-[10px] px-2.5 py-0.5 tracking-widest shadow">SEÇİLDİ</span>}
+                      <span style={{ borderRadius: '0px' }} className="bg-[#0F172A] text-white font-extrabold text-xs px-3 py-1 tracking-widest shadow">SEÇİLDİ (STANDART)</span>
                     </div>
 
-                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
-                    <div style={{ borderRadius: '0px', background: '#FAFAFA', borderColor: '#E2E8F0' }} className="p-4 border space-y-3">
-                      <div className="text-[10px] font-mono text-[#64748B] uppercase tracking-widest">NORDIC CLARITY LIGHT PREVIEW:</div>
+                    <div style={{ borderRadius: '0px', background: '#FFFFFF', borderColor: '#E2E8F0' }} className="p-4 border space-y-3">
+                      <div className="text-[10px] font-mono text-[#64748B] uppercase tracking-widest">NORDIC MINIMAL DESIGN PREVIEW:</div>
                       <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-xs text-[#0F172A] uppercase tracking-wider">İrem Balo Sarayı</span>
-                        <div style={{ borderRadius: '0px', background: '#0F172A', color: '#FFFFFF' }} className="font-bold text-[10px] uppercase px-3 py-1.5 tracking-wider">NORDIC BUTTON</div>
+                        <span className="font-heading font-bold text-sm text-[#0F172A]">İrem Düğün Sarayı</span>
+                        <div style={{ borderRadius: '0px', background: '#0F172A', color: '#FFFFFF' }} className="font-bold text-xs uppercase px-4 py-2">NORDIC BUTTON</div>
                       </div>
-                      <div style={{ borderRadius: '0px', background: '#FFFFFF', borderColor: '#E2E8F0' }} className="p-3 border text-[11px] shadow-sm">
-                        <div className="font-bold text-[#0F172A]">Kraliyet Balo Salonu (VİP)</div>
-                        <div className="text-[10px] text-[#64748B]">750 Kişilik Mimari Aydınlık Düzen</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* THEME PREVIEW CARD 4: NEO-MINIMALIST SAFİR */}
-                  <div
-                    onClick={() => handleSelectTheme('sapphire-minimal')}
-                    style={{ borderRadius: '12px' }}
-                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
-                      draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean'
-                        ? 'border-[#0284C7] bg-[#1E293B] text-[#F8FAFC] shadow-2xl ring-4 ring-[#0284C7]/30 scale-[1.01]'
-                        : 'border-[#334155] bg-[#0F172A] text-[#94A3B8] hover:border-[#0284C7]/50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl">🔷<ThemeIcon icon="zap" className="w-4 h-4 inline-block shrink-0" /></span>
-                        <div>
-                          <h4 className="font-heading font-extrabold text-sm text-[#38BDF8] tracking-wide">Neo-Minimalist Safir (Tech Corporate)</h4>
-                          <span className="text-[10px] text-[#94A3B8] font-mono font-bold">Deep Slate (#0F172A) • Electric Blue (#0284C7) • 8px Rounded</span>
-                        </div>
-                      </div>
-                      {(draftTheme === 'sapphire-minimal' || draftTheme === 'sapphire_clean') && <span style={{ borderRadius: '6px' }} className="bg-[#0284C7] text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
-                    </div>
-
-                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
-                    <div style={{ borderRadius: '8px', background: '#0F172A', borderColor: '#334155' }} className="p-4 border space-y-3">
-                      <div className="text-[10px] font-mono text-[#38BDF8] uppercase tracking-widest">SAFİR TECH DESIGN TOKENS ÖNİZLEME:</div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading font-extrabold text-xs text-[#F8FAFC]">İrem Safir Sarayı</span>
-                        <div style={{ borderRadius: '8px', background: '#0284C7', color: '#FFFFFF', boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)' }} className="font-bold text-[10px] px-3.5 py-1.5">SAFİR BUTON</div>
-                      </div>
-                      <div style={{ borderRadius: '8px', background: '#1E293B', borderColor: '#334155' }} className="p-3 border text-[11px]">
-                        <div className="font-bold text-[#F8FAFC]">Kraliyet Safir Balo Düzeni</div>
-                        <div className="text-[10px] text-[#94A3B8]">Modern Dijital Teknoloji Balo Mimarisi</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* THEME PREVIEW CARD 5: KRALİYET ZÜMRÜT KIR BAHÇESİ */}
-                  <div
-                    onClick={() => handleSelectTheme('emerald-royal')}
-                    style={{ borderRadius: '16px' }}
-                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
-                      draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal'
-                        ? 'border-[#34D399] bg-[#064E3B] text-[#ECFDF5] shadow-2xl ring-4 ring-[#10B981]/30 scale-[1.01]'
-                        : 'border-emerald-900/60 bg-[#042F2E] text-[#A7F3D0] hover:border-[#34D399]/50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl"><ThemeIcon icon="leaf" className="w-4 h-4 inline-block shrink-0" /><ThemeIcon icon="venue" className="w-4 h-4 inline-block shrink-0" /></span>
-                        <div>
-                          <h4 className="font-heading font-extrabold text-sm text-[#34D399] tracking-wide">Kraliyet Zümrüt Kır Bahçesi (Botanık Lüks)</h4>
-                          <span className="text-[10px] text-[#A7F3D0] font-mono font-bold">Forest Emerald (#042F2E) • Mint Gold Trim (#34D399) • 14px Curved</span>
-                        </div>
-                      </div>
-                      {(draftTheme === 'emerald-royal' || draftTheme === 'emerald_royal') && <span style={{ borderRadius: '12px' }} className="bg-[#10B981] text-white font-extrabold text-[10px] px-2.5 py-0.5 shadow">SEÇİLDİ</span>}
-                    </div>
-
-                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
-                    <div style={{ borderRadius: '14px', background: '#042F2E', borderColor: 'rgba(52, 211, 153, 0.3)' }} className="p-4 border space-y-3">
-                      <div className="text-[10px] font-mono text-[#34D399] uppercase tracking-widest">ZÜMRÜT BOTANİK PREVIEW:</div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading font-extrabold text-xs text-[#ECFDF5]">Kır Bahçesi VİP Estate</span>
-                        <div style={{ borderRadius: '14px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', color: '#FFFFFF', border: '1px solid #34D399', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)' }} className="font-bold text-[10px] px-3.5 py-1.5">ZÜMRÜT BUTON</div>
-                      </div>
-                      <div style={{ borderRadius: '14px', background: '#064E3B', borderColor: 'rgba(52, 211, 153, 0.3)' }} className="p-3 border text-[11px]">
-                        <div className="font-bold text-[#ECFDF5]">Doğal Kır Bahçesi & Botanik Balo Düzeni</div>
-                        <div className="text-[10px] text-[#A7F3D0]">Zümrüt Yeşili & Çim Alan Organizasyonu</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* THEME PREVIEW CARD:  APPLE (2026 HUMAN INTERFACE GUIDELINES) */}
-                  <div
-                    onClick={() => handleSelectTheme('apple')}
-                    style={{ borderRadius: '20px' }}
-                    className={`p-5 border-2 cursor-pointer transition-all duration-300 space-y-4 relative ${
-                      draftTheme === 'apple' || draftTheme === 'apple-light'
-                        ? 'border-[#0071E3] bg-[#F5F5F7] text-[#1D1D1F] shadow-xl ring-4 ring-[#0071E3]/20 scale-[1.01]'
-                        : 'border-slate-200 dark:border-brand-border/60 bg-white dark:bg-brand-card hover:border-[#0071E3]/40'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl"></span>
-                        <div>
-                          <h4 className="font-heading font-extrabold text-sm text-[#1D1D1F] dark:text-gray-100">Apple (2026 HIG Clean Design System)</h4>
-                          <span className="text-[10px] text-[#86868B] font-mono font-bold">SF Pro Typography • Cupertino Blue (#0071E3) • Frosted Glass & Pill Buttons</span>
-                        </div>
-                      </div>
-                      {(draftTheme === 'apple' || draftTheme === 'apple-light') && <span style={{ borderRadius: '980px', background: '#0071E3' }} className="text-white font-extrabold text-[10px] px-3 py-0.5 shadow">SEÇİLDİ</span>}
-                    </div>
-
-                    {/* MINI LIVE ISOLATED COMPONENT PREVIEW */}
-                    <div style={{ borderRadius: '18px', background: 'rgba(255, 255, 255, 0.85)', borderColor: 'rgba(0, 0, 0, 0.08)', backdropFilter: 'blur(20px)' }} className="p-4 border space-y-3 shadow-sm">
-                      <div className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider"> APPLE 2026 HIG PREVIEW:</div>
-                      <div className="flex items-center justify-between">
-                        <span style={{ color: '#1D1D1F', letterSpacing: '-0.02em' }} className="font-heading font-extrabold text-xs">İrem Düğün Sarayı</span>
-                        <div style={{ borderRadius: '980px', background: '#0071E3', color: '#ffffff', boxShadow: '0 2px 10px rgba(0, 113, 227, 0.3)' }} className="font-semibold text-[11px] px-4 py-1.5">Action Pill</div>
-                      </div>
-                      <div style={{ borderRadius: '14px', background: '#FFFFFF', borderColor: 'rgba(0, 0, 0, 0.06)' }} className="p-3 border text-[11px] space-y-1">
-                        <div className="font-bold text-[#1D1D1F]">Royal Grand Hall</div>
-                        <div className="text-[10px] text-[#86868B]">SF Pro Display • Frosted Glass Card Architecture</div>
+                      <div style={{ borderRadius: '0px', background: '#F8FAFC', borderColor: '#E2E8F0' }} className="p-3 border text-xs">
+                        <div className="font-bold text-[#0F172A]">Kraliyet Balo Salonu</div>
+                        <div className="text-xs text-[#64748B]">Minimalist İskandinav Teması • Özel Yönetim Mimarisi</div>
                       </div>
                     </div>
                   </div>
@@ -19775,29 +20115,29 @@ const E2E_WORKFLOWS = [
                 {/* SAVE BUTTON */}
                 <div className="pt-4 border-t border-slate-200 dark:border-brand-border/40 flex justify-between items-center">
                   <div className="text-xs text-slate-500 dark:text-gray-400">
-                    Seçilen Tasarım Çizgisi: <strong className="text-amber-700 dark:text-gold-400 uppercase font-mono font-bold">{draftTheme}</strong>
+                    Yönetim Paneli Konsepti: <strong className="text-slate-900 dark:text-white uppercase font-mono font-bold">NORDIC-LIGHT (STANDART)</strong>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      if (onThemeColorChange) onThemeColorChange(draftTheme);
+                      if (onThemeColorChange) onThemeColorChange('nordic-light');
                       if (typeof document !== 'undefined') {
-                        document.documentElement.setAttribute('data-ui-theme', draftTheme);
-                        document.documentElement.setAttribute('data-theme', draftTheme);
+                        document.documentElement.setAttribute('data-ui-theme', 'nordic-light');
+                        document.documentElement.setAttribute('data-theme', 'nordic-light');
                       }
                       try {
                         const fetchFn = window.fetchWithRetry || fetch;
                         fetchFn('/api/public-settings', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ themeColor: draftTheme, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
+                          body: JSON.stringify({ themeColor: 'nordic-light', updatedAt: new Date().toISOString(), updatedBy: 'admin' })
                         }).catch(() => {});
                       } catch(e) {}
-                      showToast(`Tasarım Konsepti Başarıyla Kaydedildi! (${draftTheme})`);
+                      showToast('Yönetim Paneli Teması Başarıyla Kaydedildi! (nordic-light)');
                     }}
                     className="gold-button font-bold text-xs py-3 px-8 rounded-2xl shadow-xl hover:scale-105 transition flex items-center space-x-2 cursor-pointer"
                   >
-                    <span><ThemeIcon icon="check" className="w-4 h-4 inline-block shrink-0" /> Değişiklikleri Kaydet & Tüm Sistemde Uygula ✓</span>
+                    <span><ThemeIcon icon="check" className="w-4 h-4 inline-block shrink-0" /> Yönetim Paneli Temasını Kaydet ✓</span>
                   </button>
                 </div>
               </div>

@@ -63,6 +63,53 @@
     ],
     "mediaGallery": [],
     "status": "CONFIRMED",
-    "isDraft": false
+    "isDraft": false,
+    "mediaFiles": [
+      {
+        "id": "mf_1786486492618_mqzd",
+        "type": "image",
+        "url": "/uploads/RES-2026-8848/media_1786486294538_Ekran_Resmi_2026-08-10_18.24.08.png",
+        "thumbnail": "/uploads/RES-2026-8848/media_1786486294538_Ekran_Resmi_2026-08-10_18.24.08.png",
+        "fileName": "Ekran_Resmi_2026-08-10_18.24.08.png",
+        "fileSize": "0.2 MB",
+        "uploaderName": "Davetli Konuk",
+        "timestamp": "2026-08-11 22:11",
+        "isGuest": true,
+        "fileHash": "media_1786486294538_Ekran_Resmi_2026-08-10_18.24.08.png_231430"
+      },
+      {
+        "id": "mf_1786486492618_mq8e",
+        "type": "image",
+        "url": "/uploads/RES-2026-8848/media_1786485890701_Ekran_Resmi_2026-08-11_14.35.34.png",
+        "thumbnail": "/uploads/RES-2026-8848/media_1786485890701_Ekran_Resmi_2026-08-11_14.35.34.png",
+        "fileName": "Ekran_Resmi_2026-08-11_14.35.34.png",
+        "fileSize": "0.1 MB",
+        "uploaderName": "Davetli Konuk",
+        "timestamp": "2026-08-11 22:04",
+        "isGuest": true,
+        "fileHash": "media_1786485890701_Ekran_Resmi_2026-08-11_14.35.34.png_96921"
+      },
+      {
+        "id": "mf_1786486492618_i3jw",
+        "type": "image",
+        "url": "/uploads/RES-2026-8848/media_1786485364678_Ekran_Resmi_2026-08-10_22.22.48.png",
+        "thumbnail": "/uploads/RES-2026-8848/media_1786485364678_Ekran_Resmi_2026-08-10_22.22.48.png",
+        "fileName": "Ekran_Resmi_2026-08-10_22.22.48.png",
+        "fileSize": "0.6 MB",
+        "uploaderName": "Davetli Konuk",
+        "timestamp": "2026-08-11 21:56",
+        "isGuest": true,
+        "fileHash": "media_1786485364678_Ekran_Resmi_2026-08-10_22.22.48.png_586559"
+      }
+    ],
+    "customExpenses": [
+      {
+        "id": "res-exp-1786487127532",
+        "title": "Davulcu",
+        "amount": 10000,
+        "category": "Personel & Yevmiye",
+        "date": "2026-08-11"
+      }
+    ]
   }
 ]

@@ -1,8 +1,6 @@
 {
-  "publicTheme": "dark-gold",
-  "heroBadgeText": "\u2728 Sapanca G\u00f6l Kenar\u0131 L\u00fcks Balo Tesisleri",
-  "heroTitle": "Hayalinizdeki D\u00fc\u011f\u00fcn \u0130rem D\u00fc\u011f\u00fcn Saray\u0131'nda Unutulmaz Oluyor",
-  "heroSubtitle": "Canl\u0131 veritaban\u0131 entegreli saray organizasyonlar\u0131",
+  "reservations": [],
+  "draftReservations": [],
   "tab_permissions": {
     "dashboard": [
       "admin",
@@ -115,6 +113,5 @@
       "sosyal_medyaci",
       "musteri"
     ]
-  },
-  "reservations": []
+  }
 }

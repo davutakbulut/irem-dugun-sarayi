@@ -144,6 +144,45 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     try { localStorage.setItem('banned_ips', JSON.stringify(bannedIPs)); } catch(e){}
   }, [bannedIPs]);
 
+  // Persistent Guest Token & Upload History for Privacy (Only guest's own uploads are visible to them)
+  const guestToken = useMemo(() => {
+    if (typeof window === 'undefined') return 'gt_default';
+    const key = selectedResKey || 'GENERAL';
+    const storageKey = `irem_guest_token_${key}`;
+    let token = localStorage.getItem(storageKey);
+    if (!token) {
+      token = 'gt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+      try { localStorage.setItem(storageKey, token); } catch(e){}
+    }
+    return token;
+  }, [selectedResKey]);
+
+  const [guestUploadIds, setGuestUploadIds] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const key = selectedResKey || 'GENERAL';
+      const saved = localStorage.getItem(`irem_guest_uploaded_ids_${key}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  });
+
+  const [guestUploadUrls, setGuestUploadUrls] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const key = selectedResKey || 'GENERAL';
+      const saved = localStorage.getItem(`irem_guest_uploaded_urls_${key}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  });
+
+  useEffect(() => {
+    try {
+      const key = selectedResKey || 'GENERAL';
+      localStorage.setItem(`irem_guest_uploaded_ids_${key}`, JSON.stringify(guestUploadIds));
+      localStorage.setItem(`irem_guest_uploaded_urls_${key}`, JSON.stringify(guestUploadUrls));
+    } catch(e){}
+  }, [guestUploadIds, guestUploadUrls, selectedResKey]);
+
   // Guest Session Uploads for Privacy
   const [guestSessionUploadIds, setGuestSessionUploadIds] = useState(() => {
     if (typeof window === 'undefined') return [];
@@ -294,7 +333,12 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     let files = currentRes.mediaFiles || [];
 
     if (isPublicGuestMode) {
-      files = files.filter(f => guestSessionUploadIds.includes(f.id));
+      files = files.filter(f => 
+        (f.guestToken && f.guestToken === guestToken) ||
+        guestUploadIds.includes(f.id) ||
+        (f.url && guestUploadUrls.includes(f.url)) ||
+        guestSessionUploadIds.includes(f.id)
+      );
     }
 
     files = files.filter(f => !failedMediaIds.includes(f.id));
@@ -302,7 +346,15 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
     if (filterType === 'image') return files.filter(f => f.type === 'image');
     if (filterType === 'video') return files.filter(f => f.type === 'video');
     return files;
-  }, [currentRes, isPublicGuestMode, guestSessionUploadIds, filterType, failedMediaIds]);
+  }, [currentRes, isPublicGuestMode, guestToken, guestUploadIds, guestUploadUrls, guestSessionUploadIds, filterType, failedMediaIds]);
+
+  // DUPLICATE CONFIRMATION MODAL STATE
+  const [duplicateModalData, setDuplicateModalData] = useState({
+    isOpen: false,
+    duplicates: [],
+    validFiles: [],
+    allFiles: []
+  });
 
   // DUPLICATE METADATA & FINGERPRINT CHECKING LOGIC
   const handleFilesSelect = (e) => {
@@ -322,7 +374,9 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
     const existingFiles = currentRes ? (currentRes.mediaFiles || []) : [];
     const validFiles = [];
-    let duplicateDetectedCount = 0;
+    const duplicateFiles = [];
+    const processedFingerprints = new Set();
+    const allFilesWithMetadata = [];
 
     for (const file of files) {
       const fileFingerprint = `${file.name}_${file.size}_${file.type}_${file.lastModified}`;
@@ -330,18 +384,30 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       const isAlreadyUploaded = existingFiles.some(existing => {
         if (existing.fingerprint && existing.fingerprint === fileFingerprint) return true;
         if (existing.fileName === file.name && existing.fileSize === file.size) return true;
+        if (existing.fileName === file.name) return true;
         return false;
-      });
+      }) || processedFingerprints.has(fileFingerprint);
+
+      processedFingerprints.add(fileFingerprint);
+      const fileItem = { file, fingerprint: fileFingerprint, name: file.name, isDuplicate: isAlreadyUploaded };
+      allFilesWithMetadata.push(fileItem);
 
       if (isAlreadyUploaded) {
-        duplicateDetectedCount++;
+        duplicateFiles.push(fileItem);
       } else {
-        validFiles.push({ file, fingerprint: fileFingerprint });
+        validFiles.push(fileItem);
       }
     }
 
-    if (duplicateDetectedCount > 0) {
-      showToast(`⚠️ ${duplicateDetectedCount} adet görsel daha önce bu etkinliğe yüklendiği için atlandı! (Metadata Çakışma Engeli)`);
+    if (duplicateFiles.length > 0) {
+      setDuplicateModalData({
+        isOpen: true,
+        duplicates: duplicateFiles,
+        validFiles: validFiles,
+        allFiles: allFilesWithMetadata
+      });
+      if (e.target) e.target.value = '';
+      return;
     }
 
     if (validFiles.length === 0) return;
@@ -352,20 +418,44 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       return;
     }
 
-    processFilesQueueWithFingerprint(validFiles);
+    processFilesQueueWithFingerprint(validFiles, false);
+    if (e.target) e.target.value = '';
   };
 
-  const processFilesQueueWithFingerprint = (validFiles) => {
-    const newQueueItems = validFiles.map((item, idx) => ({
+  const handleConfirmForceUploadDuplicates = () => {
+    const filesToUpload = duplicateModalData.allFiles;
+    setDuplicateModalData({ isOpen: false, duplicates: [], validFiles: [], allFiles: [] });
+    if (filesToUpload.length > 0) {
+      processFilesQueueWithFingerprint(filesToUpload, true);
+    }
+  };
+
+  const handleConfirmSkipDuplicates = () => {
+    const filesToUpload = duplicateModalData.validFiles;
+    setDuplicateModalData({ isOpen: false, duplicates: [], validFiles: [], allFiles: [] });
+    if (filesToUpload.length > 0) {
+      processFilesQueueWithFingerprint(filesToUpload, false);
+    } else {
+      showToast('ℹ️ Mükerrer görseller atlandı, yüklenecek yeni görsel yok.');
+    }
+  };
+
+  const handleCancelDuplicateModal = () => {
+    setDuplicateModalData({ isOpen: false, duplicates: [], validFiles: [], allFiles: [] });
+  };
+
+  const processFilesQueueWithFingerprint = (fileList, allowDuplicate = false) => {
+    const newQueueItems = fileList.map((item, idx) => ({
       id: 'q_' + Date.now() + '_' + idx,
       file: item.file,
       fingerprint: item.fingerprint,
-      name: item.file.name,
-      size: (item.file.size / (1024 * 1024)).toFixed(1),
-      rawSize: item.file.size,
-      type: item.file.type.startsWith('video/') ? 'video' : 'image',
+      name: item.file?.name || item.name,
+      size: (((item.file?.size || 0) / (1024 * 1024)) || 0).toFixed(1),
+      rawSize: item.file?.size || 0,
+      type: (item.file?.type || '').startsWith('video/') ? 'video' : 'image',
       progress: 0,
-      status: 'pending'
+      status: 'pending',
+      allowDuplicate: allowDuplicate
     }));
 
     setUploadQueue(prev => [...prev, ...newQueueItems]);
@@ -391,6 +481,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
           const targetResKey = activeMediaKey || currentRes?.mediaKey || currentRes?.id || selectedResKey || 'GENERAL';
 
           let finalMediaUrl = fileDataUrl;
+          let serverMediaObj = null;
 
           // PHYSICAL DISK STORAGE API INTEGRATION: Save physical file to uploads/<res_id>/<file_name> on server disk
           try {
@@ -400,22 +491,36 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
               body: JSON.stringify({
                 resId: targetResKey,
                 fileName: pendingItem.name,
-                fileData: fileDataUrl
+                fileData: fileDataUrl,
+                fileSize: pendingItem.rawSize,
+                guestToken: guestToken,
+                allowDuplicate: pendingItem.allowDuplicate || false,
+                fingerprint: pendingItem.fingerprint,
+                isGuest: isPublicGuestMode
               })
             });
             if (apiRes.ok) {
               const apiData = await apiRes.json();
+              if (apiData.isDuplicate) {
+                showToast(`⚠️ Sunucu Teyidi: "${pendingItem.name}" görseli sunucuda ve albümde zaten mevcut olduğu için atlandı.`);
+                setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'skipped', progress: 100 } : item));
+                setIsUploadingQueue(false);
+                return;
+              }
               if (apiData.success && apiData.url) {
                 finalMediaUrl = apiData.url;
+                if (apiData.mediaObj) {
+                  serverMediaObj = apiData.mediaObj;
+                }
               }
             }
           } catch(err) {
             console.warn('Physical disk upload API fallback:', err);
           }
 
-          const newMediaId = 'mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+          const newMediaId = serverMediaObj?.id || ('mf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4));
 
-          const newMediaObj = {
+          const newMediaObj = serverMediaObj || {
             id: newMediaId,
             type: pendingItem.type,
             url: finalMediaUrl,
@@ -423,6 +528,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
             fileName: pendingItem.name,
             fileSize: pendingItem.rawSize,
             fingerprint: pendingItem.fingerprint,
+            guestToken: guestToken,
             uploaderName: isPublicGuestMode ? 'Davetli Konuk' : 'İşletme Yetkilisi',
             tableNo: 'Masa Davetlisi',
             timestamp: new Date().toISOString().replace('T', ' ').substr(0, 16),
@@ -444,10 +550,11 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
 
               if (isMatch) {
                 const existingList = r.mediaFiles || [];
+                const filteredList = existingList.filter(m => m.id !== newMediaObj.id && m.url !== newMediaObj.url);
                 return {
                   ...r,
                   mediaKey: r.mediaKey || targetResKey || 'MEDIA-8X92M1KP',
-                  mediaFiles: [newMediaObj, ...existingList]
+                  mediaFiles: [newMediaObj, ...filteredList]
                 };
               }
               return r;
@@ -467,8 +574,12 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
             return updated;
           });
 
+          setGuestUploadIds(prev => [newMediaObj.id, ...prev]);
+          if (newMediaObj.url) {
+            setGuestUploadUrls(prev => [newMediaObj.url, ...prev]);
+          }
           if (isPublicGuestMode) {
-            setGuestSessionUploadIds(prev => [newMediaId, ...prev]);
+            setGuestSessionUploadIds(prev => [newMediaObj.id, ...prev]);
           }
 
           setUploadQueue(prev => prev.map(item => item.id === pendingItem.id ? { ...item, status: 'success', progress: 100 } : item));
@@ -482,7 +593,7 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
       }
     }, 150);
 
-  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, setReservations, showToast]);
+  }, [uploadQueue, isUploadingQueue, activeMediaKey, currentRes, isPublicGuestMode, guestToken, setReservations, showToast]);
 
   // DELETE MEDIA ITEM FUNCTION WITH CUSTOM POP-UP CONFIRMATION & SERVER REMOVAL
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -509,7 +620,8 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
           resId: resId,
           fileName: fileName,
           mediaId: mediaId,
-          mediaKey: activeMediaKey
+          mediaKey: activeMediaKey,
+          url: item.url
         })
       });
     } catch(err) {
@@ -587,7 +699,8 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
             resId: resId,
             fileName: fileName,
             mediaId: item.id,
-            mediaKey: activeMediaKey
+            mediaKey: activeMediaKey,
+            url: item.url
           })
         }).catch(err => console.warn('Bulk delete error:', err));
       } catch(e){}
@@ -1392,6 +1505,66 @@ export function MediaComponent({ reservations = [], setReservations = () => {}, 
                 className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black text-xs shadow-lg transition transform active:scale-95 cursor-pointer"
               >
                 {bulkDeleteType === 'all' ? 'Evet, Tümünü Kalıcı Sil' : `Seçili ${selectedMediaIds.length} Medyayı Sil`}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* DUPLICATE IMAGE CONFIRMATION MODAL */}
+      {duplicateModalData.isOpen && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in pointer-events-auto"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: '16px', boxSizing: 'border-box' }}
+          onClick={handleCancelDuplicateModal}
+        >
+          <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-3xl border border-amber-500/40 shadow-2xl max-w-md w-full text-center space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto" style={{ margin: 'auto' }} onClick={(e) => e.stopPropagation()}>
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 text-3xl shadow-inner animate-pulse">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="text-xl font-heading font-extrabold text-white">
+                Mükerrer Görsel Yükleme Teyidi
+              </h3>
+              <p className="text-xs text-amber-300/80 mt-1 font-mono">
+                Sunucu & Albüm Çakışma Kontrolü
+              </p>
+              <div className="text-xs text-slate-300 mt-3 leading-relaxed">
+                Seçtiğiniz <strong className="text-amber-400 font-extrabold">{duplicateModalData.duplicates.length} adet</strong> görsel bu albümde daha önce yüklü veya seçtiğiniz listede mükerrer olarak tespit edildi.
+              </div>
+            </div>
+
+            <div className="max-h-36 overflow-y-auto space-y-1.5 p-3 bg-slate-950/80 rounded-2xl border border-slate-800 text-xs text-slate-400 text-left font-mono shadow-inner">
+              {duplicateModalData.duplicates.map((item, idx) => (
+                <div key={idx} className="flex items-center space-x-2 truncate text-slate-200">
+                  <span className="text-amber-400">📷</span>
+                  <span className="truncate">{item.name || item.file?.name}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col space-y-2.5 pt-2">
+              <button
+                type="button"
+                onClick={handleConfirmForceUploadDuplicates}
+                className="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black rounded-xl transition shadow-lg text-xs flex items-center justify-center space-x-2 cursor-pointer transform active:scale-95"
+              >
+                <span>🔄 Yine de Hepsini Yükle</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSkipDuplicates}
+                className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition text-xs flex items-center justify-center space-x-2 border border-slate-700 cursor-pointer"
+              >
+                <span>✨ Mükerrerleri Atla ve Yükle</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelDuplicateModal}
+                className="w-full py-2 text-slate-400 hover:text-white text-xs font-semibold text-center transition cursor-pointer"
+              >
+                İptal Et
               </button>
             </div>
           </div>
