@@ -68,16 +68,7 @@ const readDbFile = (fileName, fallback) => {
 };
 
 const saveDbFile = (fileName, data) => {
-  try {
-    const scratchDir = path.join(__dirname, 'scratch');
-    if (!fs.existsSync(scratchDir)) {
-      fs.mkdirSync(scratchDir, { recursive: true });
-    }
-    const filePath = path.join(scratchDir, fileName);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-  } catch(e) {
-    console.error('Error saving ' + fileName + ':', e.message);
-  }
+  // Disksel JSON yerel dosya kaydı kapalı - Veriler %100 canlı MySQL/MariaDB veritabanında saklanır.
 };
 
 // %100 Canlı Veritabanı Bellek & Dosya Deposu
