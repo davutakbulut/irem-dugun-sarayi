@@ -4,15 +4,11 @@
  * %100 Veritabanı ve Sunucu Klasörü Persistansı
  */
 
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
 
 // Load .env variables if present
 const envPath = path.join(__dirname, '.env');
@@ -192,8 +188,7 @@ syncPhysicalUploadsWithMemoryStore();
 let pool = null;
 const initMysql = async () => {
   try {
-    const mysqlMod = await import('mysql2/promise');
-    const mysql = mysqlMod.default || mysqlMod;
+    const mysql = require('mysql2/promise');
     pool = mysql.createPool({
       host: process.env.DB_HOST || process.env.MYSQL_HOST || 'localhost',
       port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
