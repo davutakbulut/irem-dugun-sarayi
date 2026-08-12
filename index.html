@@ -9734,17 +9734,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         showToast("Veritabanı Tüm Varsayılan Salonlar ve Ek Hizmetler ile Tohumlandı!");
       };
 
-      const [activeRole, setActiveRole] = useState(() => {
-        const sUser = CacheService.get('session_user', null);
-        if (sUser && sUser.role) return sUser.role;
-        const cUser = CacheService.get('current_user', null);
-        if (cUser && cUser.role) return cUser.role;
-        return 'admin';
-      });
+      const activeRole = (sessionUser?.role || currentUserState?.role || 'admin');
 
       useEffect(() => {
         if (sessionUser && sessionUser.role) {
-          setActiveRole(sessionUser.role);
+          // activeRole is derived from sessionUser.role
         }
       }, [sessionUser]);
       const [activeTab, setActiveTabState] = useState(getHashTab);
@@ -10638,7 +10632,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               CacheService.set('session_user', userObj);
               setCurrentUserState(userObj);
               CacheService.set('current_user', userObj);
-              setActiveRole(userObj.role || 'admin');
+              // activeRole is derived from userObj.role
               setActiveTabState(targetTab);
               if (typeof window !== 'undefined' && window.history && window.history.pushState) {
                 window.history.pushState({}, '', targetPath);
@@ -10821,68 +10815,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </div>
               </div>
 
-              {/* ROW 2: DEDICATED SUB-HEADER BAR (ALWAYS PRESENT BETWEEN MAIN HEADER & NAVIGATION MENU) */}
-              {!isErrorPage && !isPublicGuestRoute && (
-                <div className="bg-slate-50/90 dark:bg-brand-dark/90 border-t border-b border-slate-200/80 dark:border-brand-border/60 px-4 sm:px-6 py-1.5 flex items-center justify-between text-xs font-bold z-30">
-                  {/* LEFT: ROLE SWITCHER BUTTONS (RESTRICTED ONLY TO ADMIN ROLE) */}
-                  {activeRole === 'admin' ? (
-                    <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar">
-                      <span className="text-[10px] uppercase font-extrabold text-slate-400 dark:text-gray-400 flex items-center space-x-1 shrink-0">
-                        <ThemeIcon icon="shield" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-500" />
-                        <span>Hızlı Rol Değiştir:</span>
-                      </span>
-                      <div className="flex items-center space-x-1 shrink-0">
-                        {Object.keys(rolesState || {}).map(rId => {
-                          const rawVal = (rolesState && typeof rolesState === 'object') ? rolesState[rId] : null;
-                          const roleStr = typeof rawVal === 'string' ? rawVal : (rawVal?.name || rawVal?.label || String(rId || ''));
-                          const roleNameOnly = roleStr.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
-                          return (
-                            <button
-                              key={rId}
-                              onClick={() => {
-                                setActiveRole(rId);
-                                showToast(`Rol Değiştirildi: ${roleNameOnly}`);
-                              }}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                                activeRole === rId
-                                  ? 'bg-amber-500 text-white shadow-xs'
-                                  : 'bg-white dark:bg-brand-card text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:bg-slate-100'
-                              }`}
-                            >
-                              {roleNameOnly}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2 text-[10px] font-bold text-slate-500 dark:text-gray-400">
-                      <ThemeIcon icon="shield" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-500" />
-                      <span>Aktif Rol Yetkisi: <strong className="text-amber-600 dark:text-amber-400 uppercase font-black">{(() => {
-                        const rawVal = (rolesState && typeof rolesState === 'object') ? rolesState[activeRole] : null;
-                        const roleStr = typeof rawVal === 'string' ? rawVal : (rawVal?.name || rawVal?.label || String(activeRole || ''));
-                        return roleStr.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
-                      })()}</strong></span>
-                    </div>
-                  )}
-
-                  {/* RIGHT: SYSTEM ACTIVE STATUS & DYNAMIC SEMANTIC VERSIONING BADGE */}
-                  <div className="hidden sm:flex items-center space-x-2 text-[10px] shrink-0">
-
-
-                    <button
-                      type="button"
-                      onClick={() => setIsVersionModalOpen(true)}
-                      className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-extrabold px-3 py-1 rounded-full border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer flex items-center space-x-1.5 shadow-xs"
-                      title="Sistem Sürüm Geçmişini Göster"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span>Canlı Sistem ({systemVersion})</span>
-                      <span className="text-[9px] opacity-70"><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /></span>
-                    </button>
-                  </div>
-                </div>
-              )}
+              
 
               {/* ROW 3: HORIZONTAL NAVIGATION MENU BAR (DESKTOP MEGA MENU MODE ONLY) */}
               {!isErrorPage && menuLayout === 'horizontal' && (
@@ -10960,7 +10893,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       ]
                     }
                   ].map(group => {
-                    const validItems = group.items.filter(item => (tabPermissionsState[item.id] || []).includes(activeRole));
+                    const validItems = group.items.filter(item => activeRole === 'admin' || (tabPermissionsState[item.id] || TAB_PERMISSIONS[item.id] || []).includes(activeRole));
                     if (validItems.length === 0) return null;
 
                     const isGroupCollapsed = !!collapsedNavGroups[group.title];
@@ -11429,7 +11362,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       }}
                       showToast={showToast}
                       onRoleChange={(newRole) => {
-                        setActiveRole(newRole);
+                        // activeRole is derived from session user
                         showToast(`Rol Değiştirildi: ${rolesState[newRole] || newRole}`);
                       }}
                     />
@@ -18909,24 +18842,12 @@ const E2E_WORKFLOWS = [
 
               <div>
                 <label className="font-bold text-slate-700 dark:text-gray-300 block mb-1">
-                  Sistem Rolü & Yetkileri: {isAdmin ? '(Admin Yetkisi)' : '(Salt Okunur)'}
+                  Sistem Rolü & Yetkileri:
                 </label>
-                {isAdmin ? (
-                  <select
-                    value={selectedRole}
-                    onChange={e => setSelectedRole(e.target.value)}
-                    className="w-full bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
-                  >
-                    <option value="admin">Admin (Tam Yetkili)</option>
-                    <option value="satisci">Satış Müdürü (Rezervasyon & Müşteri)</option>
-                    <option value="sosyal_medyaci">Sosyal Medya (Fotoğraf & Galeri)</option>
-                    <option value="musteri">Müşteri (Özelleştirilmiş Görünüm)</option>
-                  </select>
-                ) : (
-                  <div className="p-2.5 bg-slate-100 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border text-slate-500 dark:text-gray-400 font-bold">
-                    {ROLE_NAMES[activeRole]} — Roller sadece Sistem Yöneticisi (Admin) tarafından değiştirilebilir.
-                  </div>
-                )}
+                <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/30 text-amber-800 dark:text-amber-300 font-bold flex items-center space-x-2">
+                  <ThemeIcon icon="shield" className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>{ROLE_NAMES[activeRole] || activeRole}</span>
+                </div>
               </div>
             </div>
 
@@ -19136,7 +19057,7 @@ const E2E_WORKFLOWS = [
     }
 
     // --- HORIZONTAL NAVBAR COMPONENT (DUGUN.COM STYLE MEGA MENU) ---
-    function HorizontalNavbarComponent({ activeTab, onTabChange, activeRole, tabPermissionsState = TAB_PERMISSIONS, rolesState, setActiveRole, showToast }) {
+    function HorizontalNavbarComponent({ activeTab, onTabChange, activeRole, tabPermissionsState = TAB_PERMISSIONS, rolesState,  showToast }) {
       const [activeHoverGroup, setActiveHoverGroup] = useState(null);
       const permMap = tabPermissionsState || TAB_PERMISSIONS;
 
