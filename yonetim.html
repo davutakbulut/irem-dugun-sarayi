@@ -1482,7 +1482,7 @@
 
     const INITIAL_USERS = [
       { id: 'u_davut', name: 'Davut Akbulut (Sistem Yöneticisi)', email: 'dvtakblt@gmail.com', password: 'a', role: 'admin', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
-      { id: 'u0', name: 'Mustafa Beyazyüz', email: 'mustafa@iremdugunsarayi.com', password: 'Msytf2026', role: 'admin', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80' },
+      { id: 'u0', name: 'Mustafa Beyazyüz', email: 'mustafa@iremdugunsarayi.com', password: 'Msytf2026', role: 'admin', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
       { id: 'u1', name: 'İrem Yılmaz (Admin)', email: 'admin@iremdugunsarayi.com', password: 'admin', role: 'admin', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' },
       { id: 'u2', name: 'Canan Güneş (Satış Müdürü)', email: 'satis@iremdugunsarayi.com', password: 'satis', role: 'satisci', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80' },
       { id: 'u3', name: 'Murat Arslan (Sosyal Medya)', email: 'sosyal@iremdugunsarayi.com', password: 'sosyal', role: 'sosyal_medyaci', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80' },
@@ -6995,7 +6995,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               name: 'Mustafa Beyazyüz (Yönetici)',
               email: 'mustafa@iremdugunsarayi.com',
               role: 'admin',
-              avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
             };
             matchedRole = 'admin';
           }
@@ -7041,7 +7041,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               name: (valLower.split('@')[0] || 'Kullanıcı').toUpperCase() + ' (Yönetici)',
               email: valLower,
               role: 'admin',
-              avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
             };
             matchedRole = 'admin';
           }
@@ -9406,7 +9406,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         email: 'mustafa@iremdugunsarayi.com',
         phone: '+90 547 144 00 54',
         role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
       }));
 
       useEffect(() => { CacheService.set('current_user', currentUserState); }, [currentUserState]);
@@ -9505,13 +9505,25 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               })
               .catch(() => {});
 
-            // Fetch Users
+            // Fetch Users & Sync Active User Profile from Database
             fetchFn('/api/users')
               .then(res => res.json())
               .then(data => {
-                if (Array.isArray(data)) {
+                if (Array.isArray(data) && data.length > 0) {
                   lastSyncedUsersRef.current = JSON.stringify(data);
                   setUsers(data);
+
+                  // Auto-sync active user with MySQL Database
+                  const activeEmail = (currentUserState?.email || 'dvtakblt@gmail.com').toLowerCase().trim();
+                  const activeId = currentUserState?.id;
+                  const dbMatch = data.find(u => (activeId && u.id === activeId) || (u.email && u.email.toLowerCase().trim() === activeEmail) || u.role === 'admin');
+                  if (dbMatch) {
+                    const mergedUser = { ...currentUserState, ...dbMatch };
+                    if (JSON.stringify(mergedUser) !== JSON.stringify(currentUserState)) {
+                      setCurrentUserState(mergedUser);
+                      CacheService.set('current_user', mergedUser);
+                    }
+                  }
                 }
               })
               .catch(() => {});
