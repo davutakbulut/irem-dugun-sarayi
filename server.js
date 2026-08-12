@@ -189,116 +189,116 @@ syncPhysicalUploadsWithMemoryStore();
 
 // MySQL Bağlantısı (Opsiyonel Canlı MySQL)
 let pool = null;
-try {
-  const mysqlMod = await import('mysql2/promise');
-  const mysql = mysqlMod.default || mysqlMod;
-  pool = mysql.createPool({
-    host: process.env.DB_HOST || process.env.MYSQL_HOST || 'localhost',
-    port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
-    user: process.env.DB_USER || process.env.MYSQL_USER || 'root',
-    password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || '',
-    database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'irem_dugun_db',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  });
+const initMysql = async () => {
+  try {
+    const mysqlMod = await import('mysql2/promise');
+    const mysql = mysqlMod.default || mysqlMod;
+    pool = mysql.createPool({
+      host: process.env.DB_HOST || process.env.MYSQL_HOST || 'localhost',
+      port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
+      user: process.env.DB_USER || process.env.MYSQL_USER || 'root',
+      password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || '',
+      database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'irem_dugun_db',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
 
-  const syncMemoryFromMysql = async () => {
-    if (!pool) return;
-    try {
-      const [vRows] = await pool.query('SELECT * FROM venues ORDER BY created_at DESC');
-      if (vRows.length) memoryStore.venues = vRows.map(r => ({
-        ...r,
-        costPrice: r.cost_price ? Number(r.cost_price) : 0,
-        occupancyRate: r.occupancy_rate || 0,
-        eventTypes: r.features_json ? (typeof r.features_json === 'string' ? JSON.parse(r.features_json) : r.features_json) : ['Düğün', 'Nişan'],
-        images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : [])
-      }));
+    const syncMemoryFromMysql = async () => {
+      if (!pool) return;
+      try {
+        const [vRows] = await pool.query('SELECT * FROM venues ORDER BY created_at DESC');
+        if (vRows.length) memoryStore.venues = vRows.map(r => ({
+          ...r,
+          costPrice: r.cost_price ? Number(r.cost_price) : 0,
+          occupancyRate: r.occupancy_rate || 0,
+          eventTypes: r.features_json ? (typeof r.features_json === 'string' ? JSON.parse(r.features_json) : r.features_json) : ['Düğün', 'Nişan'],
+          images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : [])
+        }));
 
-      const [sRows] = await pool.query('SELECT * FROM services ORDER BY created_at DESC');
-      if (sRows.length) memoryStore.services = sRows.map(r => ({
-        ...r,
-        price: Number(r.price || 0),
-        costPrice: r.cost_price ? Number(r.cost_price) : 0,
-        pricingType: r.pricing_type || 'fixed',
-        image: r.image_url || r.image
-      }));
+        const [sRows] = await pool.query('SELECT * FROM services ORDER BY created_at DESC');
+        if (sRows.length) memoryStore.services = sRows.map(r => ({
+          ...r,
+          price: Number(r.price || 0),
+          costPrice: r.cost_price ? Number(r.cost_price) : 0,
+          pricingType: r.pricing_type || 'fixed',
+          image: r.image_url || r.image
+        }));
 
-      const [cRows] = await pool.query('SELECT * FROM customers ORDER BY created_at DESC');
-      if (cRows.length) memoryStore.customers = cRows.map(r => ({
-        ...r,
-        taxType: r.tax_type,
-        tcNo: r.tc_no,
-        vknNo: r.vkn_no,
-        taxOffice: r.tax_office,
-        followUp: Boolean(r.follow_up),
-        followUpNote: r.follow_up_note
-      }));
+        const [cRows] = await pool.query('SELECT * FROM customers ORDER BY created_at DESC');
+        if (cRows.length) memoryStore.customers = cRows.map(r => ({
+          ...r,
+          taxType: r.tax_type,
+          tcNo: r.tc_no,
+          vknNo: r.vkn_no,
+          taxOffice: r.tax_office,
+          followUp: Boolean(r.follow_up),
+          followUpNote: r.follow_up_note
+        }));
 
-      const [uRows] = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
-      if (uRows.length) memoryStore.users = uRows.map(r => ({
-        ...r,
-        password: r.password_hash || r.password
-      }));
+        const [uRows] = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+        if (uRows.length) memoryStore.users = uRows.map(r => ({
+          ...r,
+          password: r.password_hash || r.password
+        }));
 
-      const [resRows] = await pool.query('SELECT * FROM reservations ORDER BY created_at DESC');
-      if (resRows.length) memoryStore.reservations = resRows.map(r => ({
-        ...r,
-        venueId: r.venue_id,
-        customerId: r.customer_id,
-        customerName: r.customer_name,
-        customerEmail: r.customer_email,
-        customerPhone: r.customer_phone,
-        eventDate: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
-        date: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
-        timeSlot: r.time_slot,
-        guestCount: r.guest_count,
-        venuePrice: Number(r.venue_price || 0),
-        subtotal: Number(r.subtotal || 0),
-        campaignCode: r.campaign_code,
-        discountAmount: Number(r.discount_amount || 0),
-        vatAmount: Number(r.vat_amount || 0),
-        totalAmount: Number(r.total_amount || 0),
-        depositPaid: Number(r.deposit_paid || 0),
-        remainingBalance: Number(r.remaining_balance || 0),
-        paymentStatus: r.payment_status,
-        isInvoiced: Boolean(r.is_invoiced),
-        invoiceType: r.invoice_type
-      }));
+        const [resRows] = await pool.query('SELECT * FROM reservations ORDER BY created_at DESC');
+        if (resRows.length) memoryStore.reservations = resRows.map(r => ({
+          ...r,
+          venueId: r.venue_id,
+          customerId: r.customer_id,
+          customerName: r.customer_name,
+          customerEmail: r.customer_email,
+          customerPhone: r.customer_phone,
+          eventDate: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
+          date: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
+          timeSlot: r.time_slot,
+          guestCount: r.guest_count,
+          venuePrice: Number(r.venue_price || 0),
+          subtotal: Number(r.subtotal || 0),
+          campaignCode: r.campaign_code,
+          discountAmount: Number(r.discount_amount || 0),
+          vatAmount: Number(r.vat_amount || 0),
+          totalAmount: Number(r.total_amount || 0),
+          depositPaid: Number(r.deposit_paid || 0),
+          remainingBalance: Number(r.remaining_balance || 0),
+          paymentStatus: r.payment_status,
+          isInvoiced: Boolean(r.is_invoiced),
+          invoiceType: r.invoice_type
+        }));
 
-      const [expRows] = await pool.query('SELECT * FROM expenses ORDER BY date DESC');
-      if (expRows.length) memoryStore.expenses = expRows.map(r => ({
-        ...r,
-        amount: Number(r.amount || 0),
-        date: r.date ? (r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date).split('T')[0]) : ''
-      }));
+        const [expRows] = await pool.query('SELECT * FROM expenses ORDER BY date DESC');
+        if (expRows.length) memoryStore.expenses = expRows.map(r => ({
+          ...r,
+          amount: Number(r.amount || 0),
+          date: r.date ? (r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date).split('T')[0]) : ''
+        }));
 
-      const [campRows] = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
-      if (campRows.length) memoryStore.campaigns = campRows.map(r => ({
-        ...r,
-        value: Number(r.value || 0),
-        startDate: r.start_date ? (r.start_date instanceof Date ? r.start_date.toISOString().split('T')[0] : String(r.start_date).split('T')[0]) : '',
-        endDate: r.end_date ? (r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0]) : '',
-        active: Boolean(r.active)
-      }));
+        const [campRows] = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
+        if (campRows.length) memoryStore.campaigns = campRows.map(r => ({
+          ...r,
+          value: Number(r.value || 0),
+          startDate: r.start_date ? (r.start_date instanceof Date ? r.start_date.toISOString().split('T')[0] : String(r.start_date).split('T')[0]) : '',
+          endDate: r.end_date ? (r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0]) : '',
+          active: Boolean(r.active)
+        }));
 
-      const [roleRows] = await pool.query('SELECT * FROM roles');
-      if (roleRows.length) memoryStore.roles = roleRows.map(r => ({
-        ...r,
-        permissions: r.permissions_json ? (typeof r.permissions_json === 'string' ? JSON.parse(r.permissions_json) : r.permissions_json) : []
-      }));
+        const [roleRows] = await pool.query('SELECT * FROM roles');
+        if (roleRows.length) memoryStore.roles = roleRows.map(r => ({
+          ...r,
+          permissions: r.permissions_json ? (typeof r.permissions_json === 'string' ? JSON.parse(r.permissions_json) : r.permissions_json) : []
+        }));
 
-      const [sysRows] = await pool.query('SELECT * FROM system_settings WHERE id = 1');
-      if (sysRows.length && sysRows[0].settings_json) {
-        const parsed = typeof sysRows[0].settings_json === 'string' ? JSON.parse(sysRows[0].settings_json) : sysRows[0].settings_json;
-        memoryStore.systemSettings = { ...memoryStore.systemSettings, ...parsed };
+        const [sysRows] = await pool.query('SELECT * FROM system_settings WHERE id = 1');
+        if (sysRows.length && sysRows[0].settings_json) {
+          const parsed = typeof sysRows[0].settings_json === 'string' ? JSON.parse(sysRows[0].settings_json) : sysRows[0].settings_json;
+          memoryStore.systemSettings = { ...memoryStore.systemSettings, ...parsed };
+        }
+      } catch (e) {
+        console.error('MySQL Memory Hydration Error:', e.message);
       }
-    } catch (e) {
-      console.error('MySQL Memory Hydration Error:', e.message);
-    }
-  };
+    };
 
-  const initDb = async () => {
     try {
       await pool.query(`
         CREATE TABLE IF NOT EXISTS venues (
@@ -322,11 +322,11 @@ try {
     } catch (e) {
       console.log('ℹ️ MySQL Tablo doğrulama uyarısı:', e.message);
     }
-  };
-  initDb();
-} catch(err) {
-  console.log('ℹ️ mysql2 paketi / sunucusu henüz ayarlanmadı, dosya/bellek deposu aktif.');
-}
+  } catch(err) {
+    console.log('ℹ️ mysql2 paketi / sunucusu henüz ayarlanmadı, dosya/bellek deposu aktif.');
+  }
+};
+initMysql();
 
 // -------------------------------------------------------------
 // FİZİKSEL DOSYA VE REZERVASYON MEDYASI YÜKLEME ENDPOINTS
