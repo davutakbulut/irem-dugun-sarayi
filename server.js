@@ -1339,12 +1339,14 @@ app.get('/api/public-settings', async (req, res) => {
 
 app.post('/api/public-settings', async (req, res) => {
   if (req.body) {
+    const activePool = await getPool();
+
     if (Array.isArray(req.body.reservations)) {
       memoryStore.reservations = req.body.reservations;
     }
+
     if (Array.isArray(req.body.draftReservations)) {
       memoryStore.draftReservations = req.body.draftReservations;
-      const activePool = await getPool();
       if (activePool) {
         try {
           for (const draft of req.body.draftReservations) {
@@ -1373,33 +1375,123 @@ app.post('/api/public-settings', async (req, res) => {
         }
       }
     }
-    if (Array.isArray(req.body.expenses)) {
-      memoryStore.expenses = req.body.expenses;
-    }
-    if (Array.isArray(req.body.customers)) {
-      memoryStore.customers = req.body.customers;
-    }
-    if (Array.isArray(req.body.users)) {
-      memoryStore.users = req.body.users;
-    }
+
     if (Array.isArray(req.body.venues)) {
       memoryStore.venues = req.body.venues;
+      if (activePool) {
+        try {
+          for (const v of req.body.venues) {
+            await activePool.query(
+              `INSERT INTO venues (id, name, category, capacity, price, deposit, location, occupancy_rate, description, features_json, images_json)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE name=VALUES(name), category=VALUES(category), capacity=VALUES(capacity), price=VALUES(price), deposit=VALUES(deposit), location=VALUES(location), occupancy_rate=VALUES(occupancy_rate), description=VALUES(description), features_json=VALUES(features_json), images_json=VALUES(images_json)`,
+              [v.id, v.name || '', v.category || 'Kapalı Salon', v.capacity || 500, v.price || 0, v.deposit || 0, v.location || '', v.occupancyRate || 0, v.description || '', JSON.stringify(v.eventTypes || v.features || []), JSON.stringify(v.images || (v.image ? [v.image] : []))]
+            );
+          }
+        } catch(e) { console.error('MySQL bulk venues sync error:', e.message); }
+      }
     }
+
     if (Array.isArray(req.body.services)) {
       memoryStore.services = req.body.services;
+      if (activePool) {
+        try {
+          for (const s of req.body.services) {
+            await activePool.query(
+              `INSERT INTO services (id, name, category, price, pricing_type, description, image_url, sort_order)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE name=VALUES(name), category=VALUES(category), price=VALUES(price), pricing_type=VALUES(pricing_type), description=VALUES(description), image_url=VALUES(image_url), sort_order=VALUES(sort_order)`,
+              [s.id, s.name || '', s.category || 'Genel', s.price || 0, s.pricingType || s.pricing_type || 'fixed', s.description || '', s.image || s.image_url || '', s.sortOrder || s.order || 0]
+            );
+          }
+        } catch(e) { console.error('MySQL bulk services sync error:', e.message); }
+      }
     }
+
+    if (Array.isArray(req.body.customers)) {
+      memoryStore.customers = req.body.customers;
+      if (activePool) {
+        try {
+          for (const c of req.body.customers) {
+            await activePool.query(
+              `INSERT INTO customers (id, name, email, phone, address, tax_type, tc_no, vkn_no, tax_office, follow_up, follow_up_note, avatar)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE name=VALUES(name), email=VALUES(email), phone=VALUES(phone), address=VALUES(address), tax_type=VALUES(tax_type), tc_no=VALUES(tc_no), vkn_no=VALUES(vkn_no), tax_office=VALUES(tax_office), follow_up=VALUES(follow_up), follow_up_note=VALUES(follow_up_note), avatar=VALUES(avatar)`,
+              [c.id, c.name || '', c.email || '', c.phone || '', c.address || '', c.taxType || 'individual', c.tcNo || '', c.vknNo || '', c.taxOffice || '', c.followUp ? 1 : 0, c.followUpNote || '', c.avatar || '']
+            );
+          }
+        } catch(e) { console.error('MySQL bulk customers sync error:', e.message); }
+      }
+    }
+
+    if (Array.isArray(req.body.users)) {
+      memoryStore.users = req.body.users;
+      if (activePool) {
+        try {
+          for (const u of req.body.users) {
+            await activePool.query(
+              `INSERT INTO users (id, name, email, password_hash, role, avatar)
+               VALUES (?, ?, ?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE name=VALUES(name), email=VALUES(email), role=VALUES(role), avatar=VALUES(avatar)`,
+              [u.id, u.name || '', u.email || '', u.password || '123456', u.role || 'admin', u.avatar || '']
+            );
+          }
+        } catch(e) { console.error('MySQL bulk users sync error:', e.message); }
+      }
+    }
+
+    if (Array.isArray(req.body.expenses)) {
+      memoryStore.expenses = req.body.expenses;
+      if (activePool) {
+        try {
+          for (const ex of req.body.expenses) {
+            await activePool.query(
+              `INSERT INTO expenses (id, title, category, amount, date, description, type)
+               VALUES (?, ?, ?, ?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE title=VALUES(title), category=VALUES(category), amount=VALUES(amount), date=VALUES(date), description=VALUES(description), type=VALUES(type)`,
+              [ex.id, ex.title || '', ex.category || 'Genel', ex.amount || 0, ex.date || new Date().toISOString().split('T')[0], ex.description || '', ex.type || 'expense']
+            );
+          }
+        } catch(e) { console.error('MySQL bulk expenses sync error:', e.message); }
+      }
+    }
+
     if (Array.isArray(req.body.campaigns)) {
       memoryStore.campaigns = req.body.campaigns;
+      if (activePool) {
+        try {
+          for (const cp of req.body.campaigns) {
+            await activePool.query(
+              `INSERT INTO campaigns (id, code, title, type, value, description, start_date, end_date, active)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE code=VALUES(code), title=VALUES(title), type=VALUES(type), value=VALUES(value), description=VALUES(description), start_date=VALUES(start_date), end_date=VALUES(end_date), active=VALUES(active)`,
+              [cp.id, cp.code || '', cp.title || '', cp.type || 'percentage', cp.value || 0, cp.description || '', cp.startDate || cp.start_date || '', cp.endDate || cp.end_date || '', cp.active ? 1 : 0]
+            );
+          }
+        } catch(e) { console.error('MySQL bulk campaigns sync error:', e.message); }
+      }
     }
+
     if (Array.isArray(req.body.roles)) {
       memoryStore.roles = req.body.roles;
+      if (activePool) {
+        try {
+          for (const r of req.body.roles) {
+            await activePool.query(
+              `INSERT INTO roles (id, name, permissions_json) VALUES (?, ?, ?)
+               ON DUPLICATE KEY UPDATE name=VALUES(name), permissions_json=VALUES(permissions_json)`,
+              [r.id || r, typeof r === 'object' ? r.name || r.id : r, JSON.stringify(typeof r === 'object' ? r.permissions || [] : [])]
+            );
+          }
+        } catch(e) { console.error('MySQL bulk roles sync error:', e.message); }
+      }
     }
+
     if (req.body.tab_permissions && typeof req.body.tab_permissions === 'object') {
       memoryStore.tab_permissions = req.body.tab_permissions;
     }
 
     memoryStore.systemSettings = { ...memoryStore.systemSettings, ...req.body };
-    const activePool = await getPool();
     if (activePool) {
       try {
         await activePool.query(
