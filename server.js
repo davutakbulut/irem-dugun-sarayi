@@ -8,6 +8,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
