@@ -66,12 +66,12 @@
   <!-- Inline SVG Favicon (Prevents 404 Delay on Slow Networks) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'><path d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5m-6 0h6'/></svg>">
 
-  <!-- Google Fonts: Inter, Outfit, Space Grotesk, Plus Jakarta Sans & Playfair Display (Preconnect & Swap) -->
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit (Preconnect & Swap) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="dns-prefetch" href="https://images.unsplash.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -94,8 +94,10 @@
             }
           },
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            heading: ['Outfit', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'Outfit', 'sans-serif'],
+            heading: ['Outfit', '"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Plus Jakarta Sans"', 'Outfit', 'sans-serif'],
+            script: ['"Plus Jakarta Sans"', 'Outfit', 'sans-serif'],
           }
         }
       }
@@ -1245,9 +1247,9 @@
     /* 3. System Fallback: Georgia / system-ui, -apple-system, sans-serif    */
     /* ---------------------------------------------------------------------- */
     :root {
-      --font-heading: 'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
-      --font-script: 'Great Vibes', 'Cormorant Garamond', Georgia, serif;
-      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-heading: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-script: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-body: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     /* Headings & Luxury Titles */
@@ -1305,30 +1307,23 @@
       return fetch(url, options).then(function(res) {
         if (!res.ok && (res.status === 404 || res.status === 500)) {
           if (url && url.indexOf('/api/') !== -1) {
-            var fallbackData = {};
-            if (url.indexOf('/api/venues') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/services') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/customers') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/reservations') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/expenses') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/campaigns') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/users') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/roles') !== -1) fallbackData = [];
-            else if (url.indexOf('/api/public-settings') !== -1) {
-              var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
-              fallbackData = {
-                success: true,
-                themeColor: 'dark-gold',
-                publicTheme: storedPublicTheme,
-                heroBadgeText: '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri',
-                heroTitle: "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
-                heroSubtitle: '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.',
-                venues: [], services: [], customers: [], users: [], expenses: [], campaigns: [], roles: [], reservations: []
-              };
-            } else {
-              fallbackData = { success: true };
+            if (options && (options.method === 'POST' || options.method === 'PUT') && options.body) {
+              try {
+                var parsed = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                if (parsed.publicTheme && typeof localStorage !== 'undefined') {
+                  localStorage.setItem('public_theme', parsed.publicTheme);
+                }
+              } catch(e) {}
             }
-            return new Response(JSON.stringify(fallbackData), {
+            var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
+            return new Response(JSON.stringify({
+              success: true,
+              themeColor: 'dark-gold',
+              publicTheme: storedPublicTheme,
+              heroBadgeText: '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri',
+              heroTitle: "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
+              heroSubtitle: '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.'
+            }), {
               status: 200,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -1337,8 +1332,12 @@
         return res;
       }).catch(function(err) {
         if (url && url.indexOf('/api/') !== -1) {
-          var fallbackData = url.indexOf('/api/public-settings') !== -1 ? { success: true, venues: [], services: [], reservations: [] } : [];
-          return new Response(JSON.stringify(fallbackData), {
+          var storedPublicTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('public_theme')) || 'dark-gold';
+          return new Response(JSON.stringify({
+            success: true,
+            themeColor: 'dark-gold',
+            publicTheme: storedPublicTheme
+          }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
           });
@@ -1417,6 +1416,7 @@
       { id: 'cust3', name: 'Zeynep Çelik & Burak Şahin', email: 'zeynep.celik@example.com', phone: '+90 542 777 8899', secondaryPhone: '+90 544 111 3344', address: 'Serdivan Mah. Adapazarı / Sakarya', taxType: 'individual', tcNo: '23456789012', taxOffice: 'Adapazarı VD', followUp: true, followUpNote: 'Kına gecesi için ek masa talebi olabilir.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80' },
       { id: 'cust4', name: 'Elif Aydın (Aydın Holding)', email: 'elif@aydinholding.com', phone: '+90 530 555 6677', secondaryPhone: '+90 212 444 0011', address: 'Levent Mah. Beşiktaş / İstanbul', taxType: 'corporate', vknNo: '1122334455', taxOffice: 'Zincirlikuyu VD', followUp: false, followUpNote: '', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' }
     ];
+
     const INITIAL_RESERVATIONS = [];
 
     
@@ -1799,17 +1799,14 @@
     // LAYER 3: LOCALSTORAGE CACHE ENGINE
     const VALID_SVG_PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="%231e293b"/><circle cx="150" cy="130" r="40" fill="%23d97706" opacity="0.3"/><text x="150" y="210" dominant-baseline="middle" text-anchor="middle" fill="%23f59e0b" font-family="sans-serif" font-size="14" font-weight="bold">%C3%96N%C4%B0ZLEME</text></svg>';
 
-    const NO_CACHE_KEYS = ['reservations', 'draft_reservations', 'services', 'venues', 'customers', 'campaigns', 'theme_color', 'selected_theme', 'menu_layout'];
-
     const CacheService = {
       get: (key, fallback) => {
+        // Tarayıcı önbelleği tamamen devre dışı bırakıldı: Tüm veriler doğrudan sunucudan / SQL veritabanından çekilir.
+        if (key !== 'session_user' && key !== 'current_user') {
+          try { localStorage.removeItem(`irem_cache_${key}`); } catch(e){}
+          return fallback;
+        }
         try {
-          if (NO_CACHE_KEYS.includes(key)) {
-            return fallback;
-          }
-          const isEnabled = localStorage.getItem('irem_cache_cache_enabled');
-          const isSystemPref = key === 'cache_enabled' || key === 'theme_color' || key === 'selected_theme' || key === 'session_user' || key === 'current_user' || key === 'roles' || key === 'tab_permissions';
-          if (isEnabled === 'false' && !isSystemPref) return fallback;
           const item = localStorage.getItem(`irem_cache_${key}`);
           if (!item) return fallback;
           return JSON.parse(item);
@@ -1818,60 +1815,18 @@
         }
       },
       set: (key, value) => {
-        try {
-          if (NO_CACHE_KEYS.includes(key)) {
-            try { localStorage.removeItem(`irem_cache_${key}`); } catch(e){}
-            return;
-          }
-          const isEnabled = localStorage.getItem('irem_cache_cache_enabled');
-          const isSystemPref = key === 'cache_enabled' || key === 'theme_color' || key === 'selected_theme' || key === 'session_user' || key === 'current_user' || key === 'roles' || key === 'tab_permissions';
-          if (isEnabled === 'false' && !isSystemPref) return;
-          
-          let stringified = JSON.stringify(value);
-          
-          // Smart quota guard: Replace huge raw base64 data URLs with valid SVG placeholder ONLY for localStorage stringified payload
-          if (key === 'reservations' && stringified.length > 200000) {
-            try {
-              const sanitizedReservations = value.map(r => {
-                const list = r.mediaFiles || r.media || [];
-                if (!Array.isArray(list)) return r;
-                return {
-                  ...r,
-                  mediaFiles: list.slice(0, 30).map(m => {
-                    if (m.url && m.url.startsWith('data:') && m.url.length > 30000) {
-                      return { ...m, url: VALID_SVG_PLACEHOLDER };
-                    }
-                    return m;
-                  })
-                };
-              });
-              stringified = JSON.stringify(sanitizedReservations);
-            } catch(err) {}
-          }
-          
-          localStorage.setItem(`irem_cache_${key}`, stringified);
-          if (key === 'theme_color') {
-            localStorage.setItem('selected_theme', value);
-          }
-        } catch (e) {
-          // Graceful QuotaExceededError fallback: silently clear old temporary caches
-          if (e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014)) {
-            try {
-              Object.keys(localStorage).forEach(k => {
-                if (k.startsWith('irem_cache_temp_') || k.startsWith('guest_upload_')) {
-                  localStorage.removeItem(k);
-                }
-              });
-            } catch(err) {}
-          }
+        if (key !== 'session_user' && key !== 'current_user') {
+          try { localStorage.removeItem(`irem_cache_${key}`); } catch(e){}
+          return;
         }
+        try {
+          localStorage.setItem(`irem_cache_${key}`, JSON.stringify(value));
+        } catch (e) {}
       },
       clearAll: () => {
         try {
-          const sysKeys = ['theme_color', 'selected_theme', 'cache_enabled', 'current_user', 'roles', 'tab_permissions'];
           Object.keys(localStorage).forEach(k => {
-            const subKey = k.replace('irem_cache_', '');
-            if ((k.startsWith('irem_cache_') || k === 'selected_theme') && !sysKeys.includes(subKey) && k !== 'selected_theme') {
+            if (k.startsWith('irem_cache_') && !k.includes('session_user') && !k.includes('current_user')) {
               localStorage.removeItem(k);
             }
           });
@@ -3369,6 +3324,10 @@ function ReservationsListComponent({
                                 const targetRef = draft.refKey || draft.id;
                                 const targetName = draft.customerInfo?.name || draft.formData?.newCustName || 'İsimsiz Müşteri';
                                 if (window.confirm(`"${targetName}" (${targetRef}) taslak rezervasyonunu silmek istediğinize emin misiniz?`)) {
+                                  const fetchFn = window.fetchWithRetry || fetch;
+                                  if (fetchFn) {
+                                    if (targetRef) fetchFn(`/api/draft-reservations/${encodeURIComponent(targetRef)}`, { method: 'DELETE' }).catch(() => {});
+                                  }
                                   if (setDraftReservations) {
                                     setDraftReservations(prev => {
                                       const updated = (prev || []).filter(d => d.refKey !== targetRef && d.id !== targetRef && d.id !== `RES-DRAFT-${targetRef}`);
@@ -4873,22 +4832,36 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     return null;
   }, [reservations, selectedResKey, isPublicGuestMode]);
 
-  // Canlı Yönetim & Davetli Senkronizasyonu: Sunucudan en güncel medya ve rezervasyon listesini periyodik olarak çeker
+  // Canlı Yönetim & Davetli Senkronizasyonu: Sunucudan en güncel medya ve rezervasyon listesini akıllı karşılaştırma ile çeker
+  const lastFetchedResJsonRef = useRef('');
   useEffect(() => {
+    let isMounted = true;
     const syncFreshData = () => {
       fetch('/api/reservations')
         .then(res => res.json())
         .then(data => {
+          if (!isMounted) return;
           if (Array.isArray(data) && data.length > 0) {
-            setReservations(data);
+            const dataStr = JSON.stringify(data);
+            if (dataStr !== lastFetchedResJsonRef.current) {
+              lastFetchedResJsonRef.current = dataStr;
+              setReservations(data);
+            }
           }
         })
         .catch(() => {});
     };
 
     syncFreshData();
-    const interval = setInterval(syncFreshData, 4000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        syncFreshData();
+      }
+    }, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Check whether the URL reference key actually matches a valid active reservation or dynamic guest fallback
@@ -9233,9 +9206,23 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return initialList;
       });
 
+      const lastSyncedVenuesRef = useRef('');
+      const lastSyncedServicesRef = useRef('');
+      const lastSyncedCampaignsRef = useRef('');
+      const lastSyncedCustomersRef = useRef('');
+      const lastSyncedReservationsRef = useRef('');
+      const lastSyncedDraftsRef = useRef('');
+      const lastSyncedUsersRef = useRef('');
+      const lastSyncedExpensesRef = useRef('');
+      const lastSyncedRolesRef = useRef('');
+      const lastSyncedPermissionsRef = useRef('');
+
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('venues', venues);
+        const jsonStr = JSON.stringify(venues || []);
+        if (jsonStr === lastSyncedVenuesRef.current) return;
+        lastSyncedVenuesRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(venues)) {
           fetchFn('/api/public-settings', {
@@ -9248,6 +9235,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('services', services);
+        const jsonStr = JSON.stringify(services || []);
+        if (jsonStr === lastSyncedServicesRef.current) return;
+        lastSyncedServicesRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(services)) {
           fetchFn('/api/public-settings', {
@@ -9260,6 +9250,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('campaigns', campaigns);
+        const jsonStr = JSON.stringify(campaigns || []);
+        if (jsonStr === lastSyncedCampaignsRef.current) return;
+        lastSyncedCampaignsRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(campaigns)) {
           fetchFn('/api/public-settings', {
@@ -9272,6 +9265,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('customers', customers);
+        const jsonStr = JSON.stringify(customers || []);
+        if (jsonStr === lastSyncedCustomersRef.current) return;
+        lastSyncedCustomersRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(customers)) {
           fetchFn('/api/public-settings', {
@@ -9284,6 +9280,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('reservations', reservations);
+        const jsonStr = JSON.stringify(reservations || []);
+        if (jsonStr === lastSyncedReservationsRef.current) return;
+        lastSyncedReservationsRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(reservations)) {
           fetchFn('/api/public-settings', {
@@ -9296,8 +9295,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('draft_reservations', draftReservations);
+        const jsonStr = JSON.stringify(draftReservations || []);
+        if (jsonStr === lastSyncedDraftsRef.current) return;
+        lastSyncedDraftsRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(draftReservations)) {
+          fetchFn('/api/draft-reservations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ draftReservations })
+          }).catch(() => {});
           fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -9308,6 +9315,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('users', users);
+        const jsonStr = JSON.stringify(users || []);
+        if (jsonStr === lastSyncedUsersRef.current) return;
+        lastSyncedUsersRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(users)) {
           fetchFn('/api/public-settings', {
@@ -9320,6 +9330,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('expenses', expenses);
+        const jsonStr = JSON.stringify(expenses || []);
+        if (jsonStr === lastSyncedExpensesRef.current) return;
+        lastSyncedExpensesRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(expenses)) {
           fetchFn('/api/public-settings', {
@@ -9383,6 +9396,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       useEffect(() => {
         CacheService.set('roles', rolesState);
+        const jsonStr = JSON.stringify(rolesState || []);
+        if (jsonStr === lastSyncedRolesRef.current) return;
+        lastSyncedRolesRef.current = jsonStr;
         if (window.fetchWithRetry && rolesState && rolesState.length > 0) {
           window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
@@ -9394,6 +9410,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       useEffect(() => {
         CacheService.set('tab_permissions', tabPermissionsState);
+        const jsonStr = JSON.stringify(tabPermissionsState || {});
+        if (jsonStr === lastSyncedPermissionsRef.current) return;
+        lastSyncedPermissionsRef.current = jsonStr;
         if (window.fetchWithRetry && tabPermissionsState && Object.keys(tabPermissionsState).length > 0) {
           window.fetchWithRetry('/api/public-settings', {
             method: 'POST',
@@ -9410,55 +9429,105 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
             // Fetch Venues
             fetchFn('/api/venues')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setVenues(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedVenuesRef.current = JSON.stringify(data);
+                  setVenues(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Services
             fetchFn('/api/services')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setServices(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedServicesRef.current = JSON.stringify(data);
+                  setServices(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Customers
             fetchFn('/api/customers')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setCustomers(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedCustomersRef.current = JSON.stringify(data);
+                  setCustomers(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Users
             fetchFn('/api/users')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setUsers(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedUsersRef.current = JSON.stringify(data);
+                  setUsers(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Reservations
             fetchFn('/api/reservations')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) { setReservations(data); localStorage.setItem('reservations', JSON.stringify(data)); } })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedReservationsRef.current = JSON.stringify(data);
+                  setReservations(data);
+                }
+              })
+              .catch(() => {});
+
+            // Fetch Draft Reservations from Database
+            fetchFn('/api/draft-reservations')
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  setDraftReservations(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Expenses
             fetchFn('/api/expenses')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setExpenses(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedExpensesRef.current = JSON.stringify(data);
+                  setExpenses(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Campaigns
             fetchFn('/api/campaigns')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setCampaigns(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedCampaignsRef.current = JSON.stringify(data);
+                  setCampaigns(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Roles
             fetchFn('/api/roles')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data)) setRolesState(data); })
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  lastSyncedRolesRef.current = JSON.stringify(data);
+                  setRolesState(data);
+                }
+              })
               .catch(() => {});
 
             // Fetch Public/System Settings
             fetchFn('/api/public-settings')
-              .then(res => res.ok ? res.json() : null)
+              .then(res => res.json())
               .then(data => {
                 if (data) {
                   if (data.publicTheme) setPublicThemeState(data.publicTheme);
@@ -9467,6 +9536,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     if (typeof document !== 'undefined') {
                       document.documentElement.setAttribute('data-menu-layout', data.menuLayout);
                     }
+                  }
+                  if (data.tab_permissions && typeof data.tab_permissions === 'object') {
+                    lastSyncedPermissionsRef.current = JSON.stringify(data.tab_permissions);
+                    setTabPermissionsState(prev => ({ ...prev, ...data.tab_permissions }));
+                  }
+                  if (Array.isArray(data.roles) && data.roles.length > 0) {
+                    lastSyncedRolesRef.current = JSON.stringify(data.roles);
+                    setRolesState(data.roles);
+                  }
+                  if (Array.isArray(data.draftReservations)) {
+                    setDraftReservations(data.draftReservations);
                   }
                 }
                 isInitialLoadDoneRef.current = true;
@@ -9479,6 +9559,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         };
 
         fetchSystemSettings();
+      }, []);
+
+      // Live Cross-Browser / Cross-User Draft Synchronization Effect
+      useEffect(() => {
+        const syncDrafts = () => {
+          const fetchFn = window.fetchWithRetry || fetch;
+          if (fetchFn) {
+            fetchFn('/api/draft-reservations')
+              .then(res => res.ok ? res.json() : null)
+              .then(data => {
+                if (Array.isArray(data)) {
+                  setDraftReservations(data);
+                }
+              })
+              .catch(() => {});
+          }
+        };
+
+        window.addEventListener('focus', syncDrafts);
+        const interval = setInterval(syncDrafts, 15000);
+        return () => {
+          window.removeEventListener('focus', syncDrafts);
+          clearInterval(interval);
+        };
       }, []);
 
       useEffect(() => {
@@ -10219,6 +10323,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ reservations: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
+            }).catch(() => {});
+            fetchFn('/api/reservations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updatedRes)
             }).catch(() => {});
           } catch(e) {}
           return updated;
@@ -11052,8 +11161,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                               d.formData?.editingResId !== newRes.id
                             );
                             CacheService.set('draft_reservations', updatedDrafts);
-                            if (window.fetchWithRetry) {
-                              window.fetchWithRetry('/api/public-settings', {
+                            const fetchFn = window.fetchWithRetry || fetch;
+                            if (fetchFn) {
+                              if (cleanRef) fetchFn(`/api/draft-reservations/${encodeURIComponent(cleanRef)}`, { method: 'DELETE' }).catch(() => {});
+                              fetchFn('/api/public-settings', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ draftReservations: updatedDrafts })
@@ -16949,15 +17060,32 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
 
         const newExp = {
           id: `exp-${Date.now()}`,
-          title: newTitle,
+          title: newTitle.trim(),
           category: newCategory,
           type: 'gider',
           amount: Number(newAmount),
-          date: newDate,
+          date: newDate || new Date().toISOString().split('T')[0],
           status: newStatus
         };
 
-        setExpenses(prev => [newExp, ...prev]);
+        setExpenses(prev => {
+          const updated = [newExp, ...prev];
+          try {
+            const fetchFn = window.fetchWithRetry || fetch;
+            fetchFn('/api/expenses', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newExp)
+            }).catch(() => {});
+            fetchFn('/api/public-settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ expenses: updated, updatedAt: new Date().toISOString() })
+            }).catch(() => {});
+          } catch(err) {}
+          return updated;
+        });
+
         setNewTitle('');
         setNewAmount('');
         setIsModalOpen(false);

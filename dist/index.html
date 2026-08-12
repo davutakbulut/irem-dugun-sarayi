@@ -3324,6 +3324,10 @@ function ReservationsListComponent({
                                 const targetRef = draft.refKey || draft.id;
                                 const targetName = draft.customerInfo?.name || draft.formData?.newCustName || 'İsimsiz Müşteri';
                                 if (window.confirm(`"${targetName}" (${targetRef}) taslak rezervasyonunu silmek istediğinize emin misiniz?`)) {
+                                  const fetchFn = window.fetchWithRetry || fetch;
+                                  if (fetchFn) {
+                                    if (targetRef) fetchFn(`/api/draft-reservations/${encodeURIComponent(targetRef)}`, { method: 'DELETE' }).catch(() => {});
+                                  }
                                   if (setDraftReservations) {
                                     setDraftReservations(prev => {
                                       const updated = (prev || []).filter(d => d.refKey !== targetRef && d.id !== targetRef && d.id !== `RES-DRAFT-${targetRef}`);
@@ -9296,6 +9300,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         lastSyncedDraftsRef.current = jsonStr;
         const fetchFn = window.fetchWithRetry || fetch;
         if (fetchFn && Array.isArray(draftReservations)) {
+          fetchFn('/api/draft-reservations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ draftReservations })
+          }).catch(() => {});
           fetchFn('/api/public-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -9473,6 +9482,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               })
               .catch(() => {});
 
+            // Fetch Draft Reservations from Database
+            fetchFn('/api/draft-reservations')
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  setDraftReservations(data);
+                }
+              })
+              .catch(() => {});
+
             // Fetch Expenses
             fetchFn('/api/expenses')
               .then(res => res.json())
@@ -9526,6 +9545,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     lastSyncedRolesRef.current = JSON.stringify(data.roles);
                     setRolesState(data.roles);
                   }
+                  if (Array.isArray(data.draftReservations)) {
+                    setDraftReservations(data.draftReservations);
+                  }
                 }
                 isInitialLoadDoneRef.current = true;
               }).catch(() => {
@@ -9537,6 +9559,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         };
 
         fetchSystemSettings();
+      }, []);
+
+      // Live Cross-Browser / Cross-User Draft Synchronization Effect
+      useEffect(() => {
+        const syncDrafts = () => {
+          const fetchFn = window.fetchWithRetry || fetch;
+          if (fetchFn) {
+            fetchFn('/api/draft-reservations')
+              .then(res => res.ok ? res.json() : null)
+              .then(data => {
+                if (Array.isArray(data)) {
+                  setDraftReservations(data);
+                }
+              })
+              .catch(() => {});
+          }
+        };
+
+        window.addEventListener('focus', syncDrafts);
+        const interval = setInterval(syncDrafts, 15000);
+        return () => {
+          window.removeEventListener('focus', syncDrafts);
+          clearInterval(interval);
+        };
       }, []);
 
       useEffect(() => {
@@ -11115,8 +11161,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                               d.formData?.editingResId !== newRes.id
                             );
                             CacheService.set('draft_reservations', updatedDrafts);
-                            if (window.fetchWithRetry) {
-                              window.fetchWithRetry('/api/public-settings', {
+                            const fetchFn = window.fetchWithRetry || fetch;
+                            if (fetchFn) {
+                              if (cleanRef) fetchFn(`/api/draft-reservations/${encodeURIComponent(cleanRef)}`, { method: 'DELETE' }).catch(() => {});
+                              fetchFn('/api/public-settings', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ draftReservations: updatedDrafts })

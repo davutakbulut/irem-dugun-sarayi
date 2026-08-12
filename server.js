@@ -1153,7 +1153,157 @@ app.post('/api/reservations', async (req, res) => {
     memoryStore.reservations.unshift(item);
   }
 
+  // Eğer rezervasyon onaylanmış ise (status !== 'DRAFT'), bağlı taslağı hafızadan ve DB'den temizle
+  if (item.status !== 'DRAFT' && !item.isDraft) {
+    const cleanRef = item.refKey || item.id;
+    memoryStore.draftReservations = (memoryStore.draftReservations || []).filter(d =>
+      d.id !== item.id && d.refKey !== item.id && d.refKey !== cleanRef && d.id !== cleanRef
+    );
+    if (activePool) {
+      try {
+        await activePool.query(
+          "DELETE FROM reservations WHERE status = 'DRAFT' AND (id = ? OR id = ? OR notes LIKE ?)",
+          [item.id, cleanRef, `%"refKey":"${cleanRef}"%`]
+        );
+      } catch(e) {}
+    }
+  }
+
   res.status(201).json({ success: true, id: item.id, item });
+});
+
+// -------------------------------------------------------------
+// 5.B TASLAK REZERVASYONLAR ENDPOINTS (/api/draft-reservations)
+// -------------------------------------------------------------
+app.get('/api/draft-reservations', async (req, res) => {
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query("SELECT * FROM reservations WHERE status = 'DRAFT' ORDER BY created_at DESC");
+      const formattedDrafts = (rows || []).map(r => {
+        let parsedNotesData = null;
+        if (r.notes && r.notes.startsWith('{')) {
+          try { parsedNotesData = JSON.parse(r.notes); } catch(e) {}
+        }
+        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+        return {
+          id: r.id,
+          refKey: parsedNotesData?.refKey || r.id,
+          isDraft: true,
+          formData: parsedNotesData?.formData || null,
+          venueId: r.venue_id || 'v1',
+          customerId: r.customer_id || '',
+          customerName: r.customer_name || 'Taslak Müşteri',
+          customerEmail: r.customer_email || '',
+          customerPhone: r.customer_phone || '',
+          date: rawDate,
+          eventDate: rawDate,
+          startDate: rawDate,
+          endDate: rawDate,
+          timeSlot: r.time_slot || '19:00 - 23:00',
+          guestCount: String(r.guest_count || 0),
+          venuePrice: Number(r.venue_price || 0),
+          subtotal: Number(r.subtotal || 0),
+          totalAmount: Number(r.total_amount || 0),
+          depositPaid: Number(r.deposit_paid || 0),
+          notes: r.notes || '',
+          status: 'DRAFT',
+          paymentStatus: 'Taslak'
+        };
+      });
+      memoryStore.draftReservations = formattedDrafts;
+      return res.json(formattedDrafts);
+    }
+    return res.json(memoryStore.draftReservations || []);
+  } catch(e) {
+    console.error('MySQL GET /api/draft-reservations error:', e.message);
+    return res.json(memoryStore.draftReservations || []);
+  }
+});
+
+app.post('/api/draft-reservations', async (req, res) => {
+  try {
+    const rawData = req.body;
+    let drafts = [];
+    if (Array.isArray(rawData)) {
+      drafts = rawData;
+    } else if (Array.isArray(rawData?.draftReservations)) {
+      drafts = rawData.draftReservations;
+    } else if (rawData && typeof rawData === 'object') {
+      drafts = [rawData];
+    }
+    
+    if (drafts.length > 0) {
+      memoryStore.draftReservations = drafts;
+    }
+
+    const activePool = await getPool();
+    if (activePool && drafts.length > 0) {
+      for (const draft of drafts) {
+        if (!draft) continue;
+        const f = draft.formData || {};
+        const draftId = draft.id || draft.refKey || f.editId || (`DRAFT-${Date.now()}`);
+        const custId = draft.customerId || f.selectedCustomerId || (`cust-` + Date.now());
+        const custName = draft.customerName || f.newCustName || f.customerName || 'Taslak Müşteri';
+        const custEmail = draft.customerEmail || f.newCustEmail || f.customerEmail || '';
+        const custPhone = draft.customerPhone || f.newCustPhone || f.customerPhone || '';
+        const eventDate = f.startDate || f.eventDate || draft.eventDate || draft.date || new Date().toISOString().split('T')[0];
+        const timeSlot = (f.startTime && f.endTime) ? `${f.startTime} - ${f.endTime}` : (draft.timeSlot || '19:00 - 23:00');
+        const guestCount = Number(f.guestCount || draft.guestCount || 0);
+        const venuePrice = Number(f.customVenuePrice || f.venuePrice || draft.venuePrice || 0);
+        const subtotal = Number(f.subtotal || draft.subtotal || venuePrice);
+        const totalAmount = Number(f.totalAmount || draft.totalAmount || subtotal);
+        const depositPaid = Number(f.depositPaid || draft.depositPaid || 0);
+        const notesContent = JSON.stringify({ refKey: draft.refKey || draftId, formData: f });
+
+        await activePool.query(
+          `INSERT INTO customers (id, name, email, phone, address, tax_type)
+           VALUES (?, ?, ?, ?, ?, 'individual')
+           ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone)`,
+          [custId, custName, custEmail, custPhone, '']
+        );
+
+        await activePool.query(
+          `INSERT INTO reservations (
+            id, venue_id, customer_id, customer_name, customer_email, customer_phone,
+            event_date, time_slot, guest_count, venue_price, subtotal, total_amount, deposit_paid, notes, status, payment_status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DRAFT', 'Bekliyor')
+          ON DUPLICATE KEY UPDATE
+            venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
+            customer_phone=VALUES(customer_phone), event_date=VALUES(event_date), time_slot=VALUES(time_slot),
+            guest_count=VALUES(guest_count), venue_price=VALUES(venue_price), subtotal=VALUES(subtotal),
+            total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid), notes=VALUES(notes), status='DRAFT', payment_status='Bekliyor'`,
+          [
+            draftId, f.venueId || draft.venueId || 'v1', custId, custName,
+            custEmail, custPhone, eventDate, timeSlot, guestCount,
+            venuePrice, subtotal, totalAmount, depositPaid, notesContent
+          ]
+        );
+      }
+    }
+    return res.json({ success: true, draftReservations: memoryStore.draftReservations });
+  } catch(e) {
+    console.error('MySQL POST /api/draft-reservations error:', e.message);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete('/api/draft-reservations/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    memoryStore.draftReservations = (memoryStore.draftReservations || []).filter(d => d.id !== id && d.refKey !== id);
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query(
+        "DELETE FROM reservations WHERE status = 'DRAFT' AND (id = ? OR notes LIKE ?)",
+        [id, `%"refKey":"${id}"%`]
+      );
+    }
+    return res.json({ success: true, deletedId: id });
+  } catch(e) {
+    console.error('MySQL DELETE /api/draft-reservations error:', e.message);
+    return res.status(500).json({ error: e.message });
+  }
 });
 
 app.delete('/api/reservations/:id', async (req, res) => {
@@ -1397,29 +1547,46 @@ app.get('/api/public-settings', async (req, res) => {
       }));
 
       const [resRows] = await pool.query('SELECT * FROM reservations ORDER BY created_at DESC');
-      memoryStore.reservations = (resRows || []).map(r => ({
-        ...r,
-        venueId: r.venue_id,
-        customerId: r.customer_id,
-        customerName: r.customer_name,
-        customerEmail: r.customer_email,
-        customerPhone: r.customer_phone,
-        eventDate: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
-        date: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
-        timeSlot: r.time_slot,
-        guestCount: r.guest_count,
-        venuePrice: Number(r.venue_price || 0),
-        subtotal: Number(r.subtotal || 0),
-        campaignCode: r.campaign_code,
-        discountAmount: Number(r.discount_amount || 0),
-        vatAmount: Number(r.vat_amount || 0),
-        totalAmount: Number(r.total_amount || 0),
-        depositPaid: Number(r.deposit_paid || 0),
-        remainingBalance: Number(r.remaining_balance || 0),
-        paymentStatus: r.payment_status,
-        isInvoiced: Boolean(r.is_invoiced),
-        invoiceType: r.invoice_type
-      }));
+      const allReservations = (resRows || []).map(r => {
+        let parsedNotesData = null;
+        if (r.notes && r.notes.startsWith('{')) {
+          try { parsedNotesData = JSON.parse(r.notes); } catch(e) {}
+        }
+        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+        return {
+          id: r.id,
+          refKey: parsedNotesData?.refKey || r.id,
+          isDraft: r.status === 'DRAFT',
+          formData: parsedNotesData?.formData || null,
+          venueId: r.venue_id || 'v1',
+          customerId: r.customer_id || '',
+          customerName: r.customer_name || 'Misafir',
+          customerEmail: r.customer_email || '',
+          customerPhone: r.customer_phone || '',
+          date: rawDate,
+          eventDate: rawDate,
+          startDate: rawDate,
+          endDate: rawDate,
+          timeSlot: r.time_slot || '18:00 - 23:00',
+          guestCount: String(r.guest_count || 0),
+          venuePrice: Number(r.venue_price || 0),
+          subtotal: Number(r.subtotal || 0),
+          campaignCode: r.campaign_code || '',
+          discountAmount: Number(r.discount_amount || 0),
+          vatAmount: Number(r.vat_amount || 0),
+          totalAmount: Number(r.total_amount || 0),
+          depositPaid: Number(r.deposit_paid || 0),
+          remainingBalance: Number(r.remaining_balance || 0),
+          paymentStatus: r.payment_status || (r.status === 'DRAFT' ? 'Taslak' : 'Kapora Alındı'),
+          isInvoiced: Boolean(r.is_invoiced),
+          invoiceType: r.invoice_type || 'individual',
+          notes: r.notes || '',
+          status: r.status || 'CONFIRMED'
+        };
+      });
+
+      memoryStore.reservations = allReservations.filter(r => r.status !== 'DRAFT');
+      memoryStore.draftReservations = allReservations.filter(r => r.status === 'DRAFT');
 
       const [expRows] = await pool.query('SELECT * FROM expenses ORDER BY date DESC');
       if (expRows.length) memoryStore.expenses = expRows.map(r => ({
@@ -1496,6 +1663,15 @@ app.post('/api/public-settings', async (req, res) => {
             const depositPaid = Number(f.depositPaid || draft.depositPaid || 0);
             const notesContent = JSON.stringify({ refKey: draft.refKey || draftId, formData: f });
 
+            // 1. Foreign key zorunluluğunu karşılamak için müşteri kaydını önce upsert et
+            await activePool.query(
+              `INSERT INTO customers (id, name, email, phone, address, tax_type)
+               VALUES (?, ?, ?, ?, ?, 'individual')
+               ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone)`,
+              [custId, custName, custEmail, custPhone, '']
+            );
+
+            // 2. Taslak rezervasyon kaydını DRAFT statüsüyle veritabanına işle
             await activePool.query(
               `INSERT INTO reservations (
                 id, venue_id, customer_id, customer_name, customer_email, customer_phone,
