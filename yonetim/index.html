@@ -12270,7 +12270,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (!activeRefKey) return;
         if (hasLoadedDraftRef.current === activeRefKey) return;
-        const existing = (draftReservations || []).find(d => d.refKey === activeRefKey);
+        const existing = (draftReservations || []).find(d => d.refKey === activeRefKey) || (reservations || []).find(r => (r.refKey === activeRefKey || r.id === activeRefKey || (r.formData && r.refKey === activeRefKey)) && r.formData);
         if (existing && existing.formData) {
           hasLoadedDraftRef.current = activeRefKey;
           const f = existing.formData;

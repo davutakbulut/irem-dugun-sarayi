@@ -1055,8 +1055,15 @@ app.get('/api/reservations', async (req, res) => {
         const mem = memoryStore.reservations.find(m => m.id === r.id);
         const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
         const parsedMedia = r.media_json ? (typeof r.media_json === 'string' ? JSON.parse(r.media_json) : r.media_json) : (mem?.mediaFiles || []);
+        let parsedNotesData = null;
+        if (r.notes && r.notes.startsWith('{')) {
+          try { parsedNotesData = JSON.parse(r.notes); } catch(e) {}
+        }
         return {
           id: r.id,
+          refKey: parsedNotesData?.refKey || r.id,
+          isDraft: r.status === 'DRAFT',
+          formData: parsedNotesData?.formData || null,
           venueId: r.venue_id || 'v1',
           customerId: r.customer_id || '',
           customerName: r.customer_name || 'Misafir',
@@ -1076,7 +1083,7 @@ app.get('/api/reservations', async (req, res) => {
           totalAmount: Number(r.total_amount || 0),
           depositPaid: Number(r.deposit_paid || 0),
           remainingBalance: Number(r.remaining_balance || 0),
-          paymentStatus: r.payment_status || 'Kapora Alındı',
+          paymentStatus: r.payment_status || (r.status === 'DRAFT' ? 'Taslak' : 'Kapora Alındı'),
           isInvoiced: Boolean(r.is_invoiced),
           invoiceType: r.invoice_type || 'individual',
           notes: r.notes || '',
@@ -1474,23 +1481,35 @@ app.post('/api/public-settings', async (req, res) => {
       if (activePool) {
         try {
           for (const draft of req.body.draftReservations) {
-            const draftId = draft.id || draft.refKey || (`DRAFT-${Date.now()}`);
-            const custId = draft.customerId || (`cust-` + Date.now());
+            const f = draft.formData || {};
+            const draftId = draft.id || draft.refKey || f.editId || (`DRAFT-${Date.now()}`);
+            const custId = draft.customerId || f.selectedCustomerId || (`cust-` + Date.now());
+            const custName = draft.customerName || f.newCustName || f.customerName || 'Taslak Müşteri';
+            const custEmail = draft.customerEmail || f.newCustEmail || f.customerEmail || '';
+            const custPhone = draft.customerPhone || f.newCustPhone || f.customerPhone || '';
+            const eventDate = f.startDate || f.eventDate || draft.eventDate || draft.date || new Date().toISOString().split('T')[0];
+            const timeSlot = (f.startTime && f.endTime) ? `${f.startTime} - ${f.endTime}` : (draft.timeSlot || '19:00 - 23:00');
+            const guestCount = Number(f.guestCount || draft.guestCount || 0);
+            const venuePrice = Number(f.customVenuePrice || f.venuePrice || draft.venuePrice || 0);
+            const subtotal = Number(f.subtotal || draft.subtotal || venuePrice);
+            const totalAmount = Number(f.totalAmount || draft.totalAmount || subtotal);
+            const depositPaid = Number(f.depositPaid || draft.depositPaid || 0);
+            const notesContent = JSON.stringify({ refKey: draft.refKey || draftId, formData: f });
+
             await activePool.query(
               `INSERT INTO reservations (
                 id, venue_id, customer_id, customer_name, customer_email, customer_phone,
-                event_date, time_slot, guest_count, venue_price, subtotal, total_amount, status
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DRAFT')
+                event_date, time_slot, guest_count, venue_price, subtotal, total_amount, deposit_paid, notes, status
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DRAFT')
               ON DUPLICATE KEY UPDATE
-                customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
-                customer_phone=VALUES(customer_phone), event_date=VALUES(event_date),
-                total_amount=VALUES(total_amount), status='DRAFT'`,
+                venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
+                customer_phone=VALUES(customer_phone), event_date=VALUES(event_date), time_slot=VALUES(time_slot),
+                guest_count=VALUES(guest_count), venue_price=VALUES(venue_price), subtotal=VALUES(subtotal),
+                total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid), notes=VALUES(notes), status='DRAFT'`,
               [
-                draftId, draft.venueId || 'v1', custId, draft.customerName || 'Taslak Müşteri',
-                draft.customerEmail || '', draft.customerPhone || '',
-                draft.eventDate || draft.date || new Date().toISOString().split('T')[0],
-                draft.timeSlot || '18:00 - 23:00', Number(draft.guestCount || 0),
-                Number(draft.venuePrice || 0), Number(draft.subtotal || 0), Number(draft.totalAmount || 0)
+                draftId, f.venueId || draft.venueId || 'v1', custId, custName,
+                custEmail, custPhone, eventDate, timeSlot, guestCount,
+                venuePrice, subtotal, totalAmount, depositPaid, notesContent
               ]
             );
           }
