@@ -380,11 +380,20 @@ const initMysql = async () => {
           id VARCHAR(50) PRIMARY KEY,
           name VARCHAR(150) NOT NULL,
           email VARCHAR(150),
+          phone VARCHAR(50),
           password_hash VARCHAR(255),
           role VARCHAR(50) DEFAULT 'admin',
-          avatar TEXT,
+          avatar LONGTEXT,
+          notify_whatsapp TINYINT(1) DEFAULT 1,
+          notify_email TINYINT(1) DEFAULT 1,
+          notify_sms TINYINT(1) DEFAULT 0,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50)"); } catch(e){}
+        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_whatsapp TINYINT(1) DEFAULT 1"); } catch(e){}
+        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email TINYINT(1) DEFAULT 1"); } catch(e){}
+        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_sms TINYINT(1) DEFAULT 0"); } catch(e){}
       `);
 
       await pool.query(`
@@ -1024,7 +1033,7 @@ app.delete('/api/customers/:id', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   if (pool) {
     try {
-      const [rows] = await pool.query('SELECT id, name, email, role, avatar, created_at FROM users ORDER BY created_at DESC');
+      const [rows] = await pool.query('SELECT id, name, email, phone, role, avatar, notify_whatsapp AS notifyWhatsapp, notify_email AS notifyEmail, notify_sms AS notifySms, created_at FROM users ORDER BY created_at DESC');
       return res.json(rows || []);
     } catch(e) {
       console.error('MySQL GET /api/users error:', e.message);
@@ -1038,8 +1047,15 @@ app.post('/api/users', async (req, res) => {
   if (pool) {
     try {
       await pool.query(
-        'INSERT INTO users (id, name, email, password_hash, role, avatar) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, email=?, role=?, avatar=?',
-        [item.id, item.name, item.email, item.password || '123456', item.role || 'admin', item.avatar || '', item.name, item.email, item.role || 'admin', item.avatar || '']
+        `INSERT INTO users (id, name, email, phone, password_hash, role, avatar, notify_whatsapp, notify_email, notify_sms) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+         ON DUPLICATE KEY UPDATE name=?, email=?, phone=?, role=?, avatar=?, notify_whatsapp=?, notify_email=?, notify_sms=?`,
+        [
+          item.id, item.name, item.email || '', item.phone || '', item.password || '123456', item.role || 'admin', item.avatar || '',
+          item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0,
+          item.name, item.email || '', item.phone || '', item.role || 'admin', item.avatar || '',
+          item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0
+        ]
       );
     } catch(e) {
       console.error('MySQL POST /api/users error:', e.message);

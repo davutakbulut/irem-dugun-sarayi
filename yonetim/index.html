@@ -18799,9 +18799,9 @@ const E2E_WORKFLOWS = [
       const [password, setPassword] = useState('');
       const [selectedRole, setSelectedRole] = useState(activeRole);
 
-      const [notifyWhatsapp, setNotifyWhatsapp] = useState(true);
-      const [notifyEmail, setNotifyEmail] = useState(true);
-      const [notifySms, setNotifySms] = useState(false);
+      const [notifyWhatsapp, setNotifyWhatsapp] = useState(currentUser?.notifyWhatsapp !== undefined ? currentUser.notifyWhatsapp : true);
+      const [notifyEmail, setNotifyEmail] = useState(currentUser?.notifyEmail !== undefined ? currentUser.notifyEmail : true);
+      const [notifySms, setNotifySms] = useState(currentUser?.notifySms !== undefined ? currentUser.notifySms : false);
 
       const handleSave = (e) => {
         e.preventDefault();
@@ -18810,7 +18810,10 @@ const E2E_WORKFLOWS = [
           email,
           phone,
           avatar,
-          role: selectedRole
+          role: selectedRole,
+          notifyWhatsapp,
+          notifyEmail,
+          notifySms
         };
         if (password && password.trim()) {
           profilePayload.password = password.trim();
