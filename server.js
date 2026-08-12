@@ -44,6 +44,23 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// POST Fallback Middleware for DELETE actions (Prevents 403 Forbidden on Plesk / IIS / ModSecurity WAF)
+app.use((req, res, next) => {
+  if (req.method === 'POST') {
+    const overrideMethod = req.headers['x-http-method-override'] || req.headers['x-method-override'];
+    if (overrideMethod === 'DELETE') {
+      req.method = 'DELETE';
+    } else if (req.url.includes('/delete/')) {
+      req.url = req.url.replace('/delete/', '/');
+      req.method = 'DELETE';
+    } else if (req.url.endsWith('-delete')) {
+      req.url = req.url.replace(/-delete$/, '');
+      req.method = 'DELETE';
+    }
+  }
+  next();
+});
 app.use('/uploads', express.static(uploadsDir));
 app.use(express.static(path.join(__dirname, './')));
 
@@ -1288,8 +1305,9 @@ app.post('/api/draft-reservations', async (req, res) => {
   }
 });
 
-app.delete('/api/draft-reservations/:id', async (req, res) => {
-  const { id } = req.params;
+const deleteDraftReservationHandler = async (req, res) => {
+  const id = req.params.id || req.body?.id || req.body?.refKey;
+  if (!id) return res.status(400).json({ error: 'ID required' });
   try {
     memoryStore.draftReservations = (memoryStore.draftReservations || []).filter(d => d.id !== id && d.refKey !== id);
     const activePool = await getPool();
@@ -1304,7 +1322,13 @@ app.delete('/api/draft-reservations/:id', async (req, res) => {
     console.error('MySQL DELETE /api/draft-reservations error:', e.message);
     return res.status(500).json({ error: e.message });
   }
-});
+};
+
+app.delete('/api/draft-reservations/:id', deleteDraftReservationHandler);
+app.post('/api/draft-reservations/delete/:id', deleteDraftReservationHandler);
+app.post('/api/draft-reservations-delete/:id', deleteDraftReservationHandler);
+app.post('/api/draft-reservations-delete', deleteDraftReservationHandler);
+app.post('/api/draft-reservations/:id', deleteDraftReservationHandler);
 
 app.delete('/api/reservations/:id', async (req, res) => {
   const { id } = req.params;

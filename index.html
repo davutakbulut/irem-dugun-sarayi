@@ -1304,7 +1304,24 @@
     window.fetchWithRetry = function(url, options, retries, delay) {
       retries = retries || 3;
       delay = delay || 600;
+      options = options || {};
+      if (options.method === 'DELETE') {
+        options.headers = options.headers || {};
+        options.headers['X-HTTP-Method-Override'] = 'DELETE';
+      }
       return fetch(url, options).then(function(res) {
+        if (!res.ok && options.method === 'DELETE' && (res.status === 403 || res.status === 405 || res.status === 404)) {
+          // Retry DELETE action using POST fallback route for Plesk / IIS compatibility
+          var postUrl = url.indexOf('/delete/') === -1 ? url.replace('/api/', '/api/').replace(/\/([^/]+)$/, '/delete/$1') : url;
+          var postOptions = Object.assign({}, options, {
+            method: 'POST',
+            headers: Object.assign({}, options.headers || {}, { 'Content-Type': 'application/json', 'X-HTTP-Method-Override': 'DELETE' })
+          });
+          return fetch(postUrl, postOptions).then(function(pRes) {
+            if (pRes.ok) return pRes;
+            return res;
+          }).catch(function() { return res; });
+        }
         if (!res.ok && (res.status === 404 || res.status === 500)) {
           if (url && url.indexOf('/api/') !== -1) {
             if (options && (options.method === 'POST' || options.method === 'PUT') && options.body) {
@@ -3326,7 +3343,7 @@ function ReservationsListComponent({
                                 if (window.confirm(`"${targetName}" (${targetRef}) taslak rezervasyonunu silmek istediğinize emin misiniz?`)) {
                                   const fetchFn = window.fetchWithRetry || fetch;
                                   if (fetchFn) {
-                                    if (targetRef) fetchFn(`/api/draft-reservations/${encodeURIComponent(targetRef)}`, { method: 'DELETE' }).catch(() => {});
+                                    if (targetRef) { fetchFn(`/api/draft-reservations/delete/${encodeURIComponent(targetRef)}`, { method: 'POST' }).catch(() => fetchFn(`/api/draft-reservations/${encodeURIComponent(targetRef)}`, { method: 'DELETE' }).catch(() => {})); }
                                   }
                                   if (setDraftReservations) {
                                     setDraftReservations(prev => {
@@ -11163,7 +11180,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             CacheService.set('draft_reservations', updatedDrafts);
                             const fetchFn = window.fetchWithRetry || fetch;
                             if (fetchFn) {
-                              if (cleanRef) fetchFn(`/api/draft-reservations/${encodeURIComponent(cleanRef)}`, { method: 'DELETE' }).catch(() => {});
+                              if (cleanRef) { fetchFn(`/api/draft-reservations/delete/${encodeURIComponent(cleanRef)}`, { method: 'POST' }).catch(() => fetchFn(`/api/draft-reservations/${encodeURIComponent(cleanRef)}`, { method: 'DELETE' }).catch(() => {})); }
                               fetchFn('/api/public-settings', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
