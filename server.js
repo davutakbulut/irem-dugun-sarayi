@@ -303,6 +303,34 @@ const initMysql = async () => {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS reservations (
+          id VARCHAR(50) PRIMARY KEY,
+          venue_id VARCHAR(50),
+          customer_id VARCHAR(50),
+          customer_name VARCHAR(150),
+          customer_email VARCHAR(150),
+          customer_phone VARCHAR(50),
+          event_date DATE,
+          time_slot VARCHAR(50),
+          guest_count INT,
+          venue_price DECIMAL(12,2),
+          subtotal DECIMAL(12,2),
+          campaign_code VARCHAR(50),
+          discount_amount DECIMAL(12,2),
+          vat_amount DECIMAL(12,2),
+          total_amount DECIMAL(12,2),
+          deposit_paid DECIMAL(12,2),
+          remaining_balance DECIMAL(12,2),
+          payment_status VARCHAR(50),
+          is_invoiced TINYINT(1) DEFAULT 0,
+          invoice_type VARCHAR(50),
+          notes TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
       console.log('✅ MySQL Tabloları Doğrulandı ve Hazırlandı!');
       await syncMemoryFromMysql();
       console.log('⚡ MariaDB Verileri Belleğe Senkronize Edildi!');
