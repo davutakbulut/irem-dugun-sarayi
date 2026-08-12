@@ -172,9 +172,11 @@ const syncPhysicalUploadsWithMemoryStore = () => {
 
 syncPhysicalUploadsWithMemoryStore();
 
-// MySQL Bağlantısı (Opsiyonel Canlı MySQL)
+// MySQL / MariaDB Bağlantı Havuzu
 let pool = null;
-const initMysql = async () => {
+
+const getPool = async () => {
+  if (pool) return pool;
   const hostsToTry = [
     '213.159.6.158',
     process.env.DB_HOST,
@@ -183,7 +185,6 @@ const initMysql = async () => {
     'localhost'
   ].filter(Boolean);
 
-  let connectedPool = null;
   for (const host of hostsToTry) {
     try {
       const mysql = require('mysql2/promise');
@@ -196,20 +197,21 @@ const initMysql = async () => {
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
-        connectTimeout: 4000
+        connectTimeout: 5000
       });
       await testPool.query('SELECT 1');
-      connectedPool = testPool;
+      pool = testPool;
       console.log(`✅ MariaDB Bağlantısı Başarılı! (Aktif Host: ${host})`);
       break;
     } catch(err) {
       console.warn(`ℹ️ MariaDB Host [${host}] deneme uyarısı:`, err.message);
     }
   }
+  return pool;
+};
 
-  if (connectedPool) {
-    pool = connectedPool;
-  }
+const initMysql = async () => {
+  const activePool = await getPool();
 
     const syncMemoryFromMysql = async () => {
       if (!pool) return;
@@ -922,9 +924,10 @@ app.delete('/api/users/:id', async (req, res) => {
 // 5. REZERVASYONLAR ENDPOINTS (/api/reservations)
 // -------------------------------------------------------------
 app.get('/api/reservations', async (req, res) => {
-  if (pool) {
+  const activePool = await getPool();
+  if (activePool) {
     try {
-      const [rows] = await pool.query('SELECT * FROM reservations ORDER BY event_date DESC');
+      const [rows] = await activePool.query('SELECT * FROM reservations ORDER BY event_date DESC');
       const formatted = (rows || []).map(r => {
         const mem = memoryStore.reservations.find(m => m.id === r.id);
         const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
@@ -968,12 +971,13 @@ app.get('/api/reservations', async (req, res) => {
 
 app.post('/api/reservations', async (req, res) => {
   const item = { id: req.body.id || `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, ...req.body };
+  const activePool = await getPool();
   
-  if (pool) {
+  if (activePool) {
     try {
       const custId = item.customerId || (`cust-` + Date.now());
       if (item.customerName) {
-        await pool.query(
+        await activePool.query(
           `INSERT INTO customers (id, name, email, phone, address, tax_type, tc_no, vkn_no, tax_office)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone)`,
@@ -981,7 +985,7 @@ app.post('/api/reservations', async (req, res) => {
         );
       }
 
-      await pool.query(
+      await activePool.query(
         `INSERT INTO reservations (
           id, venue_id, customer_id, customer_name, customer_email, customer_phone,
           event_date, time_slot, guest_count, venue_price, subtotal, campaign_code,
