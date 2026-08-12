@@ -183,8 +183,8 @@ const initMysql = async () => {
     pool = mysql.createPool({
       host: process.env.DB_HOST || process.env.MYSQL_HOST || 'localhost',
       port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
-      user: process.env.DB_USER || process.env.MYSQL_USER || 'root',
-      password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || '',
+      user: process.env.DB_USER || process.env.MYSQL_USER || 'kullaniciadi_irem_dugun_db',
+      password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || 'Akblt_157',
       database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'irem_dugun_db',
       waitForConnections: true,
       connectionLimit: 10,
@@ -840,44 +840,102 @@ app.get('/api/reservations', async (req, res) => {
     try {
       const [rows] = await pool.query('SELECT * FROM reservations ORDER BY event_date DESC');
       if (rows && rows.length > 0) {
-        const merged = rows.map(r => {
+        const formatted = rows.map(r => {
           const mem = memoryStore.reservations.find(m => m.id === r.id);
-          return mem ? { ...mem, ...r, customExpenses: mem.customExpenses || r.customExpenses || [], mediaFiles: mem.mediaFiles || r.mediaFiles || [] } : r;
+          const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+          return {
+            id: r.id,
+            venueId: r.venue_id || 'v1',
+            customerId: r.customer_id || '',
+            customerName: r.customer_name || 'Misafir',
+            customerEmail: r.customer_email || '',
+            customerPhone: r.customer_phone || '',
+            date: rawDate,
+            eventDate: rawDate,
+            startDate: rawDate,
+            endDate: rawDate,
+            timeSlot: r.time_slot || '18:00 - 23:00',
+            guestCount: String(r.guest_count || 0),
+            venuePrice: Number(r.venue_price || 0),
+            subtotal: Number(r.subtotal || 0),
+            campaignCode: r.campaign_code || '',
+            discountAmount: Number(r.discount_amount || 0),
+            vatAmount: Number(r.vat_amount || 0),
+            totalAmount: Number(r.total_amount || 0),
+            depositPaid: Number(r.deposit_paid || 0),
+            remainingBalance: Number(r.remaining_balance || 0),
+            paymentStatus: r.payment_status || 'Kapora Alındı',
+            isInvoiced: Boolean(r.is_invoiced),
+            invoiceType: r.invoice_type || 'individual',
+            notes: r.notes || '',
+            customExpenses: mem?.customExpenses || [],
+            mediaFiles: mem?.mediaFiles || [],
+            status: r.status || 'CONFIRMED'
+          };
         });
-        return res.json(merged);
+        return res.json(formatted);
       }
-    } catch(e) {}
+    } catch(e) {
+      console.error('MySQL GET /api/reservations error:', e.message);
+    }
   }
   res.json(memoryStore.reservations);
 });
 
 app.post('/api/reservations', async (req, res) => {
   const item = { id: req.body.id || `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, ...req.body };
-  const idx = memoryStore.reservations.findIndex(r => r.id === item.id || (r.mediaKey && r.mediaKey === item.id));
   
-  if (idx >= 0) {
-    const existingRes = memoryStore.reservations[idx];
-    const existingMedia = existingRes.mediaFiles || [];
-    const incomingMedia = item.mediaFiles || [];
-    
-    // Diskteki mevcut görseller ile gelen görselleri harmanla (hiçbir davetli görseli silinmesin)
-    const mergedMediaMap = new Map();
-    [...existingMedia, ...incomingMedia].forEach(m => {
-      if (m && (m.id || m.url)) {
-        mergedMediaMap.set(m.id || m.url, m);
+  if (pool) {
+    try {
+      const custId = item.customerId || (`cust-` + Date.now());
+      if (item.customerName) {
+        await pool.query(
+          `INSERT INTO customers (id, name, email, phone, address, tax_type, tc_no, vkn_no, tax_office)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone)`,
+          [custId, item.customerName, item.customerEmail || '', item.customerPhone || '', item.invoiceAddress || '', item.taxType || 'individual', item.tcNo || '', item.vknNo || '', item.taxOffice || '']
+        );
       }
-    });
-    item.mediaFiles = Array.from(mergedMediaMap.values());
-    memoryStore.reservations[idx] = item;
+
+      await pool.query(
+        `INSERT INTO reservations (
+          id, venue_id, customer_id, customer_name, customer_email, customer_phone,
+          event_date, time_slot, guest_count, venue_price, subtotal, campaign_code,
+          discount_amount, vat_amount, total_amount, deposit_paid, remaining_balance,
+          payment_status, is_invoiced, invoice_type, notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+          venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
+          customer_phone=VALUES(customer_phone), event_date=VALUES(event_date), time_slot=VALUES(time_slot),
+          guest_count=VALUES(guest_count), venue_price=VALUES(venue_price), subtotal=VALUES(subtotal),
+          campaign_code=VALUES(campaign_code), discount_amount=VALUES(discount_amount), vat_amount=VALUES(vat_amount),
+          total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid), remaining_balance=VALUES(remaining_balance),
+          payment_status=VALUES(payment_status), is_invoiced=VALUES(is_invoiced), invoice_type=VALUES(invoice_type), notes=VALUES(notes)`,
+        [
+          item.id, item.venueId || 'v1', custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '',
+          item.eventDate || item.date || new Date().toISOString().split('T')[0], item.timeSlot || '18:00 - 23:00',
+          Number(item.guestCount || 0), Number(item.venuePrice || 0), Number(item.subtotal || 0),
+          item.campaignCode || '', Number(item.discountAmount || 0), Number(item.vatAmount || 0),
+          Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
+          item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual', item.notes || ''
+        ]
+      );
+    } catch(e) {
+      console.error('MySQL POST /api/reservations error:', e.message);
+    }
+  }
+
+  const idx = memoryStore.reservations.findIndex(r => r.id === item.id || (r.mediaKey && r.mediaKey === item.id));
+  if (idx >= 0) {
+    memoryStore.reservations[idx] = { ...memoryStore.reservations[idx], ...item };
   } else {
     memoryStore.reservations.unshift(item);
   }
 
-  saveDbFile('db_reservations.json', memoryStore.reservations);
   res.status(201).json({ success: true, id: item.id, item });
 });
 
-app.delete('/api/reservations/:id', (req, res) => {
+app.delete('/api/reservations/:id', async (req, res) => {
   const { id } = req.params;
   const safeResId = String(id).replace(/[^a-zA-Z0-9_-]/g, '_');
   const resDir = path.join(uploadsDir, safeResId);
@@ -885,19 +943,20 @@ app.delete('/api/reservations/:id', (req, res) => {
   if (fs.existsSync(resDir)) {
     try {
       fs.rmSync(resDir, { recursive: true, force: true });
-      console.log(`🗑️ Rezervasyon Klasörü Sunucudan Fiziksel Olarak Silindi: ${resDir}`);
     } catch(err) {
       console.error('Rezervasyon klasör silme hatası:', err.message);
     }
   }
 
-  memoryStore.reservations = memoryStore.reservations.filter(r => r.id !== id);
-  saveDbFile('db_reservations.json', memoryStore.reservations);
-
   if (pool) {
-    pool.query('DELETE FROM reservations WHERE id = ?', [id]).catch(e => console.warn(e));
+    try {
+      await pool.query('DELETE FROM reservations WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/reservations error:', e.message);
+    }
   }
 
+  memoryStore.reservations = memoryStore.reservations.filter(r => r.id !== id);
   res.json({ success: true, id, message: 'Rezervasyon ve bağlı medyaları sunucudan fiziken silindi.' });
 });
 
