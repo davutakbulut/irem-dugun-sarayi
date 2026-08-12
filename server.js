@@ -163,18 +163,41 @@ syncPhysicalUploadsWithMemoryStore();
 // MySQL Bağlantısı (Opsiyonel Canlı MySQL)
 let pool = null;
 const initMysql = async () => {
-  try {
-    const mysql = require('mysql2/promise');
-    pool = mysql.createPool({
-      host: process.env.DB_HOST || process.env.MYSQL_HOST || '213.159.6.158',
-      port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
-      user: process.env.DB_USER || process.env.MYSQL_USER || 'kullaniciadi_irem_dugun_db',
-      password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || 'Akblt_157',
-      database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'irem_dugun_db',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-    });
+  const hostsToTry = [
+    process.env.DB_HOST,
+    process.env.MYSQL_HOST,
+    '127.0.0.1',
+    'localhost',
+    '213.159.6.158'
+  ].filter(Boolean);
+
+  let connectedPool = null;
+  for (const host of hostsToTry) {
+    try {
+      const mysql = require('mysql2/promise');
+      const testPool = mysql.createPool({
+        host: host,
+        port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
+        user: process.env.DB_USER || process.env.MYSQL_USER || 'kullaniciadi_irem_dugun_db',
+        password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || 'Akblt_157',
+        database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'irem_dugun_db',
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        connectTimeout: 4000
+      });
+      await testPool.query('SELECT 1');
+      connectedPool = testPool;
+      console.log(`✅ MariaDB Bağlantısı Başarılı! (Aktif Host: ${host})`);
+      break;
+    } catch(err) {
+      console.warn(`ℹ️ MariaDB Host [${host}] deneme uyarısı:`, err.message);
+    }
+  }
+
+  if (connectedPool) {
+    pool = connectedPool;
+  }
 
     const syncMemoryFromMysql = async () => {
       if (!pool) return;
@@ -322,9 +345,6 @@ const initMysql = async () => {
     } catch (e) {
       console.log('ℹ️ MySQL Tablo doğrulama uyarısı:', e.message);
     }
-  } catch(err) {
-    console.log('ℹ️ mysql2 paketi / sunucusu henüz ayarlanmadı, dosya/bellek deposu aktif.');
-  }
 };
 initMysql();
 
@@ -931,7 +951,7 @@ app.get('/api/reservations', async (req, res) => {
       console.error('MySQL GET /api/reservations error:', e.message);
     }
   }
-  res.json([]);
+  res.json(memoryStore.reservations || []);
 });
 
 app.post('/api/reservations', async (req, res) => {
