@@ -954,22 +954,23 @@ app.post('/api/reservations', async (req, res) => {
           id, venue_id, customer_id, customer_name, customer_email, customer_phone,
           event_date, time_slot, guest_count, venue_price, subtotal, campaign_code,
           discount_amount, vat_amount, total_amount, deposit_paid, remaining_balance,
-          payment_status, is_invoiced, invoice_type, notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          payment_status, is_invoiced, invoice_type, notes, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
           customer_phone=VALUES(customer_phone), event_date=VALUES(event_date), time_slot=VALUES(time_slot),
           guest_count=VALUES(guest_count), venue_price=VALUES(venue_price), subtotal=VALUES(subtotal),
           campaign_code=VALUES(campaign_code), discount_amount=VALUES(discount_amount), vat_amount=VALUES(vat_amount),
           total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid), remaining_balance=VALUES(remaining_balance),
-          payment_status=VALUES(payment_status), is_invoiced=VALUES(is_invoiced), invoice_type=VALUES(invoice_type), notes=VALUES(notes)`,
+          payment_status=VALUES(payment_status), is_invoiced=VALUES(is_invoiced), invoice_type=VALUES(invoice_type), notes=VALUES(notes), status=VALUES(status)`,
         [
           item.id, item.venueId || 'v1', custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '',
           item.eventDate || item.date || new Date().toISOString().split('T')[0], item.timeSlot || '18:00 - 23:00',
           Number(item.guestCount || 0), Number(item.venuePrice || 0), Number(item.subtotal || 0),
           item.campaignCode || '', Number(item.discountAmount || 0), Number(item.vatAmount || 0),
           Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
-          item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual', item.notes || ''
+          item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual', item.notes || '',
+          item.status || (item.isDraft ? 'DRAFT' : 'CONFIRMED')
         ]
       );
     } catch(e) {
