@@ -120,18 +120,7 @@ const syncPhysicalUploadsWithMemoryStore = () => {
         
         let targetRes = memoryStore.reservations.find(r => r.id === resId || r.mediaKey === resId);
         if (!targetRes) {
-          targetRes = {
-            id: resId,
-            mediaKey: resId,
-            customerName: `Etkinlik [${resId}]`,
-            eventType: 'Düğün / Balo Daveti',
-            date: new Date().toISOString().split('T')[0],
-            venueId: 'v1',
-            status: 'CONFIRMED',
-            mediaFiles: []
-          };
-          memoryStore.reservations.push(targetRes);
-          updated = true;
+          continue; // Gerçek veritabanında olmayan hayalet klasörler için rezervasyon nesnesi oluşturma
         }
 
         if (!targetRes.mediaFiles) targetRes.mediaFiles = [];
@@ -839,47 +828,45 @@ app.get('/api/reservations', async (req, res) => {
   if (pool) {
     try {
       const [rows] = await pool.query('SELECT * FROM reservations ORDER BY event_date DESC');
-      if (rows && rows.length > 0) {
-        const formatted = rows.map(r => {
-          const mem = memoryStore.reservations.find(m => m.id === r.id);
-          const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
-          return {
-            id: r.id,
-            venueId: r.venue_id || 'v1',
-            customerId: r.customer_id || '',
-            customerName: r.customer_name || 'Misafir',
-            customerEmail: r.customer_email || '',
-            customerPhone: r.customer_phone || '',
-            date: rawDate,
-            eventDate: rawDate,
-            startDate: rawDate,
-            endDate: rawDate,
-            timeSlot: r.time_slot || '18:00 - 23:00',
-            guestCount: String(r.guest_count || 0),
-            venuePrice: Number(r.venue_price || 0),
-            subtotal: Number(r.subtotal || 0),
-            campaignCode: r.campaign_code || '',
-            discountAmount: Number(r.discount_amount || 0),
-            vatAmount: Number(r.vat_amount || 0),
-            totalAmount: Number(r.total_amount || 0),
-            depositPaid: Number(r.deposit_paid || 0),
-            remainingBalance: Number(r.remaining_balance || 0),
-            paymentStatus: r.payment_status || 'Kapora Alındı',
-            isInvoiced: Boolean(r.is_invoiced),
-            invoiceType: r.invoice_type || 'individual',
-            notes: r.notes || '',
-            customExpenses: mem?.customExpenses || [],
-            mediaFiles: mem?.mediaFiles || [],
-            status: r.status || 'CONFIRMED'
-          };
-        });
-        return res.json(formatted);
-      }
+      const formatted = (rows || []).map(r => {
+        const mem = memoryStore.reservations.find(m => m.id === r.id);
+        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+        return {
+          id: r.id,
+          venueId: r.venue_id || 'v1',
+          customerId: r.customer_id || '',
+          customerName: r.customer_name || 'Misafir',
+          customerEmail: r.customer_email || '',
+          customerPhone: r.customer_phone || '',
+          date: rawDate,
+          eventDate: rawDate,
+          startDate: rawDate,
+          endDate: rawDate,
+          timeSlot: r.time_slot || '18:00 - 23:00',
+          guestCount: String(r.guest_count || 0),
+          venuePrice: Number(r.venue_price || 0),
+          subtotal: Number(r.subtotal || 0),
+          campaignCode: r.campaign_code || '',
+          discountAmount: Number(r.discount_amount || 0),
+          vatAmount: Number(r.vat_amount || 0),
+          totalAmount: Number(r.total_amount || 0),
+          depositPaid: Number(r.deposit_paid || 0),
+          remainingBalance: Number(r.remaining_balance || 0),
+          paymentStatus: r.payment_status || 'Kapora Alındı',
+          isInvoiced: Boolean(r.is_invoiced),
+          invoiceType: r.invoice_type || 'individual',
+          notes: r.notes || '',
+          customExpenses: mem?.customExpenses || [],
+          mediaFiles: mem?.mediaFiles || [],
+          status: r.status || 'CONFIRMED'
+        };
+      });
+      return res.json(formatted);
     } catch(e) {
       console.error('MySQL GET /api/reservations error:', e.message);
     }
   }
-  res.json(memoryStore.reservations);
+  res.json([]);
 });
 
 app.post('/api/reservations', async (req, res) => {
@@ -1096,7 +1083,7 @@ app.get('/api/public-settings', async (req, res) => {
       }));
 
       const [resRows] = await pool.query('SELECT * FROM reservations ORDER BY created_at DESC');
-      if (resRows.length) memoryStore.reservations = resRows.map(r => ({
+      memoryStore.reservations = (resRows || []).map(r => ({
         ...r,
         venueId: r.venue_id,
         customerId: r.customer_id,
