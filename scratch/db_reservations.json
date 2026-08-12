@@ -35,14 +35,6 @@
     "taxOffice": "Sapanca VD",
     "invoiceAddress": "Göl Mahallesi Sapanca / Sakarya",
     "notes": "VIP Sahne Düzeni, Beyaz Gül & Kristal Avize Konsepti, Canlı Orkestra",
-    "flowPlan": [
-      { "time": "18:30", "title": "Kırmızı Halı Karşılama & Kokteyl" },
-      { "time": "19:15", "title": "Gelin Damat Görkemli Giriş" },
-      { "time": "20:00", "title": "VIP Yemek & İkram Servisi" },
-      { "time": "21:30", "title": "Kristal Pasta Kesimi" },
-      { "time": "22:00", "title": "Takı Töreni & Canlı Müzik" },
-      { "time": "23:30", "title": "Kapanış & Uğurlama" }
-    ],
     "mediaFiles": [],
     "status": "CONFIRMED",
     "isDraft": false
@@ -75,7 +67,7 @@
     "totalAmount": 145000,
     "depositPaid": 145000,
     "remainingBalance": 0,
-    "paymentStatus": "Tamamı Ödendi",
+    "paymentStatus": "Ödendi",
     "isInvoiced": true,
     "invoiceType": "individual",
     "tcNo": "56473829102",
@@ -83,13 +75,6 @@
     "taxOffice": "Adapazarı VD",
     "invoiceAddress": "Serdivan / Sakarya",
     "notes": "Havai Fişek Gösterisi, Özel Işık Şov ve Bebek Bakım Odası Tahsisi",
-    "flowPlan": [
-      { "time": "19:00", "title": "Açık Hava Karşılama" },
-      { "time": "19:45", "title": "Gelin Damat Girişi" },
-      { "time": "20:30", "title": "Ana Yemek Servisi" },
-      { "time": "21:45", "title": "Düğün Pastası ve Şampanya" },
-      { "time": "23:00", "title": "Etkinlik Bitişi" }
-    ],
     "mediaFiles": [],
     "status": "CONFIRMED",
     "isDraft": false
@@ -130,12 +115,6 @@
     "taxOffice": "Karasu VD",
     "invoiceAddress": "Karasu / Sakarya",
     "notes": "Kına Tahtı Kırmızı Konsept, Hint Kınacısı ve Özel Nedime Şov",
-    "flowPlan": [
-      { "time": "18:00", "title": "Kına Konuk Karşılama" },
-      { "time": "19:00", "title": "Kına Çıkışı & Nedimeler" },
-      { "time": "20:30", "title": "Kına Yakımı Töreni" },
-      { "time": "22:30", "title": "Kapanış" }
-    ],
     "mediaFiles": [],
     "status": "CONFIRMED",
     "isDraft": false

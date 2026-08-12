@@ -73,31 +73,27 @@ const saveDbFile = (fileName, data) => {
 
 // %100 Canlı Veritabanı Bellek & Dosya Deposu
 const memoryStore = {
-  venues: readDbFile('db_venues.json', [
-    { id: 'v1', name: 'Kraliyet Balo Salonu', category: 'Kapalı Salon', capacity: 750, price: 100000, costPrice: 35000, deposit: 15000, location: 'Sapanca Merkez, Sakarya', occupancyRate: 85, description: 'Yüksek tavanlı, kristal avizeli, iklimlendirme sistemli ve lüks sahne düzenine sahip ana balo salonumuz.', image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80', images: ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80'], eventTypes: ['Düğün', 'Nişan', 'Kurumsal Kokteyl', 'Mezuniyet', 'Kına'], availableServices: ['s1', 's-tavuk-menu', 's2', 's3'] }
-  ]),
-  services: readDbFile('db_services.json', []),
-  campaigns: readDbFile('db_campaigns.json', []),
-  customers: readDbFile('db_customers.json', []),
-  users: readDbFile('db_users.json', []),
-  reservations: readDbFile('db_reservations.json', []),
-  draftReservations: readDbFile('db_draft_reservations.json', []),
-  expenses: readDbFile('db_expenses.json', []),
-  media: readDbFile('db_media.json', [
-    { id: 'm1', title: 'Kraliyet Balo Salonu Çekimi', category: 'Salon', url: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80', file_size: '2.4 MB' }
-  ]),
+  venues: [],
+  services: [],
+  campaigns: [],
+  customers: [],
+  users: [],
+  reservations: [],
+  draftReservations: [],
+  expenses: [],
+  media: [],
   roles: [
     { id: 'admin', name: 'Sistem Yöneticisi', permissions: ['dashboard', 'reservations', 'create_reservation', 'calendar', 'customers', 'finance', 'media', 'settings', 'roles', 'system_guide'] },
     { id: 'satisci', name: 'Satış Danışmanı', permissions: ['dashboard', 'reservations', 'create_reservation', 'calendar', 'customers'] },
     { id: 'sosyal_medyaci', name: 'Sosyal Medya Sorumlusu', permissions: ['dashboard', 'media'] },
     { id: 'musteri', name: 'Müşteri Portalı', permissions: ['reservations'] }
   ],
-  systemSettings: readDbFile('db_system_settings.json', {
+  systemSettings: {
     publicTheme: 'dark-gold',
     heroBadgeText: '✨ Sapanca Göl Kenarı Lüks Düğün Tesisleri',
     heroTitle: "Hayalinizdeki Düğün İrem Düğün Sarayı'nda Unutulmaz Oluyor",
     heroSubtitle: '4 farklı balo salonu, açık hava kır bahçesi, kristal avizeler ve VIP ikram menüleriyle hayatınızın en özel gününe ev sahipliği yapıyoruz.'
-  })
+  }
 };
 
 // Diskteki fiziksel uploads klasörlerini tarayıp eksik görselleri bellek ve veritabanı deposuna ekleyen fonksiyon
@@ -170,7 +166,7 @@ const initMysql = async () => {
   try {
     const mysql = require('mysql2/promise');
     pool = mysql.createPool({
-      host: process.env.DB_HOST || process.env.MYSQL_HOST || 'localhost',
+      host: process.env.DB_HOST || process.env.MYSQL_HOST || '213.159.6.158',
       port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
       user: process.env.DB_USER || process.env.MYSQL_USER || 'kullaniciadi_irem_dugun_db',
       password: process.env.DB_PASSWORD || process.env.DB_PASS || process.env.MYSQL_PASSWORD || 'Akblt_157',
