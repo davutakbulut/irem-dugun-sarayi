@@ -924,13 +924,14 @@ app.delete('/api/users/:id', async (req, res) => {
 // 5. REZERVASYONLAR ENDPOINTS (/api/reservations)
 // -------------------------------------------------------------
 app.get('/api/reservations', async (req, res) => {
-  const activePool = await getPool();
-  if (activePool) {
-    try {
+  try {
+    const activePool = await getPool();
+    if (activePool) {
       const [rows] = await activePool.query('SELECT * FROM reservations ORDER BY event_date DESC');
       const formatted = (rows || []).map(r => {
         const mem = memoryStore.reservations.find(m => m.id === r.id);
         const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+        const parsedMedia = r.media_json ? (typeof r.media_json === 'string' ? JSON.parse(r.media_json) : r.media_json) : (mem?.mediaFiles || []);
         return {
           id: r.id,
           venueId: r.venue_id || 'v1',
@@ -957,16 +958,17 @@ app.get('/api/reservations', async (req, res) => {
           invoiceType: r.invoice_type || 'individual',
           notes: r.notes || '',
           customExpenses: mem?.customExpenses || [],
-          mediaFiles: mem?.mediaFiles || [],
+          mediaFiles: parsedMedia,
           status: r.status || 'CONFIRMED'
         };
       });
       return res.json(formatted);
-    } catch(e) {
-      console.error('MySQL GET /api/reservations error:', e.message);
     }
+    return res.json(memoryStore.reservations || []);
+  } catch(e) {
+    console.error('MySQL GET /api/reservations error:', e.message);
+    return res.status(500).json({ error: e.message, poolActive: !!pool });
   }
-  res.json(memoryStore.reservations || []);
 });
 
 app.post('/api/reservations', async (req, res) => {
