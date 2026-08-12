@@ -9321,9 +9321,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             fetchFn('/api/roles')
               .then(res => res.json())
               .then(data => {
-                if (Array.isArray(data)) {
-                  lastSyncedRolesRef.current = JSON.stringify(data);
-                  setRolesState(data);
+                if (data && typeof data === 'object') {
+                  let roleObj = data;
+                  if (Array.isArray(data)) {
+                    roleObj = {};
+                    data.forEach(r => {
+                      if (r && r.id) roleObj[r.id] = r.name || r.id;
+                    });
+                  }
+                  lastSyncedRolesRef.current = JSON.stringify(roleObj);
+                  setRolesState(roleObj);
                 }
               })
               .catch(() => {});
@@ -9344,9 +9351,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     lastSyncedPermissionsRef.current = JSON.stringify(data.tab_permissions);
                     setTabPermissionsState(prev => ({ ...prev, ...data.tab_permissions }));
                   }
-                  if (Array.isArray(data.roles) && data.roles.length > 0) {
-                    lastSyncedRolesRef.current = JSON.stringify(data.roles);
-                    setRolesState(data.roles);
+                  if (data.roles && typeof data.roles === 'object') {
+                    let roleObj = data.roles;
+                    if (Array.isArray(data.roles)) {
+                      roleObj = {};
+                      data.roles.forEach(r => {
+                        if (r && r.id) roleObj[r.id] = r.name || r.id;
+                      });
+                    }
+                    lastSyncedRolesRef.current = JSON.stringify(roleObj);
+                    setRolesState(roleObj);
                   }
                   if (Array.isArray(data.draftReservations)) {
                     setDraftReservations(data.draftReservations);

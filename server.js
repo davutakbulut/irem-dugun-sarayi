@@ -1516,16 +1516,23 @@ app.get('/api/roles', async (req, res) => {
   if (pool) {
     try {
       const [rows] = await pool.query('SELECT * FROM roles');
-      const formatted = (rows || []).map(r => ({
-        ...r,
-        permissions: r.permissions_json ? (typeof r.permissions_json === 'string' ? JSON.parse(r.permissions_json) : r.permissions_json) : []
-      }));
-      return res.json(formatted);
+      const mapObj = {};
+      (rows || []).forEach(r => {
+        if (r.id) mapObj[r.id] = r.name || r.id;
+      });
+      if (Object.keys(mapObj).length > 0) {
+        return res.json(mapObj);
+      }
     } catch(e) {
       console.error('MySQL GET /api/roles error:', e.message);
     }
   }
-  res.json([]);
+  res.json({
+    admin: 'Sistem Yöneticisi',
+    satisci: 'Satış Danışmanı',
+    sosyal_medyaci: 'Sosyal Medya Sorumlusu',
+    musteri: 'Müşteri Portalı'
+  });
 });
 
 app.post('/api/roles', async (req, res) => {
