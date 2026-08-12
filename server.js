@@ -164,11 +164,11 @@ syncPhysicalUploadsWithMemoryStore();
 let pool = null;
 const initMysql = async () => {
   const hostsToTry = [
+    '213.159.6.158',
     process.env.DB_HOST,
     process.env.MYSQL_HOST,
     '127.0.0.1',
-    'localhost',
-    '213.159.6.158'
+    'localhost'
   ].filter(Boolean);
 
   let connectedPool = null;
