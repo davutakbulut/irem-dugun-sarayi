@@ -1337,51 +1337,79 @@ app.get('/api/public-settings', async (req, res) => {
   });
 });
 
-app.post('/api/public-settings', (req, res) => {
+app.post('/api/public-settings', async (req, res) => {
   if (req.body) {
     if (Array.isArray(req.body.reservations)) {
       memoryStore.reservations = req.body.reservations;
-      saveDbFile('db_reservations.json', memoryStore.reservations);
     }
     if (Array.isArray(req.body.draftReservations)) {
       memoryStore.draftReservations = req.body.draftReservations;
-      saveDbFile('db_draft_reservations.json', memoryStore.draftReservations);
+      const activePool = await getPool();
+      if (activePool) {
+        try {
+          for (const draft of req.body.draftReservations) {
+            const draftId = draft.id || draft.refKey || (`DRAFT-${Date.now()}`);
+            const custId = draft.customerId || (`cust-` + Date.now());
+            await activePool.query(
+              `INSERT INTO reservations (
+                id, venue_id, customer_id, customer_name, customer_email, customer_phone,
+                event_date, time_slot, guest_count, venue_price, subtotal, total_amount, status
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DRAFT')
+              ON DUPLICATE KEY UPDATE
+                customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
+                customer_phone=VALUES(customer_phone), event_date=VALUES(event_date),
+                total_amount=VALUES(total_amount), status='DRAFT'`,
+              [
+                draftId, draft.venueId || 'v1', custId, draft.customerName || 'Taslak Müşteri',
+                draft.customerEmail || '', draft.customerPhone || '',
+                draft.eventDate || draft.date || new Date().toISOString().split('T')[0],
+                draft.timeSlot || '18:00 - 23:00', Number(draft.guestCount || 0),
+                Number(draft.venuePrice || 0), Number(draft.subtotal || 0), Number(draft.totalAmount || 0)
+              ]
+            );
+          }
+        } catch(e) {
+          console.error('MySQL draftReservations sync error:', e.message);
+        }
+      }
     }
     if (Array.isArray(req.body.expenses)) {
       memoryStore.expenses = req.body.expenses;
-      saveDbFile('db_expenses.json', memoryStore.expenses);
     }
     if (Array.isArray(req.body.customers)) {
       memoryStore.customers = req.body.customers;
-      saveDbFile('db_customers.json', memoryStore.customers);
     }
     if (Array.isArray(req.body.users)) {
       memoryStore.users = req.body.users;
-      saveDbFile('db_users.json', memoryStore.users);
     }
     if (Array.isArray(req.body.venues)) {
       memoryStore.venues = req.body.venues;
-      saveDbFile('db_venues.json', memoryStore.venues);
     }
     if (Array.isArray(req.body.services)) {
       memoryStore.services = req.body.services;
-      saveDbFile('db_services.json', memoryStore.services);
     }
     if (Array.isArray(req.body.campaigns)) {
       memoryStore.campaigns = req.body.campaigns;
-      saveDbFile('db_campaigns.json', memoryStore.campaigns);
     }
     if (Array.isArray(req.body.roles)) {
       memoryStore.roles = req.body.roles;
-      saveDbFile('db_roles.json', memoryStore.roles);
     }
     if (req.body.tab_permissions && typeof req.body.tab_permissions === 'object') {
       memoryStore.tab_permissions = req.body.tab_permissions;
-      saveDbFile('db_tab_permissions.json', memoryStore.tab_permissions);
     }
 
     memoryStore.systemSettings = { ...memoryStore.systemSettings, ...req.body };
-    saveDbFile('db_system_settings.json', memoryStore.systemSettings);
+    const activePool = await getPool();
+    if (activePool) {
+      try {
+        await activePool.query(
+          'INSERT INTO system_settings (id, settings_json) VALUES (1, ?) ON DUPLICATE KEY UPDATE settings_json = ?',
+          [JSON.stringify(memoryStore.systemSettings), JSON.stringify(memoryStore.systemSettings)]
+        );
+      } catch(e) {
+        console.error('MySQL system_settings save error:', e.message);
+      }
+    }
   }
   res.json({ success: true, message: 'Kamu/Sistem ayarları veritabanında güncellendi', ...memoryStore.systemSettings });
 });
