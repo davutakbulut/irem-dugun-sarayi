@@ -666,20 +666,24 @@ app.post('/api/delete-media', async (req, res) => {
 // -------------------------------------------------------------
 // 1. SALONLAR ENDPOINTS (/api/venues)
 // -------------------------------------------------------------
+// -------------------------------------------------------------
+// 1. SALONLAR ENDPOINTS (/api/venues)
+// -------------------------------------------------------------
 app.get('/api/venues', async (req, res) => {
   if (pool) {
     try {
       const [rows] = await pool.query('SELECT * FROM venues ORDER BY created_at DESC');
-      if (rows && rows.length > 0) {
-        return res.json(rows.map(v => ({
-          ...v,
-          features: typeof v.features_json === 'string' ? JSON.parse(v.features_json) : (v.features_json || []),
-          images: typeof v.images_json === 'string' ? JSON.parse(v.images_json) : (v.images_json || [])
-        })));
-      }
-    } catch(e) {}
+      const formatted = (rows || []).map(v => ({
+        ...v,
+        features: typeof v.features_json === 'string' ? JSON.parse(v.features_json) : (v.features_json || []),
+        images: typeof v.images_json === 'string' ? JSON.parse(v.images_json) : (v.images_json || [])
+      }));
+      return res.json(formatted);
+    } catch(e) {
+      console.error('MySQL GET /api/venues error:', e.message);
+    }
   }
-  res.json(memoryStore.venues);
+  res.json([]);
 });
 
 app.post('/api/venues', async (req, res) => {
@@ -690,34 +694,68 @@ app.post('/api/venues', async (req, res) => {
         'INSERT INTO venues (id, name, category, capacity, price, deposit, location, description, features_json, images_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, capacity=?, price=?, deposit=?, location=?, description=?, features_json=?, images_json=?',
         [item.id, item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, item.location || '', item.description || '', JSON.stringify(item.features || []), JSON.stringify(item.images || []), item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, item.location || '', item.description || '', JSON.stringify(item.features || []), JSON.stringify(item.images || [])]
       );
-    } catch(e) {}
+    } catch(e) {
+      console.error('MySQL POST /api/venues error:', e.message);
+    }
   }
-  const idx = memoryStore.venues.findIndex(v => v.id === item.id);
-  if (idx >= 0) memoryStore.venues[idx] = item;
-  else memoryStore.venues.unshift(item);
-
-  saveDbFile('db_venues.json', memoryStore.venues);
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/venues/:id', (req, res) => {
+app.delete('/api/venues/:id', async (req, res) => {
   const { id } = req.params;
-  memoryStore.venues = memoryStore.venues.filter(v => v.id !== id);
-  saveDbFile('db_venues.json', memoryStore.venues);
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM venues WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/venues error:', e.message);
+    }
+  }
   res.json({ success: true, id });
 });
 
 // -------------------------------------------------------------
-// 2. EK HİZMETLER ENDPOINTS (/api/services)
+// 2. EK HİZMETLER ENDPOINTS (/api/services & /api/services/reorder)
 // -------------------------------------------------------------
 app.get('/api/services', async (req, res) => {
   if (pool) {
     try {
-      const [rows] = await pool.query('SELECT * FROM services ORDER BY created_at DESC');
-      if (rows && rows.length > 0) return res.json(rows);
-    } catch(e) {}
+      const [rows] = await pool.query('SELECT * FROM services ORDER BY sort_order ASC, created_at DESC');
+      const formatted = (rows || []).map(s => ({
+        id: s.id,
+        name: s.name,
+        category: s.category || 'Genel',
+        price: Number(s.price || 0),
+        pricingType: s.pricing_type || 'fixed',
+        pricing_type: s.pricing_type || 'fixed',
+        description: s.description || '',
+        image: s.image_url || '',
+        image_url: s.image_url || '',
+        sortOrder: s.sort_order || 0,
+        order: s.sort_order || 0
+      }));
+      return res.json(formatted);
+    } catch(e) {
+      console.error('MySQL GET /api/services error:', e.message);
+    }
   }
-  res.json(memoryStore.services);
+  res.json([]);
+});
+
+app.post('/api/services/reorder', async (req, res) => {
+  const { items } = req.body;
+  if (Array.isArray(items) && pool) {
+    try {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const serviceId = typeof item === 'string' ? item : item.id;
+        const sortOrder = typeof item === 'object' && item.sortOrder !== undefined ? item.sortOrder : (i + 1);
+        await pool.query('UPDATE services SET sort_order = ? WHERE id = ?', [sortOrder, serviceId]);
+      }
+    } catch(e) {
+      console.error('MySQL services reorder error:', e.message);
+    }
+  }
+  res.json({ success: true, message: 'Hizmet sıralaması veritabanında güncellendi' });
 });
 
 app.post('/api/services', async (req, res) => {
@@ -725,23 +763,25 @@ app.post('/api/services', async (req, res) => {
   if (pool) {
     try {
       await pool.query(
-        'INSERT INTO services (id, name, category, price, pricing_type, description, image_url) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, price=?, pricing_type=?, description=?, image_url=?',
-        [item.id, item.name, item.category || 'Catering', item.price || 0, item.pricing_type || 'fixed', item.description || '', item.image_url || '', item.name, item.category || 'Catering', item.price || 0, item.pricing_type || 'fixed', item.description || '', item.image_url || '']
+        'INSERT INTO services (id, name, category, price, pricing_type, description, image_url, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, price=?, pricing_type=?, description=?, image_url=?, sort_order=?',
+        [item.id, item.name, item.category || 'Catering', item.price || 0, item.pricingType || item.pricing_type || 'fixed', item.description || '', item.image_url || item.image || '', item.sortOrder || item.order || 0, item.name, item.category || 'Catering', item.price || 0, item.pricingType || item.pricing_type || 'fixed', item.description || '', item.image_url || item.image || '', item.sortOrder || item.order || 0]
       );
-    } catch(e) {}
+    } catch(e) {
+      console.error('MySQL POST /api/services error:', e.message);
+    }
   }
-  const idx = memoryStore.services.findIndex(s => s.id === item.id);
-  if (idx >= 0) memoryStore.services[idx] = item;
-  else memoryStore.services.unshift(item);
-
-  saveDbFile('db_services.json', memoryStore.services);
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/services/:id', (req, res) => {
+app.delete('/api/services/:id', async (req, res) => {
   const { id } = req.params;
-  memoryStore.services = memoryStore.services.filter(s => s.id !== id);
-  saveDbFile('db_services.json', memoryStore.services);
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM services WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/services error:', e.message);
+    }
+  }
   res.json({ success: true, id });
 });
 
@@ -752,10 +792,21 @@ app.get('/api/customers', async (req, res) => {
   if (pool) {
     try {
       const [rows] = await pool.query('SELECT * FROM customers ORDER BY created_at DESC');
-      if (rows && rows.length > 0) return res.json(rows);
-    } catch(e) {}
+      const formatted = (rows || []).map(r => ({
+        ...r,
+        taxType: r.tax_type || 'individual',
+        tcNo: r.tc_no || '',
+        vknNo: r.vkn_no || '',
+        taxOffice: r.tax_office || '',
+        followUp: Boolean(r.follow_up),
+        followUpNote: r.follow_up_note || ''
+      }));
+      return res.json(formatted);
+    } catch(e) {
+      console.error('MySQL GET /api/customers error:', e.message);
+    }
   }
-  res.json(memoryStore.customers);
+  res.json([]);
 });
 
 app.post('/api/customers', async (req, res) => {
@@ -764,22 +815,24 @@ app.post('/api/customers', async (req, res) => {
     try {
       await pool.query(
         'INSERT INTO customers (id, name, email, phone, address, tax_type, tc_no, vkn_no, tax_office, follow_up, follow_up_note, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, email=?, phone=?, address=?, tax_type=?, tc_no=?, vkn_no=?, tax_office=?, follow_up=?, follow_up_note=?, avatar=?',
-        [item.id, item.name, item.email || '', item.phone || '', item.address || '', item.tax_type || 'individual', item.tc_no || '', item.vkn_no || '', item.tax_office || '', item.follow_up ? 1 : 0, item.follow_up_note || '', item.avatar || '', item.name, item.email || '', item.phone || '', item.address || '', item.tax_type || 'individual', item.tc_no || '', item.vkn_no || '', item.tax_office || '', item.follow_up ? 1 : 0, item.follow_up_note || '', item.avatar || '']
+        [item.id, item.name, item.email || '', item.phone || '', item.address || '', item.taxType || item.tax_type || 'individual', item.tcNo || item.tc_no || '', item.vknNo || item.vkn_no || '', item.taxOffice || item.tax_office || '', item.followUp || item.follow_up ? 1 : 0, item.followUpNote || item.follow_up_note || '', item.avatar || '', item.name, item.email || '', item.phone || '', item.address || '', item.taxType || item.tax_type || 'individual', item.tcNo || item.tc_no || '', item.vknNo || item.vkn_no || '', item.taxOffice || item.tax_office || '', item.followUp || item.follow_up ? 1 : 0, item.followUpNote || item.follow_up_note || '', item.avatar || '']
       );
-    } catch(e) {}
+    } catch(e) {
+      console.error('MySQL POST /api/customers error:', e.message);
+    }
   }
-  const idx = memoryStore.customers.findIndex(c => c.id === item.id);
-  if (idx >= 0) memoryStore.customers[idx] = item;
-  else memoryStore.customers.unshift(item);
-
-  saveDbFile('db_customers.json', memoryStore.customers);
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/customers/:id', (req, res) => {
+app.delete('/api/customers/:id', async (req, res) => {
   const { id } = req.params;
-  memoryStore.customers = memoryStore.customers.filter(c => c.id !== id);
-  saveDbFile('db_customers.json', memoryStore.customers);
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM customers WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/customers error:', e.message);
+    }
+  }
   res.json({ success: true, id });
 });
 
@@ -790,10 +843,12 @@ app.get('/api/users', async (req, res) => {
   if (pool) {
     try {
       const [rows] = await pool.query('SELECT id, name, email, role, avatar, created_at FROM users ORDER BY created_at DESC');
-      if (rows && rows.length > 0) return res.json(rows);
-    } catch(e) {}
+      return res.json(rows || []);
+    } catch(e) {
+      console.error('MySQL GET /api/users error:', e.message);
+    }
   }
-  res.json(memoryStore.users);
+  res.json([]);
 });
 
 app.post('/api/users', async (req, res) => {
@@ -804,20 +859,22 @@ app.post('/api/users', async (req, res) => {
         'INSERT INTO users (id, name, email, password_hash, role, avatar) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, email=?, role=?, avatar=?',
         [item.id, item.name, item.email, item.password || '123456', item.role || 'admin', item.avatar || '', item.name, item.email, item.role || 'admin', item.avatar || '']
       );
-    } catch(e) {}
+    } catch(e) {
+      console.error('MySQL POST /api/users error:', e.message);
+    }
   }
-  const idx = memoryStore.users.findIndex(u => u.id === item.id || u.email === item.email);
-  if (idx >= 0) memoryStore.users[idx] = { ...memoryStore.users[idx], ...item };
-  else memoryStore.users.unshift(item);
-
-  saveDbFile('db_users.json', memoryStore.users);
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/users/:id', (req, res) => {
+app.delete('/api/users/:id', async (req, res) => {
   const { id } = req.params;
-  memoryStore.users = memoryStore.users.filter(u => u.id !== id);
-  saveDbFile('db_users.json', memoryStore.users);
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/users error:', e.message);
+    }
+  }
   res.json({ success: true, id });
 });
 
@@ -954,14 +1011,17 @@ app.get('/api/expenses', async (req, res) => {
   if (pool) {
     try {
       const [rows] = await pool.query('SELECT * FROM expenses ORDER BY date DESC');
-      if (rows && rows.length > 0) {
-        const dbIds = new Set(rows.map(r => r.id));
-        const extraMem = (memoryStore.expenses || []).filter(e => !dbIds.has(e.id));
-        return res.json([...rows, ...extraMem]);
-      }
-    } catch(e) {}
+      const formatted = (rows || []).map(r => ({
+        ...r,
+        amount: Number(r.amount || 0),
+        date: r.date ? (r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date).split('T')[0]) : ''
+      }));
+      return res.json(formatted);
+    } catch(e) {
+      console.error('MySQL GET /api/expenses error:', e.message);
+    }
   }
-  res.json(memoryStore.expenses || []);
+  res.json([]);
 });
 
 app.post('/api/expenses', async (req, res) => {
@@ -972,20 +1032,22 @@ app.post('/api/expenses', async (req, res) => {
         'INSERT INTO expenses (id, title, category, amount, date, description, type) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=?, category=?, amount=?, date=?, description=?, type=?',
         [item.id, item.title, item.category || 'Genel', item.amount || 0, item.date || new Date().toISOString().split('T')[0], item.description || '', item.type || 'expense', item.title, item.category || 'Genel', item.amount || 0, item.date || new Date().toISOString().split('T')[0], item.description || '', item.type || 'expense']
       );
-    } catch(e) {}
+    } catch(e) {
+      console.error('MySQL POST /api/expenses error:', e.message);
+    }
   }
-  const idx = memoryStore.expenses.findIndex(e => e.id === item.id);
-  if (idx >= 0) memoryStore.expenses[idx] = item;
-  else memoryStore.expenses.unshift(item);
-
-  saveDbFile('db_expenses.json', memoryStore.expenses);
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/expenses/:id', (req, res) => {
+app.delete('/api/expenses/:id', async (req, res) => {
   const { id } = req.params;
-  memoryStore.expenses = memoryStore.expenses.filter(e => e.id !== id);
-  saveDbFile('db_expenses.json', memoryStore.expenses);
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM expenses WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/expenses error:', e.message);
+    }
+  }
   res.json({ success: true, id });
 });
 
@@ -993,23 +1055,48 @@ app.delete('/api/expenses/:id', (req, res) => {
 // 7. KAMPANYALAR ENDPOINTS (/api/campaigns)
 // -------------------------------------------------------------
 app.get('/api/campaigns', async (req, res) => {
-  res.json(memoryStore.campaigns);
+  if (pool) {
+    try {
+      const [rows] = await pool.query('SELECT * FROM campaigns ORDER BY created_at DESC');
+      const formatted = (rows || []).map(r => ({
+        ...r,
+        value: Number(r.value || 0),
+        startDate: r.start_date ? (r.start_date instanceof Date ? r.start_date.toISOString().split('T')[0] : String(r.start_date).split('T')[0]) : (r.startDate || ''),
+        endDate: r.end_date ? (r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0]) : (r.endDate || ''),
+        active: Boolean(r.active)
+      }));
+      return res.json(formatted);
+    } catch(e) {
+      console.error('MySQL GET /api/campaigns error:', e.message);
+    }
+  }
+  res.json([]);
 });
 
 app.post('/api/campaigns', async (req, res) => {
   const item = { id: req.body.id || ('c-' + Date.now()), ...req.body };
-  const idx = memoryStore.campaigns.findIndex(c => c.id === item.id);
-  if (idx >= 0) memoryStore.campaigns[idx] = item;
-  else memoryStore.campaigns.unshift(item);
-
-  saveDbFile('db_campaigns.json', memoryStore.campaigns);
+  if (pool) {
+    try {
+      await pool.query(
+        'INSERT INTO campaigns (id, code, title, type, value, description, start_date, end_date, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE code=?, title=?, type=?, value=?, description=?, start_date=?, end_date=?, active=?',
+        [item.id, item.code || '', item.title || '', item.type || 'percentage', item.value || 0, item.description || '', item.startDate || item.start_date || '', item.endDate || item.end_date || '', item.active ? 1 : 0, item.code || '', item.title || '', item.type || 'percentage', item.value || 0, item.description || '', item.startDate || item.start_date || '', item.endDate || item.end_date || '', item.active ? 1 : 0]
+      );
+    } catch(e) {
+      console.error('MySQL POST /api/campaigns error:', e.message);
+    }
+  }
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/campaigns/:id', (req, res) => {
+app.delete('/api/campaigns/:id', async (req, res) => {
   const { id } = req.params;
-  memoryStore.campaigns = memoryStore.campaigns.filter(c => c.id !== id);
-  saveDbFile('db_campaigns.json', memoryStore.campaigns);
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM campaigns WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/campaigns error:', e.message);
+    }
+  }
   res.json({ success: true, id });
 });
 
@@ -1017,28 +1104,77 @@ app.delete('/api/campaigns/:id', (req, res) => {
 // 8. MEDYA & GALERİ ENDPOINTS (/api/media)
 // -------------------------------------------------------------
 app.get('/api/media', async (req, res) => {
-  res.json(memoryStore.media);
+  if (pool) {
+    try {
+      const [rows] = await pool.query('SELECT * FROM media ORDER BY created_at DESC');
+      return res.json(rows || []);
+    } catch(e) {
+      console.error('MySQL GET /api/media error:', e.message);
+    }
+  }
+  res.json([]);
 });
 
 app.post('/api/media', async (req, res) => {
   const item = { id: req.body.id || ('m-' + Date.now()), ...req.body };
-  memoryStore.media.unshift(item);
-  saveDbFile('db_media.json', memoryStore.media);
+  if (pool) {
+    try {
+      await pool.query(
+        'INSERT INTO media (id, title, category, url, file_size) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=?, category=?, url=?, file_size=?',
+        [item.id, item.title || '', item.category || 'Salon', item.url || '', item.file_size || item.fileSize || '', item.title || '', item.category || 'Salon', item.url || '', item.file_size || item.fileSize || '']
+      );
+    } catch(e) {
+      console.error('MySQL POST /api/media error:', e.message);
+    }
+  }
   res.status(201).json({ success: true, item });
+});
+
+app.delete('/api/media/:id', async (req, res) => {
+  const { id } = req.params;
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM media WHERE id = ?', [id]);
+    } catch(e) {
+      console.error('MySQL DELETE /api/media error:', e.message);
+    }
+  }
+  res.json({ success: true, id });
 });
 
 // -------------------------------------------------------------
 // 9. ROLLER VE İZİNLER ENDPOINTS (/api/roles & /api/permissions)
 // -------------------------------------------------------------
 app.get('/api/roles', async (req, res) => {
-  res.json(memoryStore.roles);
+  if (pool) {
+    try {
+      const [rows] = await pool.query('SELECT * FROM roles');
+      const formatted = (rows || []).map(r => ({
+        ...r,
+        permissions: r.permissions_json ? (typeof r.permissions_json === 'string' ? JSON.parse(r.permissions_json) : r.permissions_json) : []
+      }));
+      return res.json(formatted);
+    } catch(e) {
+      console.error('MySQL GET /api/roles error:', e.message);
+    }
+  }
+  res.json([]);
 });
 
 app.post('/api/roles', async (req, res) => {
-  if (Array.isArray(req.body)) {
-    memoryStore.roles = req.body;
+  if (Array.isArray(req.body) && pool) {
+    try {
+      for (const role of req.body) {
+        await pool.query(
+          'INSERT INTO roles (id, name, permissions_json) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name=?, permissions_json=?',
+          [role.id, role.name || role.id, JSON.stringify(role.permissions || []), role.name || role.id, JSON.stringify(role.permissions || [])]
+        );
+      }
+    } catch(e) {
+      console.error('MySQL POST /api/roles error:', e.message);
+    }
   }
-  res.json({ success: true, roles: memoryStore.roles });
+  res.json({ success: true, roles: req.body });
 });
 
 // -------------------------------------------------------------
