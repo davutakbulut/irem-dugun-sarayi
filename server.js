@@ -320,8 +320,52 @@ const initMysql = async () => {
           location VARCHAR(255) NOT NULL,
           occupancy_rate INT DEFAULT 0,
           description TEXT,
-          features_json JSON,
-          images_json JSON,
+          features_json LONGTEXT,
+          images_json LONGTEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS services (
+          id VARCHAR(50) PRIMARY KEY,
+          name VARCHAR(150) NOT NULL,
+          category VARCHAR(100),
+          price DECIMAL(12,2) DEFAULT 0,
+          pricing_type VARCHAR(50) DEFAULT 'fixed',
+          description TEXT,
+          image_url TEXT,
+          sort_order INT(11) DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS customers (
+          id VARCHAR(50) PRIMARY KEY,
+          name VARCHAR(150) NOT NULL,
+          email VARCHAR(150),
+          phone VARCHAR(50),
+          address TEXT,
+          tax_type VARCHAR(50) DEFAULT 'individual',
+          tc_no VARCHAR(20),
+          vkn_no VARCHAR(20),
+          tax_office VARCHAR(100),
+          follow_up TINYINT(1) DEFAULT 0,
+          follow_up_note TEXT,
+          avatar TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id VARCHAR(50) PRIMARY KEY,
+          name VARCHAR(150) NOT NULL,
+          email VARCHAR(150),
+          password_hash VARCHAR(255),
+          role VARCHAR(50) DEFAULT 'admin',
+          avatar TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
@@ -349,9 +393,85 @@ const initMysql = async () => {
           is_invoiced TINYINT(1) DEFAULT 0,
           invoice_type VARCHAR(50),
           notes TEXT,
+          media_json LONGTEXT,
+          status VARCHAR(50) DEFAULT 'CONFIRMED',
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS reservation_services (
+          id INT(11) AUTO_INCREMENT PRIMARY KEY,
+          reservation_id VARCHAR(50),
+          service_id VARCHAR(50),
+          quantity INT(11) DEFAULT 1,
+          unit_price DECIMAL(12,2) DEFAULT 0
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS expenses (
+          id VARCHAR(50) PRIMARY KEY,
+          title VARCHAR(150) NOT NULL,
+          category VARCHAR(100),
+          amount DECIMAL(12,2) DEFAULT 0,
+          date DATE,
+          description TEXT,
+          type VARCHAR(50) DEFAULT 'expense',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS campaigns (
+          id VARCHAR(50) PRIMARY KEY,
+          code VARCHAR(50),
+          title VARCHAR(150),
+          type VARCHAR(50) DEFAULT 'percentage',
+          value DECIMAL(12,2) DEFAULT 0,
+          description TEXT,
+          start_date DATE,
+          end_date DATE,
+          active TINYINT(1) DEFAULT 1,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS media (
+          id VARCHAR(50) PRIMARY KEY,
+          title VARCHAR(150),
+          category VARCHAR(100),
+          url TEXT,
+          file_size VARCHAR(50),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS roles (
+          id VARCHAR(50) PRIMARY KEY,
+          name VARCHAR(100),
+          permissions_json LONGTEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS system_settings (
+          id INT(11) PRIMARY KEY,
+          settings_json LONGTEXT,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // Modify any missing columns for safety
+      try { await pool.query("ALTER TABLE services ADD COLUMN IF NOT EXISTS sort_order INT(11) DEFAULT 0"); } catch(e) {}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS media_json LONGTEXT"); } catch(e) {}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'CONFIRMED'"); } catch(e) {}
+      try { await pool.query("ALTER TABLE roles ADD COLUMN IF NOT EXISTS permissions_json LONGTEXT"); } catch(e) {}
+      try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS features_json LONGTEXT"); } catch(e) {}
+      try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS images_json LONGTEXT"); } catch(e) {}
 
       console.log('✅ MySQL Tabloları Doğrulandı ve Hazırlandı!');
       await syncMemoryFromMysql();
@@ -712,11 +832,14 @@ app.post('/api/delete-media', async (req, res) => {
 // 1. SALONLAR ENDPOINTS (/api/venues)
 // -------------------------------------------------------------
 app.get('/api/venues', async (req, res) => {
-  if (pool) {
+  const activePool = await getPool();
+  if (activePool) {
     try {
-      const [rows] = await pool.query('SELECT * FROM venues ORDER BY created_at DESC');
+      const [rows] = await activePool.query('SELECT * FROM venues ORDER BY created_at DESC');
       const formatted = (rows || []).map(v => ({
         ...v,
+        costPrice: v.cost_price ? Number(v.cost_price) : 0,
+        occupancyRate: v.occupancy_rate || 0,
         features: typeof v.features_json === 'string' ? JSON.parse(v.features_json) : (v.features_json || []),
         images: typeof v.images_json === 'string' ? JSON.parse(v.images_json) : (v.images_json || [])
       }));
@@ -1228,9 +1351,10 @@ app.post('/api/roles', async (req, res) => {
 // 10. SİSTEM & PUBLIC AYARLARI ENDPOINTS
 // -------------------------------------------------------------
 app.get('/api/public-settings', async (req, res) => {
-  if (pool) {
+  const activePool = await getPool();
+  if (activePool) {
     try {
-      const [vRows] = await pool.query('SELECT * FROM venues ORDER BY created_at DESC');
+      const [vRows] = await activePool.query('SELECT * FROM venues ORDER BY created_at DESC');
       if (vRows.length) memoryStore.venues = vRows.map(r => ({
         ...r,
         costPrice: r.cost_price ? Number(r.cost_price) : 0,
@@ -1239,7 +1363,7 @@ app.get('/api/public-settings', async (req, res) => {
         images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : [])
       }));
 
-      const [sRows] = await pool.query('SELECT * FROM services ORDER BY created_at DESC');
+      const [sRows] = await activePool.query('SELECT * FROM services ORDER BY created_at DESC');
       if (sRows.length) memoryStore.services = sRows.map(r => ({
         ...r,
         price: Number(r.price || 0),
