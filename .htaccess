@@ -12,7 +12,7 @@
   </IfModule>
 
   # 2. Yonetim & Login URL Yönlendirmeleri
-  RewriteRule ^yonetim/?$ yonetim.html [L,QSA]
+  RewriteRule ^yonetim(/.*)?$ yonetim.html [L,QSA]
   RewriteRule ^(giris|login)/?$ yonetim.html [L,QSA]
 
   # 3. Statik Dosya Kontrolü & SPA Fallback

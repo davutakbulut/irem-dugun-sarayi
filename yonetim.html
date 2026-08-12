@@ -1417,401 +1417,7 @@
       { id: 'cust3', name: 'Zeynep Çelik & Burak Şahin', email: 'zeynep.celik@example.com', phone: '+90 542 777 8899', secondaryPhone: '+90 544 111 3344', address: 'Serdivan Mah. Adapazarı / Sakarya', taxType: 'individual', tcNo: '23456789012', taxOffice: 'Adapazarı VD', followUp: true, followUpNote: 'Kına gecesi için ek masa talebi olabilir.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80' },
       { id: 'cust4', name: 'Elif Aydın (Aydın Holding)', email: 'elif@aydinholding.com', phone: '+90 530 555 6677', secondaryPhone: '+90 212 444 0011', address: 'Levent Mah. Beşiktaş / İstanbul', taxType: 'corporate', vknNo: '1122334455', taxOffice: 'Zincirlikuyu VD', followUp: false, followUpNote: '', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' }
     ];
-
-    const INITIAL_RESERVATIONS = [
-    {
-        "id": "RES-2026-AUG-06",
-        "mediaKey": "MEDIA-AUG26-06",
-        "mediaRetentionDays": 30,
-        "mediaFiles": [],
-        "venueId": "v4",
-        "venueName": "Yakut Panorama Salon",
-        "customerId": "cust_aug_008",
-        "customerName": "Mert & Ece Yılmaz",
-        "customerEmail": "mert.yılmaz@example.com",
-        "customerPhone": "+90 537 893 8619",
-        "secondaryPhone": "+90 541 478 5197",
-        "date": "2026-08-06",
-        "timeSlot": "19:00-23:00",
-        "guestCount": 700,
-        "selectedServices": [
-            {
-                "serviceId": "s1",
-                "serviceName": "Özel Menü İkramı",
-                "quantity": 700,
-                "unitPrice": 360,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s2",
-                "serviceName": "Canlı Orkestra & DJ Performatör",
-                "quantity": 1,
-                "unitPrice": 22000,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s3",
-                "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
-                "quantity": 1,
-                "unitPrice": 16000,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s4",
-                "serviceName": "Sis & Lazer Işık Şovu",
-                "quantity": 1,
-                "unitPrice": 10000,
-                "isPaid": false
-            }
-        ],
-        "venuePrice": 90000,
-        "subtotal": 390000,
-        "campaignCode": "DISCOUNT_%20",
-        "discountAmount": 78000,
-        "vatAmount": 62400,
-        "totalAmount": 374400,
-        "depositPaid": 149760,
-        "remainingBalance": 224640,
-        "paymentStatus": "Kapora Alındı",
-        "isInvoiced": true,
-        "invoiceType": "individual",
-        "taxOffice": "Sapanca VD",
-        "tcNo": "90376500691",
-        "invoiceAddress": "Atatürk Mah. No:59 Sapanca / Sakarya",
-        "notes": "Özel Talep: DISCOUNT_%20 uygulandı. Salon süslemesi ve ikramlar planlandı.",
-        "flowPlan": [
-            {
-                "time": "19:00",
-                "title": "Misafir Karşılama & Karşılama İkramı"
-            },
-            {
-                "time": "19:45",
-                "title": "Gelin Damat Görkemli Giriş & İlk Dans"
-            },
-            {
-                "time": "20:30",
-                "title": "Sıcak Yemek Servisi"
-            },
-            {
-                "time": "21:30",
-                "title": "Düğün Pastası Kesimi & Şov"
-            },
-            {
-                "time": "22:00",
-                "title": "Takı Töreni & Eğlence"
-            }
-        ],
-        "mediaGallery": []
-    },
-    {
-        "id": "RES-2026-AUG-05",
-        "mediaKey": "MEDIA-AUG26-05",
-        "mediaRetentionDays": 30,
-        "mediaFiles": [],
-        "venueId": "v4",
-        "venueName": "Yakut Panorama Salon",
-        "customerId": "cust_aug_007",
-        "customerName": "Mehmet & Derya Kaya",
-        "customerEmail": "mehmet.kaya@example.com",
-        "customerPhone": "+90 539 970 8097",
-        "secondaryPhone": "+90 547 144 00 54",
-        "date": "2026-08-05",
-        "timeSlot": "19:00-23:00",
-        "guestCount": 500,
-        "selectedServices": [
-            {
-                "serviceId": "s1",
-                "serviceName": "Özel Menü İkramı",
-                "quantity": 500,
-                "unitPrice": 360,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s2",
-                "serviceName": "Canlı Orkestra & DJ Performatör",
-                "quantity": 1,
-                "unitPrice": 29000,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s3",
-                "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
-                "quantity": 1,
-                "unitPrice": 15000,
-                "isPaid": true
-            }
-        ],
-        "venuePrice": 72500,
-        "subtotal": 296500,
-        "campaignCode": "YAZ_FIRSATI_10",
-        "discountAmount": 29650,
-        "vatAmount": 53370,
-        "totalAmount": 320220,
-        "depositPaid": 96066,
-        "remainingBalance": 224154,
-        "paymentStatus": "Kapora Alındı",
-        "isInvoiced": true,
-        "invoiceType": "individual",
-        "taxOffice": "Sapanca VD",
-        "tcNo": "51635760679",
-        "invoiceAddress": "Atatürk Mah. No:19 Sapanca / Sakarya",
-        "notes": "Özel Talep: YAZ_FIRSATI_10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
-        "flowPlan": [
-            {
-                "time": "19:00",
-                "title": "Misafir Karşılama & Karşılama İkramı"
-            },
-            {
-                "time": "19:45",
-                "title": "Gelin Damat Görkemli Giriş & İlk Dans"
-            },
-            {
-                "time": "20:30",
-                "title": "Sıcak Yemek Servisi"
-            },
-            {
-                "time": "21:30",
-                "title": "Düğün Pastası Kesimi & Şov"
-            },
-            {
-                "time": "22:00",
-                "title": "Takı Töreni & Eğlence"
-            }
-        ],
-        "mediaGallery": []
-    },
-    {
-        "id": "RES-2026-AUG-07A",
-        "mediaKey": "MEDIA-AUG26-07A",
-        "mediaRetentionDays": 30,
-        "mediaFiles": [],
-        "venueId": "v2",
-        "venueName": "VIP Kır Bahçesi & Park",
-        "customerId": "cust_aug_009",
-        "customerName": "Sinan & Fatma Bulut",
-        "customerEmail": "sinan.bulut@example.com",
-        "customerPhone": "+90 536 777 3487",
-        "secondaryPhone": "+90 543 754 6236",
-        "date": "2026-08-07",
-        "timeSlot": "12:00-16:00",
-        "guestCount": 900,
-        "selectedServices": [
-            {
-                "serviceId": "s1",
-                "serviceName": "Özel Menü İkramı",
-                "quantity": 900,
-                "unitPrice": 390,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s3",
-                "serviceName": "4K Drone & Jimmy Jib Video Çekimi",
-                "quantity": 1,
-                "unitPrice": 25000,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s4",
-                "serviceName": "Sis & Lazer Işık Şovu",
-                "quantity": 1,
-                "unitPrice": 14500,
-                "isPaid": false
-            }
-        ],
-        "venuePrice": 75000,
-        "subtotal": 465500,
-        "campaignCode": "KINA_PAKET_SPECIAL",
-        "discountAmount": 55860,
-        "vatAmount": 81928,
-        "totalAmount": 491568,
-        "depositPaid": 491568,
-        "remainingBalance": 0,
-        "paymentStatus": "Ödendi",
-        "isInvoiced": true,
-        "invoiceType": "individual",
-        "taxOffice": "Sapanca VD",
-        "tcNo": "32516597387",
-        "invoiceAddress": "Atatürk Mah. No:66 Sapanca / Sakarya",
-        "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
-        "flowPlan": [
-            {
-                "time": "12:00",
-                "title": "Misafir Karşılama & Karşılama İkramı"
-            },
-            {
-                "time": "13:45",
-                "title": "Gelin Damat Görkemli Giriş & İlk Dans"
-            },
-            {
-                "time": "14:30",
-                "title": "Sıcak Yemek Servisi"
-            },
-            {
-                "time": "15:15",
-                "title": "Düğün Pastası Kesimi & Şov"
-            },
-            {
-                "time": "15:45",
-                "title": "Takı Töreni & Eğlence"
-            }
-        ],
-        "mediaGallery": []
-    },
-    {
-        "id": "RES-2026-AUG-07B",
-        "mediaKey": "MEDIA-AUG26-07B",
-        "mediaRetentionDays": 30,
-        "mediaFiles": [],
-        "venueId": "v3",
-        "venueName": "Teras Salon Silver Rose",
-        "customerId": "cust_aug_010",
-        "customerName": "Mert & Yasemin Arslan",
-        "customerEmail": "mert.arslan@example.com",
-        "customerPhone": "+90 531 654 6639",
-        "secondaryPhone": "+90 545 750 4089",
-        "date": "2026-08-07",
-        "timeSlot": "19:00-23:00",
-        "guestCount": 600,
-        "selectedServices": [
-            {
-                "serviceId": "s1",
-                "serviceName": "Özel Menü İkramı",
-                "quantity": 600,
-                "unitPrice": 550,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s2",
-                "serviceName": "Canlı Orkestra & DJ Performatör",
-                "quantity": 1,
-                "unitPrice": 31000,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s5",
-                "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
-                "quantity": 1,
-                "unitPrice": 13000,
-                "isPaid": false
-            }
-        ],
-        "venuePrice": 60000,
-        "subtotal": 434000,
-        "campaignCode": "DISCOUNT_%10",
-        "discountAmount": 43400,
-        "vatAmount": 78120,
-        "totalAmount": 468720,
-        "depositPaid": 140616,
-        "remainingBalance": 328104,
-        "paymentStatus": "Kapora Alındı",
-        "isInvoiced": true,
-        "invoiceType": "corporate",
-        "taxOffice": "Sapanca VD",
-        "tcNo": "68924138784",
-        "invoiceAddress": "Atatürk Mah. No:52 Sapanca / Sakarya",
-        "notes": "Özel Talep: DISCOUNT_%10 uygulandı. Salon süslemesi ve ikramlar planlandı.",
-        "flowPlan": [
-            {
-                "time": "19:00",
-                "title": "Misafir Karşılama & Karşılama İkramı"
-            },
-            {
-                "time": "19:45",
-                "title": "Gelin Damat Görkemli Giriş & İlk Dans"
-            },
-            {
-                "time": "20:30",
-                "title": "Sıcak Yemek Servisi"
-            },
-            {
-                "time": "21:30",
-                "title": "Düğün Pastası Kesimi & Şov"
-            },
-            {
-                "time": "22:00",
-                "title": "Takı Töreni & Eğlence"
-            }
-        ],
-        "mediaGallery": []
-    },
-    {
-        "id": "RES-2026-AUG-04",
-        "mediaKey": "MEDIA-AUG26-04",
-        "mediaRetentionDays": 30,
-        "mediaFiles": [],
-        "venueId": "v1",
-        "venueName": "Bosphorus Gold Balo Salonu",
-        "customerId": "cust_aug_006",
-        "customerName": "Sinan & Yasemin Kurt",
-        "customerEmail": "sinan.kurt@example.com",
-        "customerPhone": "+90 536 643 4387",
-        "secondaryPhone": "+90 545 696 1678",
-        "date": "2026-08-04",
-        "timeSlot": "19:00-23:00",
-        "guestCount": 800,
-        "selectedServices": [
-            {
-                "serviceId": "s1",
-                "serviceName": "Özel Menü İkramı",
-                "quantity": 800,
-                "unitPrice": 320,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s2",
-                "serviceName": "Canlı Orkestra & DJ Performatör",
-                "quantity": 1,
-                "unitPrice": 28000,
-                "isPaid": true
-            },
-            {
-                "serviceId": "s5",
-                "serviceName": "VIP Gelin Arabası & Şoför Hizmeti",
-                "quantity": 1,
-                "unitPrice": 10000,
-                "isPaid": false
-            }
-        ],
-        "venuePrice": 82500,
-        "subtotal": 376500,
-        "campaignCode": "KINA_PAKET_SPECIAL",
-        "discountAmount": 45180,
-        "vatAmount": 66264,
-        "totalAmount": 397584,
-        "depositPaid": 119275,
-        "remainingBalance": 278309,
-        "paymentStatus": "Kapora Alındı",
-        "isInvoiced": true,
-        "invoiceType": "corporate",
-        "taxOffice": "Sapanca VD",
-        "tcNo": "75764637138",
-        "invoiceAddress": "Atatürk Mah. No:63 Sapanca / Sakarya",
-        "notes": "Özel Talep: KINA_PAKET_SPECIAL uygulandı. Salon süslemesi ve ikramlar planlandı.",
-        "flowPlan": [
-            {
-                "time": "19:00",
-                "title": "Misafir Karşılama & Karşılama İkramı"
-            },
-            {
-                "time": "19:45",
-                "title": "Gelin Damat Görkemli Giriş & İlk Dans"
-            },
-            {
-                "time": "20:30",
-                "title": "Sıcak Yemek Servisi"
-            },
-            {
-                "time": "21:30",
-                "title": "Düğün Pastası Kesimi & Şov"
-            },
-            {
-                "time": "22:00",
-                "title": "Takı Töreni & Eğlence"
-            }
-        ],
-        "mediaGallery": []
-    }
-];
+    const INITIAL_RESERVATIONS = [];
 
     
     // INITIAL DEMO DATA FOR QUOTE REQUESTS (LEADS)
@@ -9581,7 +9187,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const [reservations, setReservations] = useState(() => {
         const cached = CacheService.get('reservations', INITIAL_RESERVATIONS) || INITIAL_RESERVATIONS;
-        return normalizeReservationsMediaKeys(cached);
+        const demoIds = ['RES-2026-AUG-06', 'RES-2026-AUG-05', 'RES-2026-AUG-07A', 'RES-2026-AUG-07B', 'RES-2026-AUG-04'];
+        const clean = (Array.isArray(cached) ? cached : []).filter(r => r && !demoIds.includes(r.id));
+        if (Array.isArray(cached) && cached.length !== clean.length) {
+          CacheService.set('reservations', clean);
+        }
+        return normalizeReservationsMediaKeys(clean);
       });
       const [draftReservations, setDraftReservations] = useState([]);
       const [expenses, setExpenses] = useState(() => CacheService.get('expenses', (typeof INITIAL_EXPENSES !== 'undefined' ? INITIAL_EXPENSES : [])) || []);
@@ -9800,49 +9411,49 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             // Fetch Venues
             fetchFn('/api/venues')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setVenues(data); })
+              .then(data => { if (Array.isArray(data)) setVenues(data); })
               .catch(() => {});
 
             // Fetch Services
             fetchFn('/api/services')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setServices(data); })
+              .then(data => { if (Array.isArray(data)) setServices(data); })
               .catch(() => {});
 
             // Fetch Customers
             fetchFn('/api/customers')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setCustomers(data); })
+              .then(data => { if (Array.isArray(data)) setCustomers(data); })
               .catch(() => {});
 
             // Fetch Users
             fetchFn('/api/users')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setUsers(data); })
+              .then(data => { if (Array.isArray(data)) setUsers(data); })
               .catch(() => {});
 
             // Fetch Reservations
             fetchFn('/api/reservations')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setReservations(data); })
+              .then(data => { if (Array.isArray(data)) { setReservations(data); localStorage.setItem('reservations', JSON.stringify(data)); } })
               .catch(() => {});
 
             // Fetch Expenses
             fetchFn('/api/expenses')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setExpenses(data); })
+              .then(data => { if (Array.isArray(data)) setExpenses(data); })
               .catch(() => {});
 
             // Fetch Campaigns
             fetchFn('/api/campaigns')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setCampaigns(data); })
+              .then(data => { if (Array.isArray(data)) setCampaigns(data); })
               .catch(() => {});
 
             // Fetch Roles
             fetchFn('/api/roles')
               .then(res => res.ok ? res.json() : null)
-              .then(data => { if (Array.isArray(data) && data.length > 0) setRolesState(data); })
+              .then(data => { if (Array.isArray(data)) setRolesState(data); })
               .catch(() => {});
 
             // Fetch Public/System Settings

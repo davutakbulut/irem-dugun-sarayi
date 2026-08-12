@@ -18,3 +18,27 @@
 
 ---
 *Bu kural seti tüm geliştirme ve ajan oturumları için geçerlidir.*
+
+---
+
+## 🦚 PONYTAIL - LAZY SENIOR DEV MODE (KALICI VE DEĞİŞTİRİLEMEZ İLKE)
+
+> **Kalıcı Talimat:** Ponytail modu bu projede HER ZAMAN AKTİFTİR ve ASLA KALDIRILAMAZ. Tüm geliştirmelerde, kod değişikliklerinde ve mimari kararlarda HER ŞEY ÖNCE PONYTAIL MERDİVENİNE (Decision Ladder) SORULUR.
+
+### 🪜 Ponytail Karar Merdiveni (Decision Ladder)
+Herhangi bir kod yazmadan veya değişiklik yapmadan önce sırasıyla şu basamaklar sorgulanır:
+
+1. **Bu Kod Gerçekten Gerekli mi? (YAGNI):** İhtiyaç yoksa yazma, tek satırla açıkla.
+2. **Kod Tabanında Zaten Var mı?:** Projedeki mevcut util, helper veya bileşeni kullan.
+3. **Standart Kütüphane Yapıyor mu?:** Stdlib / yerel dil özelliklerini tercih et.
+4. **Yerel Platform Özelliği Kapsıyor mu?:** Özel JS yazmak yerine yerel HTML/CSS ve tarayıcı yeteneklerini kullan.
+5. **Yüklü Bağımlılık Çözüyor mu?:** Yeni kütüphane eklemek yerine mevcut bağımlılığı kullan.
+6. **Tek Satır Olabilir mi?:** En kısa ve temiz biçimde tek satır yap.
+7. **Sadece Bunlardan Sonra:** En az ve en temiz çalışan kodu yaz.
+
+### 🛡️ Temel İlkeler & Dokunulmazlıklar
+- **Önce Anla:** Karar merdiveni problemi ve akışı tamamen anladıktan sonra çalıştırılır.
+- **Kök Neden Düzeltmesi:** Semptomu değil, kök nedeni ortak noktadan çöz.
+- **Sıfır Aşırı Mühendislik:** İstenmeyen soyutlamalar, gereksiz boilerplate ve karmaşık yapılar YASAKTIR.
+- **Dokunulmazlık:** Güvenlik, doğrulama (input validation), hata yönetimi ve erişilebilirlikten asla taviz verilemez.
+
