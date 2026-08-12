@@ -47,9 +47,21 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static(uploadsDir));
 app.use(express.static(path.join(__dirname, './')));
 
-app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json({ status: 'ok' });
+app.get('/api/db-status', async (req, res) => {
+  let dbStatus = 'NOT_CONNECTED';
+  let dbError = null;
+  let resCount = 0;
+  if (pool) {
+    try {
+      const [rows] = await pool.query('SELECT COUNT(*) as cnt FROM reservations');
+      resCount = rows[0].cnt;
+      dbStatus = 'CONNECTED_OK';
+    } catch(e) {
+      dbError = e.message;
+      dbStatus = 'QUERY_ERROR';
+    }
+  }
+  res.json({ status: dbStatus, error: dbError, reservationCount: resCount, poolActive: !!pool, memoryCount: memoryStore.reservations.length });
 });
 
 // JSON DB Dosyaları Okuma/Yazma Yardımcıları
