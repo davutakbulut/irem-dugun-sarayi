@@ -413,7 +413,7 @@ app.post('/api/check-duplicates', (req, res) => {
 });
 
 // Her rezervasyon için özel klasöre (uploads/RES-2026-8848/...) yükleme ve DB kaydı
-app.post('/api/upload-media', (req, res) => {
+app.post('/api/upload-media', async (req, res) => {
   try {
     const { resId, fileName, fileData, uploaderName, isGuest, type, fileSize, guestToken, allowDuplicate, fingerprint } = req.body || {};
     if (!fileData) {
@@ -488,7 +488,7 @@ app.post('/api/upload-media', (req, res) => {
 
     let matchFound = false;
     memoryStore.reservations = memoryStore.reservations.map(r => {
-      const isMatch = r.id === resId || r.mediaKey === resId || r.id === safeResId || r.mediaKey === safeResId;
+      const isMatch = r.id === resId || r.mediaKey === resId || r.id === safeResId || r.mediaKey === safeMediaKey;
       if (isMatch) {
         matchFound = true;
         const existingList = r.mediaFiles || [];
@@ -500,21 +500,24 @@ app.post('/api/upload-media', (req, res) => {
       return r;
     });
 
-    if (!matchFound) {
-      if (memoryStore.reservations.length > 0) {
-        const existingList = memoryStore.reservations[0].mediaFiles || [];
-        memoryStore.reservations[0].mediaFiles = [newMediaObj, ...existingList];
-      } else {
-        memoryStore.reservations.push({
-          id: safeResId,
-          mediaKey: safeResId,
-          title: 'Genel Rezervasyon',
-          mediaFiles: [newMediaObj]
-        });
+    if (pool) {
+      try {
+        const [targetRows] = await pool.query('SELECT id, media_json FROM reservations WHERE id = ? OR id = ?', [resId || safeResId, safeResId]);
+        if (targetRows && targetRows.length > 0) {
+          const currentMedia = targetRows[0].media_json ? (typeof targetRows[0].media_json === 'string' ? JSON.parse(targetRows[0].media_json) : targetRows[0].media_json) : [];
+          const updatedMedia = [newMediaObj, ...currentMedia];
+          await pool.query('UPDATE reservations SET media_json = ? WHERE id = ?', [JSON.stringify(updatedMedia), targetRows[0].id]);
+          console.log(`💾 Rezervasyon [${targetRows[0].id}] Medyası MariaDB Veritabanına Yazıldı!`);
+        }
+
+        await pool.query(
+          'INSERT INTO media (id, title, category, url, file_size) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=?, url=?',
+          [newMediaObj.id, cleanFileName, safeResId, fileUrl, newMediaObj.fileSize, cleanFileName, fileUrl]
+        );
+      } catch (dbErr) {
+        console.error('MySQL upload-media update error:', dbErr.message);
       }
     }
-
-    saveDbFile('db_reservations.json', memoryStore.reservations);
 
     res.json({
       success: true,
@@ -638,11 +641,20 @@ app.post('/api/delete-media', async (req, res) => {
     // 4. Veritabanı JSON Kayıtlarını Güncelle
     saveDbFile('db_reservations.json', memoryStore.reservations);
 
-    // 5. Canlı MySQL Bağlantısı Varsa MySQL Tablolarından da Sil
+    // 5. Canlı MySQL Bağlantısı Varsa MariaDB Tablolarından da Sil
     if (pool) {
       try {
-        if (mediaId) await pool.query('DELETE FROM reservation_media WHERE id = ?', [mediaId]);
-        if (fileName) await pool.query('DELETE FROM reservation_media WHERE file_name = ?', [fileName]);
+        if (mediaId) await pool.query('DELETE FROM media WHERE id = ?', [mediaId]);
+        if (url) await pool.query('DELETE FROM media WHERE url = ?', [url]);
+        
+        const [targetRows] = await pool.query('SELECT id, media_json FROM reservations WHERE id = ? OR id = ?', [resId || safeResId, safeResId]);
+        for (const row of targetRows) {
+          if (row.media_json) {
+            const currentMedia = typeof row.media_json === 'string' ? JSON.parse(row.media_json) : row.media_json;
+            const remaining = (currentMedia || []).filter(m => String(m.id) !== String(mediaId) && m.url !== url && m.fileName !== fileName);
+            await pool.query('UPDATE reservations SET media_json = ? WHERE id = ?', [JSON.stringify(remaining), row.id]);
+          }
+        }
       } catch(dbErr) {
         console.warn('MySQL Delete Media Error:', dbErr.message);
       }
