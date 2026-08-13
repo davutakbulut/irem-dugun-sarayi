@@ -403,6 +403,24 @@ const initMysql = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS secondary_phone VARCHAR(50)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS end_date DATE"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS start_time VARCHAR(20)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS end_time VARCHAR(20)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS custom_venue_price DECIMAL(12,2)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS referrer_name VARCHAR(150)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS dip_discount_type VARCHAR(50)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS tc_no VARCHAR(20)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS vkn_no VARCHAR(20)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS tax_office VARCHAR(150)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS invoice_address TEXT"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS flow_plan_json LONGTEXT"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS selected_services_json LONGTEXT"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS details_json LONGTEXT"); } catch(e){}
+      try { await pool.query("UPDATE reservations SET status = 'CONFIRMED' WHERE status = 'DRAFT'"); } catch(e){}
+
+
+
       await pool.query(`
         CREATE TABLE IF NOT EXISTS reservation_services (
           id INT(11) AUTO_INCREMENT PRIMARY KEY,
@@ -1061,46 +1079,70 @@ app.get('/api/reservations', async (req, res) => {
   try {
     const activePool = await getPool();
     if (activePool) {
-      const [rows] = await activePool.query('SELECT * FROM reservations ORDER BY event_date DESC');
+      const [rows] = await activePool.query("SELECT * FROM reservations ORDER BY created_at DESC");
       const formatted = (rows || []).map(r => {
-        const mem = memoryStore.reservations.find(m => m.id === r.id);
-        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
-        const parsedMedia = r.media_json ? (typeof r.media_json === 'string' ? JSON.parse(r.media_json) : r.media_json) : (mem?.mediaFiles || []);
-        let parsedNotesData = null;
-        if (r.notes && r.notes.startsWith('{')) {
-          try { parsedNotesData = JSON.parse(r.notes); } catch(e) {}
+        let detailsObj = {};
+        if (r.details_json) {
+          try { detailsObj = JSON.parse(r.details_json); } catch(e){}
         }
+        let selectedServicesArr = [];
+        if (r.selected_services_json) {
+          try { selectedServicesArr = JSON.parse(r.selected_services_json); } catch(e){}
+        }
+        let flowPlanArr = [];
+        if (r.flow_plan_json) {
+          try { flowPlanArr = JSON.parse(r.flow_plan_json); } catch(e){}
+        }
+        let parsedMedia = [];
+        if (r.media_json) {
+          try { parsedMedia = JSON.parse(r.media_json); } catch(e){}
+        }
+
+        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+        const rawEndDate = r.end_date ? (r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0]) : rawDate;
+
         return {
+          ...detailsObj,
           id: r.id,
-          refKey: parsedNotesData?.refKey || r.id,
-          isDraft: r.status === 'DRAFT',
-          formData: parsedNotesData?.formData || null,
-          venueId: r.venue_id || 'v1',
-          customerId: r.customer_id || '',
-          customerName: r.customer_name || 'Misafir',
-          customerEmail: r.customer_email || '',
-          customerPhone: r.customer_phone || '',
+          venueId: r.venue_id || detailsObj.venueId || 'v1',
+          customerId: r.customer_id || detailsObj.customerId || '',
+          customerName: r.customer_name || detailsObj.customerName || 'Misafir',
+          customerEmail: r.customer_email || detailsObj.customerEmail || '',
+          customerPhone: r.customer_phone || detailsObj.customerPhone || '',
+          secondaryPhone: r.secondary_phone || detailsObj.secondaryPhone || '',
           date: rawDate,
           eventDate: rawDate,
           startDate: rawDate,
-          endDate: rawDate,
-          timeSlot: r.time_slot || '18:00 - 23:00',
-          guestCount: String(r.guest_count || 0),
-          venuePrice: Number(r.venue_price || 0),
-          subtotal: Number(r.subtotal || 0),
-          campaignCode: r.campaign_code || '',
-          discountAmount: Number(r.discount_amount || 0),
-          vatAmount: Number(r.vat_amount || 0),
-          totalAmount: Number(r.total_amount || 0),
-          depositPaid: Number(r.deposit_paid || 0),
-          remainingBalance: Number(r.remaining_balance || 0),
-          paymentStatus: r.payment_status || (r.status === 'DRAFT' ? 'Taslak' : 'Kapora Alındı'),
+          endDate: rawEndDate,
+          startTime: r.start_time || detailsObj.startTime || '18:00',
+          endTime: r.end_time || detailsObj.endTime || '23:00',
+          timeSlot: r.time_slot || detailsObj.timeSlot || '18:00 - 23:00',
+          guestCount: String(r.guest_count || detailsObj.guestCount || 0),
+          venuePrice: Number(r.venue_price || detailsObj.venuePrice || 0),
+          customVenuePrice: Number(r.custom_venue_price || detailsObj.customVenuePrice || r.venue_price || 0),
+          subtotal: Number(r.subtotal || detailsObj.subtotal || 0),
+          referrerName: r.referrer_name || detailsObj.referrerName || '',
+          campaignCode: r.campaign_code || detailsObj.campaignCode || '',
+          discountAmount: Number(r.discount_amount || detailsObj.discountAmount || 0),
+          dipDiscountType: r.dip_discount_type || detailsObj.dipDiscountType || 'amount',
+          vatAmount: Number(r.vat_amount || detailsObj.vatAmount || 0),
+          totalAmount: Number(r.total_amount || detailsObj.totalAmount || 0),
+          depositPaid: Number(r.deposit_paid || detailsObj.depositPaid || 0),
+          remainingBalance: Number(r.remaining_balance || detailsObj.remainingBalance || 0),
+          paymentStatus: r.payment_status || 'Kapora Alındı',
           isInvoiced: Boolean(r.is_invoiced),
-          invoiceType: r.invoice_type || 'individual',
-          notes: r.notes || '',
-          customExpenses: mem?.customExpenses || [],
-          mediaFiles: parsedMedia,
-          status: r.status || 'CONFIRMED'
+          invoiceType: r.invoice_type || detailsObj.invoiceType || 'individual',
+          tcNo: r.tc_no || detailsObj.tcNo || '',
+          vknNo: r.vkn_no || detailsObj.vknNo || '',
+          taxOffice: r.tax_office || detailsObj.taxOffice || '',
+          invoiceAddress: r.invoice_address || detailsObj.invoiceAddress || '',
+          notes: r.notes || detailsObj.notes || '',
+          selectedServices: selectedServicesArr.length > 0 ? selectedServicesArr : (detailsObj.selectedServices || []),
+          flowPlan: flowPlanArr.length > 0 ? flowPlanArr : (detailsObj.flowPlan || []),
+          createdBy: detailsObj.createdBy || { name: 'Sistem Yöneticisi' },
+          mediaFiles: parsedMedia.length > 0 ? parsedMedia : (detailsObj.mediaFiles || []),
+          status: r.status === 'DRAFT' ? 'CONFIRMED' : (r.status || 'CONFIRMED'),
+          isDraft: false
         };
       });
       return res.json(formatted);
@@ -1113,7 +1155,18 @@ app.get('/api/reservations', async (req, res) => {
 });
 
 app.post('/api/reservations', async (req, res) => {
-  const item = { id: req.body.id || `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, ...req.body };
+  const item = { ...req.body };
+  if (!item.id || item.id.startsWith('RES-DRAFT-')) {
+    item.id = `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+  item.status = 'CONFIRMED';
+  item.isDraft = false;
+  item.paymentStatus = item.paymentStatus || 'Kapora Alındı';
+
+  const detailsJsonStr = JSON.stringify(item);
+  const selectedServicesJsonStr = JSON.stringify(item.selectedServices || []);
+  const flowPlanJsonStr = JSON.stringify(item.flowPlan || []);
+
   const activePool = await getPool();
   
   if (activePool) {
@@ -1123,33 +1176,47 @@ app.post('/api/reservations', async (req, res) => {
         await activePool.query(
           `INSERT INTO customers (id, name, email, phone, address, tax_type, tc_no, vkn_no, tax_office)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone)`,
-          [custId, item.customerName, item.customerEmail || '', item.customerPhone || '', item.invoiceAddress || '', item.taxType || 'individual', item.tcNo || '', item.vknNo || '', item.taxOffice || '']
+           ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone), email=VALUES(email), address=VALUES(address)`,
+          [custId, item.customerName, item.customerEmail || '', item.customerPhone || '', item.invoiceAddress || '', item.invoiceType || 'individual', item.tcNo || '', item.vknNo || '', item.taxOffice || '']
         );
       }
 
+      const eventDate = item.eventDate || item.startDate || item.date || new Date().toISOString().split('T')[0];
+      const endDate = item.endDate || eventDate;
+      const startTime = item.startTime || '18:00';
+      const endTime = item.endTime || '23:00';
+      const timeSlot = item.timeSlot || `${startTime} - ${endTime}`;
+
       await activePool.query(
         `INSERT INTO reservations (
-          id, venue_id, customer_id, customer_name, customer_email, customer_phone,
-          event_date, time_slot, guest_count, venue_price, subtotal, campaign_code,
-          discount_amount, vat_amount, total_amount, deposit_paid, remaining_balance,
-          payment_status, is_invoiced, invoice_type, notes, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          id, venue_id, customer_id, customer_name, customer_email, customer_phone, secondary_phone,
+          event_date, end_date, start_time, end_time, time_slot, guest_count,
+          venue_price, custom_venue_price, subtotal, referrer_name, campaign_code,
+          discount_amount, dip_discount_type, vat_amount, total_amount, deposit_paid, remaining_balance,
+          payment_status, is_invoiced, invoice_type, tc_no, vkn_no, tax_office, invoice_address,
+          notes, flow_plan_json, selected_services_json, details_json, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED')
         ON DUPLICATE KEY UPDATE
           venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
-          customer_phone=VALUES(customer_phone), event_date=VALUES(event_date), time_slot=VALUES(time_slot),
-          guest_count=VALUES(guest_count), venue_price=VALUES(venue_price), subtotal=VALUES(subtotal),
-          campaign_code=VALUES(campaign_code), discount_amount=VALUES(discount_amount), vat_amount=VALUES(vat_amount),
-          total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid), remaining_balance=VALUES(remaining_balance),
-          payment_status=VALUES(payment_status), is_invoiced=VALUES(is_invoiced), invoice_type=VALUES(invoice_type), notes=VALUES(notes), status=VALUES(status)`,
+          customer_phone=VALUES(customer_phone), secondary_phone=VALUES(secondary_phone),
+          event_date=VALUES(event_date), end_date=VALUES(end_date), start_time=VALUES(start_time), end_time=VALUES(end_time),
+          time_slot=VALUES(time_slot), guest_count=VALUES(guest_count), venue_price=VALUES(venue_price),
+          custom_venue_price=VALUES(custom_venue_price), subtotal=VALUES(subtotal), referrer_name=VALUES(referrer_name),
+          campaign_code=VALUES(campaign_code), discount_amount=VALUES(discount_amount), dip_discount_type=VALUES(dip_discount_type),
+          vat_amount=VALUES(vat_amount), total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid),
+          remaining_balance=VALUES(remaining_balance), payment_status=VALUES(payment_status), is_invoiced=VALUES(is_invoiced),
+          invoice_type=VALUES(invoice_type), tc_no=VALUES(tc_no), vkn_no=VALUES(vkn_no), tax_office=VALUES(tax_office),
+          invoice_address=VALUES(invoice_address), notes=VALUES(notes), flow_plan_json=VALUES(flow_plan_json),
+          selected_services_json=VALUES(selected_services_json), details_json=VALUES(details_json), status='CONFIRMED'`,
         [
-          item.id, item.venueId || 'v1', custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '',
-          item.eventDate || item.date || new Date().toISOString().split('T')[0], item.timeSlot || '18:00 - 23:00',
-          Number(item.guestCount || 0), Number(item.venuePrice || 0), Number(item.subtotal || 0),
-          item.campaignCode || '', Number(item.discountAmount || 0), Number(item.vatAmount || 0),
-          Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
-          item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual', item.notes || '',
-          item.status || (item.isDraft ? 'DRAFT' : 'CONFIRMED')
+          item.id, item.venueId || 'v1', custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '', item.secondaryPhone || '',
+          eventDate, endDate, startTime, endTime, timeSlot, Number(item.guestCount || 0),
+          Number(item.venuePrice || 0), Number(item.customVenuePrice || item.venuePrice || 0), Number(item.subtotal || 0),
+          item.referrerName || '', item.campaignCode || '', Number(item.discountAmount || 0), item.dipDiscountType || 'amount',
+          Number(item.vatAmount || 0), Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
+          item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual',
+          item.tcNo || '', item.vknNo || '', item.taxOffice || '', item.invoiceAddress || '',
+          item.notes || '', flowPlanJsonStr, selectedServicesJsonStr, detailsJsonStr
         ]
       );
     } catch(e) {
@@ -1157,180 +1224,14 @@ app.post('/api/reservations', async (req, res) => {
     }
   }
 
-  const idx = memoryStore.reservations.findIndex(r => r.id === item.id || (r.mediaKey && r.mediaKey === item.id));
+  const idx = memoryStore.reservations.findIndex(r => r.id === item.id);
   if (idx >= 0) {
     memoryStore.reservations[idx] = { ...memoryStore.reservations[idx], ...item };
   } else {
     memoryStore.reservations.unshift(item);
   }
 
-  // Eğer rezervasyon onaylanmış ise (status !== 'DRAFT'), bağlı taslağı hafızadan ve DB'den temizle
-  if (item.status !== 'DRAFT' && !item.isDraft) {
-    const cleanRef = item.refKey || item.id;
-    memoryStore.draftReservations = (memoryStore.draftReservations || []).filter(d =>
-      d.id !== item.id && d.refKey !== item.id && d.refKey !== cleanRef && d.id !== cleanRef
-    );
-    if (activePool) {
-      try {
-        await activePool.query(
-          "DELETE FROM reservations WHERE status = 'DRAFT' AND (id = ? OR id = ? OR notes LIKE ?)",
-          [item.id, cleanRef, `%"refKey":"${cleanRef}"%`]
-        );
-      } catch(e) {}
-    }
-  }
-
   res.status(201).json({ success: true, id: item.id, item });
-});
-
-// -------------------------------------------------------------
-// 5.B TASLAK REZERVASYONLAR ENDPOINTS (/api/draft-reservations)
-// -------------------------------------------------------------
-const calculateFormCompletionServer = (f) => {
-  if (!f || typeof f !== 'object') return 0;
-  let score = 0;
-  if (f.newCustName || f.customerName || f.selectedCustomerId) score += 15;
-  if (f.newCustPhone || f.customerPhone) score += 10;
-  if (f.startDate || f.eventDate) score += 15;
-  if (f.startTime && f.endTime) score += 10;
-  if (f.venueId) score += 25;
-  if (Array.isArray(f.selectedServices) && f.selectedServices.length > 0) score += 15;
-  if (Number(f.depositPaid) > 0 || Number(f.totalAmount) > 0) score += 10;
-  return Math.min(score, 100);
-};
-
-app.get('/api/draft-reservations', async (req, res) => {
-  try {
-    const activePool = await getPool();
-    if (activePool) {
-      const [rows] = await activePool.query("SELECT * FROM reservations WHERE status = 'DRAFT' ORDER BY created_at DESC");
-      const formattedDrafts = (rows || []).map(r => {
-        let parsedNotesData = null;
-        if (r.notes && r.notes.startsWith('{')) {
-          try { parsedNotesData = JSON.parse(r.notes); } catch(e) {}
-        }
-        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
-        const fData = parsedNotesData?.formData || null;
-        const compPercentage = parsedNotesData?.completionPercentage !== undefined 
-          ? parsedNotesData.completionPercentage 
-          : calculateFormCompletionServer(fData);
-
-        return {
-          id: r.id,
-          refKey: parsedNotesData?.refKey || r.id,
-          isDraft: true,
-          formData: fData,
-          completionPercentage: compPercentage,
-          customerInfo: parsedNotesData?.customerInfo || {
-            name: r.customer_name || 'Taslak Müşteri',
-            phone: r.customer_phone || '-',
-            date: rawDate
-          },
-          accessLogs: parsedNotesData?.accessLogs || [],
-          updatedAt: parsedNotesData?.updatedAt || r.created_at || new Date().toISOString(),
-          venueId: r.venue_id || 'v1',
-          customerId: r.customer_id || '',
-          customerName: r.customer_name || 'Taslak Müşteri',
-          customerEmail: r.customer_email || '',
-          customerPhone: r.customer_phone || '',
-          date: rawDate,
-          eventDate: rawDate,
-          startDate: rawDate,
-          endDate: rawDate,
-          timeSlot: r.time_slot || '19:00 - 23:00',
-          guestCount: String(r.guest_count || 0),
-          venuePrice: Number(r.venue_price || 0),
-          subtotal: Number(r.subtotal || 0),
-          totalAmount: Number(r.total_amount || 0),
-          depositPaid: Number(r.deposit_paid || 0),
-          notes: r.notes || '',
-          status: 'DRAFT',
-          paymentStatus: 'Taslak'
-        };
-      });
-      memoryStore.draftReservations = formattedDrafts;
-      return res.json(formattedDrafts);
-    }
-    return res.json(memoryStore.draftReservations || []);
-  } catch(e) {
-    console.error('MySQL GET /api/draft-reservations error:', e.message);
-    return res.json(memoryStore.draftReservations || []);
-  }
-});
-
-app.post('/api/draft-reservations', async (req, res) => {
-  try {
-    const rawData = req.body;
-    let drafts = [];
-    if (Array.isArray(rawData)) {
-      drafts = rawData;
-    } else if (Array.isArray(rawData?.draftReservations)) {
-      drafts = rawData.draftReservations;
-    } else if (rawData && typeof rawData === 'object') {
-      drafts = [rawData];
-    }
-    
-    if (drafts.length > 0) {
-      memoryStore.draftReservations = drafts;
-    }
-
-    const activePool = await getPool();
-    if (activePool && drafts.length > 0) {
-      for (const draft of drafts) {
-        if (!draft) continue;
-        const f = draft.formData || {};
-        const draftId = draft.id || draft.refKey || f.editId || (`DRAFT-${Date.now()}`);
-        const custId = draft.customerId || f.selectedCustomerId || (`cust-` + Date.now());
-        const custName = draft.customerName || f.newCustName || f.customerName || 'Taslak Müşteri';
-        const custEmail = draft.customerEmail || f.newCustEmail || f.customerEmail || '';
-        const custPhone = draft.customerPhone || f.newCustPhone || f.customerPhone || '';
-        const eventDate = f.startDate || f.eventDate || draft.eventDate || draft.date || new Date().toISOString().split('T')[0];
-        const timeSlot = (f.startTime && f.endTime) ? `${f.startTime} - ${f.endTime}` : (draft.timeSlot || '19:00 - 23:00');
-        const guestCount = Number(f.guestCount || draft.guestCount || 0);
-        const venuePrice = Number(f.customVenuePrice || f.venuePrice || draft.venuePrice || 0);
-        const subtotal = Number(f.subtotal || draft.subtotal || venuePrice);
-        const totalAmount = Number(f.totalAmount || draft.totalAmount || subtotal);
-        const depositPaid = Number(f.depositPaid || draft.depositPaid || 0);
-        const compPerc = draft.completionPercentage !== undefined ? draft.completionPercentage : calculateFormCompletionServer(f);
-        const notesContent = JSON.stringify({
-          refKey: draft.refKey || draftId,
-          formData: f,
-          completionPercentage: compPerc,
-          customerInfo: draft.customerInfo || { name: custName, phone: custPhone, date: eventDate },
-          accessLogs: draft.accessLogs || [],
-          updatedAt: draft.updatedAt || new Date().toISOString()
-        });
-
-        await activePool.query(
-          `INSERT INTO customers (id, name, email, phone, address, tax_type)
-           VALUES (?, ?, ?, ?, ?, 'individual')
-           ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone)`,
-          [custId, custName, custEmail, custPhone, '']
-        );
-
-        await activePool.query(
-          `INSERT INTO reservations (
-            id, venue_id, customer_id, customer_name, customer_email, customer_phone,
-            event_date, time_slot, guest_count, venue_price, subtotal, total_amount, deposit_paid, notes, status, payment_status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DRAFT', 'Bekliyor')
-          ON DUPLICATE KEY UPDATE
-            venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
-            customer_phone=VALUES(customer_phone), event_date=VALUES(event_date), time_slot=VALUES(time_slot),
-            guest_count=VALUES(guest_count), venue_price=VALUES(venue_price), subtotal=VALUES(subtotal),
-            total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid), notes=VALUES(notes), status='DRAFT', payment_status='Bekliyor'`,
-          [
-            draftId, f.venueId || draft.venueId || 'v1', custId, custName,
-            custEmail, custPhone, eventDate, timeSlot, guestCount,
-            venuePrice, subtotal, totalAmount, depositPaid, notesContent
-          ]
-        );
-      }
-    }
-    return res.json({ success: true, draftReservations: memoryStore.draftReservations });
-  } catch(e) {
-    console.error('MySQL POST /api/draft-reservations error:', e.message);
-    return res.status(500).json({ error: e.message });
-  }
 });
 
 const deleteDraftReservationHandler = async (req, res) => {
