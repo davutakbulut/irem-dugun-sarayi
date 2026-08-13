@@ -1186,6 +1186,19 @@ app.post('/api/reservations', async (req, res) => {
 // -------------------------------------------------------------
 // 5.B TASLAK REZERVASYONLAR ENDPOINTS (/api/draft-reservations)
 // -------------------------------------------------------------
+const calculateFormCompletionServer = (f) => {
+  if (!f || typeof f !== 'object') return 0;
+  let score = 0;
+  if (f.newCustName || f.customerName || f.selectedCustomerId) score += 15;
+  if (f.newCustPhone || f.customerPhone) score += 10;
+  if (f.startDate || f.eventDate) score += 15;
+  if (f.startTime && f.endTime) score += 10;
+  if (f.venueId) score += 25;
+  if (Array.isArray(f.selectedServices) && f.selectedServices.length > 0) score += 15;
+  if (Number(f.depositPaid) > 0 || Number(f.totalAmount) > 0) score += 10;
+  return Math.min(score, 100);
+};
+
 app.get('/api/draft-reservations', async (req, res) => {
   try {
     const activePool = await getPool();
@@ -1197,11 +1210,24 @@ app.get('/api/draft-reservations', async (req, res) => {
           try { parsedNotesData = JSON.parse(r.notes); } catch(e) {}
         }
         const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
+        const fData = parsedNotesData?.formData || null;
+        const compPercentage = parsedNotesData?.completionPercentage !== undefined 
+          ? parsedNotesData.completionPercentage 
+          : calculateFormCompletionServer(fData);
+
         return {
           id: r.id,
           refKey: parsedNotesData?.refKey || r.id,
           isDraft: true,
-          formData: parsedNotesData?.formData || null,
+          formData: fData,
+          completionPercentage: compPercentage,
+          customerInfo: parsedNotesData?.customerInfo || {
+            name: r.customer_name || 'Taslak Müşteri',
+            phone: r.customer_phone || '-',
+            date: rawDate
+          },
+          accessLogs: parsedNotesData?.accessLogs || [],
+          updatedAt: parsedNotesData?.updatedAt || r.created_at || new Date().toISOString(),
           venueId: r.venue_id || 'v1',
           customerId: r.customer_id || '',
           customerName: r.customer_name || 'Taslak Müşteri',
@@ -1265,7 +1291,15 @@ app.post('/api/draft-reservations', async (req, res) => {
         const subtotal = Number(f.subtotal || draft.subtotal || venuePrice);
         const totalAmount = Number(f.totalAmount || draft.totalAmount || subtotal);
         const depositPaid = Number(f.depositPaid || draft.depositPaid || 0);
-        const notesContent = JSON.stringify({ refKey: draft.refKey || draftId, formData: f });
+        const compPerc = draft.completionPercentage !== undefined ? draft.completionPercentage : calculateFormCompletionServer(f);
+        const notesContent = JSON.stringify({
+          refKey: draft.refKey || draftId,
+          formData: f,
+          completionPercentage: compPerc,
+          customerInfo: draft.customerInfo || { name: custName, phone: custPhone, date: eventDate },
+          accessLogs: draft.accessLogs || [],
+          updatedAt: draft.updatedAt || new Date().toISOString()
+        });
 
         await activePool.query(
           `INSERT INTO customers (id, name, email, phone, address, tax_type)
@@ -1686,7 +1720,15 @@ app.post('/api/public-settings', async (req, res) => {
             const subtotal = Number(f.subtotal || draft.subtotal || venuePrice);
             const totalAmount = Number(f.totalAmount || draft.totalAmount || subtotal);
             const depositPaid = Number(f.depositPaid || draft.depositPaid || 0);
-            const notesContent = JSON.stringify({ refKey: draft.refKey || draftId, formData: f });
+            const compPerc = draft.completionPercentage !== undefined ? draft.completionPercentage : calculateFormCompletionServer(f);
+        const notesContent = JSON.stringify({
+          refKey: draft.refKey || draftId,
+          formData: f,
+          completionPercentage: compPerc,
+          customerInfo: draft.customerInfo || { name: custName, phone: custPhone, date: eventDate },
+          accessLogs: draft.accessLogs || [],
+          updatedAt: draft.updatedAt || new Date().toISOString()
+        });
 
             // 1. Foreign key zorunluluğunu karşılamak için müşteri kaydını önce upsert et
             await activePool.query(
