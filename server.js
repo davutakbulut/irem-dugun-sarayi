@@ -321,6 +321,18 @@ const initMysql = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      try {
+        await pool.query(`
+          UPDATE venues SET
+            images_json = '["https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80", "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80"]',
+            features_json = '["Geniş Dans Pisti", "Gelişmiş İklimlendirme", "Özel Gelin & Damat Odası", "Ücretsiz Otopark & Vale", "Kristal Avizeler & Sahne", "Gelişmiş Ses & Işık Sistemi", "Jeneratör Desteği", "VIP Karşılama Alanı"]',
+            location = 'Sapanca Göl Kenarı, Sakarya / İrem Düğün Sarayı'
+          WHERE id = 'v1' OR id = 'venue-1';
+        `);
+      } catch(e){}
+
+
+
       await pool.query(`
         CREATE TABLE IF NOT EXISTS services (
           id VARCHAR(50) PRIMARY KEY,
@@ -858,13 +870,46 @@ app.get('/api/venues', async (req, res) => {
   if (activePool) {
     try {
       const [rows] = await activePool.query('SELECT * FROM venues ORDER BY created_at DESC');
-      const formatted = (rows || []).map(v => ({
-        ...v,
-        costPrice: v.cost_price ? Number(v.cost_price) : 0,
-        occupancyRate: v.occupancy_rate || 0,
-        features: typeof v.features_json === 'string' ? JSON.parse(v.features_json) : (v.features_json || []),
-        images: typeof v.images_json === 'string' ? JSON.parse(v.images_json) : (v.images_json || [])
-      }));
+      const formatted = (rows || []).map(v => {
+        let imgs = [];
+        if (typeof v.images_json === 'string') {
+          try { imgs = JSON.parse(v.images_json); } catch(e){}
+        } else if (Array.isArray(v.images_json)) {
+          imgs = v.images_json;
+        }
+        if (!imgs || imgs.length === 0) {
+          imgs = [
+            'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80'
+          ];
+        }
+
+        let feats = [];
+        if (typeof v.features_json === 'string') {
+          try { feats = JSON.parse(v.features_json); } catch(e){}
+        } else if (Array.isArray(v.features_json)) {
+          feats = v.features_json;
+        }
+        if (!feats || feats.length === 0) {
+          feats = ['Geniş Dans Pisti', 'Gelişmiş İklimlendirme', 'Özel Gelin Odası', 'Otopark & Vale', 'Kristal Avizeler', 'Lüks Sahne'];
+        }
+
+        const mainImg = imgs[0];
+        return {
+          ...v,
+          image: mainImg,
+          image_url: mainImg,
+          images: imgs,
+          features: feats,
+          location: v.location || 'Sapanca Göl Kenarı, Sakarya / İrem Düğün Sarayı',
+          costPrice: v.cost_price ? Number(v.cost_price) : 0,
+          occupancyRate: v.occupancy_rate || 0,
+          price: Number(v.price || 0),
+          deposit: Number(v.deposit || 0),
+          capacity: Number(v.capacity || 500)
+        };
+      });
       return res.json(formatted);
     } catch(e) {
       console.error('MySQL GET /api/venues error:', e.message);
