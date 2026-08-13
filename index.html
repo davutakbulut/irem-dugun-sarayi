@@ -71,7 +71,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="dns-prefetch" href="https://images.unsplash.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -8904,26 +8904,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           }).catch(() => {});
         }
       }, [reservations]);
-      useEffect(() => {
-        if (!isInitialLoadDoneRef.current) return;
-        CacheService.set('draft_reservations', draftReservations);
-        const jsonStr = JSON.stringify(draftReservations || []);
-        if (jsonStr === lastSyncedDraftsRef.current) return;
-        lastSyncedDraftsRef.current = jsonStr;
-        const fetchFn = window.fetchWithRetry || fetch;
-        if (fetchFn && Array.isArray(draftReservations)) {
-          fetchFn('/api/draft-reservations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ draftReservations })
-          }).catch(() => {});
-          fetchFn('/api/public-settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ draftReservations })
-          }).catch(() => {});
-        }
-      }, [draftReservations]);
+
       useEffect(() => {
         if (!isInitialLoadDoneRef.current) return;
         CacheService.set('users', users);
@@ -9106,15 +9087,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               })
               .catch(() => {});
 
-            // Fetch Draft Reservations from Database
-            fetchFn('/api/draft-reservations')
-              .then(res => res.json())
-              .then(data => {
-                if (Array.isArray(data)) {
-                  setDraftReservations(data);
-                }
-              })
-              .catch(() => {});
+
 
             // Fetch Expenses
             fetchFn('/api/expenses')
@@ -9199,29 +9172,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         fetchSystemSettings();
       }, []);
 
-      // Live Cross-Browser / Cross-User Draft Synchronization Effect
-      useEffect(() => {
-        const syncDrafts = () => {
-          const fetchFn = window.fetchWithRetry || fetch;
-          if (fetchFn) {
-            fetchFn('/api/draft-reservations')
-              .then(res => res.ok ? res.json() : null)
-              .then(data => {
-                if (Array.isArray(data)) {
-                  setDraftReservations(data);
-                }
-              })
-              .catch(() => {});
-          }
-        };
 
-        window.addEventListener('focus', syncDrafts);
-        const interval = setInterval(syncDrafts, 15000);
-        return () => {
-          window.removeEventListener('focus', syncDrafts);
-          clearInterval(interval);
-        };
-      }, []);
 
       useEffect(() => {
         const currentTheme = themeColor || 'nordic-light';
@@ -10719,31 +10670,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           return updated;
                         });
 
-                        if (setDraftReservations) {
-                          setDraftReservations(prev => {
-                            const cleanRef = refKeyToRemove || newRes.refKey;
-                            const updatedDrafts = (prev || []).filter(d => 
-                              d.refKey !== cleanRef &&
-                              d.refKey !== refKeyToRemove &&
-                              d.refKey !== newRes.refKey &&
-                              d.id !== newRes.id &&
-                              d.id !== targetId &&
-                              d.formData?.editingResId !== newRes.id
-                            );
-                            CacheService.set('draft_reservations', updatedDrafts);
-                            const fetchFn = window.fetchWithRetry || fetch;
-                            if (fetchFn) {
-                              if (cleanRef) { fetchFn(`/api/draft-reservations/delete/${encodeURIComponent(cleanRef)}`, { method: 'POST' }).catch(() => fetchFn(`/api/draft-reservations/${encodeURIComponent(cleanRef)}`, { method: 'DELETE' }).catch(() => {})); }
-                              fetchFn('/api/public-settings', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ draftReservations: updatedDrafts })
-                              }).catch(() => {});
-                            }
-                            return updatedDrafts;
-                          });
-                        }
-
                         showToast(isEdit ? 'Rezervasyon ve Sözleşme Bilgileri Başarıyla Güncellendi!' : 'Yeni Rezervasyon ve Sözleşme Başarıyla Oluşturuldu!');
                         setPrefilledCreateDate(null);
                         navigateTo('reservations');
@@ -11784,43 +11710,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [isMobileSummaryDrawerOpen, setIsMobileSummaryDrawerOpen] = useState(false);
       const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '', targetInputId: null });
 
-      // DRAFT AUTOMATION & AUTO-SAVE (650ms DEBOUNCE, 12-CHAR REFKEY, USER AUDIT LOGS, CONFLICT MODAL)
-      const initialRefKey = useMemo(() => {
-        const hashData = parseHashRoute();
-        return hashData.refKey || generateDraftRefKey();
-      }, []);
+      // STANDARD RESERVATION CREATION WORKSPACE
+      const [activeRefKey, setActiveRefKey] = useState(null);
 
-      const [activeRefKey, setActiveRefKey] = useState(initialRefKey);
-      const [lastSavedTime, setLastSavedTime] = useState(null);
-      const [conflictModal, setConflictModal] = useState({ isOpen: false, draft: null });
-      const autoSaveTimerRef = useRef(null);
-      const isInitialMountRef = useRef(true);
-      const hasLoadedDraftRef = useRef(null);
 
-      // Synchronize activeRefKey with URL hash and preserve existing draft refKeys & editId
-      useEffect(() => {
-        const syncRef = () => {
-          const hashData = parseHashRoute();
-          const searchParams = new URLSearchParams(window.location.search);
-          const currentEditId = hashData.editId || searchParams.get('editId') || searchParams.get('edit');
-          if (hashData.tab !== 'create-reservation') return;
-          if (hashData.refKey && hashData.refKey !== activeRefKey) {
-            setActiveRefKey(hashData.refKey);
-          } else if (!hashData.refKey && activeRefKey && !currentEditId) {
-            const cleanPath = window.location.pathname.endsWith('/yeni-rezervasyon') ? window.location.pathname : '/yonetim/yeni-rezervasyon';
-            const newUrl = `${cleanPath}?ref=${activeRefKey}`;
-            window.history.replaceState({ tab: 'create-reservation', refKey: activeRefKey }, '', newUrl);
-          }
-        };
-
-        syncRef();
-        window.addEventListener('hashchange', syncRef);
-        window.addEventListener('popstate', syncRef);
-        return () => {
-          window.removeEventListener('hashchange', syncRef);
-          window.removeEventListener('popstate', syncRef);
-        };
-      }, [activeRefKey]);
 
       const [venueId, setVenueId] = useState(venues[0]?.id || '');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price !== undefined ? venues[0].price : '');
@@ -12356,28 +12249,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         tcNo, vknNo, taxOffice, invoiceAddress, notes, flowPlan
       ]);
 
-      // CUSTOMER DRAFT CONFLICT POPUP DETECTOR
-      useEffect(() => {
-        const checkPhone = customerMode === 'existing'
-          ? (customers.find(c => c.id === selectedCustomerId)?.phone || '')
-          : newCustPhone;
-        const cleanPhone = checkPhone ? checkPhone.replace(/\D/g, '') : '';
-
-        if ((cleanPhone.length >= 10 || (customerMode === 'existing' && selectedCustomerId)) && draftReservations) {
-          const matchingConflict = draftReservations.find(d => 
-            d.status === 'DRAFT' &&
-            d.refKey !== activeRefKey &&
-            ((cleanPhone && d.customerInfo?.phone && d.customerInfo.phone.replace(/\D/g, '') === cleanPhone) ||
-             (cleanPhone && d.formData?.newCustPhone && d.formData.newCustPhone.replace(/\D/g, '') === cleanPhone) ||
-             (customerMode === 'existing' && d.formData?.selectedCustomerId === selectedCustomerId))
-          );
-
-          if (matchingConflict && (!conflictModal.isOpen || conflictModal.draft?.refKey !== matchingConflict.refKey)) {
-            setConflictModal({ isOpen: true, draft: matchingConflict });
-          }
-        }
-      }, [newCustPhone, selectedCustomerId, customerMode]);
-
       const selectedVenue = venues.find(v => v.id === venueId);
       const existingCustomer = customers.find(c => c.id === selectedCustomerId);
 
@@ -12608,105 +12479,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return (
         <div className="space-y-6 max-w-7xl mx-auto pb-24 sm:pb-12 relative">
           
-          {/* CUSTOMER DRAFT CONFLICT POPUP WARNING MODAL */}
-          {conflictModal.isOpen && conflictModal.draft && (
-            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[999999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden animate-fade-in">
-              <div className="bg-white dark:bg-brand-card border-2 border-amber-500/80 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-6 space-y-4 animate-scale-up text-left">
-                
-                {/* Header */}
-                <div className="flex items-center space-x-3 text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-brand-border pb-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
-                    <ThemeIcon icon="warning" className="w-4 h-4 inline-block text-amber-500 shrink-0" />
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
-                      Müşteriye Ait Tamamlanmamış Taslak Bulundu!
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">
-                      Bu müşteriye ait arka planda otomatik kaydedilmiş yarım kalan bir rezervasyon mevcut.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Draft Card Info */}
-                <div className="bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 rounded-2xl p-4 space-y-2 text-xs text-slate-700 dark:text-gray-200">
-                  <div className="flex justify-between items-center font-bold">
-                    <span>Müşteri: {conflictModal.draft.customerInfo?.name || conflictModal.draft.formData?.newCustName || 'Müşteri'}</span>
-                    <span className="font-mono bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded text-[11px]">
-                      Ref: {conflictModal.draft.refKey}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-500 dark:text-gray-400">
-                    <span>Salon: {conflictModal.draft.customerInfo?.venueName || 'Seçilen Salon'}</span>
-                    <span>Tarih: {conflictModal.draft.customerInfo?.date || 'Belirtilmedi'}</span>
-                  </div>
-                  
-                  {/* Completion Bar */}
-                  <div className="pt-2">
-                    <div className="flex justify-between text-[11px] font-bold mb-1">
-                      <span>Form Doluluk Oranı</span>
-                      <span>%{conflictModal.draft.completionPercentage || 0}</span>
-                    </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                      <div
-                        className="bg-amber-500 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${conflictModal.draft.completionPercentage || 0}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => {
-                      const d = conflictModal.draft;
-                      if (d && d.formData) {
-                        const f = d.formData;
-                        if (f.venueId) setVenueId(f.venueId);
-                        if (f.customVenuePrice !== undefined) setCustomVenuePrice(f.customVenuePrice);
-                        if (f.startDate) setStartDate(f.startDate);
-                        if (f.startTime) setStartTime(f.startTime);
-                        if (f.endDate) setEndDate(f.endDate);
-                        if (f.endTime) setEndTime(f.endTime);
-                        if (f.guestCount !== undefined) setGuestCount(f.guestCount);
-                        if (f.customerMode) setCustomerMode(f.customerMode);
-                        if (f.selectedCustomerId) setSelectedCustomerId(f.selectedCustomerId);
-                        if (f.newCustName !== undefined) setNewCustName(f.newCustName);
-                        if (f.newCustEmail !== undefined) setNewCustEmail(f.newCustEmail);
-                        if (f.newCustPhone !== undefined) setNewCustPhone(f.newCustPhone);
-                        if (f.newCustSecondaryPhone !== undefined) setNewCustSecondaryPhone(f.newCustSecondaryPhone);
-                        if (f.selectedServices) setSelectedServices(f.selectedServices);
-                        if (f.referrerName !== undefined) setReferrerName(f.referrerName);
-                        if (f.campaignCode !== undefined) setCampaignCode(f.campaignCode);
-          if (f.customDiscountAmount !== undefined) setCustomDiscountAmount(f.customDiscountAmount);
-                        if (f.hasDeposit !== undefined) setHasDeposit(f.hasDeposit);
-                        if (f.depositPaid !== undefined) setDepositPaid(f.depositPaid);
-                        if (f.paymentStatus) setPaymentStatus(f.paymentStatus);
-                        if (f.notes !== undefined) setNotes(f.notes);
-                        if (f.flowPlan) setFlowPlan(f.flowPlan);
-                      }
-                      setActiveRefKey(d.refKey);
-                      setConflictModal({ isOpen: false, draft: null });
-                      showToast(`${d.refKey} Referanslı Tamamlanmamış Taslak Yüklendi!`);
-                    }}
-                    className="flex-1 gold-button font-extrabold py-3 px-4 rounded-xl text-xs shadow-lg text-center flex items-center justify-center space-x-2"
-                  >
-                    <span><ThemeIcon icon="flow" className="w-4 h-4 inline-block shrink-0" /> Kaldığı Yerden Devam Et</span>
-                  </button>
-
-                  <button
-                    onClick={() => setConflictModal({ isOpen: false, draft: null })}
-                    className="py-3 px-4 bg-slate-200 dark:bg-brand-dark text-slate-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-slate-300 text-center"
-                  >
-                    <ThemeIcon icon="sparkles" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> Yeni Rezervasyona Devam Et
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          )}
-
           {/* STANDALONE FLOATING TOP-RIGHT NOTIFICATION POPUP */}
           {alertModal.isOpen && (
             <div className="fixed top-5 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md w-full animate-slide-down sm:animate-slide-left">
@@ -12772,33 +12544,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <span>Rezervasyon Oluşturma & Kiralama</span>
                 </span>
 
-                {/* DRAFT REF KEY BADGE WITH CLICK TO COPY */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (activeRefKey && navigator.clipboard) {
-                      navigator.clipboard.writeText(activeRefKey);
-                      if (showToast) showToast('Sözleşme referans kodu kopyalandı! ', 'success');
-                    }
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30 text-xs font-mono font-bold inline-flex items-center space-x-1 shrink-0 cursor-pointer transition whitespace-nowrap snap-start"
-                  title="Referans kodunu kopyalamak için tıklayın"
-                >
-                  <span><ThemeIcon icon="key" className="w-4 h-4 inline-block shrink-0" /> Ref:</span>
-                  <span className="tracking-wider">{activeRefKey}</span>
-                  <span className="text-[10px] text-amber-500"><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /></span>
-                </button>
-
-                {lastSavedTime ? (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap snap-start">
-                    <span><ThemeIcon icon="check" className="w-4 h-4 inline-block shrink-0" /> Taslak Kaydedildi</span>
-                    <span className="text-[10px] font-mono">({lastSavedTime})</span>
-                  </span>
-                ) : (
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-dark text-slate-500 text-xs font-semibold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap snap-start">
-                    <span><ThemeIcon icon="clock" className="w-4 h-4 inline-block shrink-0" /> Canlı Otomatik Kayıt</span>
-                  </span>
-                )}
+                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/30 text-xs font-bold inline-flex items-center space-x-1 shrink-0 whitespace-nowrap snap-start">
+                  <ThemeIcon icon="sparkles" className="w-3.5 h-3.5 inline-block shrink-0 text-amber-600 dark:text-gold-400" />
+                  <span>{isEditMode ? `Düzenleme Modu (${editingResFromUrl?.id || ''})` : 'Standart Rezervasyon Kaydı'}</span>
+                </span>
               </div>
 
               <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text mt-0.5 break-words max-w-full">

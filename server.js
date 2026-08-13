@@ -1802,6 +1802,11 @@ app.get(['/yonetim', '/yonetim.html', '/giris', '/login'], (req, res) => {
   res.sendFile('yonetim.html', { root: __dirname });
 });
 
+// Safe fallback for any lingering draft reservation requests from cached clients
+app.use(['/api/draft-reservations', '/api/draft-reservations-delete'], (req, res) => {
+  return res.json({ success: true, draftReservations: [] });
+});
+
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API Uç Noktası Bulunamadı' });
