@@ -81,24 +81,8 @@ app.get('/api/db-status', async (req, res) => {
   res.json({ status: dbStatus, error: dbError, reservationCount: resCount, poolActive: !!pool, memoryCount: memoryStore.reservations.length });
 });
 
-// JSON DB Dosyaları Okuma/Yazma Yardımcıları
-const readDbFile = (fileName, fallback) => {
-  try {
-    const filePath = path.join(__dirname, 'scratch', fileName);
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, 'utf8');
-      const parsed = JSON.parse(data);
-      if (parsed) return parsed;
-    }
-  } catch(e) {
-    console.error('Error loading ' + fileName + ':', e.message);
-  }
-  return fallback;
-};
-
-const saveDbFile = (fileName, data) => {
-  // Disksel JSON yerel dosya kaydı kapalı - Veriler %100 canlı MySQL/MariaDB veritabanında saklanır.
-};
+// DISKSEL JSON YEREL DOSYA KULLANIMI TAMAMEN KALDIRILDI
+// Tüm sistem verileri %100 CANLI MySQL / MariaDB veritabanından okunur ve veritabanına yazılır.
 
 // %100 Canlı Veritabanı Bellek & Dosya Deposu
 const memoryStore = {
@@ -180,7 +164,7 @@ const syncPhysicalUploadsWithMemoryStore = () => {
     }
 
     if (updated) {
-      saveDbFile('db_reservations.json', memoryStore.reservations);
+      // %100 MySQL Veritabanına kaydedilir
     }
   } catch (err) {
     console.error('Disk medya senkronizasyon hatası:', err.message);
@@ -753,7 +737,7 @@ app.post('/api/delete-media', async (req, res) => {
         }
         return true;
       });
-      saveDbFile('db_media.json', memoryStore.media);
+      // %100 MySQL Veritabanına kaydedilir
     }
 
     // 3. FİZİKSEL DOSYA SİLME (Sunucudaki uploads/ klasöründen diskten kalıcı silme)
@@ -815,7 +799,7 @@ app.post('/api/delete-media', async (req, res) => {
     }
 
     // 4. Veritabanı JSON Kayıtlarını Güncelle
-    saveDbFile('db_reservations.json', memoryStore.reservations);
+    // %100 MySQL Veritabanına kaydedilir
 
     // 5. Canlı MySQL Bağlantısı Varsa MariaDB Tablolarından da Sil
     if (pool) {
