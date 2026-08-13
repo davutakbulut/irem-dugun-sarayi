@@ -14687,17 +14687,38 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       );
     }
 
-    // --- VENUE MODAL COMPONENT ---
+        // --- VENUE MODAL COMPONENT (100% SYNCED WITH MYSQL & VENUE CARD) ---
     function VenueModalComponent({ venue, allServices = [], onClose, onSave }) {
       const [name, setName] = useState(venue?.name || '');
-      const [category, setCategory] = useState(venue?.category || 'Balo Salonu');
-      const [capacity, setCapacity] = useState(venue?.capacity || 500);
-      const [price, setPrice] = useState(venue?.price || 50000);
-      const [costPrice, setCostPrice] = useState(venue?.costPrice !== undefined ? venue.costPrice : Math.round((venue?.price || 50000) * 0.55));
-      const [deposit, setDeposit] = useState(venue?.deposit || 10000);
-      const [description, setDescription] = useState(venue?.description || '');
-      const [image, setImage] = useState(venue?.image || venue?.images?.[0] || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80');
+      const [category, setCategory] = useState(venue?.category || 'Kapalı Salon');
+      const [capacity, setCapacity] = useState(venue?.capacity || 750);
+      const [price, setPrice] = useState(venue?.price || 100000);
+      const [costPrice, setCostPrice] = useState(venue?.costPrice !== undefined ? venue.costPrice : Math.round((venue?.price || 100000) * 0.55));
+      const [deposit, setDeposit] = useState(venue?.deposit || 15000);
+      const [location, setLocation] = useState(venue?.location || 'Sapanca Göl Kenarı, Sakarya / İrem Düğün Sarayı');
+      const [description, setDescription] = useState(venue?.description || 'Yüksek tavanlı, kristal avizeli, iklimlendirme sistemli ve lüks sahne düzenine sahip ana balo salonumuz.');
+      const [image, setImage] = useState(venue?.image || venue?.images?.[0] || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80');
 
+      // FEATURES / MEKAN ÖZELLİKLERİ ROZETLERİ (Directly shown on reservation card)
+      const defaultFeaturesList = ['Geniş Dans Pisti', 'Gelişmiş İklimlendirme', 'Özel Gelin & Damat Odası', 'Ücretsiz Otopark & Vale', 'Kristal Avizeler & Sahne', 'Gelişmiş Ses & Işık Sistemi', 'Jeneratör Desteği', 'VIP Karşılama Alanı'];
+      const [features, setFeatures] = useState(
+        (venue?.features && venue.features.length > 0) ? venue.features : defaultFeaturesList
+      );
+      const [newFeatureInput, setNewFeatureInput] = useState('');
+
+      const addFeature = (fText) => {
+        const textToAdd = (fText || newFeatureInput).trim();
+        if (textToAdd && !features.includes(textToAdd)) {
+          setFeatures([...features, textToAdd]);
+          if (!fText) setNewFeatureInput('');
+        }
+      };
+
+      const removeFeature = (fToRemove) => {
+        setFeatures(features.filter(f => f !== fToRemove));
+      };
+
+      // EVENT TYPES
       const [eventTypes, setEventTypes] = useState(
         venue?.eventTypes || ['Düğün', 'Nişan', 'Kına', 'Kurumsal Etkinlik', 'Gala', 'Sünnet Düğünü']
       );
@@ -14722,7 +14743,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       });
 
       const [selectedServices, setSelectedServices] = useState(
-        venue?.availableServices || ['s1', 's2', 's3'] // Auto-assign standard default services for new venues!
+        venue?.availableServices || ['s1', 's2', 's3', 's-tavuk-menu']
       );
 
       const toggleService = (srvId) => {
@@ -14741,10 +14762,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           price: Number(price),
           costPrice: Number(costPrice),
           deposit: Number(deposit),
+          location,
           description,
           image,
-          images: [image],
-          occupancyRate: venue?.occupancyRate || 75,
+          images: venue?.images && venue.images.length > 1 ? [image, ...venue.images.slice(1)] : [image],
+          features: features,
+          occupancyRate: venue?.occupancyRate || 85,
           eventTypes: eventTypes,
           availableServices: selectedServices
         });
@@ -14755,23 +14778,25 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       return (
         <div className="fixed inset-0 z-[999999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar">
             <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
               <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                <ThemeIcon icon="venue" className="w-5 h-5 text-amber-500 inline" />
                 <span>{venue ? 'Etkinlik Mekanını Düzenle' : 'Yeni Etkinlik Mekanı Ekle'}</span>
               </h3>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg cursor-pointer">✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+            
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Etkinlik Mekanı Adı:</label>
                 <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Örn: Kraliyet Balo Salonu / Kır Bahçesi" className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Mekan Kategorisi / Konsepti:</label>
-                  <input type="text" value={category} onChange={e => setCategory(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
+                  <input type="text" value={category} onChange={e => setCategory(e.target.value)} required placeholder="Örn: Kapalı Salon, Balo Salonu, Kır Bahçesi" className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
                 </div>
                 <div>
                   <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Maksimum Kapasite (Kişi):</label>
@@ -14794,21 +14819,59 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </div>
               </div>
 
-              <div className="p-2.5 bg-slate-100 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border flex justify-between items-center text-[11px] font-bold">
-                <span className="text-slate-600 dark:text-gray-400">Tahmini Mekan Kârı: <strong className="text-emerald-600 font-mono">{formatCurrency(estimatedProfit)}</strong></span>
-                <span className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/30">%{estimatedMargin} Kâr Marjı</span>
+              <div>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Mekan Konumu & Adres:</label>
+                <input type="text" value={location} onChange={e => setLocation(e.target.value)} required placeholder="Örn: Sapanca Göl Kenarı, Sakarya / İrem Düğün Sarayı" className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
               </div>
 
-              {/* SEÇİLEBİLİR EK HİZMETLER TANIMLAMA SEKTÖRÜ */}
+              {/* 🌟 MEKAN ÖZELLİKLERİ VE ROZETLERİ (KARTTA VE REZERVASYONDA GÖZÜKEN ALAN) */}
+              <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-extrabold text-slate-900 dark:text-white flex items-center space-x-1.5">
+                    <span>✨ Mekan Özellikleri & Rozetleri (Kartta Görünen Alan):</span>
+                  </label>
+                  <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold">({features.length} Özellik Tanımlı)</span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-gray-400">
+                  Rezervasyon sayfasındaki mekan kartında ve detay pop-up penceresinde listelenecek özellikleri ekleyin veya silin:
+                </p>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newFeatureInput}
+                    onChange={e => setNewFeatureInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFeature(); } }}
+                    placeholder="Örn: Helikopter Pisti, Deniz Manzaralı, VIP Lounge (Enter'a basın)"
+                    className="flex-1 bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-slate-800 dark:text-gray-200 text-xs font-bold"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addFeature()}
+                    className="gold-button font-bold px-3 py-2 rounded-xl text-xs shrink-0 cursor-pointer"
+                  >
+                    + Özellik Ekle
+                  </button>
+                </div>
+
+                {/* FEATURE TAGS LIST */}
+                <div className="flex flex-wrap gap-1.5 pt-1 max-h-32 overflow-y-auto custom-scrollbar">
+                  {features.map((feat, fIdx) => (
+                    <span key={fIdx} className="inline-flex items-center space-x-1 text-[11px] bg-white dark:bg-brand-card text-slate-800 dark:text-gray-200 font-bold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-brand-border shadow-xs">
+                      <span>✨ {feat}</span>
+                      <button type="button" onClick={() => removeFeature(feat)} className="hover:text-red-500 text-slate-400 font-extrabold ml-1.5 cursor-pointer">✕</button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* SEÇİLEBİLİR EK HİZMETLER TANIMLAMA */}
               <div className="border-t border-b border-slate-200 dark:border-brand-border/60 py-3 space-y-2">
                 <label className="font-extrabold block text-slate-800 dark:text-gray-100 flex items-center justify-between">
-                  <span><ThemeIcon icon="sparkles" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> Bu Mekanda Sunulabilecek Hizmetler:</span>
+                  <span><ThemeIcon icon="gift" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> Bu Mekanda Sunulabilecek Hizmetler:</span>
                   <span className="text-[10px] text-amber-600 font-bold">({selectedServices.length} Seçili)</span>
                 </label>
-                <p className="text-[11px] text-slate-500 dark:text-gray-400">
-                  Bu etkinlik mekanına özel tanımlamak istediğiniz paket hizmetlerini işaretleyin:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto custom-scrollbar p-2.5 bg-slate-50 dark:bg-brand-dark/60 border border-slate-200 dark:border-brand-border rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 overflow-y-auto custom-scrollbar p-2.5 bg-slate-50 dark:bg-brand-dark/60 border border-slate-200 dark:border-brand-border rounded-xl">
                   {defaultServicesList.map(srv => {
                     const isChecked = selectedServices.includes(srv.id);
                     return (
@@ -14830,41 +14893,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </div>
               </div>
 
-              {/* ETKİNLİK TÜRLERİ YÖNETİMİ */}
-              <div className="space-y-1.5 pt-1">
-                <label className="font-bold block text-slate-700 dark:text-gray-200 flex items-center justify-between">
-                  <span><ThemeIcon icon="target" className="w-4 h-4 inline-block shrink-0" /> Düzenlenebilen Etkinlik Türleri:</span>
-                  <span className="text-[10px] text-amber-600 font-bold">({eventTypes.length} Tür Tanımlı)</span>
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newEventInput}
-                    onChange={e => setNewEventInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addEventType(); } }}
-                    placeholder="Örn: Sünnet, Bekarlığa Veda, Gala (Enter'a basın)"
-                    className="flex-1 bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-slate-800 dark:text-gray-200 text-xs font-bold"
-                  />
-                  <button
-                    type="button"
-                    onClick={addEventType}
-                    className="gold-button font-bold px-3 py-2 rounded-xl text-xs"
-                  >
-                    + Tür Ekle
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {eventTypes.map(type => (
-                    <span key={type} className="inline-flex items-center space-x-1 text-[11px] bg-amber-500/10 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold px-2.5 py-1 rounded-lg border border-amber-500/30">
-                      <span>{type}</span>
-                      <button type="button" onClick={() => removeEventType(type)} className="hover:text-red-500 font-extrabold ml-1.5">✕</button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-
               <ImageDropzoneUploader
-                label="Mekan Kapak Görseli Yükle"
+                label="Mekan Kapak Görseli (URL veya Dosya)"
                 value={image}
                 onChange={setImage}
                 aspectGuide="1200x800 px (16:9 Geniş)"
@@ -14872,13 +14902,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               />
 
               <div>
-                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Açıklama & Mekan Özellikleri:</label>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Açıklama & Mekan Tanıtım Metni:</label>
                 <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 h-16 text-slate-800 dark:text-gray-200" placeholder="Mekan detayları, teknik altyapı ve imkanlar..." />
               </div>
 
               <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
-                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
-                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Mekanı Kaydet ✓</button>
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold cursor-pointer">İptal</button>
+                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl cursor-pointer">Mekanı Kaydet ✓</button>
               </div>
             </form>
           </div>

@@ -920,17 +920,27 @@ app.get('/api/venues', async (req, res) => {
 
 app.post('/api/venues', async (req, res) => {
   const item = { id: req.body.id || ('v-' + Date.now()), ...req.body };
+  const imgs = Array.isArray(item.images) && item.images.length > 0 ? item.images : (item.image ? [item.image] : []);
+  const feats = Array.isArray(item.features) ? item.features : [];
+  const costPrice = item.costPrice !== undefined ? Number(item.costPrice) : (item.cost_price !== undefined ? Number(item.cost_price) : 0);
+
   if (pool) {
     try {
       await pool.query(
-        'INSERT INTO venues (id, name, category, capacity, price, deposit, location, description, features_json, images_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, capacity=?, price=?, deposit=?, location=?, description=?, features_json=?, images_json=?',
-        [item.id, item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, item.location || '', item.description || '', JSON.stringify(item.features || []), JSON.stringify(item.images || []), item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, item.location || '', item.description || '', JSON.stringify(item.features || []), JSON.stringify(item.images || [])]
+        `INSERT INTO venues (id, name, category, capacity, price, deposit, cost_price, location, description, features_json, images_json) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+         ON DUPLICATE KEY UPDATE 
+           name=?, category=?, capacity=?, price=?, deposit=?, cost_price=?, location=?, description=?, features_json=?, images_json=?`,
+        [
+          item.id, item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, costPrice, item.location || '', item.description || '', JSON.stringify(feats), JSON.stringify(imgs),
+          item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, costPrice, item.location || '', item.description || '', JSON.stringify(feats), JSON.stringify(imgs)
+        ]
       );
     } catch(e) {
       console.error('MySQL POST /api/venues error:', e.message);
     }
   }
-  res.status(201).json({ success: true, item });
+  res.status(201).json({ success: true, item: { ...item, costPrice, features: feats, images: imgs, location: item.location || '' } });
 });
 
 app.delete('/api/venues/:id', async (req, res) => {
