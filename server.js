@@ -51,12 +51,6 @@ app.use((req, res, next) => {
     const overrideMethod = req.headers['x-http-method-override'] || req.headers['x-method-override'];
     if (overrideMethod === 'DELETE') {
       req.method = 'DELETE';
-    } else if (req.url.includes('/delete/')) {
-      req.url = req.url.replace('/delete/', '/');
-      req.method = 'DELETE';
-    } else if (req.url.endsWith('-delete')) {
-      req.url = req.url.replace(/-delete$/, '');
-      req.method = 'DELETE';
     }
   }
   next();
@@ -373,12 +367,12 @@ const initMysql = async () => {
           notify_sms TINYINT(1) DEFAULT 0,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50)"); } catch(e){}
-        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_whatsapp TINYINT(1) DEFAULT 1"); } catch(e){}
-        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email TINYINT(1) DEFAULT 1"); } catch(e){}
-        try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_sms TINYINT(1) DEFAULT 0"); } catch(e){}
       `);
+
+      try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50)"); } catch(e){}
+      try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_whatsapp TINYINT(1) DEFAULT 1"); } catch(e){}
+      try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email TINYINT(1) DEFAULT 1"); } catch(e){}
+      try { await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_sms TINYINT(1) DEFAULT 0"); } catch(e){}
 
       await pool.query(`
         CREATE TABLE IF NOT EXISTS reservations (
