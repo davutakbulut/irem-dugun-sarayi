@@ -122,7 +122,19 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* --- LUXURY BUTTON SUITE & SHIMMER EFFECTS --- */
+    /* --- LUXURY BUTTON SUITE & PERIODIC SHIMMER EFFECTS --- */
+    @keyframes periodicShimmer {
+      0% {
+        left: -130%;
+      }
+      22% {
+        left: 140%;
+      }
+      100% {
+        left: 140%;
+      }
+    }
+
     .gold-btn, .btn-luxe-gold {
       position: relative;
       background: linear-gradient(135deg, rgba(197, 160, 89, 0.78) 0%, rgba(168, 132, 61, 0.82) 50%, rgba(140, 109, 51, 0.86) 100%);
@@ -139,15 +151,17 @@
       position: absolute;
       top: 0;
       left: -130%;
-      width: 70%;
+      width: 75%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
       transform: skewX(-22deg);
-      transition: none;
+      animation: periodicShimmer 3.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+      pointer-events: none;
     }
     .gold-btn:hover::after, .btn-luxe-gold:hover::after {
+      animation: none;
       left: 140%;
-      transition: all 0.75s ease-in-out;
+      transition: all 0.65s ease-in-out;
     }
     .gold-btn:hover, .btn-luxe-gold:hover {
       background: linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(197, 160, 89, 0.92) 50%, rgba(168, 132, 61, 0.95) 100%);
@@ -176,15 +190,17 @@
       position: absolute;
       top: 0;
       left: -130%;
-      width: 70%;
+      width: 75%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
       transform: skewX(-22deg);
-      transition: none;
+      animation: periodicShimmer 4.5s cubic-bezier(0.25, 1, 0.5, 1) infinite 1.8s;
+      pointer-events: none;
     }
     .btn-luxe-emerald:hover::after {
+      animation: none;
       left: 140%;
-      transition: all 0.75s ease-in-out;
+      transition: all 0.65s ease-in-out;
     }
     .btn-luxe-emerald:hover {
       background: linear-gradient(135deg, rgba(52, 211, 153, 0.95) 0%, rgba(16, 185, 129, 0.95) 50%, rgba(5, 150, 105, 1) 100%);
