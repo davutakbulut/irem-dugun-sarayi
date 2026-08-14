@@ -47,6 +47,18 @@
   
   <!-- SILENCE DEV CDN WARNINGS (Tailwind CDN, In-browser Babel & 500KB Deopt Note) -->
   <script>
+    // STRICT RULE: PURE REALTIME MYSQL DATABASE - ZERO LOCAL CACHING
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const preserveKeys = ['session_user', 'current_user', 'auth_token'];
+        Object.keys(localStorage).forEach(k => {
+          if (!preserveKeys.includes(k) && !k.startsWith('auth')) {
+            localStorage.removeItem(k);
+          }
+        });
+      }
+    } catch(e){}
+
     (function() {
       var _w = console.warn, _i = console.info, _l = console.log, _e = console.error;
       function isNoise(args) {
@@ -8796,10 +8808,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
-      const [venues, setVenues] = useState(() => CacheService.get('venues', INITIAL_VENUES) || INITIAL_VENUES);
-      const [services, setServices] = useState(() => CacheService.get('services', INITIAL_SERVICES) || INITIAL_SERVICES);
-      const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', INITIAL_CAMPAIGNS) || INITIAL_CAMPAIGNS);
-      const [customers, setCustomers] = useState(() => CacheService.get('customers', INITIAL_CUSTOMERS) || INITIAL_CUSTOMERS);
+      const [venues, setVenues] = useState([]);
+      const [services, setServices] = useState([]);
+      const [campaigns, setCampaigns] = useState([]);
+      const [customers, setCustomers] = useState([]);
       const [quoteRequests, setQuoteRequests] = useState(() => CacheService.get('quote_requests', INITIAL_QUOTE_REQUESTS));
 
       const handleSaveQuoteRequest = (newQuote) => {
@@ -9012,7 +9024,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [sessionUser]);
 
       // CURRENT USER PROFILE STATE
-      const [companySettings, setCompanySettings] = useState(() => CacheService.get('company_settings', DEFAULT_COMPANY_SETTINGS));
+      const [companySettings, setCompanySettings] = useState(DEFAULT_COMPANY_SETTINGS);
       const [currentUserState, setCurrentUserState] = useState(() => CacheService.get('current_user', {
         id: 'u_davut',
         name: 'Davut Akbulut',
