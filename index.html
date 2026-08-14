@@ -1193,27 +1193,25 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                   { id: 'about', label: 'HAKKIMIZDA', subtitle: '15 Yıllık Hikaye & Vizyon' },
                   { id: 'blog', label: 'BLOG & DÜĞÜN REHBERİ', subtitle: 'Evlilik Tavsiyeleri & Trendler' },
                   { id: 'contact', label: 'İLETİŞİM & KONUM', subtitle: 'Yol Tarifi, Telefon & Rezervasyon' }
-                ].map((item, idx) => {
+                ].map((item) => {
                   const isActive = currentTab === item.id;
                   return (
                     <button
                       key={item.id}
                       onClick={() => navigateToTab(item.id)}
-                      className={`w-full text-left p-3 rounded-sm transition flex items-center justify-between group cursor-pointer border ${
+                      className={`w-full text-left p-3.5 rounded-sm transition flex items-center justify-between group cursor-pointer border ${
                         isActive
                           ? 'bg-[#FAF6EE] text-[#8C6D33] border-[#E3D3B5] shadow-xs'
                           : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200/80 hover:border-[#E3D3B5]'
                       }`}
                     >
                       <div className="flex items-center space-x-3">
-                        <div className={`w-7 h-7 rounded-sm flex items-center justify-center text-xs font-bold ${
-                          isActive ? 'btn-luxe-gold text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-[#FAF6EE] group-hover:text-[#8C6D33]'
-                        }`}>
-                          {idx + 1}
-                        </div>
+                        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          isActive ? 'bg-[#C5A059] scale-125' : 'bg-slate-300 group-hover:bg-[#C5A059]'
+                        }`} />
                         <div>
                           <div className="text-xs font-extrabold uppercase tracking-wider">{item.label}</div>
-                          <div className="text-[10px] text-slate-400 font-medium">{item.subtitle}</div>
+                          <div className="text-[10.5px] text-slate-400 font-medium">{item.subtitle}</div>
                         </div>
                       </div>
                       <span className={`text-xs font-bold transition transform group-hover:translate-x-1 ${isActive ? 'text-[#8C6D33]' : 'text-slate-300'}`}>
