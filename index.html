@@ -664,20 +664,31 @@
                       </a>
                     </div>
 
-                    {/* Scroll Down Indicator */}
-                    <div 
-                      onClick={() => {
-                        const target = document.getElementById('about-intro-section');
-                        if (target) target.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="cursor-pointer pt-8 flex flex-col items-center space-y-1 opacity-90 hover:opacity-100 transition animate-bounce-slow"
-                    >
-                      <span className="text-[10px] tracking-widest uppercase font-extrabold text-white drop-shadow">
-                        AŞAĞI KAYDIRIN
-                      </span>
-                      <Icon name="arrowDown" className="w-4 h-4 text-amber-300" />
-                    </div>
+                  </div>
 
+                  {/* Scroll Down Indicator (Positioned exactly at the bottom edge of 100vh Hero Viewport) */}
+                  <div 
+                    onClick={() => {
+                      const target = document.getElementById('about-intro-section');
+                      if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+                      }
+                    }}
+                    className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 cursor-pointer flex flex-col items-center space-y-1.5 select-none transition-all group opacity-90 hover:opacity-100"
+                  >
+                    <span className="text-xs sm:text-sm font-extrabold tracking-[0.25em] uppercase text-white drop-shadow-md text-center transition group-hover:text-amber-300">
+                      AŞAĞI KAYDIRIN
+                    </span>
+                    <svg 
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md animate-bounce transition group-hover:text-amber-300" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.8" d="M12 4v16m0 0l-5-5m5 5l5-5" />
+                    </svg>
                   </div>
                 </section>
 
