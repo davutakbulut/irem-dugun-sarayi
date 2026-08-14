@@ -2162,18 +2162,6 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
                           </button>
                         </div>
-
-                        <button
-                          onClick={() => {
-                            const cur = EXTENDED_GALLERIES.slice(0, 6)[activeGalleryIndex];
-                            setActiveGalleryFilter(cur?.category || 'all');
-                            navigateToTab('galleries');
-                          }}
-                          className="btn-luxe-gold px-5 py-2 rounded-sm text-xs font-extrabold uppercase tracking-wider text-white shadow-sm flex items-center space-x-1.5 cursor-pointer mt-1"
-                        >
-                          <span>Tüm Fotoğrafları Görüntüle</span>
-                          <Icon name="arrowRight" className="w-3.5 h-3.5" />
-                        </button>
                       </div>
                     </div>
 
