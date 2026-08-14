@@ -770,9 +770,62 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
       }
     ];
 
+    const TAB_ROUTES = {
+      'home': '/',
+      'virtual-tour': '/sanal-tur',
+      'organizations': '/organizasyonlar',
+      'galleries': '/galeri',
+      'about': '/hakkimizda',
+      'blog': '/blog',
+      'contact': '/iletisim'
+    };
+
+    const ROUTE_TO_TAB = {
+      '/': 'home',
+      '': 'home',
+      '/sanal-tur': 'virtual-tour',
+      '/360': 'virtual-tour',
+      '/sanal-gezinti': 'virtual-tour',
+      '/organizasyonlar': 'organizations',
+      '/organizasyon': 'organizations',
+      '/hizmetler': 'organizations',
+      '/galeri': 'galleries',
+      '/galeriler': 'galleries',
+      '/fotograflar': 'galleries',
+      '/hakkimizda': 'about',
+      '/vizyon': 'about',
+      '/hikayemiz': 'about',
+      '/blog': 'blog',
+      '/rehber': 'blog',
+      '/yazilar': 'blog',
+      '/iletisim': 'contact',
+      '/konum': 'contact',
+      '/ulasim': 'contact',
+      '/rezervasyon': 'contact'
+    };
+
+    const PAGE_TITLES = {
+      'home': 'İrem Düğün Sarayı | Sakarya Balo & Düğün Davet Tesisleri',
+      'virtual-tour': '360° Sanal Tur & Salonlar | İrem Düğün Sarayı',
+      'organizations': 'Organizasyon Hizmetlerimiz | İrem Düğün Sarayı',
+      'galleries': 'Fotoğraf & Video Galerisi | İrem Düğün Sarayı',
+      'about': 'Hakkımızda & 15 Yıllık Vizyon | İrem Düğün Sarayı',
+      'blog': 'Düğün Rehberi & Gurme Tavsiyeler | İrem Düğün Sarayı',
+      'contact': 'İletişim, Yol Tarifi & Fiyat Teklifi | İrem Düğün Sarayı'
+    };
+
+    const getTabFromLocation = () => {
+      if (typeof window === 'undefined') return 'home';
+      const path = window.location.pathname.replace(/\/$/, '') || '/';
+      const hash = window.location.hash.toLowerCase();
+      if (ROUTE_TO_TAB[path]) return ROUTE_TO_TAB[path];
+      if (ROUTE_TO_TAB[hash]) return ROUTE_TO_TAB[hash];
+      return 'home';
+    };
+
     // --- MAIN APP COMPONENT ---
     function PublicApp() {
-      const [currentTab, setCurrentTab] = useState('home');
+      const [currentTab, setCurrentTab] = useState(getTabFromLocation());
       const [isScrolled, setIsScrolled] = useState(false);
       const [scrollProgress, setScrollProgress] = useState(0);
       const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -927,10 +980,46 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
         return () => window.removeEventListener('scroll', handleScroll);
       }, []);
 
-      // Navigation tab switch with smooth top scroll
-      const navigateToTab = (tabId) => {
+      // SPA History & URL Route Sync
+      useEffect(() => {
+        const handlePopState = (e) => {
+          const targetTab = (e.state && e.state.tab) || getTabFromLocation();
+          setCurrentTab(targetTab);
+          setIsMobileMenuOpen(false);
+          if (PAGE_TITLES[targetTab]) {
+            document.title = PAGE_TITLES[targetTab];
+          }
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        // Initial title and state sync
+        const currentTabId = getTabFromLocation();
+        if (PAGE_TITLES[currentTabId]) {
+          document.title = PAGE_TITLES[currentTabId];
+        }
+        if (!window.history.state || !window.history.state.tab) {
+          const targetPath = TAB_ROUTES[currentTabId] || '/';
+          window.history.replaceState({ tab: currentTabId }, '', targetPath);
+        }
+
+        return () => window.removeEventListener('popstate', handlePopState);
+      }, []);
+
+      // Navigation tab switch with pushState URL change & smooth top scroll
+      const navigateToTab = (tabId, pushToHistory = true) => {
         setCurrentTab(tabId);
         setIsMobileMenuOpen(false);
+        if (PAGE_TITLES[tabId]) {
+          document.title = PAGE_TITLES[tabId];
+        }
+        const targetPath = TAB_ROUTES[tabId] || '/';
+        if (pushToHistory) {
+          if (window.location.pathname !== targetPath) {
+            window.history.pushState({ tab: tabId }, '', targetPath);
+          }
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       };
 
@@ -1080,10 +1169,14 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                   ].map(item => {
                     const isActive = currentTab === item.id;
                     return (
-                      <button
+                      <a
                         key={item.id}
-                        onClick={() => navigateToTab(item.id)}
-                        className={`relative px-3 py-2 transition-all duration-200 cursor-pointer ${
+                        href={TAB_ROUTES[item.id] || '/'}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigateToTab(item.id);
+                        }}
+                        className={`relative px-3 py-2 transition-all duration-200 cursor-pointer inline-block ${
                           isScrolled
                             ? (isActive ? 'text-[#8C6D33] font-black' : 'text-slate-700 hover:text-[#8C6D33]')
                             : (isActive ? 'text-[#EBDCB9] font-black drop-shadow-sm' : 'text-white/90 hover:text-white')
@@ -1093,7 +1186,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                         {isActive && (
                           <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#C5A059] rounded-none shadow-sm"></span>
                         )}
-                      </button>
+                      </a>
                     );
                   })}
                 </nav>
@@ -1196,9 +1289,13 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                 ].map((item) => {
                   const isActive = currentTab === item.id;
                   return (
-                    <button
+                    <a
                       key={item.id}
-                      onClick={() => navigateToTab(item.id)}
+                      href={TAB_ROUTES[item.id] || '/'}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateToTab(item.id);
+                      }}
                       className={`w-full text-left p-3.5 rounded-sm transition flex items-center justify-between group cursor-pointer border ${
                         isActive
                           ? 'bg-[#FAF6EE] text-[#8C6D33] border-[#E3D3B5] shadow-xs'
@@ -1217,7 +1314,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                       <span className={`text-xs font-bold transition transform group-hover:translate-x-1 ${isActive ? 'text-[#8C6D33]' : 'text-slate-300'}`}>
                         →
                       </span>
-                    </button>
+                    </a>
                   );
                 })}
               </div>
@@ -1413,7 +1510,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
                         <div className="pt-4">
                           <button
-                            onClick={() => setCurrentTab('venues')}
+                            onClick={() => navigateToTab('virtual-tour')}
                             className="btn-luxe-gold px-7 py-3.5 rounded-sm font-extrabold text-xs uppercase tracking-wider inline-flex items-center space-x-2 shadow-md"
                           >
                             <span>Mekanlarımızı Keşfedin</span>
@@ -1533,7 +1630,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                       <button
                         onClick={() => {
                           setActiveHall360('kraliyet');
-                          setCurrentTab('virtual-tour');
+                          navigateToTab('virtual-tour');
                         }}
                         className="text-[#8C6D33] hover:text-[#6D5427] font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1.5 bg-[#FAF6EE] hover:bg-[#F4ECD8] px-4 py-2.5 rounded-sm transition border border-[#E3D3B5]"
                       >
@@ -1577,7 +1674,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                               <button
                                 onClick={() => {
                                   setActiveHall360('kraliyet');
-                                  setCurrentTab('virtual-tour');
+                                  navigateToTab('virtual-tour');
                                 }}
                                 className="btn-luxe-gold text-white font-extrabold text-xs uppercase tracking-wider px-4 py-2 rounded-sm shadow-lg backdrop-blur-md transition flex items-center space-x-1.5"
                               >
@@ -1680,7 +1777,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                               <button
                                 onClick={() => {
                                   setActiveHall360('kraliyet');
-                                  setCurrentTab('virtual-tour');
+                                  navigateToTab('virtual-tour');
                                 }}
                                 className="py-2.5 rounded-sm bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-1.5 border border-slate-200"
                               >
@@ -1856,7 +1953,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                         </h2>
                       </div>
                       <button 
-                        onClick={() => setCurrentTab('blog')}
+                        onClick={() => navigateToTab('blog')}
                         className="text-[#8C6D33] hover:text-[#6D5427] font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1 py-1.5 px-3 rounded-sm bg-[#FAF6EE] border border-[#E3D3B5] hover:bg-[#F5ECD8] transition cursor-pointer"
                       >
                         <span>Tümü</span>
@@ -1933,7 +2030,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                         </h2>
                       </div>
                       <button 
-                        onClick={() => setCurrentTab('galleries')}
+                        onClick={() => navigateToTab('galleries')}
                         className="text-[#8C6D33] hover:text-[#6D5427] font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1 py-1.5 px-3 rounded-sm bg-white border border-[#E3D3B5] hover:bg-[#FAF6EE] transition cursor-pointer shadow-xs"
                       >
                         <span>Tüm Galeriler</span>
@@ -1991,8 +2088,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                               onClick={() => {
                                 if (isCurrent) {
                                   setActiveGalleryFilter(gal.category || 'all');
-                                  setCurrentTab('galleries');
-                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  navigateToTab('galleries');
                                 } else if (isNext) {
                                   nextGallery();
                                 } else if (isPrev) {
@@ -2073,8 +2169,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                           onClick={() => {
                             const cur = EXTENDED_GALLERIES.slice(0, 6)[activeGalleryIndex];
                             setActiveGalleryFilter(cur?.category || 'all');
-                            setCurrentTab('galleries');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            navigateToTab('galleries');
                           }}
                           className="btn-luxe-gold px-5 py-2 rounded-sm text-xs font-extrabold uppercase tracking-wider text-white shadow-sm flex items-center space-x-1.5 cursor-pointer mt-1"
                         >
@@ -2091,8 +2186,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                           key={gal.id}
                           onClick={() => {
                             setActiveGalleryFilter(gal.category || 'all');
-                            setCurrentTab('galleries');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            navigateToTab('galleries');
                           }}
                           className="aspect-[4/3] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-slate-200 bg-slate-950 relative flex flex-col justify-end"
                         >
@@ -3641,11 +3735,11 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     <span>HIZLI MENÜ</span>
                   </div>
                   <ul className="space-y-2 text-xs font-semibold text-slate-600">
-                    <li><button onClick={() => navigateToTab('home')} className="hover:text-[#8C6D33] transition cursor-pointer">Ana Sayfa</button></li>
-                    <li><button onClick={() => navigateToTab('virtual-tour')} className="hover:text-[#8C6D33] transition cursor-pointer">360° Sanal Tur</button></li>
-                    <li><button onClick={() => navigateToTab('organizations')} className="hover:text-[#8C6D33] transition cursor-pointer">Organizasyonlarımız</button></li>
-                    <li><button onClick={() => navigateToTab('galleries')} className="hover:text-[#8C6D33] transition cursor-pointer">Galeri & Fotoğraflar</button></li>
-                    <li><button onClick={() => navigateToTab('contact')} className="hover:text-[#8C6D33] transition cursor-pointer">İletişim & Konum</button></li>
+                    <li><a href="/" onClick={(e) => { e.preventDefault(); navigateToTab('home'); }} className="hover:text-[#8C6D33] transition cursor-pointer">Ana Sayfa</a></li>
+                    <li><a href="/sanal-tur" onClick={(e) => { e.preventDefault(); navigateToTab('virtual-tour'); }} className="hover:text-[#8C6D33] transition cursor-pointer">360° Sanal Tur</a></li>
+                    <li><a href="/organizasyonlar" onClick={(e) => { e.preventDefault(); navigateToTab('organizations'); }} className="hover:text-[#8C6D33] transition cursor-pointer">Organizasyonlarımız</a></li>
+                    <li><a href="/galeri" onClick={(e) => { e.preventDefault(); navigateToTab('galleries'); }} className="hover:text-[#8C6D33] transition cursor-pointer">Galeri & Fotoğraflar</a></li>
+                    <li><a href="/iletisim" onClick={(e) => { e.preventDefault(); navigateToTab('contact'); }} className="hover:text-[#8C6D33] transition cursor-pointer">İletişim & Konum</a></li>
                   </ul>
                 </div>
 
@@ -3655,8 +3749,8 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     <span>KURUMSAL & REHBER</span>
                   </div>
                   <ul className="space-y-2 text-xs font-semibold text-slate-600">
-                    <li><button onClick={() => navigateToTab('about')} className="hover:text-[#8C6D33] transition cursor-pointer">Hakkımızda & Vizyon</button></li>
-                    <li><button onClick={() => navigateToTab('blog')} className="hover:text-[#8C6D33] transition cursor-pointer">Düğün Rehberi & Blog</button></li>
+                    <li><a href="/hakkimizda" onClick={(e) => { e.preventDefault(); navigateToTab('about'); }} className="hover:text-[#8C6D33] transition cursor-pointer">Hakkımızda & Vizyon</a></li>
+                    <li><a href="/blog" onClick={(e) => { e.preventDefault(); navigateToTab('blog'); }} className="hover:text-[#8C6D33] transition cursor-pointer">Düğün Rehberi & Blog</a></li>
                     <li><button onClick={() => setIsQuoteModalOpen(true)} className="hover:text-[#8C6D33] transition cursor-pointer font-bold text-[#8C6D33]">Ücretsiz Teklif Al</button></li>
                     <li><a href="/yonetim" className="hover:text-[#8C6D33] transition font-bold text-slate-700">Müşteri VIP Portalı</a></li>
                   </ul>
