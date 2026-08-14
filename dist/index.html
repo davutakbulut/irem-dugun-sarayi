@@ -9954,7 +9954,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       // Print Invoice Helper
       const handlePrintInvoice = (res) => {
         const venue = venues.find(v => v.id === res.venueId);
-        const printWin = window.open('', '_blank', 'width=900,height=700');
+        const printWin = window.open('', '_blank');
         printWin.document.write(`
           <!DOCTYPE html>
           <html>
