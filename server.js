@@ -1989,17 +1989,17 @@ app.get('/api/company-settings', async (req, res) => {
   }
   res.json({
     id: 'default',
-    company_name: 'İrem Düğün Sarayı Ltd. Şti.',
-    brand_title: 'Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya',
-    address: 'Sapanca Göl Kenarı No: 45, Sapanca / Sakarya',
-    tax_office: 'Sapanca Vergi Dairesi',
-    tax_number: '4820192837',
-    phone: '+90 532 111 2233',
-    email: 'bilgi@iremdugunsarayi.com',
-    website: 'https://irem.portegu.com',
-    authorized_person: 'Davut Akbulut (Genel Müdür)',
-    bank_info: 'Garanti BBVA - TR12 0006 2000 0001 2345 6789 01',
-    contract_title: 'DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ',
+    company_name: '',
+    brand_title: '',
+    address: '',
+    tax_office: '',
+    tax_number: '',
+    phone: '',
+    email: '',
+    website: '',
+    authorized_person: '',
+    bank_info: '',
+    contract_title: '',
     contract_terms_full: ''
   });
 });

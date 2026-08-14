@@ -10022,17 +10022,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       // Print Invoice Helper (100% Dynamic with Database Company Settings & 3-Page Contract Clauses)
       const handlePrintInvoice = (res) => {
         const venue = venues.find(v => v.id === res.venueId);
-        const comp = companySettings || (typeof DEFAULT_COMPANY_SETTINGS !== 'undefined' ? DEFAULT_COMPANY_SETTINGS : {
-          company_name: 'İrem Düğün Sarayı Ltd. Şti.',
-          brand_title: 'Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya',
-          address: 'Sapanca Göl Kenarı No: 45, Sapanca / Sakarya',
-          tax_office: 'Sapanca Vergi Dairesi',
-          tax_number: '4820192837',
-          phone: '+90 532 111 2233',
-          email: 'bilgi@iremdugunsarayi.com',
-          contract_title: 'DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ',
+        const comp = companySettings || {
+          company_name: '',
+          brand_title: '',
+          address: '',
+          tax_office: '',
+          tax_number: '',
+          phone: '',
+          email: '',
+          contract_title: '',
           contract_terms_full: ''
-        });
+        };
         const printWin = window.open('', '_blank');
         printWin.document.write(`
           <!DOCTYPE html>
@@ -14825,18 +14825,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     function CompanySettingsComponent({ companySettings, onSave }) {
       const [activeSubTab, setActiveSubTab] = useState('company'); // 'company' | 'contract' | 'preview'
       
-      const [companyName, setCompanyName] = useState(companySettings?.company_name || 'İrem Düğün Sarayı Ltd. Şti.');
-      const [brandTitle, setBrandTitle] = useState(companySettings?.brand_title || 'Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya');
-      const [address, setAddress] = useState(companySettings?.address || 'Sapanca Göl Kenarı No: 45, Sapanca / Sakarya');
-      const [taxOffice, setTaxOffice] = useState(companySettings?.tax_office || 'Sapanca Vergi Dairesi');
-      const [taxNumber, setTaxNumber] = useState(companySettings?.tax_number || '4820192837');
-      const [phone, setPhone] = useState(companySettings?.phone || '+90 532 111 2233');
-      const [email, setEmail] = useState(companySettings?.email || 'bilgi@iremdugunsarayi.com');
-      const [website, setWebsite] = useState(companySettings?.website || 'https://irem.portegu.com');
-      const [authorizedPerson, setAuthorizedPerson] = useState(companySettings?.authorized_person || 'Davut Akbulut (Genel Müdür)');
-      const [bankInfo, setBankInfo] = useState(companySettings?.bank_info || 'Garanti BBVA - TR12 0006 2000 0001 2345 6789 01');
-      const [contractTitle, setContractTitle] = useState(companySettings?.contract_title || 'DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ');
-      const [contractTerms, setContractTerms] = useState(companySettings?.contract_terms_full || DEFAULT_COMPANY_SETTINGS.contract_terms_full);
+      const [companyName, setCompanyName] = useState(companySettings?.company_name || '');
+      const [brandTitle, setBrandTitle] = useState(companySettings?.brand_title || '');
+      const [address, setAddress] = useState(companySettings?.address || '');
+      const [taxOffice, setTaxOffice] = useState(companySettings?.tax_office || '');
+      const [taxNumber, setTaxNumber] = useState(companySettings?.tax_number || '');
+      const [phone, setPhone] = useState(companySettings?.phone || '');
+      const [email, setEmail] = useState(companySettings?.email || '');
+      const [website, setWebsite] = useState(companySettings?.website || '');
+      const [authorizedPerson, setAuthorizedPerson] = useState(companySettings?.authorized_person || '');
+      const [bankInfo, setBankInfo] = useState(companySettings?.bank_info || '');
+      const [contractTitle, setContractTitle] = useState(companySettings?.contract_title || '');
+      const [contractTerms, setContractTerms] = useState(companySettings?.contract_terms_full || '');
 
       // Keep form fields synced when companySettings loads or updates from MySQL
       useEffect(() => {
