@@ -17059,11 +17059,21 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const reservationFinancials = useMemo(() => {
         return (reservations || []).map(r => {
           const vObj = (venues || []).find(v => v.id === r.venueId);
-          const venueCost = r.venueCost !== undefined ? Number(r.venueCost) : Number(vObj?.costPrice || Math.round((r.venuePrice || 60000) * 0.55));
+          // 1. ÖNCELİK: Mekan Kartına Tanımlı Gerçek Maliyet Bedeli
+          const venueCost = (vObj && vObj.costPrice !== undefined && Number(vObj.costPrice) > 0)
+            ? Number(vObj.costPrice)
+            : (r.venueCost !== undefined && Number(r.venueCost) > 0
+                ? Number(r.venueCost)
+                : Math.round(Number(r.venuePrice || r.customVenuePrice || 60000) * 0.55));
 
+          // 1. ÖNCELİK: Ek Hizmet Kartına Tanımlı Gerçek Birim Maliyeti
           const servicesCost = (r.selectedServices || []).reduce((sum, s) => {
             const sObj = (services || []).find(srv => srv.id === s.serviceId);
-            const uCost = s.costPrice !== undefined ? Number(s.costPrice) : (sObj?.costPrice !== undefined ? Number(sObj.costPrice) : Math.round(Number(s.unitPrice || 250) * 0.6));
+            const uCost = (sObj && sObj.costPrice !== undefined && Number(sObj.costPrice) > 0)
+              ? Number(sObj.costPrice)
+              : (s.costPrice !== undefined && Number(s.costPrice) > 0
+                  ? Number(s.costPrice)
+                  : Math.round(Number(s.unitPrice || s.price || 250) * 0.6));
             return sum + (uCost * Number(s.quantity || 1));
           }, 0);
 
@@ -17626,7 +17636,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                                 const sObj = (services || []).find(srv => srv.id === s.serviceId);
                                                 const sName = s.name || sObj?.name || `Hizmet (${s.serviceId})`;
                                                 const sQty = Number(s.quantity || 1);
-                                                const sCost = s.costPrice !== undefined ? Number(s.costPrice) : (sObj?.costPrice !== undefined ? Number(sObj.costPrice) : Math.round(Number(s.unitPrice || 250) * 0.6));
+                                                const sCost = (sObj && sObj.costPrice !== undefined && Number(sObj.costPrice) > 0)
+                                                  ? Number(sObj.costPrice)
+                                                  : (s.costPrice !== undefined && Number(s.costPrice) > 0
+                                                      ? Number(s.costPrice)
+                                                      : Math.round(Number(s.unitPrice || s.price || 250) * 0.6));
                                                 const totalItemCost = sCost * sQty;
                                                 return (
                                                   <div key={idx} className="p-2 bg-slate-50 dark:bg-brand-dark rounded-xl flex justify-between items-center text-[11px] border border-slate-200/60 dark:border-brand-border/40">
