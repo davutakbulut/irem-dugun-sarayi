@@ -1045,54 +1045,142 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
               </div>
 
-              {/* Mobile Drawer Menu */}
-              {isMobileMenuOpen && (
-                <div className="lg:hidden mt-3 pt-3 border-t border-[#E3D3B5]/40 bg-white/95 backdrop-blur-xl rounded-sm p-4 text-slate-900 shadow-2xl space-y-2">
-                  {[
-                    { id: 'home', label: 'ANA SAYFA' },
-                    { id: 'virtual-tour', label: '360° SANAL TUR' },
-                    { id: 'organizations', label: 'ORGANİZASYONLARIMIZ' },
-                    { id: 'galleries', label: 'GALERİ & FOTOĞRAFLAR' },
-                    { id: 'about', label: 'HAKKIMIZDA' },
-                    { id: 'blog', label: 'BLOG' },
-                    { id: 'contact', label: 'İLETİŞİM & KONUM' }
-                  ].map(item => (
+            </div>
+          </header>
+
+          {/* ========================================================================= */}
+          {/* 1.2 MOBILE LUXURY SLIDE-IN DRAWER (RIGHT-SLIDING 90% WIDTH + BLURRED BG)  */}
+          {/* ========================================================================= */}
+          <div 
+            className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
+              isMobileMenuOpen ? 'visible pointer-events-auto' : 'invisible pointer-events-none'
+            }`}
+          >
+            {/* Blurred Backdrop Overlay */}
+            <div 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300 ${
+                isMobileMenuOpen ? 'opacity-100' : 'opacity-0'
+              }`}
+            ></div>
+
+            {/* Side Drawer Container (90% horizontal width, smooth slide from right) */}
+            <div 
+              className={`fixed inset-y-0 right-0 w-[90vw] max-w-md bg-[#FAF9F6] border-l border-[#E3D3B5] shadow-2xl flex flex-col justify-between z-50 transform transition-transform duration-300 ease-out overflow-y-auto ${
+                isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+              }`}
+            >
+              {/* Top Bar: Brand & Close Button */}
+              <div className="p-4 sm:p-5 border-b border-[#E3D3B5]/70 flex items-center justify-between bg-white sticky top-0 z-10 shadow-xs">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-9 h-9 rounded-sm btn-luxe-gold text-white flex items-center justify-center shadow-xs">
+                    <Icon name="crown" className="w-4 h-4 text-amber-200" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-sm tracking-wider uppercase text-slate-900 leading-tight">
+                      İREM DÜĞÜN SARAYI
+                    </div>
+                    <div className="text-[8.5px] font-extrabold tracking-widest uppercase text-[#8C6D33]">
+                      BALO & DAVET TESİSLERİ
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm transition cursor-pointer"
+                  aria-label="Menüyü Kapat"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Navigation Items List (Matches Desktop Exactly 1-to-1) */}
+              <div className="p-4 space-y-2 flex-1 overflow-y-auto">
+                <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#8C6D33] px-2 pt-1 pb-1">
+                  Sayfa Menüsü
+                </div>
+
+                {[
+                  { id: 'home', label: 'ANA SAYFA', subtitle: 'Ana Sayfa & Saray Tanıtımı' },
+                  { id: 'virtual-tour', label: '360° SANAL TUR', subtitle: 'İnteraktif Salon Gezintisi' },
+                  { id: 'organizations', label: 'ORGANİZASYONLARIMIZ', subtitle: 'Düğün, Kına & VIP Paketler' },
+                  { id: 'galleries', label: 'GALERİ & FOTOĞRAFLAR', subtitle: 'Fotoğraf & Video Kareleri' },
+                  { id: 'about', label: 'HAKKIMIZDA', subtitle: '15 Yıllık Hikaye & Vizyon' },
+                  { id: 'blog', label: 'BLOG & DÜĞÜN REHBERİ', subtitle: 'Evlilik Tavsiyeleri & Trendler' },
+                  { id: 'contact', label: 'İLETİŞİM & KONUM', subtitle: 'Yol Tarifi, Telefon & Rezervasyon' }
+                ].map((item, idx) => {
+                  const isActive = currentTab === item.id;
+                  return (
                     <button
                       key={item.id}
                       onClick={() => navigateToTab(item.id)}
-                      className={`w-full text-left px-4 py-3 rounded-sm text-xs font-extrabold tracking-wider uppercase transition flex items-center justify-between ${
-                        currentTab === item.id 
-                          ? 'bg-[#FAF6EE] text-[#8C6D33] border border-[#E3D3B5]' 
-                          : 'text-slate-700 hover:bg-slate-50'
+                      className={`w-full text-left p-3 rounded-sm transition flex items-center justify-between group cursor-pointer border ${
+                        isActive
+                          ? 'bg-[#FAF6EE] text-[#8C6D33] border-[#E3D3B5] shadow-xs'
+                          : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200/80 hover:border-[#E3D3B5]'
                       }`}
                     >
-                      <span>{item.label}</span>
-                      <span className="text-slate-400">→</span>
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-7 h-7 rounded-sm flex items-center justify-center text-xs font-bold ${
+                          isActive ? 'btn-luxe-gold text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-[#FAF6EE] group-hover:text-[#8C6D33]'
+                        }`}>
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <div className="text-xs font-extrabold uppercase tracking-wider">{item.label}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">{item.subtitle}</div>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-bold transition transform group-hover:translate-x-1 ${isActive ? 'text-[#8C6D33]' : 'text-slate-300'}`}>
+                        →
+                      </span>
                     </button>
-                  ))}
+                  );
+                })}
+              </div>
 
-                  <div className="pt-3 grid grid-cols-2 gap-2 border-t border-slate-100">
-                    <a
-                      href="tel:+905471440054"
-                      className="py-2.5 rounded-sm btn-luxe-gold text-white text-[11px] font-bold text-center flex items-center justify-center space-x-1"
-                    >
-                      <Icon name="phone" className="w-3.5 h-3.5" />
-                      <span>0547 144 00 54</span>
-                    </a>
-                    <a
-                      href="https://wa.me/905471440054"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="py-2.5 rounded-sm btn-luxe-emerald text-white text-[11px] font-bold text-center flex items-center justify-center space-x-1"
-                    >
-                      <span>WhatsApp</span>
-                    </a>
-                  </div>
+              {/* Bottom Mobile Action Area */}
+              <div className="p-4 bg-white border-t border-[#E3D3B5]/70 space-y-2.5 sticky bottom-0 z-10 shadow-lg">
+                {/* Teklif Al Butonu */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsQuoteModalOpen(true);
+                  }}
+                  className="w-full py-3 rounded-sm btn-luxe-gold text-white font-extrabold text-xs uppercase tracking-wider shadow-md flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <Icon name="sparkles" className="w-4 h-4 text-amber-200" />
+                  <span>Ücretsiz Fiyat Teklifi Al</span>
+                </button>
+
+                {/* Dual Contact Buttons: Phone & WhatsApp */}
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href="tel:+905471440054"
+                    className="py-2.5 px-2 rounded-sm bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-extrabold text-center flex items-center justify-center space-x-1.5 transition shadow-xs"
+                  >
+                    <Icon name="phone" className="w-3.5 h-3.5 text-[#C5A059]" />
+                    <span>Hemen Ara</span>
+                  </a>
+                  <a
+                    href="https://wa.me/905471440054"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-2.5 px-2 rounded-sm btn-luxe-emerald text-white text-[11px] font-extrabold text-center flex items-center justify-center space-x-1.5 transition shadow-xs"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    <span>WhatsApp</span>
+                  </a>
                 </div>
-              )}
 
+                <div className="text-[10px] text-slate-400 text-center flex items-center justify-center space-x-1.5 pt-0.5">
+                  <Icon name="mapPin" className="w-3 h-3 text-[#C5A059]" />
+                  <span>Sapanca Sahil No:42 Sakarya</span>
+                </div>
+              </div>
             </div>
-          </header>
+          </div>
 
           {/* ========================================================================= */}
           {/* 2. DYNAMIC CONTENT AREA                                                   */}
