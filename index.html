@@ -225,49 +225,147 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- LUXURY ICON HELPER ---
+    // --- LUXURY ICON HELPER (100% SVG COMPLIANT) ---
     const Icon = ({ name, className = "w-5 h-5" }) => {
-      const icons = {
+      const svgs = {
         crown: (
-          <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
-          </svg>
+          <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
         ),
         crownLine: (
-          <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-          </svg>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
         ),
         sparkles: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />,
-        phone: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />,
+        phone: <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.28-.27.36-.67.25-1.02A11.36 11.36 0 018.96 4.3a1 1 0 00-1-1H4.5c-.55 0-1 .45-1 1C3.5 13.06 10.94 20.5 20.01 20.5c.55 0 1-.45 1-1v-3.62c0-.55-.45-1-1-1z" fill="currentColor"/>,
         mail: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
         mapPin: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />,
-        check: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />,
+        clock: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />,
+        check: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />,
+        badgeCheck: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />,
         play: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
         close: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />,
         arrowRight: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />,
+        arrowLeft: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />,
         arrowDown: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />,
         calendar: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />,
         users: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />,
-        star: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />,
-        panorama: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        star: <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />,
+        panorama: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
+        quote: <path fill="currentColor" d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />
       };
-      return (
-        icons[name] ? (
-          typeof icons[name] === 'object' && icons[name].type ? icons[name] : (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {icons[name]}
-            </svg>
-          )
-        ) : (
-          <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {icons.sparkles}
+
+      if (name === 'crown' || name === 'phone' || name === 'star' || name === 'quote') {
+        return (
+          <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+            {svgs[name]}
           </svg>
-        )
+        );
+      }
+
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {svgs[name] || svgs.sparkles}
+        </svg>
       );
     };
 
-    // --- DATA CONSTANTS ---
+    // --- VERIFIED PLATFORM REVIEWS DATA ---
+    const REVIEWS = [
+      {
+        id: 'rev-1',
+        name: 'Zeynep & Caner Öztürk',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+        salon: 'Kraliyet Balo Salonu',
+        date: '14 Temmuz 2026',
+        rating: 5,
+        source: {
+          platform: 'Düğün.com',
+          badgeText: 'Düğün.com Onaylı Çift',
+          color: 'bg-rose-50 text-rose-700 border-rose-200',
+          dotColor: 'bg-rose-500',
+          iconType: 'dugun'
+        },
+        verified: true,
+        verifiedText: 'Doğrulanmış Rezervasyon',
+        title: '“Rüya Gibi Bir Düğün & Kusursuz Hizmet”',
+        comment: 'Hayatımızın en güzel gününü İrem Düğün Sarayı’nda yaşadık. Salonun ihtişamı, kristal avizelerin büyüsü ve yemeklerin sıcaklığı kusursuzdu. Her anımızda yanımızda olan düğün koordinatörümüze sonsuz teşekkürler!'
+      },
+      {
+        id: 'rev-2',
+        name: 'Büşra & Mehmet Demir',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+        salon: 'Kır Bahçesi & Açık Hava',
+        date: '28 Haziran 2026',
+        rating: 5,
+        source: {
+          platform: 'Google Haritalar',
+          badgeText: 'Google 5.0 ★ Onaylı',
+          color: 'bg-sky-50 text-sky-700 border-sky-200',
+          dotColor: 'bg-sky-500',
+          iconType: 'google'
+        },
+        verified: true,
+        verifiedText: 'Onaylı Ziyaretçi Değerlendirmesi',
+        title: '“Sapanca Göl Kıyısında Masalsı Bir Gece”',
+        comment: 'Sapanca göl kenarındaki gün batımı fotoğraflarımız masal gibi oldu. Müzik orkestrası, şeflerin özenle hazırladığı sıcak ordövrler ve lazer şovları misafirlerimizden tam not aldı. Sakarya’nın 1 numaralı mekanı.'
+      },
+      {
+        id: 'rev-3',
+        name: 'Selin & Ahmet Yılmaz',
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+        salon: 'Kraliyet Balo Salonu',
+        date: '18 Mayıs 2026',
+        rating: 5,
+        source: {
+          platform: 'Yandex Haritalar',
+          badgeText: 'Yandex Maps Doğrulanmış',
+          color: 'bg-amber-50 text-amber-800 border-amber-200',
+          dotColor: 'bg-amber-500',
+          iconType: 'yandex'
+        },
+        verified: true,
+        verifiedText: 'Doğrulanmış Müşteri İncelemesi',
+        title: '“Misafirperverlik ve Lezzet Zirvede”',
+        comment: 'Nişan ve düğünümüzü burada yaptık. 700 kişilik davetli grubumuz olmasına rağmen hiçbir aksama yaşanmadı. Otopark vale hizmeti ve gelin odası konforu harikaydı. Teşekkürler İrem Ailesi!'
+      },
+      {
+        id: 'rev-4',
+        name: 'Elif & Burak Kaya',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+        salon: 'Kraliyet Balo Salonu',
+        date: '02 Ağustos 2026',
+        rating: 5,
+        source: {
+          platform: 'Düğün.com',
+          badgeText: 'Düğün.com Çift Ödülü',
+          color: 'bg-rose-50 text-rose-700 border-rose-200',
+          dotColor: 'bg-rose-500',
+          iconType: 'dugun'
+        },
+        verified: true,
+        verifiedText: 'Doğrulanmış Gerçek Düğün',
+        title: '“Hayallerimizin Çok Ötesinde Bir Organizasyon”',
+        comment: 'Gelin odasındaki VIP ikramlardan çıkıştaki volkan ve şampanya seremonisine kadar her an büyüleyiciydi. Ses akustiği ve pist genişliği sayesinde herkes doyasıya eğlendi. Gönül rahatlığıyla tavsiye ederiz.'
+      },
+      {
+        id: 'rev-5',
+        name: 'Damla & Emre Şahin',
+        avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80',
+        salon: 'Kır Bahçesi & VIP Tesis',
+        date: '22 Temmuz 2026',
+        rating: 5,
+        source: {
+          platform: 'Google Haritalar',
+          badgeText: 'Google Doğrulanmış Çift',
+          color: 'bg-sky-50 text-sky-700 border-sky-200',
+          dotColor: 'bg-sky-500',
+          iconType: 'google'
+        },
+        verified: true,
+        verifiedText: 'Onaylı Google Yorumu',
+        title: '“Profesyonel Kadro & Büyüleyici Atmosfer”',
+        comment: 'İrem Düğün Sarayı yönetimine ve servis personeline ne kadar teşekkür etsek az. En ince ayrıntısına kadar planlanan düğünümüz sıfır stresle geçti. Herkes hayran kaldı!'
+      }
+    ];
     const MAIN_VENUE = {
       id: 'v-kraliyet',
       name: 'İrem Kraliyet Balo Salonu',
@@ -500,6 +598,15 @@
       const [activeMenuTab, setActiveMenuTab] = useState('m1');
       const [activeHall360, setActiveHall360] = useState('kraliyet');
       const [activeVenuePhoto, setActiveVenuePhoto] = useState(0);
+      const [activeReviewIndex, setActiveReviewIndex] = useState(0);
+
+      const nextReview = () => {
+        setActiveReviewIndex((prev) => (prev + 1) % REVIEWS.length);
+      };
+
+      const prevReview = () => {
+        setActiveReviewIndex((prev) => (prev - 1 + REVIEWS.length) % REVIEWS.length);
+      };
 
       // Scroll listener for sticky header and scroll progress bar
       useEffect(() => {
@@ -1346,66 +1453,210 @@
                 </section>
 
                 {/* ------------------------------------------------------------------- */}
-                {/* 2.9 MÜŞTERİ YORUMLARI & GOOGLE REVIEWS                              */}
+                {/* 2.9 MÜŞTERİ YORUMLARI (3D ELEVATED COVERFLOW CAROUSEL WITH PLATFORMS)*/}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-20 bg-[#FAF9F6] border-t border-slate-200">
+                <section className="py-24 bg-[#FAF9F6] border-t border-slate-200 overflow-hidden">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
-                      <div className="flex items-center justify-center space-x-1 text-[#C5A059]">
-                        {[...Array(5)].map((_, i) => (
-                          <Icon key={i} name="star" className="w-5 h-5 fill-current" />
-                        ))}
+                    
+                    {/* Section Title & Ratings Summary */}
+                    <div className="text-center max-w-2xl mx-auto space-y-3 mb-14">
+                      <div className="inline-flex items-center space-x-2 bg-white px-4 py-1.5 rounded-full border border-[#E3D3B5] shadow-xs">
+                        <div className="flex text-[#C5A059]">
+                          {[...Array(5)].map((_, i) => (
+                            <Icon key={i} name="star" className="w-4 h-4" />
+                          ))}
+                        </div>
+                        <span className="text-xs font-black text-slate-800 tracking-wider">5.0 / 5.0 (480+ Gerçek Çift Yorumu)</span>
                       </div>
-                      <h2 className="text-3xl font-extrabold text-slate-900">
+                      
+                      <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                         Mutlu Çiftlerimizin Değerlendirmeleri
                       </h2>
-                      <p className="text-slate-500 text-xs sm:text-sm">
-                        Google & Düğün.com üzerinden %100 gerçek ve onaylı müşteri puanlamaları
+                      <p className="text-slate-600 text-xs sm:text-sm">
+                        Düğün.com, Google ve Yandex platformlarında onaylanmış ve doğrulanmış gerçek gelin & damat deneyimleri.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                      {[
-                        {
-                          name: 'Zeynep & Caner Öztürk',
-                          salon: 'Kraliyet Balo Salonu',
-                          date: 'Temmuz 2026',
-                          comment: 'Hayatımızın en güzel gününü rüya gibi geçirdik. Salonun ihtişamı, garsonların ilgisi ve yemeklerin sıcaklığı kusursuzdu. Herkese tavsiye ederiz!'
-                        },
-                        {
-                          name: 'Büşra & Mehmet Demir',
-                          salon: 'Kır Bahçesi & Açık Hava',
-                          date: 'Haziran 2026',
-                          comment: 'Sapanca göl kenarındaki gün batımı fotoğraflarımız masal gibi oldu. Müzik orkestrası ve organizasyon koordinatörü her an yanımızdaydı.'
-                        },
-                        {
-                          name: 'Selin & Ahmet Yılmaz',
-                          salon: 'Safir VIP Salon',
-                          date: 'Mayıs 2026',
-                          comment: 'Nişan ve düğünümüzü burada yaptık. Misafirlerimiz salonun ferahlığından ve ikramların kalitesinden çok memnun kaldı. Teşekkürler İrem Ailesi!'
-                        }
-                      ].map((rev, ri) => (
-                        <div key={ri} className="bg-white p-7 rounded-sm border border-slate-200 shadow-sm space-y-4 hover:border-[#E3D3B5] transition-all">
-                          <div className="flex items-center justify-between">
-                            <div className="flex text-[#C5A059]">
-                              {[...Array(5)].map((_, i) => (
-                                <Icon key={i} name="star" className="w-4 h-4 fill-current" />
-                              ))}
+                    {/* 3D Interactive Review Carousel Stage */}
+                    <div className="relative max-w-5xl mx-auto pb-4">
+                      
+                      {/* Left Navigation Button */}
+                      <button
+                        onClick={prevReview}
+                        className="absolute -left-3 sm:-left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white hover:bg-[#FAF6EE] text-[#8C6D33] border border-[#E3D3B5] shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group"
+                        aria-label="Önceki Yorum"
+                      >
+                        <Icon name="arrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                      </button>
+
+                      {/* Right Navigation Button */}
+                      <button
+                        onClick={nextReview}
+                        className="absolute -right-3 sm:-right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white hover:bg-[#FAF6EE] text-[#8C6D33] border border-[#E3D3B5] shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group"
+                        aria-label="Sonraki Yorum"
+                      >
+                        <Icon name="arrowRight" className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+
+                      {/* Carousel Cards Layout (Desktop 3-Stage / Mobile Center Focus) */}
+                      <div className="flex items-center justify-center gap-4 sm:gap-6 min-h-[380px]">
+                        
+                        {/* 1. PREVIOUS CARD (LEFT FLANK - DESKTOP ONLY) */}
+                        {(() => {
+                          const prevIdx = (activeReviewIndex - 1 + REVIEWS.length) % REVIEWS.length;
+                          const rev = REVIEWS[prevIdx];
+                          return (
+                            <div 
+                              onClick={prevReview}
+                              className="hidden lg:flex flex-col justify-between w-1/3 p-6 rounded-sm bg-white/75 border border-slate-200 shadow-md opacity-45 hover:opacity-75 scale-90 -translate-x-4 cursor-pointer transition-all duration-500 backdrop-blur-xs select-none"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${rev.source.color}`}>
+                                    {rev.source.badgeText}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-semibold">{rev.date}</span>
+                                </div>
+                                <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{rev.title}</h4>
+                                <p className="text-slate-500 text-xs italic line-clamp-3 leading-relaxed">
+                                  "{rev.comment}"
+                                </p>
+                              </div>
+                              <div className="pt-4 mt-4 border-t border-slate-100 flex items-center space-x-2.5">
+                                <img src={rev.avatar} alt={rev.name} className="w-8 h-8 rounded-full object-cover border border-slate-200" />
+                                <div>
+                                  <div className="font-extrabold text-xs text-slate-900">{rev.name}</div>
+                                  <div className="text-[10px] text-slate-400 font-semibold">{rev.salon}</div>
+                                </div>
+                              </div>
                             </div>
-                            <span className="text-[11px] font-extrabold text-[#8C6D33] bg-[#FAF6EE] border border-[#E3D3B5] px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
-                              {rev.salon}
-                            </span>
-                          </div>
-                          <p className="text-slate-600 text-xs sm:text-sm italic leading-relaxed">
-                            "{rev.comment}"
-                          </p>
-                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                            <span className="font-extrabold text-slate-900">{rev.name}</span>
-                            <span className="text-slate-400 font-medium">{rev.date}</span>
-                          </div>
-                        </div>
-                      ))}
+                          );
+                        })()}
+
+                        {/* 2. ACTIVE CENTER CARD (DOMINANT & ELEVATED) */}
+                        {(() => {
+                          const rev = REVIEWS[activeReviewIndex];
+                          return (
+                            <div className="w-full lg:w-1/2 p-7 sm:p-9 rounded-sm bg-white border-2 border-[#C5A059] shadow-2xl z-20 scale-100 md:scale-105 transition-all duration-500 relative flex flex-col justify-between space-y-6">
+                              
+                              {/* Top Platform Source Badge & Verification Seal */}
+                              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E3D3B5]/50 pb-4">
+                                
+                                {/* Source Platform Badge */}
+                                <div className="flex items-center space-x-2">
+                                  <span className={`inline-flex items-center space-x-1.5 text-xs font-black px-3 py-1 rounded-full border shadow-xs ${rev.source.color}`}>
+                                    <span className={`w-2 h-2 rounded-full ${rev.source.dotColor} animate-pulse`}></span>
+                                    <span>{rev.source.badgeText}</span>
+                                  </span>
+                                  
+                                  {/* Verified Badge */}
+                                  <span className="inline-flex items-center space-x-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                                    <Icon name="badgeCheck" className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>{rev.verifiedText}</span>
+                                  </span>
+                                </div>
+
+                                {/* Star Rating */}
+                                <div className="flex text-[#C5A059]">
+                                  {[...Array(rev.rating)].map((_, i) => (
+                                    <Icon key={i} name="star" className="w-4 h-4" />
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Review Title & Body */}
+                              <div className="space-y-3">
+                                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 leading-snug">
+                                  {rev.title}
+                                </h3>
+                                <p className="text-slate-700 text-xs sm:text-sm italic leading-relaxed">
+                                  "{rev.comment}"
+                                </p>
+                              </div>
+
+                              {/* Bottom Couple Details & Salon Info */}
+                              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <img 
+                                    src={rev.avatar} 
+                                    alt={rev.name} 
+                                    className="w-11 h-11 rounded-full object-cover border-2 border-[#C5A059] shadow-sm"
+                                  />
+                                  <div>
+                                    <div className="font-black text-sm text-slate-900 flex items-center space-x-1.5">
+                                      <span>{rev.name}</span>
+                                      <span className="text-[#C5A059]" title="Doğrulanmış Çift">✓</span>
+                                    </div>
+                                    <div className="text-xs text-[#8C6D33] font-bold flex items-center space-x-1">
+                                      <span>🏛️ {rev.salon}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="text-right">
+                                  <span className="text-xs font-semibold text-slate-400 block">{rev.date}</span>
+                                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-200 mt-0.5 inline-block">
+                                    ✓ Onaylı Deneyim
+                                  </span>
+                                </div>
+                              </div>
+
+                            </div>
+                          );
+                        })()}
+
+                        {/* 3. NEXT CARD (RIGHT FLANK - DESKTOP ONLY) */}
+                        {(() => {
+                          const nextIdx = (activeReviewIndex + 1) % REVIEWS.length;
+                          const rev = REVIEWS[nextIdx];
+                          return (
+                            <div 
+                              onClick={nextReview}
+                              className="hidden lg:flex flex-col justify-between w-1/3 p-6 rounded-sm bg-white/75 border border-slate-200 shadow-md opacity-45 hover:opacity-75 scale-90 translate-x-4 cursor-pointer transition-all duration-500 backdrop-blur-xs select-none"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${rev.source.color}`}>
+                                    {rev.source.badgeText}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-semibold">{rev.date}</span>
+                                </div>
+                                <h4 className="font-bold text-xs text-slate-800 line-clamp-1">{rev.title}</h4>
+                                <p className="text-slate-500 text-xs italic line-clamp-3 leading-relaxed">
+                                  "{rev.comment}"
+                                </p>
+                              </div>
+                              <div className="pt-4 mt-4 border-t border-slate-100 flex items-center space-x-2.5">
+                                <img src={rev.avatar} alt={rev.name} className="w-8 h-8 rounded-full object-cover border border-slate-200" />
+                                <div>
+                                  <div className="font-extrabold text-xs text-slate-900">{rev.name}</div>
+                                  <div className="text-[10px] text-slate-400 font-semibold">{rev.salon}</div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                      </div>
+
+                      {/* Pagination Indicator Dots */}
+                      <div className="flex items-center justify-center space-x-2.5 pt-8">
+                        {REVIEWS.map((r, idx) => (
+                          <button
+                            key={r.id}
+                            onClick={() => setActiveReviewIndex(idx)}
+                            className={`h-2.5 transition-all duration-300 rounded-full ${
+                              activeReviewIndex === idx 
+                                ? 'w-8 bg-[#C5A059] shadow-sm' 
+                                : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                            }`}
+                            aria-label={`Yorum ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+
                     </div>
+
                   </div>
                 </section>
 
@@ -1667,13 +1918,13 @@
           </main>
 
           {/* ========================================================================= */}
-          {/* 3. FOOTER (LIGHT FRESH WHITE THEME WITH CRISP TAILORED EDGES)              */}
+          {/* 3. FOOTER (LIGHT FRESH LUXURY WHITE THEME WITH CRISP ROUNDED SOCIALS)     */}
           {/* ========================================================================= */}
           <footer className="bg-[#FAF9F6] text-slate-700 border-t border-slate-200/80 pt-16 pb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-12 border-b border-slate-200/70">
                 
-                {/* Col 1: Brand & Socials (4 Cols) */}
+                {/* Col 1: Brand, About & Rounded Social Media Suite (4 Cols) */}
                 <div className="lg:col-span-4 space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-sm btn-luxe-gold text-white flex items-center justify-center shadow-sm">
@@ -1685,42 +1936,65 @@
                   </div>
                   
                   <p className="text-slate-500 text-xs sm:text-[13px] leading-relaxed max-w-sm">
-                    Sapanca Gölü'nün kıyısında 4 farklı balo salonu, kır bahçesi ve VIP organizasyon hizmetleri ile en özel gününüzü taçlandırıyoruz.
+                    Sapanca Gölü'nün kıyısında saray konseptli balo salonumuz, kır bahçemiz ve VIP organizasyon kadromuzla en özel gününüzü unutulmaz kılıyoruz.
                   </p>
 
-                  {/* 4 Square Outline Social Icons */}
-                  <div className="flex items-center space-x-2 pt-2">
+                  {/* Circular Outline Social Media Buttons (Rounded-Full) */}
+                  <div className="flex items-center space-x-2.5 pt-2">
                     {/* Instagram */}
                     <a
                       href="https://instagram.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-sm border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#6D5427] bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-9 h-9 rounded-full border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#C5A059] bg-white flex items-center justify-center transition shadow-xs hover:scale-110"
                       aria-label="Instagram"
+                      title="Instagram"
                     >
-                      <Icon name="camera" className="w-4 h-4" />
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                      </svg>
                     </a>
 
-                    {/* TikTok / Person */}
+                    {/* Facebook */}
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#C5A059] bg-white flex items-center justify-center transition shadow-xs hover:scale-110"
+                      aria-label="Facebook"
+                      title="Facebook"
+                    >
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </a>
+
+                    {/* TikTok */}
                     <a
                       href="https://tiktok.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-sm border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#6D5427] bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-9 h-9 rounded-full border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#C5A059] bg-white flex items-center justify-center transition shadow-xs hover:scale-110"
                       aria-label="TikTok"
+                      title="TikTok"
                     >
-                      <Icon name="users" className="w-4 h-4" />
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                      </svg>
                     </a>
 
-                    {/* Video / YouTube */}
+                    {/* YouTube */}
                     <a
                       href="https://youtube.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-sm border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#6D5427] bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-9 h-9 rounded-full border border-[#E3D3B5] hover:border-[#C5A059] text-[#8C6D33] hover:text-[#C5A059] bg-white flex items-center justify-center transition shadow-xs hover:scale-110"
                       aria-label="YouTube"
+                      title="YouTube"
                     >
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                      </svg>
                     </a>
 
                     {/* WhatsApp */}
@@ -1728,22 +2002,25 @@
                       href="https://wa.me/905471440054"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-sm border border-emerald-300 hover:border-emerald-500 text-emerald-600 hover:text-emerald-700 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-9 h-9 rounded-full border border-emerald-300 hover:border-emerald-500 text-emerald-600 hover:text-emerald-700 bg-white flex items-center justify-center transition shadow-xs hover:scale-110"
                       aria-label="WhatsApp"
+                      title="WhatsApp"
                     >
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                      </svg>
                     </a>
                   </div>
                 </div>
 
                 {/* Col 2: HIZLI MENÜ (2.5 Cols) */}
-                <div className="lg:col-span-2 space-y-3">
-                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-[#C5A059] pl-2">
+                <div className="lg:col-span-2 space-y-3.5">
+                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-[#C5A059] pl-2.5">
                     <span>HIZLI MENÜ</span>
                   </div>
                   <ul className="space-y-2 text-xs font-semibold text-slate-600">
                     <li><button onClick={() => { setCurrentTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Anasayfa</button></li>
-                    <li><button onClick={() => { setCurrentTab('venues'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Salonlarımız</button></li>
+                    <li><button onClick={() => { setCurrentTab('venues'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Salonumuz</button></li>
                     <li><button onClick={() => { setCurrentTab('virtual-tour'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">360° Sanal Tur</button></li>
                     <li><button onClick={() => { setCurrentTab('organizations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Organizasyon Paketleri</button></li>
                     <li><button onClick={() => { setCurrentTab('galleries'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Galeri & Fotoğraflar</button></li>
@@ -1751,43 +2028,58 @@
                 </div>
 
                 {/* Col 3: DÜĞÜN REHBERİ (2.5 Cols) */}
-                <div className="lg:col-span-2 space-y-3">
-                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-[#C5A059] pl-2">
+                <div className="lg:col-span-2 space-y-3.5">
+                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-[#C5A059] pl-2.5">
                     <span>DÜĞÜN REHBERİ</span>
                   </div>
                   <ul className="space-y-2 text-xs font-semibold text-slate-600">
-                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Düğün Tarihi Seçimi İpuçları</button></li>
-                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Gelinlik & Damatlık Rehberi</button></li>
-                    <li><button onClick={() => { setCurrentTab('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Hakkımızda & Kalite Belgelerimiz</button></li>
-                    <li><a href="/yonetim" className="hover:text-[#8C6D33] transition">Müşteri VIP Portalı</a></li>
+                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Düğün Tarihi Seçimi</button></li>
+                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Gelinlik & Damatlık</button></li>
+                    <li><button onClick={() => { setCurrentTab('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#8C6D33] transition">Firma Profili & Vizyon</button></li>
+                    <li><a href="/yonetim" className="hover:text-[#8C6D33] transition font-bold text-slate-700">Müşteri VIP Portalı</a></li>
                   </ul>
                 </div>
 
-                {/* Col 4: İLETİŞİM & KONUM (3 Cols) */}
-                <div className="lg:col-span-4 space-y-3">
-                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-[#C5A059] pl-2">
+                {/* Col 4: İLETİŞİM & KONUM (4 Cols) */}
+                <div className="lg:col-span-4 space-y-3.5">
+                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-[#C5A059] pl-2.5">
                     <span>İLETİŞİM & KONUM</span>
                   </div>
-                  <div className="space-y-2 text-xs font-medium text-slate-600 leading-relaxed">
-                    <p className="flex items-start space-x-2">
-                      <span className="text-[#8C6D33] shrink-0">📍</span>
+                  <div className="space-y-2.5 text-xs font-medium text-slate-600 leading-relaxed">
+                    <div className="flex items-start space-x-2.5">
+                      <div className="w-5 h-5 rounded-full bg-[#FAF6EE] border border-[#E3D3B5] text-[#8C6D33] flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon name="mapPin" className="w-3 h-3 text-[#8C6D33]" />
+                      </div>
                       <span>Sapanca Göl Kenarı Caddesi No:42 Sakarya / Turkey</span>
-                    </p>
-                    <p className="flex items-center space-x-2">
-                      <span className="text-[#8C6D33] shrink-0">📞</span>
-                      <a href="tel:+905471440054" className="font-bold text-slate-800 hover:text-[#8C6D33] transition">+90 547 144 00 54</a>
-                    </p>
-                    <p className="flex items-center space-x-2">
-                      <span className="text-emerald-600 shrink-0">💬</span>
-                      <span>WhatsApp: <a href="https://wa.me/905471440054" target="_blank" rel="noopener noreferrer" className="font-bold text-slate-800 hover:text-emerald-600 transition">+90 547 144 00 54</a></span>
-                    </p>
-                    <p className="flex items-center space-x-2">
-                      <span className="text-[#8C6D33] shrink-0">✉️</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-5 h-5 rounded-full bg-[#FAF6EE] border border-[#E3D3B5] text-[#8C6D33] flex items-center justify-center shrink-0">
+                        <Icon name="phone" className="w-3 h-3 text-[#8C6D33]" />
+                      </div>
+                      <a href="tel:+905471440054" className="font-bold text-slate-900 hover:text-[#8C6D33] transition">+90 547 144 00 54</a>
+                    </div>
+
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 fill-current text-emerald-600" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                      </div>
+                      <span>WhatsApp: <a href="https://wa.me/905471440054" target="_blank" rel="noopener noreferrer" className="font-bold text-slate-900 hover:text-emerald-600 transition">+90 547 144 00 54</a></span>
+                    </div>
+
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-5 h-5 rounded-full bg-[#FAF6EE] border border-[#E3D3B5] text-[#8C6D33] flex items-center justify-center shrink-0">
+                        <Icon name="mail" className="w-3 h-3 text-[#8C6D33]" />
+                      </div>
                       <a href="mailto:irem.wedding@gmail.com" className="font-semibold text-slate-700 hover:text-[#8C6D33] transition">irem.wedding@gmail.com</a>
-                    </p>
-                    <p className="text-[11px] text-slate-500 pt-1 font-semibold">
-                      Çalışma Saatleri : 09:00 - 23:00 (Haftanın 7 Günü)
-                    </p>
+                    </div>
+
+                    <div className="flex items-center space-x-2.5 pt-1 text-[11px] text-slate-500 font-semibold">
+                      <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center shrink-0">
+                        <Icon name="clock" className="w-3 h-3" />
+                      </div>
+                      <span>Çalışma Saatleri : 09:00 - 23:00 (Haftanın 7 Günü)</span>
+                    </div>
                   </div>
                 </div>
 
@@ -1815,13 +2107,17 @@
           {/* 4. FIXED FLOATING ACTION TRIGGERS (BOTTOM-LEFT & BOTTOM-RIGHT)             */}
           {/* ========================================================================= */}
           
-          {/* BOTTOM-LEFT: DIRECT CALL TRIGGER BUTTON (GOLD SQUARE) */}
+          {/* BOTTOM-LEFT: DIRECT CALL TRIGGER BUTTON (GOLD CIRCLE WITH PHONE SVG) */}
           <a
             href="tel:+905471440054"
-            className="fixed bottom-6 left-6 z-50 w-12 h-12 rounded-sm btn-luxe-gold text-white shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            className="fixed bottom-6 left-6 z-50 w-13 h-13 rounded-full btn-luxe-gold text-white shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer border border-[#E3D3B5]/60 group"
             aria-label="Telefonla Arayın"
+            title="Hemen Arayın: 0547 144 00 54"
           >
-            <Icon name="phone" className="w-5 h-5 text-amber-100" />
+            <span className="absolute -inset-1 rounded-full bg-[#C5A059]/35 animate-ping pointer-events-none"></span>
+            <svg className="w-6 h-6 fill-current text-white group-hover:rotate-12 transition-transform duration-300 relative z-10" viewBox="0 0 24 24">
+              <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.28-.27.36-.67.25-1.02A11.36 11.36 0 018.96 4.3a1 1 0 00-1-1H4.5c-.55 0-1 .45-1 1C3.5 13.06 10.94 20.5 20.01 20.5c.55 0 1-.45 1-1v-3.62c0-.55-.45-1-1-1z"/>
+            </svg>
           </a>
 
           {/* BOTTOM-RIGHT: FLOATING WHATSAPP WIDGET & SUPPORT POPUP */}
