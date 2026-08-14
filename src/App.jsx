@@ -556,7 +556,7 @@ export default function App() {
         onTabChange={navigateTo}
         activeRole={activeRole}
         onRoleChange={setActiveRole}
-        currentUser={activeUser}
+        currentUser={currentUser}
         rolesState={rolesState}
         onToggleSidebar={() => setIsMobileDrawerOpen(prev => !prev)}
         systemVersion={systemVersion}
