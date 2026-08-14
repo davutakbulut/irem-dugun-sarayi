@@ -50,9 +50,8 @@
     // STRICT RULE: PURE REALTIME MYSQL DATABASE - ZERO LOCAL CACHING
     try {
       if (typeof localStorage !== 'undefined') {
-        const preserveKeys = ['session_user', 'current_user', 'auth_token'];
         Object.keys(localStorage).forEach(k => {
-          if (!preserveKeys.includes(k) && !k.startsWith('auth')) {
+          if (!k.includes('session_user') && !k.includes('current_user') && !k.startsWith('auth')) {
             localStorage.removeItem(k);
           }
         });
@@ -8806,6 +8805,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
     function CustomerRegisterPage({ navigateTo }) { return <CustomerLoginPage navigateTo={navigateTo} />; }
 
+        function getInitialSessionUser() {
+      if (typeof localStorage === 'undefined') return null;
+      try {
+        const raw = localStorage.getItem('irem_session_user') || localStorage.getItem('irem_cache_session_user') || localStorage.getItem('session_user');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.name) return parsed;
+        }
+      } catch(e){}
+      return null;
+    }
+
     function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
       const [venues, setVenues] = useState([]);
@@ -9013,7 +9024,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [expenses]);
 
       // SESSION USER STATE & CACHE (DEFAULT NULL FOR STRICT AUTHENTICATION GUARD)
-      const [sessionUser, setSessionUser] = useState(() => CacheService.get('session_user', null));
+      const [sessionUser, setSessionUser] = useState(getInitialSessionUser);
 
       useEffect(() => {
         CacheService.set('session_user', sessionUser);
@@ -9852,6 +9863,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const handleLogout = useCallback(() => {
         setSessionUser(null);
+        try {
+          localStorage.removeItem('irem_session_user');
+          localStorage.removeItem('irem_cache_session_user');
+          localStorage.removeItem('session_user');
+          sessionStorage.clear();
+        } catch(e){}
         CacheService.set('session_user', null);
         try {
           sessionStorage.removeItem('login_return_url');
@@ -10263,6 +10280,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               }
 
               setSessionUser(userObj);
+              try {
+                localStorage.setItem('irem_session_user', JSON.stringify(userObj));
+                localStorage.setItem('irem_cache_session_user', JSON.stringify(userObj));
+              } catch(e){}
               CacheService.set('session_user', userObj);
               setCurrentUserState(userObj);
               CacheService.set('current_user', userObj);
