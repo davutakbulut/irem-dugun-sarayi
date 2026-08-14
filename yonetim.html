@@ -17112,6 +17112,32 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const totalNetProfit = totalGrossRevenue - totalCalculatedCosts;
       const avgProfitMargin = totalGrossRevenue > 0 ? ((totalNetProfit / totalGrossRevenue) * 100).toFixed(1) : '0.0';
 
+      // Helper to extract system creation timestamp
+      const extractSystemTimestamp = (item) => {
+        if (!item) return 0;
+        if (item.recordTimestamp && Number(item.recordTimestamp) > 0) return Number(item.recordTimestamp);
+        if (item.created_at) {
+          const t = new Date(item.created_at).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        if (item.createdAt) {
+          const t = new Date(item.createdAt).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        if (typeof item.id === 'string') {
+          const match = item.id.match(/\d{10,13}/);
+          if (match) {
+            const num = Number(match[0]);
+            if (num > 1000000000) return num > 100000000000 ? num : num * 1000;
+          }
+        }
+        if (item.date) {
+          const t = new Date(item.date).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        return 0;
+      };
+
       // 2. UNIFIED CASH INFLOWS (Rezervasyon Parçalı Tahsilatları + Harici Gelirler)
       const incomeTransactions = useMemo(() => {
         const list = [];
@@ -17119,6 +17145,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         (reservations || []).forEach(r => {
           if (Array.isArray(r.payments) && r.payments.length > 0) {
             r.payments.forEach(p => {
+              const ts = extractSystemTimestamp(p) || extractSystemTimestamp(r);
               list.push({
                 id: p.id || `pay-${r.id}-${Math.random()}`,
                 resId: r.id,
@@ -17127,11 +17154,13 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                 type: 'gelir',
                 amount: Number(p.amount || 0),
                 date: p.date || r.date || '2026-08-01',
+                recordTimestamp: ts,
                 status: 'Tahsil Edildi',
                 isReservationPayment: true
               });
             });
           } else if (Number(r.depositPaid || 0) > 0) {
+            const ts = extractSystemTimestamp(r);
             list.push({
               id: `inc-${r.id}-deposit`,
               resId: r.id,
@@ -17140,6 +17169,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
               type: 'gelir',
               amount: Number(r.depositPaid || 0),
               date: r.date || '2026-08-01',
+              recordTimestamp: ts,
               status: 'Tahsil Edildi',
               isReservationPayment: true
             });
@@ -17148,6 +17178,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
 
         // From External Incomes in expenses table
         (expenses || []).filter(e => e.type === 'gelir' || e.type === 'income').forEach(e => {
+          const ts = extractSystemTimestamp(e);
           list.push({
             id: e.id,
             title: e.title,
@@ -17155,6 +17186,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             type: 'gelir',
             amount: Number(e.amount || 0),
             date: e.date || '2026-08-01',
+            recordTimestamp: ts,
             status: 'Tahsil Edildi',
             isExternal: true
           });
@@ -17168,6 +17200,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         const list = [];
         // External general expenses
         (expenses || []).filter(e => e.type !== 'gelir' && e.type !== 'income').forEach(e => {
+          const ts = extractSystemTimestamp(e);
           list.push({
             id: e.id,
             title: e.title,
@@ -17175,6 +17208,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             type: 'gider',
             amount: Number(e.amount || 0),
             date: e.date || '2026-08-01',
+            recordTimestamp: ts,
             status: e.status || 'Ödendi',
             isExternal: true
           });
@@ -17184,6 +17218,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         (reservations || []).forEach(r => {
           if (Array.isArray(r.customExpenses)) {
             r.customExpenses.forEach(exp => {
+              const ts = extractSystemTimestamp(exp) || extractSystemTimestamp(r);
               list.push({
                 id: exp.id || `resexp-${r.id}-${Math.random()}`,
                 resId: r.id,
@@ -17192,6 +17227,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                 type: 'gider',
                 amount: Number(exp.amount || 0),
                 date: exp.date || r.date || '2026-08-01',
+                recordTimestamp: ts,
                 status: 'Ödendi',
                 isReservationCustomExpense: true
               });
@@ -17202,13 +17238,13 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         return list;
       }, [expenses, reservations]);
 
-      // Unified Ledger (Sorted Newest to Oldest by Transaction Date)
+      // Unified Ledger (Strictly Sorted by System Action / Creation Timestamp: Newest Action at the Very Top)
       const allTransactions = useMemo(() => {
         return [...incomeTransactions, ...expenseTransactions].sort((a, b) => {
-          const dateA = new Date(a.date || 0).getTime();
-          const dateB = new Date(b.date || 0).getTime();
-          if (dateB !== dateA) {
-            return dateB - dateA; // En yeni işlem tarihi en üstte
+          const tsA = a.recordTimestamp || 0;
+          const tsB = b.recordTimestamp || 0;
+          if (tsB !== tsA) {
+            return tsB - tsA; // Sisteme son eklenen/yapılan işlem daima en üstte
           }
           return String(b.id || '').localeCompare(String(a.id || ''));
         });
@@ -17303,6 +17339,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           category: newCategory,
           type: transType, // 'gelir' or 'gider'
           amount: Number(newAmount),
+          createdAt: new Date().toISOString(),
+          recordTimestamp: Date.now(),
           date: newDate || new Date().toISOString().split('T')[0],
           description: `Kasa Hareketi (${transType === 'gelir' ? 'Harici Gelir' : 'Harici Gider'})`,
           status: newStatus
