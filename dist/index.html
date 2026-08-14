@@ -20732,6 +20732,7 @@ const E2E_WORKFLOWS = [
     // --- CALENDAR COMPONENT ---
     function CalendarComponent({ reservations = [], draftReservations = [], venues = [], onResClick, onReschedule, onCreateNewForDate, navigateTo }) {
       const [draggedResId, setDraggedResId] = useState(null);
+      const [dragOverDate, setDragOverDate] = useState(null);
       const [selectedDayData, setSelectedDayData] = useState(null);
       const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1)); // August 2026 default
 
