@@ -9036,14 +9036,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       // CURRENT USER PROFILE STATE
       const [companySettings, setCompanySettings] = useState(DEFAULT_COMPANY_SETTINGS);
-      const [currentUserState, setCurrentUserState] = useState(() => CacheService.get('current_user', {
-        id: 'u_davut',
-        name: 'Davut Akbulut',
-        email: 'dvtakblt@gmail.com',
-        phone: '+90 537 882 68 58',
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-      }));
+      const [currentUserState, setCurrentUserState] = useState(getInitialSessionUser);
 
       useEffect(() => { CacheService.set('current_user', currentUserState); }, [currentUserState]);
 
@@ -9149,16 +9142,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   lastSyncedUsersRef.current = JSON.stringify(data);
                   setUsers(data);
 
-                  // Strict Auto-sync for active logged-in user ONLY (no arbitrary role fallbacks)
-                  const loggedInEmail = (sessionUser?.email || currentUserState?.email || 'dvtakblt@gmail.com').toLowerCase().trim();
-                  const loggedInId = sessionUser?.id || currentUserState?.id;
-                  const dbMatch = data.find(u => (loggedInId && u.id === loggedInId) || (loggedInEmail && u.email && u.email.toLowerCase().trim() === loggedInEmail));
-                  if (dbMatch) {
-                    const mergedUser = { ...(sessionUser || currentUserState || {}), ...dbMatch };
-                    setCurrentUserState(mergedUser);
-                    setSessionUser(mergedUser);
-                    CacheService.set('current_user', mergedUser);
-                    CacheService.set('session_user', mergedUser);
+                  // Sync profile ONLY if a user is legitimately logged in
+                  if (sessionUser && (sessionUser.id || sessionUser.email)) {
+                    const loggedInEmail = (sessionUser.email || '').toLowerCase().trim();
+                    const loggedInId = sessionUser.id;
+                    const dbMatch = data.find(u => (loggedInId && u.id === loggedInId) || (loggedInEmail && u.email && u.email.toLowerCase().trim() === loggedInEmail));
+                    if (dbMatch) {
+                      const mergedUser = { ...sessionUser, ...dbMatch };
+                      setCurrentUserState(mergedUser);
+                      setSessionUser(mergedUser);
+                      try {
+                        localStorage.setItem('irem_session_user', JSON.stringify(mergedUser));
+                        localStorage.setItem('irem_cache_session_user', JSON.stringify(mergedUser));
+                      } catch(e){}
+                    }
                   }
                 }
               })
@@ -9354,7 +9351,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         showToast("Veritabanı Tüm Varsayılan Salonlar ve Ek Hizmetler ile Tohumlandı!");
       };
 
-      const activeRole = (sessionUser?.role || currentUserState?.role || 'admin');
+      const activeRole = sessionUser?.role || currentUserState?.role || 'guest';
 
       useEffect(() => {
         if (sessionUser && sessionUser.role) {
@@ -10253,7 +10250,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }
 
       // 3. LOGIN REQUIRED FOR MANAGEMENT ROUTES (WHEN UNAUTHENTICATED & NOT GUEST MEDIA)
-      if (isManagementRoute && !sessionUser && !isMediaRoute && !isErrorRoute) {
+      if ((isManagementRoute || pathname.startsWith('/yonetim')) && !sessionUser && !isMediaRoute && !isErrorRoute) {
         return (
           <LoginComponent
             users={users}
