@@ -3484,16 +3484,17 @@ function ReservationsListComponent({
                       <th className="py-3 px-3">Düğün Salonu</th>
                       <th className="py-3 px-3">Tarih & Saat</th>
                       <th className="py-3 px-3">Davetli</th>
-                      <th className="py-3 px-3">Toplam Tutar</th>
-                      <th className="py-3 px-3">Kalan Bakiye</th>
-                      <th className="py-3 px-3">Ödeme Durumu</th>
+                      <th className="py-3 px-3 text-right">Kiralama Bedeli</th>
+                      <th className="py-3 px-3 text-right">Toplam Tutar</th>
+                      <th className="py-3 px-3 text-right">Kalan Bakiye</th>
+                      <th className="py-3 px-3 text-center">Ödeme Durumu</th>
                       <th className="py-3 px-3 text-right">İşlemler</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
                     {filteredReservations.length === 0 ? (
                       <tr>
-                        <td colSpan="10" className="py-8 text-center text-slate-400 font-bold">
+                        <td colSpan="11" className="py-8 text-center text-slate-400 font-bold">
                           Kriterlere uygun kayıtlı rezervasyon bulunamadı.
                         </td>
                       </tr>
@@ -3503,6 +3504,8 @@ function ReservationsListComponent({
                         .map((res, index) => {
                           const vObj = (venues || []).find(v => v.id === res.venueId);
                           const sequenceNo = (currentPage - 1) * pageSize + index + 1;
+                          const customVenuePriceVal = res.customVenuePrice !== undefined && Number(res.customVenuePrice) > 0 ? Number(res.customVenuePrice) : (res.venuePrice !== undefined && Number(res.venuePrice) > 0 ? Number(res.venuePrice) : (vObj?.price || 0));
+                          const totalAmountVal = res.totalAmount !== undefined && Number(res.totalAmount) > 0 ? Number(res.totalAmount) : (res.subtotal || customVenuePriceVal);
                           return (
                             <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
                               <td className="py-3.5 px-3 text-center font-mono font-bold text-slate-400 dark:text-slate-500">{sequenceNo}</td>
@@ -3517,9 +3520,10 @@ function ReservationsListComponent({
                                 <div className="text-[10px] text-slate-500">{res.startTime || '18:00'} - {res.endTime || '23:00'}</div>
                               </td>
                               <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
-                              <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
-                              <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
-                                {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
+                              <td className="py-3.5 px-3 font-mono font-extrabold text-right text-slate-700 dark:text-gray-200">{formatCurrency(customVenuePriceVal)}</td>
+                              <td className="py-3.5 px-3 font-mono font-extrabold text-right text-amber-700 dark:text-gold-400">{formatCurrency(totalAmountVal)}</td>
+                              <td className="py-3.5 px-3 font-mono font-bold text-right text-red-600 dark:text-red-400">
+                                {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance !== undefined ? res.remainingBalance : Math.max(0, totalAmountVal - (res.depositPaid || 0)))}
                               </td>
                               <td className="py-3.5 px-3">
                                 {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
@@ -10110,9 +10114,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       const financialStats = useMemo(() => {
-        const totalRev = reservations.reduce((acc, r) => acc + r.totalAmount, 0);
-        const totalDeposit = reservations.reduce((acc, r) => acc + r.depositPaid, 0);
-        const totalPending = reservations.reduce((acc, r) => acc + r.remainingBalance, 0);
+        const totalRev = (reservations || []).reduce((acc, r) => acc + Number(r.totalAmount || r.subtotal || r.customVenuePrice || r.venuePrice || 0), 0);
+        const totalDeposit = (reservations || []).reduce((acc, r) => acc + Number(r.depositPaid || 0), 0);
+        const totalPending = (reservations || []).reduce((acc, r) => acc + Number(r.remainingBalance !== undefined ? r.remainingBalance : Math.max(0, Number(r.totalAmount || r.subtotal || r.customVenuePrice || r.venuePrice || 0) - Number(r.depositPaid || 0))), 0);
         return { totalRev, totalDeposit, totalPending };
       }, [reservations]);
 
@@ -17125,12 +17129,15 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const reservationFinancials = useMemo(() => {
         return (reservations || []).map(r => {
           const vObj = (venues || []).find(v => v.id === r.venueId);
+          const soldVenuePrice = Number(r.customVenuePrice !== undefined && Number(r.customVenuePrice) > 0 ? r.customVenuePrice : (r.venuePrice !== undefined && Number(r.venuePrice) > 0 ? r.venuePrice : (vObj?.price || 0)));
+          const grossIncome = Number(r.totalAmount !== undefined && Number(r.totalAmount) > 0 ? r.totalAmount : (r.subtotal || soldVenuePrice));
+
           // 1. ÖNCELİK: Mekan Kartına Tanımlı Gerçek Maliyet Bedeli
           const venueCost = (vObj && vObj.costPrice !== undefined && Number(vObj.costPrice) > 0)
             ? Number(vObj.costPrice)
             : (r.venueCost !== undefined && Number(r.venueCost) > 0
                 ? Number(r.venueCost)
-                : Math.round(Number(r.venuePrice || r.customVenuePrice || 60000) * 0.55));
+                : Math.round(Number(soldVenuePrice || 60000) * 0.55));
 
           // 1. ÖNCELİK: Ek Hizmet Kartına Tanımlı Gerçek Birim Maliyeti
           const servicesCost = (r.selectedServices || []).reduce((sum, s) => {
@@ -17146,7 +17153,6 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           const customExpensesList = r.customExpenses || [];
           const customExpensesTotal = customExpensesList.reduce((sum, exp) => sum + Number(exp.amount || 0), 0);
 
-          const grossIncome = Number(r.totalAmount || 0);
           const totalCost = Math.round(venueCost + servicesCost + customExpensesTotal);
           const netProfit = Math.round(grossIncome - totalCost);
           const profitMargin = grossIncome > 0 ? ((netProfit / grossIncome) * 100).toFixed(1) : '0.0';
@@ -17156,6 +17162,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             created_at: r.created_at || r.createdAt || '',
             createdAt: r.createdAt || r.created_at || '',
             venueName: vObj?.name || r.venueName || r.venueId,
+            soldVenuePrice,
             grossIncome,
             venueCost,
             servicesCost,
@@ -17791,7 +17798,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
                         <th className="p-3.5">Sözleşme & Müşteri</th>
                         <th className="p-3.5">Etkinlik Tarihi</th>
-                        <th className="p-3.5 text-right">Ciro (Gelir)</th>
+                        <th className="p-3.5 text-right">Mekan Kiralama</th>
+                        <th className="p-3.5 text-right">Toplam Ciro</th>
                         <th className="p-3.5 text-right">Maliyet</th>
                         <th className="p-3.5 text-right">Özel Gider</th>
                         <th className="p-3.5 text-right">Net Kâr</th>
@@ -17802,7 +17810,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                     <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40 font-medium">
                       {filteredProfitabilityRows.length === 0 ? (
                         <tr>
-                          <td colSpan="8" className="text-center py-8 text-slate-400 font-bold">
+                          <td colSpan="9" className="text-center py-8 text-slate-400 font-bold">
                             Kayıtlı rezervasyon finansmanı bulunamadı.
                           </td>
                         </tr>
@@ -17822,7 +17830,10 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                   <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-300">
                                     {formatDate(r.date || r.eventDate)}
                                   </td>
-                                  <td className="p-3.5 text-right font-mono font-bold text-slate-800 dark:text-gray-100">
+                                  <td className="p-3.5 text-right font-mono font-extrabold text-slate-700 dark:text-gray-200">
+                                    {formatCurrency(rf.soldVenuePrice)}
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
                                     {formatCurrency(rf.grossIncome)}
                                   </td>
                                   <td className="p-3.5 text-right font-mono text-red-500 dark:text-red-400 font-bold">
