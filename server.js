@@ -1391,6 +1391,8 @@ app.get('/api/reservations', async (req, res) => {
           flowPlan: flowPlanArr.length > 0 ? flowPlanArr : (detailsObj.flowPlan || []),
           createdBy: detailsObj.createdBy || { name: 'Sistem Yöneticisi' },
           mediaFiles: parsedMedia.length > 0 ? parsedMedia : (detailsObj.mediaFiles || []),
+          created_at: r.created_at || detailsObj.created_at || detailsObj.createdAt || '',
+          createdAt: r.created_at || detailsObj.createdAt || detailsObj.created_at || '',
           status: r.status === 'DRAFT' ? 'CONFIRMED' : (r.status || 'CONFIRMED'),
           isDraft: false
         };

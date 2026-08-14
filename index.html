@@ -17120,6 +17120,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
 
           return {
             reservation: r,
+            created_at: r.created_at || r.createdAt || '',
+            createdAt: r.createdAt || r.created_at || '',
             venueName: vObj?.name || r.venueName || r.venueId,
             grossIncome,
             venueCost,
@@ -17301,8 +17303,29 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         });
       }, [allTransactions, filterTab, searchQuery]);
 
-      // Filtered Profitability Rows (Strictly Sorted by System created_at / Creation Timestamp)
+      // Filtered Profitability Rows (Strictly Sorted by System created_at / Creation Timestamp: Newest First)
       const filteredProfitabilityRows = useMemo(() => {
+        const getTs = (obj) => {
+          const r = obj.reservation || obj;
+          if (!r) return 0;
+          if (r.created_at) {
+            const t = new Date(r.created_at).getTime();
+            if (!isNaN(t) && t > 0) return t;
+          }
+          if (r.createdAt) {
+            const t = new Date(r.createdAt).getTime();
+            if (!isNaN(t) && t > 0) return t;
+          }
+          if (typeof r.id === 'string') {
+            const m = r.id.match(/\d{10,13}/);
+            if (m) {
+              const num = Number(m[0]);
+              if (num > 1000000000) return num > 100000000000 ? num : num * 1000;
+            }
+          }
+          return 0;
+        };
+
         return reservationFinancials
           .filter(rf => {
             if (!searchQuery.trim()) return true;
@@ -17313,9 +17336,9 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                    (rf.venueName || '').toLowerCase().includes(q);
           })
           .sort((a, b) => {
-            const tsA = extractSystemTimestamp(a.reservation);
-            const tsB = extractSystemTimestamp(b.reservation);
-            if (tsB !== tsA) return tsB - tsA; // Sisteme en son eklenen rezervasyon en üstte
+            const tsA = getTs(a);
+            const tsB = getTs(b);
+            if (tsB !== tsA) return tsB - tsA; // En son sisteme kaydedilen rezervasyon sözleşmesi en üstte
             return String(b.reservation?.id || '').localeCompare(String(a.reservation?.id || ''));
           });
       }, [reservationFinancials, searchQuery]);
