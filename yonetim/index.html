@@ -3188,6 +3188,34 @@ function ReservationsListComponent({
         if (endDateFilter && rDate > endDateFilter) matchesDate = false;
 
         return matchesSearch && matchesVenue && matchesStatus && matchesDate;
+      }).sort((a, b) => {
+        const getTs = (item) => {
+          if (!item) return 0;
+          if (item.created_at) {
+            const t = new Date(item.created_at).getTime();
+            if (!isNaN(t) && t > 0) return t;
+          }
+          if (item.createdAt) {
+            const t = new Date(item.createdAt).getTime();
+            if (!isNaN(t) && t > 0) return t;
+          }
+          if (typeof item.id === 'string') {
+            const m = item.id.match(/\d{10,13}/);
+            if (m) {
+              const num = Number(m[0]);
+              if (num > 1000000000) return num > 100000000000 ? num : num * 1000;
+            }
+          }
+          if (item.date) {
+            const t = new Date(item.date).getTime();
+            if (!isNaN(t) && t > 0) return t;
+          }
+          return 0;
+        };
+        const tsA = getTs(a);
+        const tsB = getTs(b);
+        if (tsB !== tsA) return tsB - tsA;
+        return String(b.id || '').localeCompare(String(a.id || ''));
       });
 
       // Dynamic Month & Year Navigation State (Defaults to real current date)
@@ -7913,6 +7941,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             (req.preferredVenue || '').toLowerCase().includes(searchLower);
 
           return matchesStatus && matchesSearch;
+        }).sort((a, b) => {
+          const tA = new Date(a.created_at || a.createdAt || a.date || 0).getTime();
+          const tB = new Date(b.created_at || b.createdAt || b.date || 0).getTime();
+          if (tB !== tA) return tB - tA; // En son gelen teklif talebi en üstte
+          return String(b.id || '').localeCompare(String(a.id || ''));
         });
       }, [quoteRequests, filterStatus, searchTerm]);
 
@@ -17272,7 +17305,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         });
       }, [allTransactions, filterTab, searchQuery]);
 
-      // Filtered Profitability Rows (Sorted Newest to Oldest by Event Date)
+      // Filtered Profitability Rows (Strictly Sorted by System created_at / Creation Timestamp)
       const filteredProfitabilityRows = useMemo(() => {
         return reservationFinancials
           .filter(rf => {
@@ -17284,9 +17317,10 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                    (rf.venueName || '').toLowerCase().includes(q);
           })
           .sort((a, b) => {
-            const dateA = new Date(a.reservation?.date || a.reservation?.eventDate || 0).getTime();
-            const dateB = new Date(b.reservation?.date || b.reservation?.eventDate || 0).getTime();
-            return dateB - dateA; // En yeni etkinlik tarihi en üstte
+            const tsA = extractSystemTimestamp(a.reservation);
+            const tsB = extractSystemTimestamp(b.reservation);
+            if (tsB !== tsA) return tsB - tsA; // Sisteme en son eklenen rezervasyon en üstte
+            return String(b.reservation?.id || '').localeCompare(String(a.reservation?.id || ''));
           });
       }, [reservationFinancials, searchQuery]);
 
@@ -18319,7 +18353,7 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
       }, [searchTerm, taxTypeFilter]);
 
       const filteredCustomers = useMemo(() => {
-        return customers.filter(c => {
+        return (customers || []).filter(c => {
           const matchesTaxType = taxTypeFilter === 'ALL' || c.taxType === taxTypeFilter;
           const matchesSearch = !searchTerm || (
             c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -18329,6 +18363,11 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
             c.vknNo?.includes(searchTerm)
           );
           return matchesTaxType && matchesSearch;
+        }).sort((a, b) => {
+          const tA = new Date(a.created_at || a.createdAt || 0).getTime();
+          const tB = new Date(b.created_at || b.createdAt || 0).getTime();
+          if (tB !== tA) return tB - tA; // En son eklenen müşteri en üstte
+          return String(b.id || '').localeCompare(String(a.id || ''));
         });
       }, [customers, taxTypeFilter, searchTerm]);
 
