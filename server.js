@@ -1927,7 +1927,7 @@ app.post('/api/roles', async (req, res) => {
 // -------------------------------------------------------------
 // 10. SİSTEM & PUBLIC AYARLARI ENDPOINTS
 // -------------------------------------------------------------
-app.get('/api/public-settings', async (req, res) => {
+app.get(['/api/public-settings', '/api/system-settings'], async (req, res) => {
   const activePool = await getPool();
   if (activePool) {
     try {
@@ -2056,7 +2056,7 @@ app.get('/api/public-settings', async (req, res) => {
   });
 });
 
-app.post('/api/public-settings', async (req, res) => {
+app.post(['/api/public-settings', '/api/system-settings'], async (req, res) => {
   if (req.body) {
     const activePool = await getPool();
 
