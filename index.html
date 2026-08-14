@@ -9012,7 +9012,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [sessionUser]);
 
       // CURRENT USER PROFILE STATE
-      const [companySettings, setCompanySettings] = useState(DEFAULT_COMPANY_SETTINGS);
+      const [companySettings, setCompanySettings] = useState(() => CacheService.get('company_settings', DEFAULT_COMPANY_SETTINGS));
       const [currentUserState, setCurrentUserState] = useState(() => CacheService.get('current_user', {
         id: 'u_davut',
         name: 'Davut Akbulut',
@@ -10998,6 +10998,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           const json = await res.json();
                           if (json.success && json.item) {
                             setCompanySettings(json.item);
+                            CacheService.set('company_settings', json.item);
                             showToast('Şirket Bilgileri ve Sözleşme Şablonu Başarıyla Kaydedildi!');
                           }
                         } catch(e) {
@@ -14836,6 +14837,24 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [bankInfo, setBankInfo] = useState(companySettings?.bank_info || 'Garanti BBVA - TR12 0006 2000 0001 2345 6789 01');
       const [contractTitle, setContractTitle] = useState(companySettings?.contract_title || 'DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ');
       const [contractTerms, setContractTerms] = useState(companySettings?.contract_terms_full || DEFAULT_COMPANY_SETTINGS.contract_terms_full);
+
+      // Keep form fields synced when companySettings loads or updates from MySQL
+      useEffect(() => {
+        if (companySettings) {
+          if (companySettings.company_name !== undefined) setCompanyName(companySettings.company_name);
+          if (companySettings.brand_title !== undefined) setBrandTitle(companySettings.brand_title);
+          if (companySettings.address !== undefined) setAddress(companySettings.address);
+          if (companySettings.tax_office !== undefined) setTaxOffice(companySettings.tax_office);
+          if (companySettings.tax_number !== undefined) setTaxNumber(companySettings.tax_number);
+          if (companySettings.phone !== undefined) setPhone(companySettings.phone);
+          if (companySettings.email !== undefined) setEmail(companySettings.email);
+          if (companySettings.website !== undefined) setWebsite(companySettings.website);
+          if (companySettings.authorized_person !== undefined) setAuthorizedPerson(companySettings.authorized_person);
+          if (companySettings.bank_info !== undefined) setBankInfo(companySettings.bank_info);
+          if (companySettings.contract_title !== undefined) setContractTitle(companySettings.contract_title);
+          if (companySettings.contract_terms_full !== undefined) setContractTerms(companySettings.contract_terms_full);
+        }
+      }, [companySettings]);
 
       const [isSaving, setIsSaving] = useState(false);
 
