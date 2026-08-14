@@ -17236,6 +17236,18 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         });
       }, [allTransactions, filterTab, searchQuery]);
 
+      // Filtered Profitability Rows
+      const filteredProfitabilityRows = useMemo(() => {
+        return reservationFinancials.filter(rf => {
+          if (!searchQuery.trim()) return true;
+          const q = searchQuery.toLowerCase();
+          const r = rf.reservation;
+          return (r.customerName || '').toLowerCase().includes(q) ||
+                 (r.id || '').toLowerCase().includes(q) ||
+                 (rf.venueName || '').toLowerCase().includes(q);
+        });
+      }, [reservationFinancials, searchQuery]);
+
       // 4. MONTHLY REPORT DATA AGGREGATION
       const monthlyReportData = useMemo(() => {
         const monthPrefix = selectedReportMonth; // e.g. '2026-08'
