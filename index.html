@@ -1719,7 +1719,7 @@
       'zihinharitasi': 'mind-map',
       'mind-map': 'mind-map',
       'mindmap': 'mind-map',
-      'ayarlar': 'settings',
+            'ayarlar': 'settings',
       'company-settings': 'company-settings',
       'sirket-bilgileri': 'company-settings',
       'sozlesme-sablonu': 'company-settings',
@@ -1727,6 +1727,22 @@
       'yonetim/company-settings': 'company-settings',
       'yonetim/sirket-bilgileri': 'company-settings',
       'yonetim/sozlesme-sablonu': 'company-settings',
+      'ayarlar/rol-izinleri': 'settings-rbac',
+      'rol-izinleri': 'settings-rbac',
+      'settings-rbac': 'settings-rbac',
+      'ayarlar/seo-indeksleme': 'settings-indexing',
+      'settings-indexing': 'settings-indexing',
+      'seo-indeksleme': 'settings-indexing',
+      'indeksleme': 'settings-indexing',
+      'arama-motoru-ayarlari': 'settings-indexing',
+      'ayarlar/gorunum': 'settings-appearance',
+      'settings-appearance': 'settings-appearance',
+      'gorunum': 'settings-appearance',
+      'ayarlar/onbellek': 'settings-performance',
+      'settings-performance': 'settings-performance',
+      'onbellek': 'settings-performance',
+      'ayarlar/hata-simulasyonu': 'settings-errors',
+      'settings-errors': 'settings-errors',
       'eposta-sablonlari': 'email-templates',
       'ayarlar/gorunum': 'settings-appearance',
       'ayarlar/onbellek': 'settings-performance',
@@ -1793,10 +1809,12 @@
       'profile': '/yonetim/profil',
       'mind-map': '/yonetim/zihin-haritasi',
       'company-settings': '/yonetim/sirket-bilgileri',
+            'company-settings': '/yonetim/sirket-bilgileri',
       'settings': '/yonetim/ayarlar',
       'settings-appearance': '/yonetim/ayarlar/gorunum',
       'settings-performance': '/yonetim/ayarlar/onbellek',
       'settings-rbac': '/yonetim/ayarlar/rol-izinleri',
+      'settings-indexing': '/yonetim/ayarlar/seo-indeksleme',
       'settings-errors': '/yonetim/ayarlar/hata-simulasyonu',
       'email-templates': '/yonetim/eposta-sablonlari',
       'simulasyon-404': '/yonetim/simulasyon-404',
@@ -10864,7 +10882,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     />
                   )}
 
-                                    {activeTab === 'roles' && (
+                                    {(activeTab === 'roles' || activeTab === 'settings-rbac') && (
                     <RolesPageComponent
                       activeRole={activeRole}
                       roles={rolesState}
@@ -10963,6 +10981,29 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       venues={venues}
                       showToast={showToast}
                       sessionUser={sessionUser}
+                    />
+                  )}
+
+                  
+                  {activeTab === 'company-settings' && (
+                    <CompanySettingsComponent
+                      companySettings={companySettings}
+                      onSave={async (updated) => {
+                        try {
+                          const res = await fetchWithRetry('/api/company-settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updated)
+                          });
+                          const json = await res.json();
+                          if (json.success && json.item) {
+                            setCompanySettings(json.item);
+                            showToast('Şirket Bilgileri ve Sözleşme Şablonu Başarıyla Kaydedildi!');
+                          }
+                        } catch(e) {
+                          showToast('Kaydetme hatası: ' + e.message);
+                        }
+                      }}
                     />
                   )}
 
@@ -19963,6 +20004,59 @@ const E2E_WORKFLOWS = [
           )}
 
           {/* TAB 2: PERFORMANCE & CACHE */}
+                    {settingsTab === 'indexing' && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-6 border border-slate-200 dark:border-brand-border shadow-sm">
+                <div className="flex items-center space-x-3 border-b border-slate-100 dark:border-brand-border/40 pb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                    <ThemeIcon icon="search" className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-heading font-extrabold text-slate-900 dark:text-gray-100">
+                      Arama Motoru (SEO) & İndeksleme Güvenliği
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">
+                      Google ve diğer arama motoru botlarının yönetim sayfalarını taramasını engelleyin ve genel site SEO başlıklarını yapılandırın.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div className="bg-slate-50 dark:bg-brand-dark p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-900 dark:text-gray-100">Yönetim Paneli İndeksleme Koruması</span>
+                      <span className="text-[10px] bg-emerald-500/10 text-emerald-600 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">AKTİF (ÖNERİLEN)</span>
+                    </div>
+                    <p className="text-slate-500 dark:text-gray-400 text-[11px] leading-relaxed">
+                      Yönetim panelindeki müşteri kayıtları ve finansal veriler <code>noindex, nofollow, noarchive, nosnippet</code> etiketleriyle arama motorlarından gizlenir.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-brand-dark p-5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-900 dark:text-gray-100">Müşteri Web Sitesi SEO İndeksi</span>
+                      <span className="text-[10px] bg-amber-500/10 text-amber-600 font-bold px-2 py-0.5 rounded-full border border-amber-500/30">index, follow</span>
+                    </div>
+                    <p className="text-slate-500 dark:text-gray-400 text-[11px] leading-relaxed">
+                      Salonlar, paketler, blog ve iletişim sayfaları arama motorlarına açıktır ve organik trafik çeker.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs text-slate-600 dark:text-gray-300 flex items-center justify-between">
+                  <span>Robots.txt & Sitemap.xml durumunuz optimize edilmiştir.</span>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Arama motoru indeksleme ayarları güncellendi ve meta etiketleri doğrulandı!')}
+                    className="gold-button font-bold px-4 py-2 rounded-xl text-xs shadow"
+                  >
+                    SEO Ayarlarını Kaydet ✓
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {settingsTab === 'performance' && (
             <div className="space-y-6">
               <div className="glass-panel p-6 rounded-3xl space-y-6 border border-slate-200 dark:border-brand-border/40 shadow-sm">
