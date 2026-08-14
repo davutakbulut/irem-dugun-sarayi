@@ -9993,9 +9993,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return allowedRoles.includes(activeRole);
       }, [activeTab, activeRole]);
 
-      // Print Invoice Helper
+      // Print Invoice Helper (100% Dynamic with Database Company Settings & 3-Page Contract Clauses)
       const handlePrintInvoice = (res) => {
         const venue = venues.find(v => v.id === res.venueId);
+        const comp = companySettings || (typeof DEFAULT_COMPANY_SETTINGS !== 'undefined' ? DEFAULT_COMPANY_SETTINGS : {
+          company_name: 'İrem Düğün Sarayı Ltd. Şti.',
+          brand_title: 'Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya',
+          address: 'Sapanca Göl Kenarı No: 45, Sapanca / Sakarya',
+          tax_office: 'Sapanca Vergi Dairesi',
+          tax_number: '4820192837',
+          phone: '+90 532 111 2233',
+          email: 'bilgi@iremdugunsarayi.com',
+          contract_title: 'DÜĞÜN SALONU KİRALAMA & ETKİNLİK SÖZLEŞMESİ',
+          contract_terms_full: ''
+        });
         const printWin = window.open('', '_blank');
         printWin.document.write(`
           <!DOCTYPE html>
@@ -10025,8 +10036,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           <body>
             <div class="header">
               <div>
-                <div class="logo"><ThemeIcon icon="crown" className="w-4 h-4 inline-block shrink-0" /> İREM DÜĞÜN SARAYI</div>
-                <div style="font-size: 12px; color: #64748b;">Organizasyon & Kiralama Şirketi | Sapanca Göl Kenarı, Sakarya</div>
+                <div class="logo">👑 ${comp.company_name}</div>
+                <div style="font-size: 12px; color: #64748b;">${comp.brand_title}</div>
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 16px; font-weight: bold;">SÖZLEŞME & FATURA</div>
@@ -10040,10 +10051,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             <div class="grid">
               <div class="card">
                 <strong>ŞİRKET BİLGİLERİ (Hizmet Veren):</strong><br>
-                İrem Düğün Sarayı Ltd. Şti.<br>
-                Sapanca Göl Kenarı No: 45, Sakarya<br>
-                Sapanca Vergi Dairesi | VKN: 4820192837<br>
-                Tel: +90 532 111 2233
+                ${comp.company_name}<br>
+                ${comp.address}<br>
+                ${comp.tax_office} | VKN: ${comp.tax_number}<br>
+                Tel: ${comp.phone} | ${comp.email}
               </div>
               <div class="card">
                 <strong>MÜŞTERİ BİLGİLERİ (Hizmet Alan):</strong><br>
