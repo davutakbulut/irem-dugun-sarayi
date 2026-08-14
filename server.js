@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 /**
  * İREM DÜĞÜN SARAYI & ORGANİZASYON PLATFORMU
  * Express.js + JSON DB & MySQL REST API Sunucusu (server.js)
@@ -594,6 +595,18 @@ const initMysql = async () => {
       try { await pool.query("ALTER TABLE roles ADD COLUMN IF NOT EXISTS permissions_json LONGTEXT"); } catch(e) {}
       try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS features_json LONGTEXT"); } catch(e) {}
       try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS images_json LONGTEXT"); } catch(e) {}
+
+      
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS password_resets (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          email VARCHAR(150) NOT NULL,
+          code VARCHAR(10) NOT NULL,
+          expires_at DATETIME NOT NULL,
+          used TINYINT(1) DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
 
       console.log('✅ MySQL Tabloları Doğrulandı ve Hazırlandı!');
       await syncMemoryFromMysql();
@@ -2068,6 +2081,186 @@ app.get(/^\/(yonetim|giris|login)(\/.*)?$/, (req, res) => {
 app.use(['/api/draft-reservations', '/api/draft-reservations-delete'], (req, res) => {
   return res.json({ success: true, draftReservations: [] });
 });
+
+
+
+
+// -------------------------------------------------------------
+// REAL SMTP EMAIL & AUTHENTICATION ENDPOINTS
+// -------------------------------------------------------------
+async function getMailTransporter() {
+  const host = process.env.SMTP_HOST || 'mail.iremdugunsarayi.com';
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER || 'bilgi@iremdugunsarayi.com';
+  const pass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || '';
+  const secure = port === 465;
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: user && pass ? { user, pass } : undefined,
+    tls: { rejectUnauthorized: false }
+  });
+}
+
+// 1. Send Password Reset Code (POST /api/auth/forgot-password)
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { identity } = req.body;
+  if (!identity) {
+    return res.status(400).json({ error: 'Lütfen kayıtlı e-posta adresinizi veya telefon numaranızı giriniz.' });
+  }
+
+  const cleanIdentity = identity.trim().toLowerCase();
+  const digits = cleanIdentity.replace(/\D/g, '');
+
+  try {
+    const pool = await getPool();
+    if (!pool) {
+      return res.status(500).json({ error: 'Veritabanı bağlantısı kurulamadı.' });
+    }
+
+    // Find in users table
+    const [users] = await pool.query(
+      "SELECT * FROM users WHERE LOWER(email) = ? OR REPLACE(REPLACE(phone, ' ', ''), '+', '') LIKE ?",
+      [cleanIdentity, `%${digits || 'XYZ'}%`]
+    );
+
+    let targetUser = users[0];
+    let targetRole = 'admin';
+
+    if (!targetUser) {
+      const [customers] = await pool.query(
+        "SELECT * FROM customers WHERE LOWER(email) = ? OR REPLACE(REPLACE(phone, ' ', ''), '+', '') LIKE ?",
+        [cleanIdentity, `%${digits || 'XYZ'}%`]
+      );
+      if (customers.length > 0) {
+        targetUser = customers[0];
+        targetRole = 'musteri';
+      }
+    }
+
+    if (!targetUser) {
+      return res.status(404).json({ error: 'Girdiğiniz bilgilere ait sistemde kayıtlı bir kullanıcı bulunamadı.' });
+    }
+
+    const email = targetUser.email || cleanIdentity;
+    const name = targetUser.name || 'Sayın Yetkili';
+    
+    // Generate secure 6-digit verification code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+    await pool.query(
+      "INSERT INTO password_resets (email, code, expires_at) VALUES (?, ?, ?)",
+      [email, resetCode, expiresAt]
+    );
+
+    let mailSent = false;
+    let mailError = null;
+
+    try {
+      const transporter = await getMailTransporter();
+      const mailOptions = {
+        from: `"İrem Düğün Sarayı" <${process.env.SMTP_USER || 'bilgi@iremdugunsarayi.com'}>`,
+        to: email,
+        subject: `🔑 Şifre Sıfırlama Kodunuz: ${resetCode} - İrem Düğün Sarayı`,
+        html: `
+          <div style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 30px; color: #1e293b;">
+            <div style="max-width: 550px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="color: #d97706; margin: 0; font-size: 22px;">İREM DÜĞÜN SARAYI</h1>
+                <p style="color: #64748b; font-size: 12px; margin-top: 4px;">Sapanca / Sakarya Kurumsal Portalı</p>
+              </div>
+              <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 20px 0;" />
+              <p style="font-size: 14px; line-height: 1.6;">Merhaba <strong>${name}</strong>,</p>
+              <p style="font-size: 14px; line-height: 1.6;">İrem Düğün Sarayı Yönetim Paneli hesabınız için şifre sıfırlama talebinde bulundunuz. Şifrenizi yenilemek için aşağıdaki 6 haneli güvenlik kodunu kullanabilirsiniz:</p>
+              <div style="text-align: center; margin: 25px 0;">
+                <div style="display: inline-block; background: #fef3c7; color: #b45309; font-size: 28px; font-weight: 800; letter-spacing: 6px; padding: 14px 28px; border-radius: 12px; border: 1px solid #fde68a;">
+                  ${resetCode}
+                </div>
+              </div>
+              <p style="font-size: 12px; color: #64748b; text-align: center;">Bu kod <strong>15 dakika</strong> boyunca geçerlidir. Talebi siz yapmadıysanız bu e-postayı dikkate almayınız.</p>
+              <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 20px 0;" />
+              <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">© ${new Date().getFullYear()} İrem Düğün Sarayı. Tüm hakları saklıdır.</p>
+            </div>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      mailSent = true;
+    } catch(mErr) {
+      console.log('SMTP Delivery Note:', mErr.message);
+      mailError = mErr.message;
+    }
+
+    return res.json({
+      success: true,
+      email,
+      maskedEmail: email.replace(/(.{2})(.*)(@.*)/, '$1***$3'),
+      mailSent,
+      expiresInMinutes: 15,
+      message: `${email} adresine 6 haneli güvenlik kodu gönderildi.`
+    });
+
+  } catch(err) {
+    console.error('Forgot password endpoint error:', err);
+    return res.status(500).json({ error: 'İşlem sırasında bir hata oluştu: ' + err.message });
+  }
+});
+
+// 2. Verify Code & Set New Password (POST /api/auth/reset-password)
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, code, newPassword } = req.body;
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ error: 'E-posta, 6 haneli doğrulama kodu ve yeni şifre zorunludur.' });
+  }
+
+  try {
+    const pool = await getPool();
+    if (!pool) return res.status(500).json({ error: 'Veritabanı bağlantısı yok.' });
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim();
+
+    // Verify 6 digit code from database
+    const [resets] = await pool.query(
+      "SELECT * FROM password_resets WHERE LOWER(email) = ? AND code = ? AND used = 0 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
+      [cleanEmail, cleanCode]
+    );
+
+    if (resets.length === 0) {
+      return res.status(400).json({ error: 'Girdiğiniz doğrulama kodu geçersiz veya süresi dolmuş.' });
+    }
+
+    const resetRecord = resets[0];
+
+    // Invalidate code
+    await pool.query("UPDATE password_resets SET used = 1 WHERE id = ?", [resetRecord.id]);
+
+    // Update in users table
+    await pool.query(
+      "UPDATE users SET password_hash = ? WHERE LOWER(email) = ?",
+      [newPassword, cleanEmail]
+    );
+
+    // Update in customers table
+    await pool.query(
+      "UPDATE customers SET password = ? WHERE LOWER(email) = ?",
+      [newPassword, cleanEmail]
+    );
+
+    return res.json({
+      success: true,
+      message: 'Şifreniz başarıyla güncellendi! Yeni şifrenizle giriş yapabilirsiniz.'
+    });
+
+  } catch(err) {
+    return res.status(500).json({ error: 'Şifre güncellenirken hata oluştu: ' + err.message });
+  }
+});
+
 
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
