@@ -10980,6 +10980,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       reservations={reservations}
                       venues={venues}
                       services={services}
+                      expenses={expenses}
+                      setExpenses={setExpenses}
                       onUpdateReservation={handleUpdateReservation}
                     />
                   )}
@@ -17054,6 +17056,21 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       useEffect(() => {
         setCurrentPage(1);
       }, [filterTab, searchQuery, activeSubTab, selectedReportMonth]);
+
+      // Direct MariaDB sync on Finance tab mount
+      useEffect(() => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          fetchFn('/api/expenses')
+            .then(res => res.json())
+            .then(data => {
+              if (Array.isArray(data)) {
+                setExpenses(data);
+              }
+            })
+            .catch(() => {});
+        } catch(e) {}
+      }, []);
 
       // General Cashflow Transaction Modal State (Income vs Expense)
       const [transType, setTransType] = useState('gider'); // 'gelir' | 'gider'
