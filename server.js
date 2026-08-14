@@ -200,6 +200,7 @@ const getPool = async () => {
         user: 'kullaniciadi_irem_dugun_db',
         password: 'Akblt_157',
         database: 'irem_dugun_db',
+        dateStrings: true,
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
@@ -1304,8 +1305,19 @@ app.get('/api/reservations', async (req, res) => {
           try { parsedMedia = JSON.parse(r.media_json); } catch(e){}
         }
 
-        const rawDate = r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '';
-        const rawEndDate = r.end_date ? (r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0]) : rawDate;
+        const formatMySqlDate = (d) => {
+          if (!d) return '';
+          if (typeof d === 'string') return d.split('T')[0];
+          if (d instanceof Date) {
+            const yr = d.getFullYear();
+            const mo = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${yr}-${mo}-${day}`;
+          }
+          return String(d).split('T')[0];
+        };
+        const rawDate = formatMySqlDate(r.event_date);
+        const rawEndDate = formatMySqlDate(r.end_date) || rawDate;
 
         return {
           ...detailsObj,
