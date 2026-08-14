@@ -9920,9 +9920,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       const handleRescheduleReservation = (resId, newDate) => {
-        setReservations(prev => prev.map(r => r.id === resId ? { ...r, date: newDate, dateFormatted: newDate } : r));
-        setSelectedResForDetail(prev => (prev && prev.id === resId ? { ...prev, date: newDate, dateFormatted: newDate } : prev));
-        showToast(`Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi!`);
+        const targetRes = (reservations || []).find(r => r.id === resId);
+        if (!targetRes) return;
+        const updatedRes = {
+          ...targetRes,
+          date: newDate,
+          eventDate: newDate,
+          startDate: newDate,
+          endDate: newDate,
+          dateFormatted: newDate
+        };
+        handleUpdateReservation(updatedRes);
+        setSelectedResForDetail(prev => (prev && prev.id === resId ? updatedRes : prev));
+        showToast(`Rezervasyon Tarihi ${formatDate(newDate)} Olarak Değiştirildi ve Kaydedildi!`);
       };
 
       const [isPageTabLoading, setIsPageTabLoading] = useState(false);
@@ -20818,20 +20828,37 @@ const E2E_WORKFLOWS = [
                 const dayDrafts = (draftReservations || []).filter(d => (d.startDate === dateStr || d.eventDate === dateStr || d.date === dateStr) && d.customerName);
                 const totalCount = dayRes.length + dayDrafts.length;
 
+                const isDragOver = dragOverDate === dateStr;
                 return (
                   <div
                     key={day}
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={e => {
+                    onDragOver={(e) => {
                       e.preventDefault();
-                      if (draggedResId && onReschedule) {
-                        onReschedule(draggedResId, dateStr);
-                        setDraggedResId(null);
+                      e.stopPropagation();
+                      e.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setDragOverDate(dateStr);
+                    }}
+                    onDragLeave={() => setDragOverDate(null)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const resId = e.dataTransfer.getData('text/plain') || draggedResId;
+                      if (resId && onReschedule) {
+                        onReschedule(resId, dateStr);
                       }
+                      setDraggedResId(null);
+                      setDragOverDate(null);
                     }}
                     onClick={() => setSelectedDayData({ dateStr, dayNumber: day, reservations: dayRes, drafts: dayDrafts })}
                     className={`min-h-[95px] p-2 rounded-xl border text-left flex flex-col justify-between transition cursor-pointer hover:shadow-md ${
-                      totalCount > 0 ? 'bg-amber-50/80 dark:bg-brand-card border-amber-500/40 hover:border-amber-500' : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-emerald-500'
+                      isDragOver
+                        ? 'bg-amber-100/90 dark:bg-amber-900/60 border-2 border-amber-500 scale-[1.03] shadow-lg ring-2 ring-amber-400'
+                        : totalCount > 0
+                        ? 'bg-amber-50/80 dark:bg-brand-card border-amber-500/40 hover:border-amber-500'
+                        : 'bg-white dark:bg-brand-dark/40 border-slate-200 dark:border-brand-border/30 hover:border-emerald-500'
                     }`}
                   >
                     <div className="flex justify-between items-center mb-1">
@@ -20856,7 +20883,16 @@ const E2E_WORKFLOWS = [
                         <div
                           key={r.id}
                           draggable={true}
-                          onDragStart={() => setDraggedResId(r.id)}
+                          onDragStart={(e) => {
+                            e.stopPropagation();
+                            e.dataTransfer.setData('text/plain', r.id);
+                            e.dataTransfer.effectAllowed = 'move';
+                            setDraggedResId(r.id);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedResId(null);
+                            setDragOverDate(null);
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
                             if (onResClick) onResClick(r);
