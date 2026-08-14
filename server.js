@@ -519,6 +519,8 @@ const initMysql = async () => {
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS flow_plan_json LONGTEXT"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS selected_services_json LONGTEXT"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS details_json LONGTEXT"); } catch(e){}
+      try { await pool.query("ALTER TABLE services ADD COLUMN IF NOT EXISTS cost_price DECIMAL(12,2) DEFAULT 0"); } catch(e){}
+      try { await pool.query("ALTER TABLE services MODIFY COLUMN pricing_type VARCHAR(50) DEFAULT 'fixed'"); } catch(e){}
       try { await pool.query("UPDATE reservations SET status = 'CONFIRMED' WHERE status = 'DRAFT'"); } catch(e){}
 
 
