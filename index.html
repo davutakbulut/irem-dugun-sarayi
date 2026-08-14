@@ -20,6 +20,14 @@
     tailwind.config = {
       darkMode: 'class',
       theme: {
+        screens: {
+          'xs': '430px',
+          'sm': '640px',
+          'md': '768px',
+          'lg': '1024px',
+          'xl': '1280px',
+          '2xl': '1536px',
+        },
         extend: {
           colors: {
             brand: {
@@ -76,6 +84,7 @@
       overflow-x: hidden;
       width: 100%;
       scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
     }
 
     .font-script {
@@ -153,14 +162,14 @@
     /* Emerald WhatsApp Luxe Button */
     .btn-luxe-emerald {
       position: relative;
-      background: linear-gradient(135deg, rgba(6, 148, 102, 0.78) 0%, rgba(4, 120, 87, 0.84) 100%);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(5, 150, 105, 0.9) 50%, rgba(4, 120, 87, 0.95) 100%);
       color: #FFFFFF;
       overflow: hidden;
       transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-      border: 1px solid rgba(110, 231, 183, 0.45);
+      border: 1px solid rgba(167, 243, 208, 0.4);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 14px rgba(5, 150, 105, 0.22);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 14px rgba(16, 185, 129, 0.22);
     }
     .btn-luxe-emerald::after {
       content: '';
@@ -169,7 +178,7 @@
       left: -130%;
       width: 70%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
       transform: skewX(-22deg);
       transition: none;
     }
@@ -178,13 +187,22 @@
       transition: all 0.75s ease-in-out;
     }
     .btn-luxe-emerald:hover {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.92) 0%, rgba(5, 150, 105, 0.95) 100%);
-      border-color: rgba(167, 243, 208, 0.85);
-      box-shadow: 0 8px 25px -3px rgba(16, 185, 129, 0.45), 0 0 18px rgba(110, 231, 183, 0.35);
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.95) 0%, rgba(16, 185, 129, 0.95) 50%, rgba(5, 150, 105, 1) 100%);
+      border-color: rgba(209, 250, 229, 0.9);
+      box-shadow: 0 8px 25px -3px rgba(16, 185, 129, 0.5), 0 0 18px rgba(52, 211, 153, 0.35);
       transform: translateY(-2px);
     }
     .btn-luxe-emerald:active {
       transform: translateY(0px) scale(0.98);
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     /* Subtle Down Bounce Animation */
@@ -1404,12 +1422,12 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
                     {/* Grand Title */}
                     <div className="space-y-1">
-                      <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-widest text-white uppercase drop-shadow-2xl">
+                      <h1 className="hero-main-title text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-widest text-white uppercase drop-shadow-2xl">
                         İREM DÜĞÜN<br />SARAYI
                       </h1>
                       
                       {/* Romantic Cursive Gold Subtitle */}
-                      <div className="font-script text-2xl sm:text-4xl text-[#EBDCB9] italic pt-1 drop-shadow-md">
+                      <div className="hero-script-subtitle font-script text-xl xs:text-2xl sm:text-4xl text-[#EBDCB9] italic pt-1 drop-shadow-md">
                         Türkiye'nin & Sakarya'nın Düğün Mekanları
                       </div>
                     </div>
@@ -3828,7 +3846,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
           {/* BOTTOM-LEFT: DIRECT CALL TRIGGER BUTTON (HOVER-ONLY PULSE AURA) */}
           <a
             href="tel:+905471440054"
-            className={`fixed bottom-6 left-6 z-40 w-14 h-14 sm:w-16 sm:h-16 rounded-full btn-luxe-gold text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border-2 border-[#E3D3B5] group ${
+            className={`fixed bottom-4 xs:bottom-6 left-3.5 xs:left-6 z-40 w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 rounded-full btn-luxe-gold text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border-2 border-[#E3D3B5] group ${
               isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
             aria-label="Telefonla Arayın"
@@ -3838,13 +3856,13 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
             <span className="absolute -inset-2 rounded-full bg-[#C5A059]/30 opacity-0 group-hover:opacity-100 group-hover:animate-pulse-aura transition-opacity duration-300 pointer-events-none"></span>
             <span className="absolute -inset-1 rounded-full bg-[#E3D3B5]/40 opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300 pointer-events-none"></span>
 
-            <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-current text-white group-hover:rotate-12 transition-transform duration-300 relative z-10" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 xs:w-7 xs:h-7 sm:w-8 sm:h-8 fill-current text-white group-hover:rotate-12 transition-transform duration-300 relative z-10" viewBox="0 0 24 24">
               <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.28-.27.36-.67.25-1.02A11.36 11.36 0 018.96 4.3a1 1 0 00-1-1H4.5c-.55 0-1 .45-1 1C3.5 13.06 10.94 20.5 20.01 20.5c.55 0 1-.45 1-1v-3.62c0-.55-.45-1-1-1z"/>
             </svg>
           </a>
 
           {/* BOTTOM-RIGHT: FLOATING WHATSAPP WIDGET & CIRCULAR TRIGGER */}
-          <div className={`fixed bottom-6 right-6 z-40 flex flex-col items-end transition-all duration-300 ${
+          <div className={`fixed bottom-4 xs:bottom-6 right-3.5 xs:right-6 z-40 flex flex-col items-end transition-all duration-300 ${
             isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}>
             
