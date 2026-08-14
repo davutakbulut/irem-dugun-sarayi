@@ -9580,26 +9580,34 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [resStatusFilter, setResStatusFilter] = useState('all');
 
       // CRUD HANDLERS
-      const handleSaveVenue = (vObj) => {
-        setVenues(prev => {
-          const idx = prev.findIndex(x => String(x.id) === String(vObj.id));
-          let updated;
-          if (idx >= 0) {
-            updated = [...prev];
-            updated[idx] = vObj;
-          } else {
-            updated = [...prev, vObj];
-          }
-          CacheService.set('venues', updated);
-          window.fetchWithRetry('/api/public-settings', {
+      const handleSaveVenue = async (vObj) => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/venues', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ venues: updated })
-          }).catch(() => {});
-          return updated;
-        });
+            body: JSON.stringify(vObj)
+          });
+          const data = await resp.json();
+          const savedItem = (data && data.item) ? data.item : vObj;
+
+          setVenues(prev => {
+            const idx = prev.findIndex(x => String(x.id) === String(savedItem.id));
+            let updated;
+            if (idx >= 0) {
+              updated = [...prev];
+              updated[idx] = savedItem;
+            } else {
+              updated = [...prev, savedItem];
+            }
+            CacheService.set('venues', updated);
+            return updated;
+          });
+        } catch(err) {
+          console.error('Save venue error:', err);
+        }
         setVenueModalData(null);
-        showToast('Düğün Salonu Başarıyla Kaydedildi!');
+        showToast('Düğün Salonu ve Maliyetleri Başarıyla Kaydedildi!');
       };
 
       const handleDeleteVenue = (vIdOrObj) => {
@@ -9610,15 +9618,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           title: 'DÜĞÜN SALONU SİLİNECEK',
           message: `"${vName}" salonunu sistemden tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
           confirmText: 'Evet, Salonu Sil',
-          onConfirm: () => {
+          onConfirm: async () => {
+            try {
+              const fetchFn = window.fetchWithRetry || fetch;
+              await fetchFn(`/api/venues/${vId}`, { method: 'DELETE' });
+            } catch(e) {}
+
             setVenues(prev => {
               const updated = prev.filter(x => String(x.id) !== String(vId));
               CacheService.set('venues', updated);
-              window.fetchWithRetry('/api/public-settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ venues: updated })
-              }).catch(() => {});
               return updated;
             });
             showToast('Düğün Salonu Sistemden Silindi.');
@@ -9626,56 +9634,35 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         });
       };
 
-      const handleSaveService = (sObj) => {
-        setServices(prev => {
-          const idx = prev.findIndex(x => String(x.id) === String(sObj.id));
-          let updated;
-          if (idx >= 0) {
-            updated = [...prev];
-            const existing = updated[idx];
-            updated[idx] = {
-              ...existing,
-              ...sObj,
-              order: sObj.order || existing.order || existing.sortOrder || (idx + 1),
-              sortOrder: sObj.sortOrder || existing.sortOrder || existing.order || (idx + 1)
-            };
-          } else {
-            const nextOrder = prev.length + 1;
-            updated = [...prev, { order: nextOrder, sortOrder: nextOrder, ...sObj }];
-          }
-          CacheService.set('services', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ services: updated })
-            }).catch(() => {});
-          }
-          return updated;
-        });
-
-        if (sObj && sObj.id) {
-          setVenues(prevVenues => {
-            const updatedVenues = prevVenues.map(v => {
-              const currentServices = v.includedServices || [];
-              if (!currentServices.some(id => String(id) === String(sObj.id))) {
-                return { ...v, includedServices: [...currentServices, sObj.id] };
-              }
-              return v;
-            });
-            CacheService.set('venues', updatedVenues);
-            if (window.fetchWithRetry) {
-              window.fetchWithRetry('/api/public-settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ venues: updatedVenues })
-              }).catch(() => {});
-            }
-            return updatedVenues;
+      const handleSaveService = async (sObj) => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/services', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(sObj)
           });
+          const data = await resp.json();
+          const savedItem = (data && data.item) ? data.item : sObj;
+
+          setServices(prev => {
+            const idx = prev.findIndex(x => String(x.id) === String(savedItem.id));
+            let updated;
+            if (idx >= 0) {
+              updated = [...prev];
+              updated[idx] = savedItem;
+            } else {
+              updated = [...prev, savedItem];
+            }
+            CacheService.set('services', updated);
+            return updated;
+          });
+        } catch(err) {
+          console.error('Save service error:', err);
         }
+
         setServiceModalData(null);
-        showToast('Ek Hizmet Başarıyla Kaydedildi!');
+        showToast('Ek Hizmet ve Maliyeti Başarıyla Kaydedildi!');
       };
 
       const handleDeleteService = (sIdOrObj) => {
@@ -9686,39 +9673,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           title: 'EK HİZMET SİLİNECEK',
           message: `"${sName}" ek hizmet kartını silmek istediğinize emin misiniz?`,
           confirmText: 'Evet, Hizmeti Sil',
-          onConfirm: () => {
+          onConfirm: async () => {
+            try {
+              const fetchFn = window.fetchWithRetry || fetch;
+              await fetchFn(`/api/services/${sId}`, { method: 'DELETE' });
+            } catch(e) {}
+
             setServices(prev => {
-              const updated = prev.filter(x => String(x.id) !== String(sId)).map((item, i) => ({ ...item, order: i + 1, sortOrder: i + 1 }));
+              const updated = prev.filter(x => String(x.id) !== String(sId));
               CacheService.set('services', updated);
-              if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/public-settings', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ services: updated })
-                }).catch(() => {});
-              }
               return updated;
             });
-
-            setVenues(prevVenues => {
-              const updatedVenues = prevVenues.map(v => {
-                const currentServices = v.includedServices || [];
-                if (currentServices.some(id => String(id) === String(sId))) {
-                  return { ...v, includedServices: currentServices.filter(id => String(id) !== String(sId)) };
-                }
-                return v;
-              });
-              CacheService.set('venues', updatedVenues);
-              if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/public-settings', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ venues: updatedVenues })
-                }).catch(() => {});
-              }
-              return updatedVenues;
-            });
-            showToast('Ek Hizmet Silindi.');
+            showToast('Ek Hizmet Başarıyla Silindi.');
           }
         });
       };
