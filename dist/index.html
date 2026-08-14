@@ -4267,11 +4267,18 @@ function ReservationsListComponent({
                   <div className="p-4 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
                     <span className="text-amber-700 dark:text-gold-400 font-bold block text-[11px] uppercase tracking-wider"><ThemeIcon icon="gift" className="w-4 h-4 inline-block shrink-0" /> 3. Ek Hizmetler & Dahili Paket Seçimi:</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {[...(services || [])].sort((a, b) => {
-                        const oA = typeof a.order === 'number' ? a.order : (typeof a.sortOrder === 'number' ? a.sortOrder : 9999);
-                        const oB = typeof b.order === 'number' ? b.order : (typeof b.sortOrder === 'number' ? b.sortOrder : 9999);
-                        return oA - oB;
-                      }).map(srv => {
+                      {(() => {
+                        const vObj = (venues || []).find(v => v.id === editForm.venueId);
+                        const vServiceIds = vObj?.availableServices || vObj?.available_services || [];
+                        const fullList = [...(services || [])];
+                        const filtered = (Array.isArray(vServiceIds) && vServiceIds.length > 0)
+                          ? fullList.filter(s => vServiceIds.includes(s.id))
+                          : fullList;
+                        return filtered.sort((a, b) => {
+                          const oA = typeof a.order === 'number' ? a.order : (typeof a.sortOrder === 'number' ? a.sortOrder : 9999);
+                          const oB = typeof b.order === 'number' ? b.order : (typeof b.sortOrder === 'number' ? b.sortOrder : 9999);
+                          return oA - oB;
+                        }).map(srv => {
                         const isSelected = (editForm.selectedServices || []).some(s => (typeof s === 'string' ? s === srv.id : s.serviceId === srv.id || s.id === srv.id));
                         return (
                           <label
@@ -4305,7 +4312,8 @@ function ReservationsListComponent({
                             <span className="font-mono font-bold text-amber-600 text-xs">{formatCurrency(srv.price || 0)}</span>
                           </label>
                         );
-                      })}
+                      });
+                    })()}
                     </div>
                   </div>
 
@@ -12367,19 +12375,34 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return reservations.some(r => r.venueId === venueId && r.date === eventDate && r.timeSlot === activeSlot);
       }, [reservations, venueId, eventDate, activeSlot]);
 
-      const selectedVenue = venues.find(v => v.id === venueId);
-      const existingCustomer = customers.find(c => c.id === selectedCustomerId);
+      const selectedVenue = (venues || []).find(v => v.id === venueId);
+      const existingCustomer = (customers || []).find(c => c.id === selectedCustomerId);
 
       const availableServicesForVenue = useMemo(() => {
         const fullList = (services && services.length > 0) ? services : [];
-        return [...fullList].sort((a, b) => {
+        if (!selectedVenue) return fullList;
+        const venueServiceIds = selectedVenue.availableServices || selectedVenue.available_services;
+        const filtered = (Array.isArray(venueServiceIds) && venueServiceIds.length > 0)
+          ? fullList.filter(s => venueServiceIds.includes(s.id))
+          : fullList;
+
+        return [...filtered].sort((a, b) => {
           const idxA = fullList.findIndex(x => String(x.id) === String(a.id));
           const idxB = fullList.findIndex(x => String(x.id) === String(b.id));
           const oA = typeof a.order === 'number' ? a.order : (typeof a.sortOrder === 'number' ? a.sortOrder : (idxA >= 0 ? idxA + 1 : 9999));
           const oB = typeof b.order === 'number' ? b.order : (typeof b.sortOrder === 'number' ? b.sortOrder : (idxB >= 0 ? idxB + 1 : 9999));
           return oA - oB;
         });
-      }, [services]);
+      }, [services, selectedVenue]);
+
+      // When venue changes, remove any selected services that are not valid for the new venue
+      useEffect(() => {
+        if (!selectedVenue) return;
+        const venueServiceIds = selectedVenue.availableServices || selectedVenue.available_services;
+        if (Array.isArray(venueServiceIds) && venueServiceIds.length > 0) {
+          setSelectedServices(prev => (prev || []).filter(item => venueServiceIds.includes(item.serviceId || item.id)));
+        }
+      }, [venueId, selectedVenue]);
 
       // Financial Calculation with Paid Services Breakdown & Deduction
       const calculations = useMemo(() => {

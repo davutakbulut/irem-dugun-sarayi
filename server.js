@@ -229,7 +229,8 @@ const initMysql = async () => {
           costPrice: r.cost_price ? Number(r.cost_price) : 0,
           occupancyRate: r.occupancy_rate || 0,
           eventTypes: r.features_json ? (typeof r.features_json === 'string' ? JSON.parse(r.features_json) : r.features_json) : ['Düğün', 'Nişan'],
-          images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : [])
+          images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : []),
+          availableServices: r.available_services_json ? (typeof r.available_services_json === 'string' ? JSON.parse(r.available_services_json) : r.available_services_json) : ['s1', 's2', 's3', 's-tavuk-menu']
         }));
 
         const [sRows] = await pool.query('SELECT * FROM services ORDER BY created_at DESC');
@@ -1014,13 +1015,13 @@ app.get('/api/venues', async (req, res) => {
           evTypes = v.event_types_json;
         }
 
-        let availServs = [];
+        let availServs = null;
         if (typeof v.available_services_json === 'string') {
           try { availServs = JSON.parse(v.available_services_json); } catch(e){}
         } else if (Array.isArray(v.available_services_json)) {
           availServs = v.available_services_json;
         }
-        if (!availServs || availServs.length === 0) {
+        if (availServs === null || availServs === undefined) {
           availServs = ['s1', 's2', 's3', 's-tavuk-menu'];
         }
 
@@ -1933,7 +1934,8 @@ app.get('/api/public-settings', async (req, res) => {
         costPrice: r.cost_price ? Number(r.cost_price) : 0,
         occupancyRate: r.occupancy_rate || 0,
         eventTypes: r.features_json ? (typeof r.features_json === 'string' ? JSON.parse(r.features_json) : r.features_json) : ['Düğün', 'Nişan'],
-        images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : [])
+        images: r.images_json ? (typeof r.images_json === 'string' ? JSON.parse(r.images_json) : r.images_json) : (r.image ? [r.image] : []),
+        availableServices: r.available_services_json ? (typeof r.available_services_json === 'string' ? JSON.parse(r.available_services_json) : r.available_services_json) : ['s1', 's2', 's3', 's-tavuk-menu']
       }));
 
       const [sRows] = await activePool.query('SELECT * FROM services ORDER BY created_at DESC');
