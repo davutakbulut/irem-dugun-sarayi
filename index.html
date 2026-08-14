@@ -1843,39 +1843,72 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.7 İLHAM VEREN GALERİLER                                           */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-16 bg-[#FAF9F6] border-t border-slate-200">
+                <section className="py-14 sm:py-18 bg-[#FAF9F6] border-t border-slate-200 overflow-hidden">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between mb-8">
-                      <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                        İlham Veren Galeriler
-                      </h2>
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6 sm:mb-8">
+                      <div>
+                        <span className="text-[#8C6D33] font-bold text-[11px] sm:text-xs uppercase tracking-widest bg-[#FAF6EE] border border-[#E3D3B5] px-3.5 py-1 rounded-sm inline-flex items-center space-x-1.5 mb-1.5">
+                          <Icon name="sparkles" className="w-3.5 h-3.5 text-[#C5A059]" />
+                          <span>Görsel Şölen</span>
+                        </span>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                          İlham Veren Galeriler
+                        </h2>
+                      </div>
                       <button 
                         onClick={() => setCurrentTab('galleries')}
-                        className="text-[#8C6D33] hover:text-[#6D5427] font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1"
+                        className="text-[#8C6D33] hover:text-[#6D5427] font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1 py-1.5 px-3 rounded-sm bg-white border border-[#E3D3B5] hover:bg-[#FAF6EE] transition cursor-pointer shadow-xs"
                       >
                         <span>Tüm Galeriler</span>
-                        <Icon name="arrowRight" className="w-4 h-4" />
+                        <Icon name="arrowRight" className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {GALLERIES.map((gal) => (
-                        <div 
-                          key={gal.id}
-                          onClick={() => setCurrentTab('galleries')}
-                          className="relative h-72 rounded-sm overflow-hidden shadow-md hover:shadow-xl transition duration-300 group cursor-pointer border border-slate-200"
-                        >
-                          <img 
-                            src={gal.image} 
-                            alt={gal.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                          <div className="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 className="font-bold text-sm sm:text-base">{gal.title}</h3>
+                    {/* Relative Wrapper for Mobile Right-Edge Fade Effect */}
+                    <div className="relative">
+                      
+                      {/* Mobile Right Edge Soft Gradient Fade Mask */}
+                      <div className="pointer-events-none absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-[#FAF9F6] via-[#FAF9F6]/85 to-transparent md:hidden z-10"></div>
+
+                      {/* Horizontal Swipeable Container on Mobile / 4-Col Grid on Desktop */}
+                      <div className="flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 pt-1 px-4 -mx-4 sm:mx-0 sm:px-0 no-scrollbar scroll-smooth md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:space-x-0 md:pb-0">
+                        {EXTENDED_GALLERIES.slice(0, 6).map((gal) => (
+                          <div 
+                            key={gal.id}
+                            onClick={() => setLightboxImage(gal)}
+                            className="w-[74vw] sm:w-[320px] md:w-auto shrink-0 snap-start relative h-72 rounded-sm overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-slate-200 bg-slate-950 flex flex-col justify-end"
+                          >
+                            <img 
+                              src={gal.image} 
+                              alt={gal.title} 
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+                            
+                            <div className="relative z-10 p-4 text-white space-y-1">
+                              <span className="text-[10px] font-bold text-[#EBDCB9] uppercase tracking-wider block">
+                                {gal.subtitle}
+                              </span>
+                              <h3 className="font-extrabold text-sm sm:text-base leading-snug group-hover:text-[#EBDCB9] transition">
+                                {gal.title}
+                              </h3>
+                              <span className="text-[10px] text-slate-300 font-medium block pt-0.5">
+                                Büyütmek için dokunun 🔍
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+
+                      {/* Mobile swipe hint */}
+                      <div className="md:hidden flex items-center justify-center space-x-1.5 mt-3 text-[10.5px] font-bold text-[#8C6D33] bg-white py-1 px-3.5 rounded-full border border-[#E3D3B5] w-fit mx-auto shadow-xs">
+                        <span>←</span>
+                        <span>Diğer fotoğraflar için kaydırın</span>
+                        <span>→</span>
+                      </div>
+
                     </div>
                   </div>
                 </section>
