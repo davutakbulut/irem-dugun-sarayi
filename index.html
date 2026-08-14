@@ -1423,68 +1423,145 @@
           {/* ========================================================================= */}
           {/* 3. FOOTER                                                                 */}
           {/* ========================================================================= */}
-          <footer className="bg-slate-950 text-white border-t border-slate-900 pt-16 pb-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+          {/* ========================================================================= */}
+          {/* 3. FOOTER (LIGHT FRESH WHITE THEME MATCHING SCREENSHOT EXACTLY)           */}
+          {/* ========================================================================= */}
+          <footer className="bg-[#FAF9F6] text-slate-700 border-t border-slate-200/80 pt-16 pb-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-12 border-b border-slate-200/70">
                 
-                {/* Col 1: Brand */}
-                <div className="space-y-4">
+                {/* Col 1: Brand & Socials (4 Cols) */}
+                <div className="lg:col-span-4 space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white font-black text-lg shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-md">
                       <Icon name="crown" className="w-6 h-6" />
                     </div>
-                    <div>
-                      <div className="font-extrabold text-lg tracking-tight gold-gradient-text">İREM DÜĞÜN SARAYI</div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">& Balo Tesisleri • Sapanca</p>
+                    <div className="font-extrabold text-lg text-slate-900 tracking-tight">
+                      İrem Düğün Sarayı
                     </div>
                   </div>
-                  <p className="text-slate-400 text-xs leading-relaxed">
-                    Sapanca Gölü kenarında 4 farklı konsept balo salonu, kır bahçesi ve VIP organizasyon hizmetleriyle hayatınızın en özel gününü unutulmaz kılıyoruz.
+                  
+                  <p className="text-slate-500 text-xs sm:text-[13px] leading-relaxed max-w-sm">
+                    Sapanca Gölü'nün kıyısında 4 farklı balo salonu, kır bahçesi ve VIP organizasyon hizmetleri ile en özel gününüzü taçlandırıyoruz.
                   </p>
+
+                  {/* 4 Circular Outline Social Icons */}
+                  <div className="flex items-center space-x-2.5 pt-2">
+                    {/* Instagram */}
+                    <a
+                      href="https://instagram.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      aria-label="Instagram"
+                    >
+                      <Icon name="camera" className="w-4 h-4" />
+                    </a>
+
+                    {/* TikTok / Person */}
+                    <a
+                      href="https://tiktok.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      aria-label="TikTok"
+                    >
+                      <Icon name="users" className="w-4 h-4" />
+                    </a>
+
+                    {/* Video / YouTube */}
+                    <a
+                      href="https://youtube.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      aria-label="YouTube"
+                    >
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    </a>
+
+                    {/* WhatsApp */}
+                    <a
+                      href="https://wa.me/905471440054"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full border border-emerald-300 hover:border-emerald-500 text-emerald-600 hover:text-emerald-700 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      aria-label="WhatsApp"
+                    >
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    </a>
+                  </div>
                 </div>
 
-                {/* Col 2: Fast Links */}
-                <div className="space-y-3">
-                  <h4 className="font-bold text-sm text-amber-400 uppercase tracking-wider">Hızlı Bağlantılar</h4>
-                  <ul className="space-y-2 text-xs text-slate-300">
-                    <li><button onClick={() => { setCurrentTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-300">Anasayfa</button></li>
-                    <li><button onClick={() => { setCurrentTab('virtual-tour'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-300">360° Sanal Tur</button></li>
-                    <li><button onClick={() => { setCurrentTab('organizations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-300">Organizasyonlar</button></li>
-                    <li><button onClick={() => { setCurrentTab('venues'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-300">Mekanlarımız & Salonlar</button></li>
-                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-300">Düğün Rehberi</button></li>
+                {/* Col 2: HIZLI MENÜ (2.5 Cols) */}
+                <div className="lg:col-span-2 space-y-3">
+                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-amber-500 pl-2">
+                    <span>HIZLI MENÜ</span>
+                  </div>
+                  <ul className="space-y-2 text-xs font-semibold text-slate-600">
+                    <li><button onClick={() => { setCurrentTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Anasayfa</button></li>
+                    <li><button onClick={() => { setCurrentTab('venues'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Salonlarımız</button></li>
+                    <li><button onClick={() => { setCurrentTab('virtual-tour'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">360° Sanal Tur</button></li>
+                    <li><button onClick={() => { setCurrentTab('organizations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Organizasyon Paketleri</button></li>
+                    <li><button onClick={() => { setCurrentTab('galleries'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Galeri & Fotoğraflar</button></li>
                   </ul>
                 </div>
 
-                {/* Col 3: Venues */}
-                <div className="space-y-3">
-                  <h4 className="font-bold text-sm text-amber-400 uppercase tracking-wider">Salonlarımız</h4>
-                  <ul className="space-y-2 text-xs text-slate-300">
-                    <li>Kraliyet Balo Salonu (750 Kişi)</li>
-                    <li>Göl Kır Bahçesi (1.000 Kişi)</li>
-                    <li>Safir VIP Salon (450 Kişi)</li>
-                    <li>Göl Terası Butik Salon (250 Kişi)</li>
+                {/* Col 3: DÜĞÜN REHBERİ (2.5 Cols) */}
+                <div className="lg:col-span-2 space-y-3">
+                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-amber-500 pl-2">
+                    <span>DÜĞÜN REHBERİ</span>
+                  </div>
+                  <ul className="space-y-2 text-xs font-semibold text-slate-600">
+                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Düğün Tarihi Seçimi İpuçları</button></li>
+                    <li><button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Gelinlik & Damatlık Rehberi</button></li>
+                    <li><button onClick={() => { setCurrentTab('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-amber-600 transition">Hakkımızda & Kalite Belgelerimiz</button></li>
+                    <li><a href="/yonetim" className="hover:text-amber-600 transition">Müşteri VIP Portalı</a></li>
                   </ul>
                 </div>
 
-                {/* Col 4: Contact info */}
-                <div className="space-y-3">
-                  <h4 className="font-bold text-sm text-amber-400 uppercase tracking-wider">İletişim & Adres</h4>
-                  <div className="space-y-2 text-xs text-slate-300 leading-relaxed">
-                    <p>📍 Sapanca Göl Caddesi No:42, Sapanca / Sakarya</p>
-                    <p>📞 +90 (547) 144 00 54</p>
-                    <p>✉️ bilgi@iremdugunsarayi.com</p>
-                    <p>🕒 Her gün: 09:00 - 23:00</p>
+                {/* Col 4: İLETİŞİM & KONUM (3 Cols) */}
+                <div className="lg:col-span-4 space-y-3">
+                  <div className="flex items-center space-x-1.5 font-extrabold text-xs tracking-wider uppercase text-slate-900 border-l-2 border-amber-500 pl-2">
+                    <span>İLETİŞİM & KONUM</span>
+                  </div>
+                  <div className="space-y-2 text-xs font-medium text-slate-600 leading-relaxed">
+                    <p className="flex items-start space-x-2">
+                      <span className="text-amber-600 shrink-0">📍</span>
+                      <span>Sapanca Göl Kenarı Caddesi No:42 Sakarya / Turkey</span>
+                    </p>
+                    <p className="flex items-center space-x-2">
+                      <span className="text-amber-600 shrink-0">📞</span>
+                      <a href="tel:+905471440054" className="font-bold text-slate-800 hover:text-amber-600 transition">+90 547 144 00 54</a>
+                    </p>
+                    <p className="flex items-center space-x-2">
+                      <span className="text-emerald-600 shrink-0">💬</span>
+                      <span>WhatsApp: <a href="https://wa.me/905471440054" target="_blank" rel="noopener noreferrer" className="font-bold text-slate-800 hover:text-emerald-600 transition">+90 547 144 00 54</a></span>
+                    </p>
+                    <p className="flex items-center space-x-2">
+                      <span className="text-amber-600 shrink-0">✉️</span>
+                      <a href="mailto:irem.wedding@gmail.com" className="font-semibold text-slate-700 hover:text-amber-600 transition">irem.wedding@gmail.com</a>
+                    </p>
+                    <p className="text-[11px] text-slate-500 pt-1 font-semibold">
+                      Çalışma Saatleri : 09:00 - 23:00 (Haftanın 7 Günü)
+                    </p>
                   </div>
                 </div>
 
               </div>
 
-              {/* Copyright Bar */}
-              <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-                <p>© {new Date().getFullYear()} İrem Düğün Sarayı & Balo Tesisleri. Tüm Hakları Saklıdır.</p>
-                <div className="flex items-center space-x-4">
-                  <a href="/yonetim" className="text-amber-500 hover:underline font-semibold">
-                    Yönetim Portalı Girişi
+              {/* Copyright Sub-bar */}
+              <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p className="text-slate-500 font-medium">
+                  © {new Date().getFullYear()} İrem Düğün Sarayı & Balo Tesisleri. Tüm Hakları Saklıdır.
+                </p>
+                <div className="flex items-center space-x-2">
+                  <a 
+                    href="/yonetim" 
+                    className="text-slate-600 hover:text-amber-600 font-bold transition inline-flex items-center space-x-1"
+                  >
+                    <span>Tesis Yöneticisi Giriş</span>
+                    <svg className="w-3.5 h-3.5 inline ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                   </a>
                 </div>
               </div>
