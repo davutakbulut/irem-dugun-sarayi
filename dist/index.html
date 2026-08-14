@@ -7180,47 +7180,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             </div>
           )}
 
-                      <div className="pt-2 text-slate-600 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 leading-relaxed font-sans text-[11px]">
-                        💡 <strong>SMTP Notu:</strong> Gerçek Gmail/Outlook kutunuza fiziki mail düşmesi için sunucuda SMTP şifresi (App Password) tanımlı olmalıdır. Şifreniz güvenlik amacıyla yukarıda gösterilmiş olup aşağıdaki butonla tek tıkla giriş yapabilirsiniz.
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const targetEmail = forgotSuccessMail.to;
-                        const mUser = forgotSuccessMail.matchedUser;
-                        setEmailInput(targetEmail);
-                        if (mUser && mUser.password) {
-                          setPassword(mUser.password);
-                        }
-                        setShowForgotModal(false);
-                        setForgotSuccessMail(null);
-                        const isCust = mUser ? (mUser.role === 'musteri') : true;
-                        handleQuickRoleLogin(mUser ? (mUser.role || 'admin') : 'admin', mUser ? mUser.name : 'Sistem Kullanıcısı', targetEmail, mUser ? (mUser.avatar || '') : '');
-                      }}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer text-xs"
-                    >
-                      <ThemeIcon icon="sparkles" className="w-4 h-4" />
-                      <span>⚡ Bu Şifre ve Hesapla Doğrudan Giriş Yap</span>
-                    </button>
-
-                    <div className="flex justify-end pt-1">
-                      <button
-                        type="button"
-                        onClick={() => { setForgotSuccessMail(null); setShowForgotModal(false); }}
-                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs cursor-pointer"
-                      >
-                        Kapat
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* DESTEK VE YARDIM MODAL */}
+          {/* DESTEK VE YARDIM MODAL{/* DESTEK VE YARDIM MODAL */}
           {showHelpModal && (
             <div className="fixed inset-0 z-[99999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-amber-500/30 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl text-slate-800 dark:text-white animate-scale-up">
