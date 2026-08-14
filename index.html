@@ -1052,7 +1052,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
           {/* 1.2 MOBILE LUXURY SLIDE-IN DRAWER (RIGHT-SLIDING 90% WIDTH + BLURRED BG)  */}
           {/* ========================================================================= */}
           <div 
-            className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
+            className={`fixed inset-0 z-[70] lg:hidden transition-all duration-300 ${
               isMobileMenuOpen ? 'visible pointer-events-auto' : 'invisible pointer-events-none'
             }`}
           >
@@ -3164,7 +3164,9 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
           {/* BOTTOM-LEFT: DIRECT CALL TRIGGER BUTTON (HOVER-ONLY PULSE AURA) */}
           <a
             href="tel:+905471440054"
-            className="fixed bottom-6 left-6 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-full btn-luxe-gold text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border-2 border-[#E3D3B5] group"
+            className={`fixed bottom-6 left-6 z-40 w-14 h-14 sm:w-16 sm:h-16 rounded-full btn-luxe-gold text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border-2 border-[#E3D3B5] group ${
+              isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
             aria-label="Telefonla Arayın"
             title="Hemen Arayın: 0547 144 00 54"
           >
@@ -3178,7 +3180,9 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
           </a>
 
           {/* BOTTOM-RIGHT: FLOATING WHATSAPP WIDGET & CIRCULAR TRIGGER */}
-          <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+          <div className={`fixed bottom-6 right-6 z-40 flex flex-col items-end transition-all duration-300 ${
+            isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}>
             
             {/* Pop-up Support Card */}
             {isWhatsAppOpen && (
