@@ -9899,33 +9899,92 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         });
       };
 
+      const handleSaveCustomer = async (cObj) => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const isNew = !cObj.id;
+          const finalCust = cObj.id ? cObj : { ...cObj, id: 'cust-' + Date.now(), avatar: cObj.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' };
+
+          const resp = await fetchFn('/api/customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalCust)
+          });
+          const data = await resp.json();
+          const savedItem = (data && data.item) ? data.item : finalCust;
+
+          setCustomers(prev => {
+            const idx = prev.findIndex(x => String(x.id) === String(savedItem.id));
+            let updated;
+            if (idx >= 0) {
+              updated = [...prev];
+              updated[idx] = savedItem;
+            } else {
+              updated = [savedItem, ...prev];
+            }
+            CacheService.set('customers', updated);
+            return updated;
+          });
+
+          if (isNew) {
+            const newCustUser = {
+              id: 'u-' + savedItem.id,
+              name: savedItem.name || 'Müşteri',
+              email: savedItem.email || `musteri_${Date.now()}@iremdugun.com`,
+              phone: savedItem.phone || '',
+              role: 'musteri',
+              roleName: 'Müşteri',
+              status: 'Aktif',
+              avatar: savedItem.avatar,
+              createdAt: new Date().toISOString()
+            };
+            setUsers(prev => {
+              const updated = [...(prev || []).filter(u => u.email !== newCustUser.email && u.id !== newCustUser.id), newCustUser];
+              CacheService.set('users', updated);
+              return updated;
+            });
+            fetchFn('/api/users', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newCustUser)
+            }).catch(() => {});
+          }
+
+          setCustomerModalData(null);
+          showToast(isNew ? 'Müşteri Kartı Veritabanına Başarıyla Eklendi!' : 'Müşteri Bilgileri Veritabanında Güncellendi!');
+        } catch(err) {
+          console.error('Save customer error:', err);
+          showToast('Müşteri kaydedilirken bir hata oluştu.');
+        }
+      };
+
       const handleDeleteCustomer = (cIdOrObj) => {
-        const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
-        const customer = customers.find(x => x.id === cId);
+        const cId = typeof cIdOrObj === 'object' ? (cIdOrObj?.id || cIdOrObj) : cIdOrObj;
+        const customer = (customers || []).find(x => String(x.id) === String(cId));
         const cName = customer ? customer.name : 'Müşteri';
         setRedAlertModalData({
           title: 'MÜŞTERİ KARTI SİLİNECEK',
-          message: `"${cName}" müşteri kaydını rehberden silmek istediğinize emin misiniz?`,
+          message: `"${cName}" müşteri kaydını veritabanından tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
           confirmText: 'Evet, Müşteriyi Sil',
-          onConfirm: () => {
+          onConfirm: async () => {
+            try {
+              const fetchFn = window.fetchWithRetry || fetch;
+              await fetchFn(`/api/customers/${cId}`, { method: 'DELETE' });
+            } catch(e) {
+              console.error('Delete customer error:', e);
+            }
+
             setCustomers(prev => {
-              const updatedCust = prev.filter(x => x.id !== cId);
+              const updatedCust = (prev || []).filter(x => String(x.id) !== String(cId));
               CacheService.set('customers', updatedCust);
-              if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/public-settings', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ customers: updatedCust })
-                }).catch(() => {});
-              }
               return updatedCust;
             });
             setUsers(prev => {
-              const updatedUsers = prev.filter(u => u.id !== cId && u.id !== `u_${cId}`);
+              const updatedUsers = (prev || []).filter(u => String(u.id) !== String(cId) && String(u.id) !== `u-${cId}` && String(u.id) !== `u_${cId}`);
               CacheService.set('users', updatedUsers);
               return updatedUsers;
             });
-            showToast('Müşteri Rehberden Silindi.');
+            showToast('Müşteri Veritabanından ve Rehberden Silindi.');
           }
         });
       };
@@ -11667,29 +11726,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
           {customerModalData && (
             <CustomerFormModal
-                customer={customerModalData === 'new' ? null : customerModalData}
+              customer={customerModalData === 'new' ? null : customerModalData}
               onClose={() => setCustomerModalData(null)}
-              onSave={(c) => {
-                const isNew = !c.id;
-                const finalCust = c.id ? c : { ...c, id: 'cust-' + Date.now(), avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' };
-                setCustomers(prev => c.id ? prev.map(x => x.id === c.id ? c : x) : [...prev, finalCust]);
-                if (isNew) {
-                  const newCustUser = {
-                    id: 'u-' + finalCust.id,
-                    name: finalCust.name || 'Müşteri',
-                    email: finalCust.email || `musteri_${Date.now()}@iremdugun.com`,
-                    phone: finalCust.phone || '',
-                    role: 'musteri',
-                    roleName: 'Müşteri',
-                    status: 'Aktif',
-                    avatar: finalCust.avatar,
-                    createdAt: new Date().toISOString()
-                  };
-                  setUsers(prev => [...(prev || []).filter(u => u.email !== newCustUser.email && u.id !== newCustUser.id), newCustUser]);
-                }
-                showToast('Müşteri Kartı ve Müşteri Üyeliği Başarıyla Oluşturuldu!');
-                setCustomerModalData(null);
-              }}
+              onSave={handleSaveCustomer}
             />
           )}
 
@@ -14156,286 +14195,180 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [email, setEmail] = useState((customer && customer.email) || '');
       const [phone, setPhone] = useState((customer && customer.phone) || '');
       const [address, setAddress] = useState((customer && customer.address) || '');
-      const [taxType, setTaxType] = useState((customer && customer.taxType) || 'individual');
-      const [tcNo, setTcNo] = useState((customer && customer.tcNo) || '');
-      const [taxOffice, setTaxOffice] = useState((customer && customer.taxOffice) || '');
+      const [taxType, setTaxType] = useState((customer && (customer.taxType || customer.tax_type)) || 'individual');
+      const [tcNo, setTcNo] = useState((customer && (customer.tcNo || customer.tc_no || customer.vknNo || customer.vkn_no)) || '');
+      const [taxOffice, setTaxOffice] = useState((customer && (customer.taxOffice || customer.tax_office)) || '');
+      const [isSubmitting, setIsSubmitting] = useState(false);
+
+      useEffect(() => {
+        if (customer) {
+          setName(customer.name || '');
+          setEmail(customer.email || '');
+          setPhone(customer.phone || '');
+          setAddress(customer.address || '');
+          setTaxType(customer.taxType || customer.tax_type || 'individual');
+          setTcNo(customer.tcNo || customer.tc_no || customer.vknNo || customer.vkn_no || '');
+          setTaxOffice(customer.taxOffice || customer.tax_office || '');
+        } else {
+          setName('');
+          setEmail('');
+          setPhone('');
+          setAddress('');
+          setTaxType('individual');
+          setTcNo('');
+          setTaxOffice('');
+        }
+      }, [customer]);
+
+      const handleSubmit = async (e) => {
+        if (e) e.preventDefault();
+        const trimmedName = (name || '').trim();
+        if (!trimmedName) {
+          alert('Lütfen müşteri adını giriniz.');
+          return;
+        }
+        setIsSubmitting(true);
+        try {
+          const payload = {
+            ...(customer || {}),
+            name: trimmedName,
+            email: (email || '').trim(),
+            phone: (phone || '').trim(),
+            address: (address || '').trim(),
+            taxType,
+            tax_type: taxType,
+            tcNo: taxType === 'individual' ? (tcNo || '').trim() : '',
+            tc_no: taxType === 'individual' ? (tcNo || '').trim() : '',
+            vknNo: taxType === 'corporate' ? (tcNo || '').trim() : '',
+            vkn_no: taxType === 'corporate' ? (tcNo || '').trim() : '',
+            taxOffice: (taxOffice || '').trim(),
+            tax_office: (taxOffice || '').trim()
+          };
+          await onSave(payload);
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
 
       return (
         <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true">
           <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{customer ? 'Müşteri Kartı Düzenle' : 'Yeni Müşteri Ekle'}</h3>
-            <div className="space-y-3 text-xs">
-              <input type="text" placeholder="Müşteri / Firma Adı" value={name} onChange={e => setName(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  placeholder="Telefon 0 (5XX) XXX XX XX"
-                  value={phone}
-                  onChange={e => setPhone(formatPhoneNumber(e.target.value))}
-                  className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold"
-                />
-                <input type="email" placeholder="E-posta" value={email} onChange={e => setEmail(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
-              </div>
-              <select value={taxType} onChange={e => setTaxType(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold">
-                <option value="individual">Bireysel Müşteri (TC No)</option>
-                <option value="corporate">Kurumsal Müşteri (VKN)</option>
-              </select>
-              <div className="grid grid-cols-2 gap-2">
-                <input type="text" placeholder={taxType === 'individual' ? 'TC Kimlik No' : 'Vergi Kimlik No (VKN)'} value={tcNo} onChange={e => setTcNo(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
-                <input type="text" placeholder="Vergi Dairesi" value={taxOffice} onChange={e => setTaxOffice(e.target.value)} className="bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200" />
-              </div>
-              <textarea placeholder="Adres Bilgisi" value={address} onChange={e => setAddress(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 h-16" />
-            </div>
-            <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
-              <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">İptal</button>
-              <button onClick={() => onSave({ ...customer, name, email, phone, address, taxType, tcNo, taxOffice })} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Müşteriyi Kaydet</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // --- GLOBAL FOOTER COMPONENT ---
-    function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal, isPublicGuestRoute, systemVersion }) {
-      const activeCampaign = campaigns.length > 0 ? campaigns[0] : { title: 'Erken Rezervasyon Fırsatı', code: 'IREM2026', discount: '%20 İndirim' };
-      const currentYear = new Date().getFullYear();
-
-      if (isPublicGuestRoute) {
-        return (
-          <footer className="w-full bg-white/90 dark:bg-slate-900/95 backdrop-blur-md text-slate-700 dark:text-slate-300 py-8 px-4 sm:px-8 border-t border-amber-200/80 dark:border-amber-500/30 text-xs font-medium relative z-40 shadow-lg animate-fade-in">
-            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
-              
-              {/* LEFT: BRANDING & SAPANCA LOCATION */}
-              <div className="space-y-1.5 max-w-lg">
-                <div className="flex items-center justify-center lg:justify-start space-x-2 font-heading font-extrabold text-amber-700 dark:text-amber-400 text-sm tracking-wide">
-                  <ThemeIcon icon="crown" className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                  <span>İREM DÜĞÜN SARAYI & BALO TESİSLERİ</span>
-                </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                  Arifiye Merkez’nın en özel balo salonlarında unutulmaz anılar biriktirin. Çektiğiniz tüm fotoğraf ve videolar yüksek çözünürlükle saklanmaktadır.
-                </p>
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 text-slate-500 dark:text-slate-400 text-[11px] font-semibold pt-1">
-                  <span className="flex items-center space-x-1">
-                    <ThemeIcon icon="mapPin" className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                    <span>Arifiye Merkez, Sakarya</span>
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center space-x-1">
-                    <ThemeIcon icon="shieldCheck" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>256-Bit SSL Güvenlik</span>
-                  </span>
-                </div>
-                <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono pt-1">
-                  © {currentYear} İrem Düğün Sarayı Canlı Medya Portalı • Tüm Hakları Saklıdır.
-                </div>
-              </div>
-
-              {/* RIGHT: PROMOTION AREA FOR GUESTS */}
-              <div className="flex flex-col sm:flex-row items-center gap-3.5 bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200/80 dark:border-amber-500/30 p-4 rounded-2xl shadow-xs">
-                <div className="text-center sm:text-left space-y-0.5">
-                  <div className="font-heading font-bold text-slate-900 dark:text-amber-300 text-xs">
-                    Kendi Düğün veya Nişanınız İçin Denemek İster Misiniz?
-                  </div>
-                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">
-                    Davetlilerinizin fotoğraflarını anında tek tıkla QR kodla toplayın!
-                  </div>
-                </div>
-                <a
-                  href="tel:+905471440054"
-                  className="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md hover:shadow-lg transition flex items-center space-x-1.5 shrink-0 cursor-pointer active:scale-95"
-                >
-                  <ThemeIcon icon="phone" className="w-3.5 h-3.5 shrink-0" />
-                  <span>Bilgi Al (+90 547 144 00 54)</span>
-                </a>
-              </div>
-
-            </div>
-          </footer>
-        );
-      }
-
-      return (
-        <footer className="w-full m-0 mt-0 border-t border-slate-200 dark:border-brand-border/60 glass-panel rounded-none px-4 sm:px-8 py-8 space-y-8 animate-fade-in relative overflow-hidden">
-          {/* BACKGROUND DECORATIVE GLOW */}
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-          {/* MAIN 4-COLUMN FOOTER GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-
-            {/* COLUMN 1: CORPORATE INTRO & BRAND */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md shrink-0">
-                  <ThemeIcon icon="crown" fallbackEmoji="" className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-heading font-extrabold text-base text-slate-900 dark:text-gray-100 gold-gradient-text">
-                    İrem Düğün Sarayı
-                  </h3>
-                  <p className="text-[10px] font-mono text-slate-500 dark:text-gray-400 uppercase tracking-widest">
-                    Balo & Etkinlik Tesisleri
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
-                15 yılı aşkın tecrübemiz ve 4 farklı konsept balo salonumuzla hayatınızın en özel ve unutulmaz anlarını kusursuz bir şölene dönüştürüyoruz.
-              </p>
-
-              <button
-                type="button"
-                onClick={onOpenVersionModal}
-                className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold hover:bg-emerald-500/20 transition cursor-pointer"
-                title="Sistem Sürüm Geçmişi ve Güncelleme Günlüğünü Göster"
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Canlı Sistem ({systemVersion}) (Sürüm Notları <ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" />)</span>
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-brand-border pb-3">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                <ThemeIcon icon="user" className="w-5 h-5 text-amber-500 shrink-0" />
+                <span>{customer && customer.id ? 'Müşteri Kartı Düzenle' : 'Yeni Müşteri Ekle'}</span>
+              </h3>
+              <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition">
+                ✕
               </button>
             </div>
 
-            {/* COLUMN 2: QUICK NAVIGATION & IMPORTANT LINKS */}
-            <div className="space-y-3">
-              <h4 className="font-heading font-extrabold text-xs text-slate-900 dark:text-gray-100 uppercase tracking-wider flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border/40">
-                <ThemeIcon icon="star" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>Önemli Bağlantılar</span>
-              </h4>
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs text-left">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">Müşteri / Firma Adı *</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Örn: Ahmet Yılmaz & Ayşe Kaya" 
+                  value={name} 
+                  onChange={e => setName(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold focus:border-amber-500 outline-none" 
+                />
+              </div>
 
-              <ul className="space-y-2 text-xs font-semibold text-slate-600 dark:text-gray-300">
-                <li>
-                  <button onClick={() => onNavigate('dashboard')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
-                    <span>›</span>
-                    <span>Anasayfa & Genel Bakış</span>
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => onNavigate('venues')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
-                    <span>›</span>
-                    <span>Balo Salonlarımız & Kapasiteler</span>
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => onNavigate('calendar')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
-                    <span>›</span>
-                    <span>Etkinlik Takvimi & Doluluk</span>
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => onNavigate('campaigns')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
-                    <span>›</span>
-                    <span>Sezon Kampanyaları & AI Önerileri</span>
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => onNavigate('customers')} className="hover:text-amber-600 dark:hover:text-gold-400 transition flex items-center space-x-2">
-                    <span>›</span>
-                    <span>Müşteri Portalı & Rehber</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* COLUMN 3: DYNAMIC PROMOTION & CAMPAIGN BANNER */}
-            <div className="space-y-3">
-              <h4 className="font-heading font-extrabold text-xs text-slate-900 dark:text-gray-100 uppercase tracking-wider flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border/40">
-                <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>Aktif Sezon Kampanyası</span>
-              </h4>
-
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-2.5 shadow-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
-                    Özel Fırsat
-                  </span>
-                  <span className="text-xs font-black text-amber-600 dark:text-gold-400 font-mono">
-                    {activeCampaign.code || 'IREM2026'}
-                  </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">Telefon</label>
+                  <input
+                    type="text"
+                    placeholder="0 (5XX) XXX XX XX"
+                    value={phone}
+                    onChange={e => setPhone(formatPhoneNumber(e.target.value))}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold focus:border-amber-500 outline-none"
+                  />
                 </div>
-
-                <div className="font-bold text-xs text-slate-900 dark:text-gray-100">
-                  {activeCampaign.title || '2026 Erken Rezervasyon İndirimi'}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">E-Posta</label>
+                  <input 
+                    type="email" 
+                    placeholder="ornek@musteri.com" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 focus:border-amber-500 outline-none" 
+                  />
                 </div>
+              </div>
 
-                <p className="text-[11px] text-slate-600 dark:text-gray-400">
-                  Rezervasyon formunda kampanya kodunu girerek %20 indirimden anında faydalanın.
-                </p>
-
-                <button
-                  onClick={() => onNavigate('create-reservation')}
-                  className="w-full text-center py-2 px-3 rounded-xl gold-button font-bold text-xs shadow hover:scale-[1.02] transition"
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">Müşteri Türü</label>
+                <select 
+                  value={taxType} 
+                  onChange={e => setTaxType(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold focus:border-amber-500 outline-none"
                 >
-                  Hemen Rezervasyon Oluştur →
+                  <option value="individual">Bireysel Müşteri (TC Kimlik No)</option>
+                  <option value="corporate">Kurumsal Müşteri (Vergi Kimlik No)</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">
+                    {taxType === 'individual' ? 'TC Kimlik No' : 'Vergi No (VKN)'}
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder={taxType === 'individual' ? '11 Haneli TC No' : '10 Haneli VKN'} 
+                    value={tcNo} 
+                    onChange={e => setTcNo(e.target.value)} 
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-mono focus:border-amber-500 outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">Vergi Dairesi</label>
+                  <input 
+                    type="text" 
+                    placeholder="Örn: Arifiye VD" 
+                    value={taxOffice} 
+                    onChange={e => setTaxOffice(e.target.value)} 
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 focus:border-amber-500 outline-none" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-gray-300 mb-1">Adres Bilgisi</label>
+                <textarea 
+                  placeholder="Mahalle, Cadde, İlçe / İl..." 
+                  value={address} 
+                  onChange={e => setAddress(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 h-16 focus:border-amber-500 outline-none" 
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-brand-border">
+                <button 
+                  type="button" 
+                  onClick={onClose} 
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold transition"
+                >
+                  İptal
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="gold-button font-bold px-5 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow"
+                >
+                  <ThemeIcon icon="check" className="w-3.5 h-3.5 shrink-0" />
+                  <span>{isSubmitting ? 'Kaydediliyor...' : 'Veritabanına Kaydet'}</span>
                 </button>
               </div>
-            </div>
-
-            {/* COLUMN 4: DIRECT CONTACT & EMERGENCY SUPPORT */}
-            <div className="space-y-3">
-              <h4 className="font-heading font-extrabold text-xs text-slate-900 dark:text-gray-100 uppercase tracking-wider flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border/40">
-                <ThemeIcon icon="phone" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>İletişim & Canlı Destek</span>
-              </h4>
-
-              <ul className="space-y-2.5 text-xs text-slate-600 dark:text-gray-300">
-                <li className="flex items-start space-x-2">
-                  <span className="text-amber-500 shrink-0"><ThemeIcon icon="location" className="w-4 h-4 inline-block shrink-0" /></span>
-                  <span>Arifiye Balo Tesisleri, Sakarya / Türkiye</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <span className="text-amber-500 shrink-0"><ThemeIcon icon="phone" className="w-4 h-4 inline-block shrink-0" /></span>
-                  <span className="font-mono font-bold text-slate-800 dark:text-gray-200">+90 547 144 00 54</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <span className="text-amber-500 shrink-0"><ThemeIcon icon="email" className="w-4 h-4 inline-block shrink-0" /></span>
-                  <span className="font-mono">irem.wedding@gmail.com</span>
-                </li>
-              </ul>
-
-              <a
-                href="https://wa.me/905471440054"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition hover:scale-[1.02]"
-              >
-                <span><ThemeIcon icon="chat" className="w-4 h-4 inline-block shrink-0" /> WhatsApp Canlı Destek Line</span>
-              </a>
-            </div>
-
+            </form>
           </div>
-
-          {/* SUB-FOOTER COPYRIGHT BAR */}
-          <div className="pt-6 border-t border-slate-200 dark:border-brand-border/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-gray-400 relative z-10">
-            <div>
-              © {currentYear} <strong>İrem Düğün Sarayı & Balo Tesisleri</strong>. Tüm Hakları Saklıdır.
-            </div>
-
-            <div className="flex items-center space-x-4 font-semibold text-[11px]">
-              <button onClick={() => onNavigate('settings-appearance')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Görünüm Ayarları</button>
-              <span>•</span>
-              <button onClick={() => onNavigate('email-templates')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">E-Posta Şablonları</button>
-              <span>•</span>
-              <button onClick={() => showToast('Gizlilik ve Güvenlik Sözleşmesi Onaylıdır')} className="hover:text-amber-600 dark:hover:text-gold-400 transition">Gizlilik Politikası</button>
-            </div>
-          </div>
-        </footer>
+        </div>
       );
-    }
-
-    // --- DASHBOARD COMPONENT ---
-    function DashboardComponent({ activeRole, currentUser, venues = [], reservations = [], services = [], customers = [], financialStats, onNewResClick, onTabChange, onConvertToCampaign, onUpdateVenuePrice }) {
-      const totalRevenue = useMemo(() => {
-        return reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
-      }, [reservations]);
-
-      const occupancyRate = useMemo(() => {
-        const totalVenueSlots = Math.max(1, venues.length) * 30;
-        const validResCount = reservations.filter(r => r.paymentStatus !== 'İptal').length;
-        return Math.min(100, Math.round((validResCount / totalVenueSlots) * 100));
-      }, [reservations, venues]);
-
-      const venueRevenueData = useMemo(() => {
-        const map = {};
-        venues.forEach(v => { map[v.id] = { name: v.name, color: '#f59e0b', revenue: 0 }; });
+    });
         const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
         venues.forEach((v, idx) => {
           if (map[v.id]) map[v.id].color = colors[idx % colors.length];
