@@ -1629,27 +1629,32 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.5 MENÜLERİMİZ & VIP LEZZETLER                                     */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-20 bg-slate-50 border-y border-slate-200">
+                {/* 2.5 MENÜLERİMİZ & VIP LEZZETLER                                     */}
+                {/* ------------------------------------------------------------------- */}
+                <section className="py-12 sm:py-20 bg-slate-50 border-y border-slate-200">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-                      <span className="text-[#8C6D33] font-bold text-xs uppercase tracking-widest bg-[#FAF6EE] border border-[#E3D3B5] px-3.5 py-1 rounded-sm">
-                        Gurme Gastronomi
+                    
+                    {/* Header */}
+                    <div className="text-center max-w-2xl mx-auto space-y-2 sm:space-y-3 mb-6 sm:mb-12">
+                      <span className="text-[#8C6D33] font-bold text-[11px] sm:text-xs uppercase tracking-widest bg-[#FAF6EE] border border-[#E3D3B5] px-3.5 py-1 rounded-sm inline-flex items-center space-x-1.5">
+                        <Icon name="sparkles" className="w-3.5 h-3.5 text-[#C5A059]" />
+                        <span>Gurme Gastronomi</span>
                       </span>
-                      <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                      <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                         Menülerimiz & VIP Lezzetler
                       </h2>
-                      <p className="text-slate-600 text-sm">
-                        Usta aşçılarımızın hijyenik tesislerimizde hazırladığı, misafirlerinizin damağında iz bırakacak zengin ikramlar.
+                      <p className="text-slate-600 text-xs sm:text-sm">
+                        Usta aşçılarımızın hijyenik mutfağımızda hazırladığı zengin ikram ve menü seçenekleri.
                       </p>
                     </div>
 
-                    {/* Menu Tabs */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-10">
+                    {/* Category Tabs: Horizontally Scrollable on Mobile, Centered on Desktop */}
+                    <div className="flex overflow-x-auto no-scrollbar space-x-2 pb-2.5 mb-5 md:justify-center md:flex-wrap md:space-x-0 md:gap-2">
                       {MENUS.map((m) => (
                         <button
                           key={m.id}
                           onClick={() => setActiveMenuTab(m.id)}
-                          className={`px-5 py-2.5 rounded-sm text-xs uppercase tracking-wider font-extrabold transition-all border ${
+                          className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-[11px] sm:text-xs uppercase tracking-wider font-extrabold transition-all border shrink-0 cursor-pointer ${
                             activeMenuTab === m.id
                               ? 'btn-luxe-gold text-white shadow-sm'
                               : 'bg-white text-slate-700 hover:bg-[#FAF6EE] border-slate-200 hover:border-[#E3D3B5]'
@@ -1660,34 +1665,94 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                       ))}
                     </div>
 
-                    {/* Active Menu Detail Card */}
-                    {MENUS.filter(m => m.id === activeMenuTab).map((menu) => (
-                      <div key={menu.id} className="bg-white rounded-sm p-6 sm:p-10 border border-slate-200 shadow-xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
-                        <div className="space-y-4">
-                          <span className="bg-[#FAF6EE] text-[#8C6D33] border border-[#E3D3B5] text-xs font-extrabold px-3 py-1 rounded-sm uppercase tracking-wider">
-                            {menu.badge}
-                          </span>
-                          <h3 className="text-2xl font-extrabold text-slate-900">{menu.title}</h3>
-                          <p className="text-slate-600 text-sm leading-relaxed">{menu.desc}</p>
-                          
-                          <div className="pt-2">
-                            <button
-                              onClick={() => {
-                                setQuoteForm(prev => ({ ...prev, notes: `Menü Tercihi: ${menu.title}` }));
-                                setIsQuoteModalOpen(true);
-                              }}
-                              className="btn-luxe-gold px-6 py-3 rounded-sm font-extrabold text-xs uppercase tracking-wider shadow-md"
+                    {/* --- MOBILE VIEW: COMPACT HORIZONTAL SWIPE CARDS (md:hidden) --- */}
+                    <div className="md:hidden">
+                      <div className="flex overflow-x-auto snap-x snap-mandatory space-x-3.5 pb-3 px-1 -mx-4 px-4 no-scrollbar">
+                        {MENUS.map((menu) => {
+                          const isSelected = activeMenuTab === menu.id;
+                          return (
+                            <div
+                              key={menu.id}
+                              onClick={() => setActiveMenuTab(menu.id)}
+                              className={`w-[78vw] max-w-[300px] shrink-0 snap-center bg-white rounded-sm border overflow-hidden shadow-md flex flex-col justify-between transition-all duration-300 ${
+                                isSelected ? 'border-[#C5A059] ring-2 ring-[#C5A059]/30' : 'border-slate-200'
+                              }`}
                             >
-                              Bu Menü İle Fiyat Teklifi Al
-                            </button>
+                              <div className="relative h-36 bg-slate-950 overflow-hidden">
+                                <img
+                                  src={menu.image}
+                                  alt={menu.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                                <span className="absolute top-2.5 left-2.5 bg-black/60 backdrop-blur-md text-amber-200 text-[10px] font-extrabold px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
+                                  {menu.badge}
+                                </span>
+                                <h3 className="absolute bottom-2.5 left-3 right-3 text-white font-extrabold text-sm leading-tight">
+                                  {menu.title}
+                                </h3>
+                              </div>
+
+                              <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3 bg-white">
+                                <p className="text-slate-600 text-xs line-clamp-3 leading-relaxed">
+                                  {menu.desc}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setQuoteForm(prev => ({ ...prev, notes: `Menü Tercihi: ${menu.title}` }));
+                                    setIsQuoteModalOpen(true);
+                                  }}
+                                  className="w-full py-2 rounded-sm btn-luxe-gold text-white font-extrabold text-[11px] uppercase tracking-wider shadow-xs cursor-pointer flex items-center justify-center space-x-1.5"
+                                >
+                                  <span>Teklif Al</span>
+                                  <Icon name="arrowRight" className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Mobile swipe hint */}
+                      <div className="flex items-center justify-center space-x-1.5 mt-2 text-[10.5px] font-bold text-[#8C6D33] bg-[#FAF6EE] py-1 px-3 rounded-full border border-[#E3D3B5] w-fit mx-auto shadow-xs">
+                        <span>←</span>
+                        <span>Menüleri kaydırarak inceleyin</span>
+                        <span>→</span>
+                      </div>
+                    </div>
+
+                    {/* --- DESKTOP VIEW: GRAND 2-COL ACTIVE MENU CARD (hidden md:block) --- */}
+                    <div className="hidden md:block">
+                      {MENUS.filter(m => m.id === activeMenuTab).map((menu) => (
+                        <div key={menu.id} className="bg-white rounded-sm p-8 sm:p-10 border border-slate-200 shadow-xl grid grid-cols-2 gap-8 items-center max-w-5xl mx-auto animate-fadeIn">
+                          <div className="space-y-4">
+                            <span className="bg-[#FAF6EE] text-[#8C6D33] border border-[#E3D3B5] text-xs font-extrabold px-3 py-1 rounded-sm uppercase tracking-wider">
+                              {menu.badge}
+                            </span>
+                            <h3 className="text-2xl font-extrabold text-slate-900">{menu.title}</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed">{menu.desc}</p>
+                            
+                            <div className="pt-2">
+                              <button
+                                onClick={() => {
+                                  setQuoteForm(prev => ({ ...prev, notes: `Menü Tercihi: ${menu.title}` }));
+                                  setIsQuoteModalOpen(true);
+                                }}
+                                className="btn-luxe-gold px-6 py-3 rounded-sm font-extrabold text-xs uppercase tracking-wider shadow-md cursor-pointer"
+                              >
+                                Bu Menü İle Fiyat Teklifi Al
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="rounded-sm overflow-hidden shadow-md border border-slate-200 group">
+                            <img src={menu.image} alt={menu.title} className="w-full h-64 object-cover group-hover:scale-105 transition duration-500" />
                           </div>
                         </div>
+                      ))}
+                    </div>
 
-                        <div className="rounded-sm overflow-hidden shadow-md border border-slate-200 group">
-                          <img src={menu.image} alt={menu.title} className="w-full h-64 object-cover group-hover:scale-105 transition duration-500" />
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </section>
 
