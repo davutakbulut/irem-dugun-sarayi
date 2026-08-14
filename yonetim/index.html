@@ -17145,7 +17145,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const totalNetProfit = totalGrossRevenue - totalCalculatedCosts;
       const avgProfitMargin = totalGrossRevenue > 0 ? ((totalNetProfit / totalGrossRevenue) * 100).toFixed(1) : '0.0';
 
-      // Helper to extract system creation timestamp
+      // Helper to extract system creation timestamp strictly based on created_at / system entry time
       const extractSystemTimestamp = (item) => {
         if (!item) return 0;
         if (item.recordTimestamp && Number(item.recordTimestamp) > 0) return Number(item.recordTimestamp);
@@ -17163,10 +17163,6 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             const num = Number(match[0]);
             if (num > 1000000000) return num > 100000000000 ? num : num * 1000;
           }
-        }
-        if (item.date) {
-          const t = new Date(item.date).getTime();
-          if (!isNaN(t) && t > 0) return t;
         }
         return 0;
       };
