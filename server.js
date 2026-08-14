@@ -597,6 +597,12 @@ const initMysql = async () => {
 
       console.log('✅ MySQL Tabloları Doğrulandı ve Hazırlandı!');
       await syncMemoryFromMysql();
+      
+      // Purge any phantom / auto-saved draft rows from real reservations
+      try {
+        await pool.query("DELETE FROM reservations WHERE id LIKE 'RES-DRAFT-%' OR customer_name = 'İsimsiz Müşteri' OR notes LIKE '%AUTO_SAVE%'");
+      } catch(e){}
+
       console.log('⚡ MariaDB Verileri Belleğe Senkronize Edildi!');
     } catch (e) {
       console.log('ℹ️ MySQL Tablo doğrulama uyarısı:', e.message);

@@ -11859,9 +11859,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const [venueId, setVenueId] = useState(venues[0]?.id || '');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price !== undefined ? venues[0].price : '');
-      const [startDate, setStartDate] = useState(prefilledDate || '2026-08-25');
+      const [startDate, setStartDate] = useState(prefilledDate || todayDateStr);
       const [startTime, setStartTime] = useState('19:00');
-      const [endDate, setEndDate] = useState(prefilledDate || '2026-08-25');
+      const [endDate, setEndDate] = useState(prefilledDate || todayDateStr);
       const [endTime, setEndTime] = useState('23:00');
 
       const editingResFromUrl = useMemo(() => {
@@ -11888,6 +11888,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const venueName = targetVenue ? targetVenue.name : 'Seçili Salon';
 
         const conflict = (reservations || []).find(r => {
+          if (r.id && r.id.startsWith('RES-DRAFT-')) return false;
+          if (r.isDraft || r.status === 'DRAFT' || r.customerName === 'İsimsiz Müşteri') return false;
           if (editingResFromUrl && (r.id === editingResFromUrl.id || r.mediaKey === editingResFromUrl.mediaKey || (editingResFromUrl.refKey && r.refKey === editingResFromUrl.refKey))) {
             return false;
           }
