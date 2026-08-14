@@ -506,20 +506,20 @@
                 onClick={() => setCurrentTab('home')}
                 className="flex items-center space-x-3 cursor-pointer group"
               >
-                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${
+                <div className={`w-10 h-10 rounded-sm flex items-center justify-center transition-all ${
                   isScrolled 
-                    ? 'bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-md' 
-                    : 'bg-amber-500/90 text-white backdrop-blur-md border border-amber-300/40 shadow-lg'
+                    ? 'bg-amber-600 text-white shadow-sm border border-amber-500' 
+                    : 'bg-black/60 text-white backdrop-blur-md border border-amber-400/80 shadow-md'
                 }`}>
-                  <Icon name="crown" className="w-6 h-6" />
+                  <Icon name="crown" className="w-5 h-5 text-amber-300" />
                 </div>
                 <div>
-                  <div className={`font-extrabold text-lg sm:text-xl tracking-wider uppercase leading-tight ${
+                  <div className={`font-extrabold text-base sm:text-lg tracking-wider uppercase leading-tight ${
                     isScrolled ? 'text-slate-900' : 'text-white drop-shadow-md'
                   }`}>
                     İREM DÜĞÜN SARAYI
                   </div>
-                  <p className={`text-[9px] font-bold tracking-widest uppercase ${
+                  <p className={`text-[9px] font-extrabold tracking-widest uppercase ${
                     isScrolled ? 'text-amber-600' : 'text-amber-300 drop-shadow'
                   }`}>
                     BALO & DAVET TESİSLERİ
@@ -550,34 +550,34 @@
                     >
                       <span>{item.label}</span>
                       {isActive && (
-                        <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-amber-500 rounded-full"></span>
+                        <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-amber-500 rounded-none"></span>
                       )}
                     </button>
                   );
                 })}
               </nav>
 
-              {/* TOP RIGHT ACTION PILL BUTTONS */}
-              <div className="flex items-center space-x-2.5">
-                {/* WhatsApp Pill */}
+              {/* TOP RIGHT ACTION BUTTONS */}
+              <div className="flex items-center space-x-2">
+                {/* WhatsApp Button */}
                 <a
                   href="https://wa.me/905471440054?text=Merhaba,%20düğün%20hakkında%20bilgi%20almak%20istiyorum."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold transition shadow-sm ${
+                  className={`hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-sm text-xs font-extrabold uppercase tracking-wider transition shadow-sm ${
                     isScrolled
-                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                      : 'bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500'
+                      : 'bg-black/50 hover:bg-black/70 text-white border border-white/40 backdrop-blur-md'
                   }`}
                 >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                  <svg className="w-3.5 h-3.5 fill-current text-emerald-400" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                   <span>WhatsApp</span>
                 </a>
 
-                {/* Teklif Alın Pill */}
+                {/* Teklif Alın Button */}
                 <button
                   onClick={() => setIsQuoteModalOpen(true)}
-                  className="bg-amber-600 hover:bg-amber-700 text-white px-4 sm:px-5 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition shadow-md flex items-center space-x-1.5"
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-sm text-xs font-extrabold uppercase tracking-wider transition shadow-sm flex items-center space-x-1.5 border border-amber-500"
                 >
                   <Icon name="sparkles" className="w-3.5 h-3.5 text-amber-200" />
                   <span>TEKLİF ALIN</span>
@@ -597,7 +597,7 @@
               <div>
                 
                 {/* ------------------------------------------------------------------- */}
-                {/* 2.1 FULL-SCREEN VIDEO / CINEMATIC HERO (EXACTLY MATCHING SCREENSHOT)*/}
+                {/* 2.1 FULL-SCREEN VIDEO / CINEMATIC HERO (SHARP LUXURY ARCHITECTURAL) */}
                 {/* ------------------------------------------------------------------- */}
                 <section className="relative w-full h-screen min-h-[640px] flex items-center justify-center overflow-hidden bg-slate-900 text-white">
                   
@@ -613,7 +613,7 @@
                     >
                       <source src="https://cdn.creafolks.com/svadba-davet/9e9fee9d-dc11-4bd5-bc7a-4614de2d7e2b.mp4" type="video/mp4" />
                     </video>
-                    {/* Balanced Luxury Vignette Overlay (Leaves video luminous and clear) */}
+                    {/* Balanced Luxury Vignette Overlay */}
                     <div className="absolute inset-0 bg-black/40 backdrop-brightness-95"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50"></div>
                   </div>
@@ -621,8 +621,8 @@
                   {/* Centered Grand Hero Content */}
                   <div className="relative z-10 max-w-4xl mx-auto px-4 text-center flex flex-col items-center justify-center space-y-4 pt-16">
                     
-                    {/* Golden Crown Emblem */}
-                    <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-amber-400/50 flex items-center justify-center text-amber-400 shadow-xl mb-1">
+                    {/* Golden Crown Square Emblem */}
+                    <div className="w-11 h-11 rounded-sm bg-black/50 backdrop-blur-md border border-amber-400/80 flex items-center justify-center text-amber-300 shadow-xl mb-1">
                       <Icon name="crown" className="w-6 h-6" />
                     </div>
 
@@ -643,11 +643,11 @@
                       Sapanca Göl kıyısında 4 farklı saray konseptli balo salonumuz ve kır bahçemiz ile hayallerinizdeki düğünü taçlandırıyoruz.
                     </p>
 
-                    {/* Dual Action CTA Buttons */}
+                    {/* Dual Action CTA Sharp Buttons */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3 w-full max-w-md">
                       <button
                         onClick={() => setIsQuoteModalOpen(true)}
-                        className="w-full sm:w-auto px-7 py-3 rounded-full bg-amber-600/90 hover:bg-amber-600 text-white text-xs sm:text-sm font-extrabold tracking-wider uppercase backdrop-blur-sm transition-all shadow-xl hover:scale-105 flex items-center justify-center space-x-2"
+                        className="w-full sm:w-auto px-7 py-3.5 rounded-sm bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-extrabold tracking-widest uppercase backdrop-blur-sm transition-all shadow-xl hover:scale-105 flex items-center justify-center space-x-2 border border-amber-400/40"
                       >
                         <Icon name="calendar" className="w-4 h-4" />
                         <span>ÜCRETSİZ FİYAT TEKLİFİ ALIN</span>
@@ -657,7 +657,7 @@
                         href="https://wa.me/905471440054?text=Merhaba,%20düğün%20hakkında%20bilgi%20almak%20istiyorum."
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full sm:w-auto px-7 py-3 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-extrabold tracking-wider uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center space-x-2"
+                        className="w-full sm:w-auto px-7 py-3.5 rounded-sm bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold tracking-widest uppercase transition-all shadow-xl hover:scale-105 flex items-center justify-center space-x-2 border border-emerald-400/40"
                       >
                         <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                         <span>WHATSAPP İLETİŞİM</span>
@@ -695,7 +695,7 @@
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                       <div className="space-y-6">
-                        <div className="inline-flex items-center space-x-2 text-amber-600 bg-amber-50 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                        <div className="inline-flex items-center space-x-2 text-amber-800 bg-amber-50 px-3.5 py-1.5 rounded-sm border border-amber-200 text-xs font-bold uppercase tracking-wider">
                           <span>Sapanca'nın En Seçkin Düğün & Balo Tesisi</span>
                         </div>
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -715,8 +715,8 @@
                             'Kişiye özel düğün koordinatörü desteği'
                           ].map((item, idx) => (
                             <div key={idx} className="flex items-start space-x-2.5">
-                              <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
-                                <Icon name="check" className="w-3.5 h-3.5" />
+                              <div className="w-5 h-5 rounded-sm bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <Icon name="check" className="w-3 h-3" />
                               </div>
                               <span className="text-xs sm:text-sm font-semibold text-slate-700">{item}</span>
                             </div>
@@ -726,7 +726,7 @@
                         <div className="pt-4">
                           <button
                             onClick={() => setCurrentTab('venues')}
-                            className="gold-btn px-6 py-3.5 rounded-xl font-bold text-sm inline-flex items-center space-x-2 shadow-md"
+                            className="gold-btn px-6 py-3.5 rounded-sm font-extrabold text-xs uppercase tracking-wider inline-flex items-center space-x-2 shadow-md"
                           >
                             <span>Mekanlarımızı Keşfedin</span>
                             <Icon name="arrowRight" className="w-4 h-4" />
@@ -736,21 +736,21 @@
 
                       {/* Image Composition */}
                       <div className="relative">
-                        <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-amber-100">
+                        <div className="relative rounded-sm overflow-hidden shadow-2xl border border-slate-200">
                           <img 
                             src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1000&q=80" 
                             alt="İrem Düğün Salonu Balo" 
                             className="w-full h-[420px] object-cover hover:scale-105 transition duration-700"
                           />
                         </div>
-                        <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-slate-100 max-w-xs animate-float-slow">
+                        <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-sm shadow-xl border border-slate-200 max-w-xs animate-float-slow">
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center font-extrabold text-xl">
+                            <div className="w-12 h-12 rounded-sm bg-amber-600 text-white flex items-center justify-center font-extrabold text-xl shadow-sm">
                               15+
                             </div>
                             <div>
-                              <div className="font-extrabold text-sm text-slate-900">Yıllık Tecrübe</div>
-                              <div className="text-xs text-slate-500">Kusursuz Organizasyon</div>
+                              <div className="font-extrabold text-sm text-slate-900 uppercase tracking-tight">Yıllık Tecrübe</div>
+                              <div className="text-xs text-slate-500 font-medium">Kusursuz Organizasyon</div>
                             </div>
                           </div>
                         </div>
@@ -762,10 +762,10 @@
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.3 ORGANİZASYON HİZMETLERİMİZ                                      */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-20 bg-slate-50 border-y border-slate-100">
+                <section className="py-20 bg-slate-50 border-y border-slate-200/80">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-                      <span className="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-100/60 px-3 py-1 rounded-full">
+                      <span className="text-amber-700 font-bold text-xs uppercase tracking-widest bg-amber-50 border border-amber-200 px-3.5 py-1 rounded-sm">
                         Eksiksiz Hizmet Ağı
                       </span>
                       <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -780,13 +780,13 @@
                       {SERVICES.map((srv) => (
                         <div 
                           key={srv.id}
-                          className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col"
+                          className="bg-white rounded-sm overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col"
                         >
                           <div className="relative h-48 overflow-hidden">
                             <img 
                               src={srv.image} 
                               alt={srv.title} 
-                              className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
                             <div className="absolute bottom-4 left-4 right-4 text-white">
@@ -802,7 +802,7 @@
                                 setQuoteForm(prev => ({ ...prev, eventType: srv.title }));
                                 setIsQuoteModalOpen(true);
                               }}
-                              className="w-full py-2.5 rounded-xl border border-amber-200 text-amber-700 hover:bg-amber-50 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+                              className="w-full py-2.5 rounded-sm border border-amber-300 text-amber-800 hover:bg-amber-50 font-bold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-1.5"
                             >
                               <span>Hemen Teklif Al</span>
                               <Icon name="arrowRight" className="w-3.5 h-3.5" />
@@ -815,9 +815,6 @@
                 </section>
 
                 {/* ------------------------------------------------------------------- */}
-                {/* 2.4 MEKAN TANITIM KARTLARI (MEKANLARIMIZ)                           */}
-                {/* ------------------------------------------------------------------- */}
-                {/* ------------------------------------------------------------------- */}
                 {/* 2.4 MEKAN TANITIM KARTI (TEK SALON İÇİN ÖZEL LÜKS VİTRİN KARTI)     */}
                 {/* ------------------------------------------------------------------- */}
                 <section className="py-20 bg-white">
@@ -826,7 +823,7 @@
                     {/* Section Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                       <div>
-                        <span className="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-50 border border-amber-200/60 px-3.5 py-1 rounded-full inline-flex items-center space-x-1.5">
+                        <span className="text-amber-700 font-bold text-xs uppercase tracking-widest bg-amber-50 border border-amber-200 px-3.5 py-1 rounded-sm inline-flex items-center space-x-1.5">
                           <Icon name="crown" className="w-3.5 h-3.5 text-amber-600" />
                           <span>Özel Saray Salonumuz</span>
                         </span>
@@ -842,7 +839,7 @@
                           setActiveHall360('kraliyet');
                           setCurrentTab('virtual-tour');
                         }}
-                        className="text-amber-600 hover:text-amber-700 font-bold text-sm inline-flex items-center space-x-1.5 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-xl transition border border-amber-200/60"
+                        className="text-amber-700 hover:text-amber-800 font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1.5 bg-amber-50 hover:bg-amber-100 px-4 py-2.5 rounded-sm transition border border-amber-200"
                       >
                         <Icon name="panorama" className="w-4 h-4 text-amber-600" />
                         <span>360° Sanal Turu Başlat</span>
@@ -851,7 +848,7 @@
                     </div>
 
                     {/* Grand Single Venue Showcase Card */}
-                    <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white rounded-sm border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
                         
                         {/* Left Side: Interactive Photo Gallery Showcase (7 Cols) */}
@@ -866,18 +863,18 @@
                             
                             {/* Badges Overlay */}
                             <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                              <span className="bg-amber-600 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-md flex items-center space-x-1">
+                              <span className="bg-amber-600 text-white text-xs font-extrabold px-3 py-1 rounded-sm shadow-md backdrop-blur-md flex items-center space-x-1 uppercase tracking-wider">
                                 <Icon name="crown" className="w-3.5 h-3.5" />
                                 <span>{MAIN_VENUE.badge}</span>
                               </span>
-                              <span className="bg-black/60 backdrop-blur-md text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-400/30">
+                              <span className="bg-black/70 backdrop-blur-md text-amber-300 text-xs font-bold px-3 py-1 rounded-sm border border-amber-400/40">
                                 📍 {MAIN_VENUE.location}
                               </span>
                             </div>
 
                             {/* 360° Virtual Tour Quick Trigger */}
                             <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                              <div className="bg-black/70 backdrop-blur-md text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">
+                              <div className="bg-black/80 backdrop-blur-md text-white px-3.5 py-1.5 rounded-sm text-xs font-semibold">
                                 📸 {MAIN_VENUE.photos[activeVenuePhoto]?.title}
                               </div>
 
@@ -886,7 +883,7 @@
                                   setActiveHall360('kraliyet');
                                   setCurrentTab('virtual-tour');
                                 }}
-                                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl shadow-lg backdrop-blur-md transition flex items-center space-x-1.5 hover:scale-105 active:scale-95"
+                                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs uppercase tracking-wider px-4 py-2 rounded-sm shadow-lg backdrop-blur-md transition flex items-center space-x-1.5 hover:scale-105 active:scale-95"
                               >
                                 <Icon name="panorama" className="w-4 h-4" />
                                 <span>360° Salonda Gezin</span>
@@ -900,9 +897,9 @@
                               <button
                                 key={pIdx}
                                 onClick={() => setActiveVenuePhoto(pIdx)}
-                                className={`relative rounded-xl overflow-hidden h-16 sm:h-20 transition border-2 text-left ${
+                                className={`relative rounded-sm overflow-hidden h-16 sm:h-20 transition border-2 text-left ${
                                   activeVenuePhoto === pIdx 
-                                    ? 'border-amber-400 ring-2 ring-amber-400/40 opacity-100 scale-102' 
+                                    ? 'border-amber-400 opacity-100 scale-102' 
                                     : 'border-transparent opacity-60 hover:opacity-100'
                                 }`}
                               >
@@ -935,33 +932,33 @@
 
                           {/* 4 Core Quick Spec Badges */}
                           <div className="grid grid-cols-2 gap-2.5">
-                            <div className="p-3 rounded-2xl bg-amber-50/60 border border-amber-100 space-y-0.5">
-                              <div className="text-[10px] text-amber-700 font-extrabold uppercase">Kapasite</div>
+                            <div className="p-3 rounded-sm bg-amber-50/60 border border-amber-200 space-y-0.5">
+                              <div className="text-[10px] text-amber-800 font-extrabold uppercase">Kapasite</div>
                               <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.capacity}</div>
                             </div>
-                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                            <div className="p-3 rounded-sm bg-slate-50 border border-slate-200 space-y-0.5">
                               <div className="text-[10px] text-slate-500 font-extrabold uppercase">Kullanım Alanı</div>
                               <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.area}</div>
                             </div>
-                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                            <div className="p-3 rounded-sm bg-slate-50 border border-slate-200 space-y-0.5">
                               <div className="text-[10px] text-slate-500 font-extrabold uppercase">Tavan Yüksekliği</div>
                               <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.ceiling}</div>
                             </div>
-                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                            <div className="p-3 rounded-sm bg-slate-50 border border-slate-200 space-y-0.5">
                               <div className="text-[10px] text-slate-500 font-extrabold uppercase">Otopark & Vale</div>
                               <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.parking}</div>
                             </div>
                           </div>
 
                           {/* Feature Checkmarks List */}
-                          <div className="space-y-2 border-t border-slate-100 pt-4">
+                          <div className="space-y-2 border-t border-slate-200 pt-4">
                             <div className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
                               Salon Ayrıcalıkları & Hizmetler
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                               {MAIN_VENUE.features.map((feat, fi) => (
                                 <div key={fi} className="flex items-start space-x-2 text-xs text-slate-700 font-medium">
-                                  <div className="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                  <div className="w-4 h-4 rounded-sm bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
                                     <Icon name="check" className="w-2.5 h-2.5" />
                                   </div>
                                   <span>{feat}</span>
@@ -971,13 +968,13 @@
                           </div>
 
                           {/* Action Button Strip */}
-                          <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                          <div className="pt-4 border-t border-slate-200 space-y-2.5">
                             <button
                               onClick={() => {
                                 setQuoteForm(prev => ({ ...prev, venue: MAIN_VENUE.name }));
                                 setIsQuoteModalOpen(true);
                               }}
-                              className="w-full py-3.5 rounded-2xl gold-btn font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition hover:scale-[1.02] active:scale-[0.98]"
+                              className="w-full py-3.5 rounded-sm gold-btn font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider"
                             >
                               <Icon name="sparkles" className="w-4 h-4" />
                               <span>Bu Salon İçin Ücretsiz Fiyat Teklifi Alın</span>
@@ -989,7 +986,7 @@
                                   setActiveHall360('kraliyet');
                                   setCurrentTab('virtual-tour');
                                 }}
-                                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+                                className="py-2.5 rounded-sm bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-1.5 border border-slate-200"
                               >
                                 <Icon name="panorama" className="w-3.5 h-3.5 text-amber-600" />
                                 <span>360° Sanal Tur</span>
@@ -999,7 +996,7 @@
                                 href="https://wa.me/905471440054?text=Merhaba,%20Kraliyet%20Balo%20Salonu%20hakkında%20bilgi%20almak%20istiyorum."
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+                                className="py-2.5 rounded-sm bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-1.5"
                               >
                                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                                 <span>WhatsApp</span>
@@ -1018,10 +1015,10 @@
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.5 MENÜLERİMİZ & VIP LEZZETLER                                     */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-20 bg-slate-50 border-y border-slate-100">
+                <section className="py-20 bg-slate-50 border-y border-slate-200">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-                      <span className="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-100/60 px-3 py-1 rounded-full">
+                      <span className="text-amber-700 font-bold text-xs uppercase tracking-widest bg-amber-50 border border-amber-200 px-3.5 py-1 rounded-sm">
                         Gurme Gastronomi
                       </span>
                       <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -1038,10 +1035,10 @@
                         <button
                           key={m.id}
                           onClick={() => setActiveMenuTab(m.id)}
-                          className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all ${
+                          className={`px-5 py-2.5 rounded-sm text-xs uppercase tracking-wider font-extrabold transition-all border ${
                             activeMenuTab === m.id
-                              ? 'bg-amber-600 text-white shadow-md'
-                              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                              : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                           }`}
                         >
                           {m.title}
@@ -1051,9 +1048,9 @@
 
                     {/* Active Menu Detail Card */}
                     {MENUS.filter(m => m.id === activeMenuTab).map((menu) => (
-                      <div key={menu.id} className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
+                      <div key={menu.id} className="bg-white rounded-sm p-6 sm:p-10 border border-slate-200 shadow-xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
                         <div className="space-y-4">
-                          <span className="bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                          <span className="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-extrabold px-3 py-1 rounded-sm uppercase tracking-wider">
                             {menu.badge}
                           </span>
                           <h3 className="text-2xl font-extrabold text-slate-900">{menu.title}</h3>
@@ -1065,14 +1062,14 @@
                                 setQuoteForm(prev => ({ ...prev, notes: `Menü Tercihi: ${menu.title}` }));
                                 setIsQuoteModalOpen(true);
                               }}
-                              className="gold-btn px-6 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-md"
+                              className="gold-btn px-6 py-3 rounded-sm font-extrabold text-xs uppercase tracking-wider shadow-md"
                             >
                               Bu Menü İle Fiyat Teklifi Al
                             </button>
                           </div>
                         </div>
 
-                        <div className="rounded-2xl overflow-hidden shadow-md">
+                        <div className="rounded-sm overflow-hidden shadow-md border border-slate-200">
                           <img src={menu.image} alt={menu.title} className="w-full h-64 object-cover" />
                         </div>
                       </div>
@@ -1081,7 +1078,7 @@
                 </section>
 
                 {/* ------------------------------------------------------------------- */}
-                {/* 2.6 REHBER YAZILAR (SCREENSHOT 3 REFERANSLI)                        */}
+                {/* 2.6 REHBER YAZILAR                                                  */}
                 {/* ------------------------------------------------------------------- */}
                 <section className="py-20 bg-white">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1091,7 +1088,7 @@
                       </h2>
                       <button 
                         onClick={() => setCurrentTab('blog')}
-                        className="text-pink-600 hover:text-pink-700 font-bold text-sm inline-flex items-center space-x-1"
+                        className="text-amber-700 hover:text-amber-800 font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1"
                       >
                         <span>Tüm Rehber Yazılar</span>
                         <Icon name="arrowRight" className="w-4 h-4" />
@@ -1103,7 +1100,7 @@
                         <div 
                           key={g.id}
                           onClick={() => setCurrentTab('blog')}
-                          className="relative h-80 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                          className="relative h-80 rounded-sm overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-slate-200"
                         >
                           <img 
                             src={g.image} 
@@ -1123,9 +1120,9 @@
                 </section>
 
                 {/* ------------------------------------------------------------------- */}
-                {/* 2.7 İLHAM VEREN GALERİLER (SCREENSHOT 4 REFERANSLI)                 */}
+                {/* 2.7 İLHAM VEREN GALERİLER                                           */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-16 bg-slate-50 border-t border-slate-100">
+                <section className="py-16 bg-slate-50 border-t border-slate-200">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between mb-8">
                       <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -1133,7 +1130,7 @@
                       </h2>
                       <button 
                         onClick={() => setCurrentTab('galleries')}
-                        className="text-pink-600 hover:text-pink-700 font-bold text-sm inline-flex items-center space-x-1"
+                        className="text-amber-700 hover:text-amber-800 font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-1"
                       >
                         <span>Tüm Galeriler</span>
                         <Icon name="arrowRight" className="w-4 h-4" />
@@ -1145,12 +1142,12 @@
                         <div 
                           key={gal.id}
                           onClick={() => setCurrentTab('galleries')}
-                          className="relative h-72 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 group cursor-pointer"
+                          className="relative h-72 rounded-sm overflow-hidden shadow-md hover:shadow-xl transition duration-300 group cursor-pointer border border-slate-200"
                         >
                           <img 
                             src={gal.image} 
                             alt={gal.title} 
-                            className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                           <div className="absolute bottom-4 left-4 right-4 text-white">
@@ -1163,7 +1160,7 @@
                 </section>
 
                 {/* ------------------------------------------------------------------- */}
-                {/* 2.8 MUTLU ÇİFTLER DİKEY VİDEOLARI (SCREENSHOT 2 REFERANSLI)         */}
+                {/* 2.8 MUTLU ÇİFTLER DİKEY VİDEOLARI (REELS)                           */}
                 {/* ------------------------------------------------------------------- */}
                 <section className="py-20 bg-white">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1188,7 +1185,7 @@
                             onClick={() => setActiveVideoModal(reel)}
                             className="w-52 sm:w-60 shrink-0 cursor-pointer group flex flex-col"
                           >
-                            <div className="relative h-80 sm:h-96 rounded-3xl overflow-hidden shadow-lg group-hover:shadow-2xl transition duration-300 border border-slate-100">
+                            <div className="relative h-80 sm:h-96 rounded-sm overflow-hidden shadow-lg group-hover:shadow-2xl transition duration-300 border border-slate-200">
                               <img 
                                 src={reel.image} 
                                 alt={reel.names} 
@@ -1198,7 +1195,7 @@
                               
                               {/* Play Button Overlay */}
                               <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-md border border-white/60 text-white flex items-center justify-center group-hover:scale-125 group-hover:bg-amber-500 transition duration-300">
+                                <div className="w-12 h-12 rounded-sm bg-black/40 backdrop-blur-md border border-white/60 text-white flex items-center justify-center group-hover:scale-110 group-hover:bg-amber-600 transition duration-300">
                                   <svg className="w-6 h-6 ml-0.5 fill-current" viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z"/>
                                   </svg>
@@ -1222,17 +1219,17 @@
                       </div>
 
                       {/* Navigation Arrows (Bottom Right) */}
-                      <div className="flex justify-center sm:justify-end items-center space-x-3 pt-6">
+                      <div className="flex justify-center sm:justify-end items-center space-x-2 pt-6">
                         <button
                           onClick={() => scrollReels('left')}
-                          className="w-10 h-10 rounded-full border border-slate-300 hover:border-pink-500 text-slate-600 hover:text-pink-600 flex items-center justify-center transition shadow-sm"
+                          className="w-10 h-10 rounded-sm border border-slate-300 bg-white hover:border-amber-600 text-slate-700 hover:text-amber-700 flex items-center justify-center transition shadow-xs"
                           aria-label="Önceki"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
                         </button>
                         <button
                           onClick={() => scrollReels('right')}
-                          className="w-10 h-10 rounded-full border border-pink-500 bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition shadow-sm"
+                          className="w-10 h-10 rounded-sm border border-amber-600 bg-amber-50 text-amber-800 hover:bg-amber-100 flex items-center justify-center transition shadow-xs"
                           aria-label="Sonraki"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
@@ -1245,7 +1242,7 @@
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.9 MÜŞTERİ YORUMLARI & GOOGLE REVIEWS                              */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-20 bg-slate-50 border-t border-slate-100">
+                <section className="py-20 bg-slate-50 border-t border-slate-200">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
                       <div className="flex items-center justify-center space-x-1 text-amber-500">
@@ -1282,14 +1279,14 @@
                           comment: 'Nişan ve düğünümüzü burada yaptık. Misafirlerimiz salonun ferahlığından ve ikramların kalitesinden çok memnun kaldı. Teşekkürler İrem Ailesi!'
                         }
                       ].map((rev, ri) => (
-                        <div key={ri} className="bg-white p-7 rounded-3xl border border-slate-100 shadow-md space-y-4">
+                        <div key={ri} className="bg-white p-7 rounded-sm border border-slate-200 shadow-sm space-y-4">
                           <div className="flex items-center justify-between">
                             <div className="flex text-amber-400">
                               {[...Array(5)].map((_, i) => (
                                 <Icon key={i} name="star" className="w-4 h-4 fill-current" />
                               ))}
                             </div>
-                            <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                            <span className="text-[11px] font-extrabold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
                               {rev.salon}
                             </span>
                           </div>
@@ -1298,7 +1295,7 @@
                           </p>
                           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                             <span className="font-extrabold text-slate-900">{rev.name}</span>
-                            <span className="text-slate-400">{rev.date}</span>
+                            <span className="text-slate-400 font-medium">{rev.date}</span>
                           </div>
                         </div>
                       ))}
@@ -1328,8 +1325,8 @@
                     { title: 'Misyonumuz', desc: 'Misafirlerimizin en özel günlerini kusursuz lezzet, eksiksiz müzik ve yüksek konforla unutulmaz bir hatıraya dönüştürmek.' },
                     { title: 'Değerlerimiz', desc: '%100 müşteri memnuniyeti, şeffaf fiyatlandırma, hijyenik gastronomi ve profesyonel güler yüzlü hizmet.' }
                   ].map((card, ci) => (
-                    <div key={ci} className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm space-y-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg">
+                    <div key={ci} className="bg-slate-50 p-8 rounded-sm border border-slate-200 shadow-sm space-y-3">
+                      <div className="w-10 h-10 rounded-sm bg-amber-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
                         {ci + 1}
                       </div>
                       <h3 className="font-extrabold text-xl text-slate-900">{card.title}</h3>
@@ -1346,61 +1343,32 @@
                 <div className="text-center max-w-3xl mx-auto space-y-3">
                   <div className="font-script text-4xl text-amber-600">360° İnteraktif Deneyim</div>
                   <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-                    Balo Salonlarımızı Sanal Olarak Gezin
+                    Balo Salonumuzu Sanal Olarak Gezin
                   </h1>
                   <p className="text-slate-600 text-sm">
-                    Sapanca'ya gelmeden önce salonlarımızın tavan yüksekliğini, pist genişliğini ve masa dizilimlerini 360 derece keşfedin.
+                    Sapanca'ya gelmeden önce salonumuzun tavan yüksekliğini, pist genişliğini ve masa dizilimlerini 360 derece keşfedin.
                   </p>
                 </div>
 
-                {/* Hall Switcher */}
-                <div className="flex flex-wrap justify-center gap-3">
-                  {[
-                    { id: 'kraliyet', name: 'Kraliyet Balo Salonu (750 Kişi)' },
-                    { id: 'kir', name: 'Göl Kır Bahçesi (1.000 Kişi)' },
-                    { id: 'safir', name: 'Safir VIP Salon (450 Kişi)' },
-                    { id: 'teras', name: 'Göl Terası Butik (250 Kişi)' }
-                  ].map(h => (
-                    <button
-                      key={h.id}
-                      onClick={() => setActiveHall360(h.id)}
-                      className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition ${
-                        activeHall360 === h.id 
-                          ? 'gold-btn shadow-md' 
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                      }`}
-                    >
-                      {h.name}
-                    </button>
-                  ))}
-                </div>
-
                 {/* Interactive 360 Panorama Viewport */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-amber-100 h-[500px] sm:h-[600px] bg-slate-950 flex items-center justify-center">
+                <div className="relative rounded-sm overflow-hidden shadow-2xl border border-slate-300 h-[500px] sm:h-[600px] bg-slate-950 flex items-center justify-center">
                   <img 
-                    src={
-                      activeHall360 === 'kraliyet' ? 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80' :
-                      activeHall360 === 'kir' ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1600&q=80' :
-                      activeHall360 === 'safir' ? 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1600&q=80' :
-                      'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=1600&q=80'
-                    } 
+                    src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80" 
                     alt="360 Panorama Tur" 
                     className="w-full h-full object-cover opacity-80"
                   />
                   <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/60 pointer-events-none"></div>
 
-                  <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-center justify-between bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-xl gap-4">
+                  <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-center justify-between bg-white/95 backdrop-blur-md p-4 rounded-sm border border-slate-200 shadow-xl gap-4">
                     <div className="text-left">
                       <div className="font-extrabold text-base text-slate-900">
-                        {activeHall360 === 'kraliyet' ? 'Kraliyet Balo Salonu (360° VIP)' :
-                         activeHall360 === 'kir' ? 'Göl Kır Bahçesi (360° Açık Hava)' :
-                         activeHall360 === 'safir' ? 'Safir VIP Salonu' : 'Göl Terası'}
+                        Kraliyet Balo Salonu (360° VIP)
                       </div>
                       <div className="text-xs text-slate-500">Mouse veya dokunmatik ekranla 360° panoramik inceleme yapabilirsiniz.</div>
                     </div>
                     <button
                       onClick={() => setIsQuoteModalOpen(true)}
-                      className="gold-btn px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md"
+                      className="gold-btn px-6 py-2.5 rounded-sm text-xs uppercase tracking-wider font-extrabold shadow-md"
                     >
                       Bu Salon İçin Randevu Al
                     </button>
@@ -1421,7 +1389,7 @@
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {SERVICES.map((s) => (
-                    <div key={s.id} className="bg-white rounded-3xl border border-slate-100 shadow-lg overflow-hidden flex flex-col">
+                    <div key={s.id} className="bg-white rounded-sm border border-slate-200 shadow-lg overflow-hidden flex flex-col">
                       <img src={s.image} alt={s.title} className="w-full h-52 object-cover" />
                       <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
                         <div>
@@ -1433,7 +1401,7 @@
                             setQuoteForm(prev => ({ ...prev, eventType: s.title }));
                             setIsQuoteModalOpen(true);
                           }}
-                          className="w-full py-2.5 rounded-xl gold-btn font-bold text-xs shadow-sm"
+                          className="w-full py-2.5 rounded-sm gold-btn font-extrabold text-xs uppercase tracking-wider shadow-sm"
                         >
                           Fiyat Teklifi İste
                         </button>
@@ -1456,8 +1424,8 @@
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                   {[...GALLERIES, ...GUIDES].map((item, idx) => (
-                    <div key={idx} className="group relative h-64 rounded-2xl overflow-hidden shadow-md cursor-pointer">
-                      <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                    <div key={idx} className="group relative h-64 rounded-sm overflow-hidden shadow-md cursor-pointer border border-slate-200">
+                      <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4 text-white text-xs font-bold">
                         {item.title}
                       </div>
@@ -1481,7 +1449,7 @@
                 </div>
 
                 {/* Grand Single Venue Card in Venues Page */}
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                <div className="bg-white rounded-sm border border-slate-200 shadow-xl overflow-hidden">
                   <div className="grid grid-cols-1 lg:grid-cols-12">
                     <div className="lg:col-span-7 bg-slate-950">
                       <img 
@@ -1494,7 +1462,7 @@
                           <button
                             key={pIdx}
                             onClick={() => setActiveVenuePhoto(pIdx)}
-                            className={`rounded-xl overflow-hidden h-16 sm:h-20 transition border-2 ${
+                            className={`rounded-sm overflow-hidden h-16 sm:h-20 transition border-2 ${
                               activeVenuePhoto === pIdx ? 'border-amber-400 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
                             }`}
                           >
@@ -1508,24 +1476,24 @@
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-amber-600 uppercase tracking-widest">{MAIN_VENUE.badge}</span>
-                          <span className="bg-amber-100 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full">{MAIN_VENUE.capacity}</span>
+                          <span className="bg-amber-100 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-sm">{MAIN_VENUE.capacity}</span>
                         </div>
                         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">{MAIN_VENUE.name}</h2>
                         <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">{MAIN_VENUE.description}</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-sm bg-slate-50 border border-slate-200">
                           <div className="text-[10px] text-slate-400 font-bold uppercase">Alan</div>
                           <div className="font-extrabold text-xs text-slate-800">{MAIN_VENUE.area}</div>
                         </div>
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-sm bg-slate-50 border border-slate-200">
                           <div className="text-[10px] text-slate-400 font-bold uppercase">Tavan</div>
                           <div className="font-extrabold text-xs text-slate-800">{MAIN_VENUE.ceiling}</div>
                         </div>
                       </div>
 
-                      <div className="space-y-2 border-t border-slate-100 pt-4">
+                      <div className="space-y-2 border-t border-slate-200 pt-4">
                         <div className="text-xs font-extrabold text-slate-900 uppercase">Özellikler & Hizmetler</div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {MAIN_VENUE.features.map((f, i) => (
@@ -1537,13 +1505,13 @@
                         </div>
                       </div>
 
-                      <div className="pt-4 border-t border-slate-100 space-y-2">
+                      <div className="pt-4 border-t border-slate-200 space-y-2">
                         <button
                           onClick={() => {
                             setQuoteForm(prev => ({ ...prev, venue: MAIN_VENUE.name }));
                             setIsQuoteModalOpen(true);
                           }}
-                          className="w-full py-3.5 rounded-xl gold-btn font-extrabold text-xs sm:text-sm shadow-md"
+                          className="w-full py-3.5 rounded-sm gold-btn font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-md"
                         >
                           Ücretsiz Fiyat Teklifi Al
                         </button>
@@ -1552,7 +1520,7 @@
                             setActiveHall360('kraliyet');
                             setCurrentTab('virtual-tour');
                           }}
-                          className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition"
+                          className="w-full py-2.5 rounded-sm bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider transition border border-slate-200"
                         >
                           360° Sanal Turda Gezin
                         </button>
@@ -1575,12 +1543,12 @@
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                   {GUIDES.map((g) => (
-                    <div key={g.id} className="bg-white rounded-3xl border border-slate-100 shadow-md overflow-hidden flex flex-col">
+                    <div key={g.id} className="bg-white rounded-sm border border-slate-200 shadow-md overflow-hidden flex flex-col">
                       <img src={g.image} alt={g.title} className="w-full h-48 object-cover" />
                       <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
                         <span className="text-xs text-slate-400 font-bold">{g.date}</span>
                         <h3 className="font-bold text-base text-slate-900 leading-snug">{g.title}</h3>
-                        <button className="text-amber-600 font-bold text-xs hover:underline text-left">
+                        <button className="text-amber-700 font-bold text-xs hover:underline text-left uppercase tracking-wider">
                           Yazıyı Oku →
                         </button>
                       </div>
@@ -1593,10 +1561,7 @@
           </main>
 
           {/* ========================================================================= */}
-          {/* 3. FOOTER                                                                 */}
-          {/* ========================================================================= */}
-          {/* ========================================================================= */}
-          {/* 3. FOOTER (LIGHT FRESH WHITE THEME MATCHING SCREENSHOT EXACTLY)           */}
+          {/* 3. FOOTER (LIGHT FRESH WHITE THEME WITH CRISP TAILORED EDGES)              */}
           {/* ========================================================================= */}
           <footer className="bg-[#FAF9F6] text-slate-700 border-t border-slate-200/80 pt-16 pb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
@@ -1605,7 +1570,7 @@
                 {/* Col 1: Brand & Socials (4 Cols) */}
                 <div className="lg:col-span-4 space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-sm bg-amber-600 text-white flex items-center justify-center shadow-sm">
                       <Icon name="crown" className="w-6 h-6" />
                     </div>
                     <div className="font-extrabold text-lg text-slate-900 tracking-tight">
@@ -1617,14 +1582,14 @@
                     Sapanca Gölü'nün kıyısında 4 farklı balo salonu, kır bahçesi ve VIP organizasyon hizmetleri ile en özel gününüzü taçlandırıyoruz.
                   </p>
 
-                  {/* 4 Circular Outline Social Icons */}
-                  <div className="flex items-center space-x-2.5 pt-2">
+                  {/* 4 Square Outline Social Icons */}
+                  <div className="flex items-center space-x-2 pt-2">
                     {/* Instagram */}
                     <a
                       href="https://instagram.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-8 h-8 rounded-sm border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
                       aria-label="Instagram"
                     >
                       <Icon name="camera" className="w-4 h-4" />
@@ -1635,7 +1600,7 @@
                       href="https://tiktok.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-8 h-8 rounded-sm border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
                       aria-label="TikTok"
                     >
                       <Icon name="users" className="w-4 h-4" />
@@ -1646,7 +1611,7 @@
                       href="https://youtube.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-8 h-8 rounded-sm border border-amber-300 hover:border-amber-500 text-amber-700 hover:text-amber-800 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
                       aria-label="YouTube"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
@@ -1657,7 +1622,7 @@
                       href="https://wa.me/905471440054"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full border border-emerald-300 hover:border-emerald-500 text-emerald-600 hover:text-emerald-700 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
+                      className="w-8 h-8 rounded-sm border border-emerald-300 hover:border-emerald-500 text-emerald-600 hover:text-emerald-700 bg-white flex items-center justify-center transition shadow-xs hover:scale-105"
                       aria-label="WhatsApp"
                     >
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -1744,13 +1709,13 @@
           {/* 4. FIXED FLOATING ACTION TRIGGERS (BOTTOM-LEFT & BOTTOM-RIGHT)             */}
           {/* ========================================================================= */}
           
-          {/* BOTTOM-LEFT: DIRECT CALL TRIGGER BUTTON (GOLD CIRCLE) */}
+          {/* BOTTOM-LEFT: DIRECT CALL TRIGGER BUTTON (GOLD SQUARE) */}
           <a
             href="tel:+905471440054"
-            className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-amber-700/90 hover:bg-amber-700 text-white shadow-2xl border-2 border-white/80 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-sm"
+            className="fixed bottom-6 left-6 z-50 w-12 h-12 rounded-sm bg-amber-700 hover:bg-amber-800 text-white shadow-2xl border border-amber-400/50 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-sm"
             aria-label="Telefonla Arayın"
           >
-            <Icon name="phone" className="w-6 h-6" />
+            <Icon name="phone" className="w-5 h-5" />
           </a>
 
           {/* BOTTOM-RIGHT: FLOATING WHATSAPP WIDGET & SUPPORT POPUP */}
@@ -1758,12 +1723,12 @@
             
             {/* Pop-up Support Card */}
             {isWhatsAppOpen && (
-              <div className="mb-4 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-float-slow transition-all duration-300">
+              <div className="mb-3 w-80 sm:w-96 bg-white rounded-sm shadow-2xl border border-slate-200 overflow-hidden animate-float-slow transition-all duration-300">
                 {/* Header (WhatsApp Green #075E54) */}
                 <div className="bg-[#075E54] text-white p-4 flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center text-white">
-                      <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <div className="w-9 h-9 rounded-sm bg-[#25D366] flex items-center justify-center text-white">
+                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                         <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                       </svg>
                     </div>
@@ -1774,7 +1739,7 @@
                   </div>
                   <button 
                     onClick={() => setIsWhatsAppOpen(false)}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                    className="w-7 h-7 rounded-sm bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
                   >
                     <Icon name="close" className="w-4 h-4" />
                   </button>
@@ -1783,7 +1748,7 @@
                 {/* Body Content */}
                 <div className="p-4 bg-slate-50 space-y-3">
                   {/* Müşteri Hizmetleri Balonu */}
-                  <div className="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-1 text-left">
+                  <div className="bg-white p-3.5 rounded-sm border border-slate-200 shadow-xs space-y-1 text-left">
                     <div className="text-xs font-bold text-slate-800">Müşteri Hizmetleri</div>
                     <div className="text-xs text-slate-600 font-medium">
                       👋 Merhabalar! Size nasıl yardımcı olabiliriz?
@@ -1798,9 +1763,9 @@
                     href="https://wa.me/905471440054?text=Merhaba,%20hızlı%20düğün%20randevusu%20oluşturmak%20istiyorum."
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 bg-white hover:bg-green-50/60 p-3.5 rounded-2xl border border-slate-100 shadow-sm transition hover:scale-[1.02] cursor-pointer text-left"
+                    className="flex items-center space-x-3 bg-white hover:bg-green-50/60 p-3.5 rounded-sm border border-slate-200 shadow-xs transition hover:scale-[1.02] cursor-pointer text-left"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <div className="w-9 h-9 rounded-sm bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-xs">
                       <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                     </div>
                     <div>
@@ -1814,9 +1779,9 @@
                     href="https://wa.me/905471440054?text=Merhaba,%20salonlarınız%20ve%20fiyatlar%20hakkında%20bilgi%20almak%20istiyorum."
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 bg-white hover:bg-green-50/60 p-3.5 rounded-2xl border border-slate-100 shadow-sm transition hover:scale-[1.02] cursor-pointer text-left"
+                    className="flex items-center space-x-3 bg-white hover:bg-green-50/60 p-3.5 rounded-sm border border-slate-200 shadow-xs transition hover:scale-[1.02] cursor-pointer text-left"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <div className="w-9 h-9 rounded-sm bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-xs">
                       <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                     </div>
                     <div>
@@ -1833,13 +1798,13 @@
               </div>
             )}
 
-            {/* Floating Trigger Button */}
+            {/* Floating Trigger Button (Sharp Square) */}
             <button
               onClick={() => setIsWhatsAppOpen(!isWhatsAppOpen)}
-              className="w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer border-2 border-white"
+              className="w-12 h-12 rounded-sm bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer border border-emerald-300"
               aria-label="WhatsApp Canlı Destek"
             >
-              <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
               </svg>
             </button>
@@ -1850,7 +1815,7 @@
           {/* ========================================================================= */}
           {isQuoteModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-              <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
+              <div className="bg-white rounded-sm max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto">
                 <button
                   onClick={() => setIsQuoteModalOpen(false)}
                   className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 p-1"
@@ -1860,7 +1825,7 @@
 
                 {quoteSubmitted ? (
                   <div className="text-center py-10 space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto text-2xl font-bold">
+                    <div className="w-14 h-14 rounded-sm bg-green-50 border border-green-200 text-green-600 flex items-center justify-center mx-auto text-2xl font-bold">
                       ✓
                     </div>
                     <h3 className="text-2xl font-extrabold text-slate-900">Teklif Talebiniz Alındı!</h3>
@@ -1885,7 +1850,7 @@
                           value={quoteForm.name}
                           onChange={(e) => setQuoteForm({ ...quoteForm, name: e.target.value })}
                           placeholder="Örn: Selin & Ahmet"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
                         />
                       </div>
                       <div>
@@ -1896,7 +1861,7 @@
                           value={quoteForm.phone}
                           onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
                           placeholder="0 (5XX) XXX XX XX"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
                         />
                       </div>
                     </div>
@@ -1907,7 +1872,7 @@
                         <select
                           value={quoteForm.eventType}
                           onChange={(e) => setQuoteForm({ ...quoteForm, eventType: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                         >
                           <option value="Düğün">Düğün Organizasyonu</option>
                           <option value="Kına Gecesi">Kına Gecesi & Bekarlığa Veda</option>
@@ -1922,12 +1887,9 @@
                         <select
                           value={quoteForm.venue}
                           onChange={(e) => setQuoteForm({ ...quoteForm, venue: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                         >
-                          <option value="Kraliyet Balo Salonu">Kraliyet Balo Salonu (750 Kişi)</option>
-                          <option value="Göl Kır Bahçesi">Göl Kır Bahçesi (1.000 Kişi)</option>
-                          <option value="Safir VIP Salon">Safir VIP Salon (450 Kişi)</option>
-                          <option value="Göl Terası Butik">Göl Terası Butik (250 Kişi)</option>
+                          <option value="İrem Kraliyet Balo Salonu">İrem Kraliyet Balo Salonu (750 Kişi)</option>
                         </select>
                       </div>
                     </div>
@@ -1940,7 +1902,7 @@
                           value={quoteForm.guestCount}
                           onChange={(e) => setQuoteForm({ ...quoteForm, guestCount: e.target.value })}
                           placeholder="Örn: 500"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                         />
                       </div>
                       <div>
@@ -1949,7 +1911,7 @@
                           type="date"
                           value={quoteForm.date}
                           onChange={(e) => setQuoteForm({ ...quoteForm, date: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                         />
                       </div>
                     </div>
@@ -1961,14 +1923,14 @@
                         value={quoteForm.notes}
                         onChange={(e) => setQuoteForm({ ...quoteForm, notes: e.target.value })}
                         placeholder="Özel menü, orkestra, fotoğraf vb. talepleriniz..."
-                        className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
+                        className="w-full px-3.5 py-2 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 outline-none"
                       ></textarea>
                     </div>
 
                     <button
                       type="submit"
                       disabled={quoteLoading}
-                      className="w-full py-3.5 rounded-xl gold-btn font-bold text-sm shadow-xl flex items-center justify-center space-x-2"
+                      className="w-full py-3.5 rounded-sm gold-btn font-extrabold text-xs uppercase tracking-wider shadow-xl flex items-center justify-center space-x-2"
                     >
                       {quoteLoading ? <span>Gönderiliyor...</span> : <span>Teklifi Gönder & Fiyat Al ✓</span>}
                     </button>
@@ -1983,10 +1945,10 @@
           {/* ========================================================================= */}
           {activeVideoModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-              <div className="relative max-w-sm w-full bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col items-center">
+              <div className="relative max-w-sm w-full bg-slate-900 rounded-sm overflow-hidden shadow-2xl border border-slate-800 flex flex-col items-center">
                 <button
                   onClick={() => setActiveVideoModal(null)}
-                  className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black"
+                  className="absolute top-4 right-4 z-10 w-8 h-8 rounded-sm bg-black/60 text-white flex items-center justify-center hover:bg-black"
                 >
                   <Icon name="close" className="w-5 h-5" />
                 </button>
