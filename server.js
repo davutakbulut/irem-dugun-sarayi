@@ -321,15 +321,24 @@ const initMysql = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      // Ensure venues table has all rich columns
+      try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS cost_price DECIMAL(12,2) DEFAULT 0.00;"); } catch(e){}
+      try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS exterior_images_json LONGTEXT;"); } catch(e){}
+      try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS event_types_json LONGTEXT;"); } catch(e){}
+      try { await pool.query("ALTER TABLE venues ADD COLUMN IF NOT EXISTS available_services_json LONGTEXT;"); } catch(e){}
       try {
         await pool.query(`
           UPDATE venues SET
             images_json = '["https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80", "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80"]',
+            exterior_images_json = '["https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80"]',
+            event_types_json = '["Düğün", "Nişan", "Kına", "Kurumsal Etkinlik", "Gala", "Sünnet Düğünü"]',
+            available_services_json = '["s1", "s2", "s3", "s-tavuk-menu"]',
             features_json = '["Geniş Dans Pisti", "Gelişmiş İklimlendirme", "Özel Gelin & Damat Odası", "Ücretsiz Otopark & Vale", "Kristal Avizeler & Sahne", "Gelişmiş Ses & Işık Sistemi", "Jeneratör Desteği", "VIP Karşılama Alanı"]',
             location = 'Sapanca Göl Kenarı, Sakarya / İrem Düğün Sarayı'
           WHERE id = 'v1' OR id = 'venue-1';
         `);
       } catch(e){}
+
 
 
 
@@ -885,6 +894,20 @@ app.get('/api/venues', async (req, res) => {
           ];
         }
 
+        let extImgs = [];
+        if (typeof v.exterior_images_json === 'string') {
+          try { extImgs = JSON.parse(v.exterior_images_json); } catch(e){}
+        } else if (Array.isArray(v.exterior_images_json)) {
+          extImgs = v.exterior_images_json;
+        }
+        if (!extImgs || extImgs.length === 0) {
+          extImgs = [
+            'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80'
+          ];
+        }
+
         let feats = [];
         if (typeof v.features_json === 'string') {
           try { feats = JSON.parse(v.features_json); } catch(e){}
@@ -895,16 +918,40 @@ app.get('/api/venues', async (req, res) => {
           feats = ['Geniş Dans Pisti', 'Gelişmiş İklimlendirme', 'Özel Gelin Odası', 'Otopark & Vale', 'Kristal Avizeler', 'Lüks Sahne'];
         }
 
+        let evTypes = [];
+        if (typeof v.event_types_json === 'string') {
+          try { evTypes = JSON.parse(v.event_types_json); } catch(e){}
+        } else if (Array.isArray(v.event_types_json)) {
+          evTypes = v.event_types_json;
+        }
+        if (!evTypes || evTypes.length === 0) {
+          evTypes = ['Düğün', 'Nişan', 'Kına', 'Kurumsal Etkinlik', 'Gala', 'Sünnet Düğünü'];
+        }
+
+        let availServs = [];
+        if (typeof v.available_services_json === 'string') {
+          try { availServs = JSON.parse(v.available_services_json); } catch(e){}
+        } else if (Array.isArray(v.available_services_json)) {
+          availServs = v.available_services_json;
+        }
+        if (!availServs || availServs.length === 0) {
+          availServs = ['s1', 's2', 's3', 's-tavuk-menu'];
+        }
+
         const mainImg = imgs[0];
         return {
           ...v,
           image: mainImg,
           image_url: mainImg,
           images: imgs,
+          interiorImages: imgs,
+          exteriorImages: extImgs,
           features: feats,
+          eventTypes: evTypes,
+          availableServices: availServs,
           location: v.location || 'Sapanca Göl Kenarı, Sakarya / İrem Düğün Sarayı',
           costPrice: v.cost_price ? Number(v.cost_price) : 0,
-          occupancyRate: v.occupancy_rate || 0,
+          occupancyRate: v.occupancy_rate || 85,
           price: Number(v.price || 0),
           deposit: Number(v.deposit || 0),
           capacity: Number(v.capacity || 500)
@@ -921,26 +968,30 @@ app.get('/api/venues', async (req, res) => {
 app.post('/api/venues', async (req, res) => {
   const item = { id: req.body.id || ('v-' + Date.now()), ...req.body };
   const imgs = Array.isArray(item.images) && item.images.length > 0 ? item.images : (item.image ? [item.image] : []);
+  const extImgs = Array.isArray(item.exteriorImages) && item.exteriorImages.length > 0 ? item.exteriorImages : [];
   const feats = Array.isArray(item.features) ? item.features : [];
+  const evTypes = Array.isArray(item.eventTypes) ? item.eventTypes : [];
+  const availServs = Array.isArray(item.availableServices) ? item.availableServices : [];
   const costPrice = item.costPrice !== undefined ? Number(item.costPrice) : (item.cost_price !== undefined ? Number(item.cost_price) : 0);
+  const occupancyRate = item.occupancyRate !== undefined ? Number(item.occupancyRate) : (item.occupancy_rate !== undefined ? Number(item.occupancy_rate) : 85);
 
   if (pool) {
     try {
       await pool.query(
-        `INSERT INTO venues (id, name, category, capacity, price, deposit, cost_price, location, description, features_json, images_json) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        `INSERT INTO venues (id, name, category, capacity, price, deposit, cost_price, location, description, occupancy_rate, features_json, images_json, exterior_images_json, event_types_json, available_services_json) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
          ON DUPLICATE KEY UPDATE 
-           name=?, category=?, capacity=?, price=?, deposit=?, cost_price=?, location=?, description=?, features_json=?, images_json=?`,
+           name=?, category=?, capacity=?, price=?, deposit=?, cost_price=?, location=?, description=?, occupancy_rate=?, features_json=?, images_json=?, exterior_images_json=?, event_types_json=?, available_services_json=?`,
         [
-          item.id, item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, costPrice, item.location || '', item.description || '', JSON.stringify(feats), JSON.stringify(imgs),
-          item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, costPrice, item.location || '', item.description || '', JSON.stringify(feats), JSON.stringify(imgs)
+          item.id, item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, costPrice, item.location || '', item.description || '', occupancyRate, JSON.stringify(feats), JSON.stringify(imgs), JSON.stringify(extImgs), JSON.stringify(evTypes), JSON.stringify(availServs),
+          item.name, item.category || 'Kapalı Salon', item.capacity || 500, item.price || 0, item.deposit || 0, costPrice, item.location || '', item.description || '', occupancyRate, JSON.stringify(feats), JSON.stringify(imgs), JSON.stringify(extImgs), JSON.stringify(evTypes), JSON.stringify(availServs)
         ]
       );
     } catch(e) {
       console.error('MySQL POST /api/venues error:', e.message);
     }
   }
-  res.status(201).json({ success: true, item: { ...item, costPrice, features: feats, images: imgs, location: item.location || '' } });
+  res.status(201).json({ success: true, item: { ...item, costPrice, occupancyRate, features: feats, images: imgs, interiorImages: imgs, exteriorImages: extImgs, eventTypes: evTypes, availableServices: availServs, location: item.location || '' } });
 });
 
 app.delete('/api/venues/:id', async (req, res) => {
