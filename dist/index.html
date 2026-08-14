@@ -17536,6 +17536,108 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         setNewResExpAmount('');
       };
 
+      // Handle Add Payment to Reservation inside modal
+      const handleAddPaymentToResInModal = async (e) => {
+        e.preventDefault();
+        if (!customExpenseModalRes || !newResExpAmount || Number(newResExpAmount) <= 0) return;
+        const resId = customExpenseModalRes.id;
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn(`/api/reservations/${resId}/payments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount: Number(newResExpAmount),
+              date: newResPayDate || new Date().toISOString().split('T')[0],
+              method: newResPayMethod,
+              type: newResPayType,
+              note: newResExpTitle.trim() || `${customExpenseModalRes.customerName} - ${newResPayType}`,
+              recordedBy: 'Sistem Yöneticisi'
+            })
+          });
+          const data = await resp.json();
+          if (data && data.success) {
+            setCustomExpenseModalRes(prev => prev ? ({
+              ...prev,
+              payments: data.payments,
+              depositPaid: data.depositPaid,
+              remainingBalance: data.remainingBalance,
+              paymentStatus: data.paymentStatus
+            }) : null);
+
+            if (typeof setReservations === 'function') {
+              setReservations(prev => {
+                const updated = (prev || []).map(r => {
+                  if (r.id === resId) {
+                    return {
+                      ...r,
+                      payments: data.payments,
+                      depositPaid: data.depositPaid,
+                      remainingBalance: data.remainingBalance,
+                      paymentStatus: data.paymentStatus
+                    };
+                  }
+                  return r;
+                });
+                CacheService.set('reservations', updated);
+                return updated;
+              });
+            }
+            if (typeof showToast === 'function') {
+              showToast(`${formatCurrency(newResExpAmount)} tahsilat alındı! Kalan: ${formatCurrency(data.remainingBalance)}`);
+            }
+            setNewResExpAmount('');
+            setNewResExpTitle('');
+          }
+        } catch(err) {
+          console.error('Add payment error:', err);
+        }
+      };
+
+      // Handle Delete Payment from Reservation inside modal
+      const handleDeletePaymentFromRes = async (paymentId) => {
+        if (!customExpenseModalRes) return;
+        const resId = customExpenseModalRes.id;
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn(`/api/reservations/${resId}/payments/${paymentId}`, { method: 'DELETE' });
+          const data = await resp.json();
+          if (data && data.success) {
+            setCustomExpenseModalRes(prev => prev ? ({
+              ...prev,
+              payments: data.payments,
+              depositPaid: data.depositPaid,
+              remainingBalance: data.remainingBalance,
+              paymentStatus: data.paymentStatus
+            }) : null);
+
+            if (typeof setReservations === 'function') {
+              setReservations(prev => {
+                const updated = (prev || []).map(r => {
+                  if (r.id === resId) {
+                    return {
+                      ...r,
+                      payments: data.payments,
+                      depositPaid: data.depositPaid,
+                      remainingBalance: data.remainingBalance,
+                      paymentStatus: data.paymentStatus
+                    };
+                  }
+                  return r;
+                });
+                CacheService.set('reservations', updated);
+                return updated;
+              });
+            }
+            if (typeof showToast === 'function') {
+              showToast('Tahsilat kaydı silindi ve bakiye güncellendi.');
+            }
+          }
+        } catch(err) {
+          console.error('Delete payment error:', err);
+        }
+      };
+
       const handleDeleteCustomExpenseFromRes = (expId) => {
         if (!customExpenseModalRes) return;
         const updatedCustomExpenses = (customExpenseModalRes.customExpenses || []).filter(e => e.id !== expId);
