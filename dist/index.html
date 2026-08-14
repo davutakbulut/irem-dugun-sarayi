@@ -11697,10 +11697,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   setSelectedResForDetail(null);
                   navigateTo('create-reservation', { editId: r.id });
                 }}
-                onUpdatePayment={(id, dep, stat) => {
-                  setReservations(prev => prev.map(r => r.id === id ? { ...r, depositPaid: dep, remainingBalance: Math.max(0, r.totalAmount - dep), paymentStatus: stat } : r));
-                  showToast('Ödeme & Sözleşme Güncellendi!');
-                  setSelectedResForDetail(null);
+                onUpdatePayment={(id, dep, stat, updatedPayments) => {
+                  setReservations(prev => prev.map(r => r.id === id ? {
+                    ...r,
+                    depositPaid: dep,
+                    remainingBalance: Math.max(0, (r.totalAmount || 0) - dep),
+                    paymentStatus: stat,
+                    payments: updatedPayments || r.payments
+                  } : r));
+                  showToast('Ödeme & Tahsilat Hareketi Güncellendi!');
                 }}
               />
             </ErrorBoundary>
@@ -17019,7 +17024,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       );
     }
 
-    // --- FINANCE COMPONENT WITH RESERVATION PROFITABILITY & CUSTOM EXPENSE AUDIT ---
+        // --- COMPREHENSIVE FINANCE & CASHFLOW COMPONENT WITH MULTI-INCOME/EXPENSE & MONTHLY REPORTING ---
     function FinanceComponent({ financialStats, reservations = [], venues = [], services = [], expenses = [], setExpenses = () => {}, onUpdateReservation }) {
       const [expandedResIds, setExpandedResIds] = useState({});
       const toggleExpandRes = (resId) => {
@@ -17029,8 +17034,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         }));
       };
 
-      const [activeSubTab, setActiveSubTab] = useState('profitability'); // 'profitability' (Gelir-Gider Kar/Zarar) vs 'kasa' (Kasa Akışı)
-      const [filterTab, setFilterTab] = useState('all');
+      const [activeSubTab, setActiveSubTab] = useState('profitability'); // 'profitability' | 'kasa' | 'monthly'
+      const [filterTab, setFilterTab] = useState('all'); // 'all' | 'income' | 'expense'
       const [searchQuery, setSearchQuery] = useState('');
       const [isModalOpen, setIsModalOpen] = useState(false);
       
@@ -17043,17 +17048,31 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const [currentPage, setCurrentPage] = useState(1);
       const [pageSize, setPageSize] = useState(10);
 
+      // Selected Month for Monthly Cashflow Report
+      const [selectedReportMonth, setSelectedReportMonth] = useState('2026-08');
+
       useEffect(() => {
         setCurrentPage(1);
-      }, [filterTab, searchQuery, activeSubTab]);
+      }, [filterTab, searchQuery, activeSubTab, selectedReportMonth]);
 
+      // General Cashflow Transaction Modal State (Income vs Expense)
+      const [transType, setTransType] = useState('gider'); // 'gelir' | 'gider'
       const [newTitle, setNewTitle] = useState('');
-      const [newCategory, setNewCategory] = useState('Genel Harcama');
+      const [newCategory, setNewCategory] = useState('Faturalar & Enerji');
       const [newAmount, setNewAmount] = useState('');
-      const [newDate, setNewDate] = useState('2026-08-20');
-      const [newStatus, setNewStatus] = useState('Ödendi');
+      const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
+      const [newStatus, setNewStatus] = useState('Tamamlandı');
 
-      // <ThemeIcon icon="chart" className="w-4 h-4 inline-block shrink-0" /> RESERVATION ITEMIZED FINANCIAL & PROFITABILITY CALCULATION
+      // Update default category when transType changes
+      useEffect(() => {
+        if (transType === 'gelir') {
+          setNewCategory('Dış Çekim & Plato');
+        } else {
+          setNewCategory('Faturalar & Enerji');
+        }
+      }, [transType]);
+
+      // 1. RESERVATION ITEMIZED FINANCIAL & PROFITABILITY CALCULATION
       const reservationFinancials = useMemo(() => {
         return (reservations || []).map(r => {
           const vObj = (venues || []).find(v => v.id === r.venueId);
@@ -17088,7 +17107,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         });
       }, [reservations, venues, services]);
 
-      // Global Summary Totals
+      // Global Summary Totals for Contracts
       const totalGrossRevenue = useMemo(() => {
         return reservationFinancials.reduce((sum, rf) => sum + rf.grossIncome, 0);
       }, [reservationFinancials]);
@@ -17100,38 +17119,107 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const totalNetProfit = totalGrossRevenue - totalCalculatedCosts;
       const avgProfitMargin = totalGrossRevenue > 0 ? ((totalNetProfit / totalGrossRevenue) * 100).toFixed(1) : '0.0';
 
+      // 2. UNIFIED CASH INFLOWS (Rezervasyon Parçalı Tahsilatları + Harici Gelirler)
       const incomeTransactions = useMemo(() => {
-        return (reservations || []).map(r => ({
-          id: `inc-${r.id}`,
-          title: `${r.customerName || 'Müşteri'} - ${r.venueName || 'Salon'} Rezervasyonu`,
-          category: 'Düğün / Organizasyon',
-          type: 'gelir',
-          amount: r.totalAmount || 0,
-          date: r.date || '2026-08-01',
-          status: r.paymentStatus === 'Ödendi' || r.paymentStatus === 'Tamamlandı' ? 'Tahsil Edildi' : (r.paymentStatus === 'Kapora Alındı' ? 'Kapora Alındı' : 'Bekliyor')
-        }));
-      }, [reservations]);
+        const list = [];
+        // From Reservations (itemized payments)
+        (reservations || []).forEach(r => {
+          if (Array.isArray(r.payments) && r.payments.length > 0) {
+            r.payments.forEach(p => {
+              list.push({
+                id: p.id || `pay-${r.id}-${Math.random()}`,
+                resId: r.id,
+                title: `${r.customerName} - ${p.type || 'Tahsilat'} (${p.method || 'Kasa'})`,
+                category: 'Rezervasyon Tahsilatı',
+                type: 'gelir',
+                amount: Number(p.amount || 0),
+                date: p.date || r.date || '2026-08-01',
+                status: 'Tahsil Edildi',
+                isReservationPayment: true
+              });
+            });
+          } else if (Number(r.depositPaid || 0) > 0) {
+            list.push({
+              id: `inc-${r.id}-deposit`,
+              resId: r.id,
+              title: `${r.customerName} - Kapora / Ödeme`,
+              category: 'Rezervasyon Tahsilatı',
+              type: 'gelir',
+              amount: Number(r.depositPaid || 0),
+              date: r.date || '2026-08-01',
+              status: 'Tahsil Edildi',
+              isReservationPayment: true
+            });
+          }
+        });
 
+        // From External Incomes in expenses table
+        (expenses || []).filter(e => e.type === 'gelir' || e.type === 'income').forEach(e => {
+          list.push({
+            id: e.id,
+            title: e.title,
+            category: e.category || 'Harici Gelir',
+            type: 'gelir',
+            amount: Number(e.amount || 0),
+            date: e.date || '2026-08-01',
+            status: 'Tahsil Edildi',
+            isExternal: true
+          });
+        });
+
+        return list;
+      }, [reservations, expenses]);
+
+      // 3. UNIFIED CASH OUTFLOWS (Harici Giderler + Rezervasyon Özel Harcamaları)
+      const expenseTransactions = useMemo(() => {
+        const list = [];
+        // External general expenses
+        (expenses || []).filter(e => e.type !== 'gelir' && e.type !== 'income').forEach(e => {
+          list.push({
+            id: e.id,
+            title: e.title,
+            category: e.category || 'Genel Gider',
+            type: 'gider',
+            amount: Number(e.amount || 0),
+            date: e.date || '2026-08-01',
+            status: e.status || 'Ödendi',
+            isExternal: true
+          });
+        });
+
+        // Reservation specific custom expenses
+        (reservations || []).forEach(r => {
+          if (Array.isArray(r.customExpenses)) {
+            r.customExpenses.forEach(exp => {
+              list.push({
+                id: exp.id || `resexp-${r.id}-${Math.random()}`,
+                resId: r.id,
+                title: `${r.customerName} - ${exp.title}`,
+                category: exp.category || 'Etkinlik Özel Gideri',
+                type: 'gider',
+                amount: Number(exp.amount || 0),
+                date: exp.date || r.date || '2026-08-01',
+                status: 'Ödendi',
+                isReservationCustomExpense: true
+              });
+            });
+          }
+        });
+
+        return list;
+      }, [expenses, reservations]);
+
+      // Unified Ledger
       const allTransactions = useMemo(() => {
-        return [...incomeTransactions, ...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-      }, [incomeTransactions, expenses]);
+        return [...incomeTransactions, ...expenseTransactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+      }, [incomeTransactions, expenseTransactions]);
 
-      const totalCiro = useMemo(() => {
-        return incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-      }, [incomeTransactions]);
+      // Totals
+      const totalCashInflow = useMemo(() => incomeTransactions.reduce((sum, t) => sum + t.amount, 0), [incomeTransactions]);
+      const totalCashOutflow = useMemo(() => expenseTransactions.reduce((sum, t) => sum + t.amount, 0), [expenseTransactions]);
+      const netCashBalance = totalCashInflow - totalCashOutflow;
 
-      const totalGider = useMemo(() => {
-        return expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
-      }, [expenses]);
-
-      const netKar = totalCiro - totalGider;
-
-      const tahsilEdilenKapora = useMemo(() => {
-        return (financialStats?.totalDeposit !== undefined)
-          ? financialStats.totalDeposit
-          : (reservations || []).reduce((sum, r) => sum + Number(r.depositPaid || 0), 0);
-      }, [financialStats, reservations]);
-
+      // Filtered Transactions
       const filteredTransactions = useMemo(() => {
         return allTransactions.filter(t => {
           if (filterTab === 'income' && t.type !== 'gelir') return false;
@@ -17139,8 +17227,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
 
           if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
-            const matchTitle = t.title.toLowerCase().includes(q);
-            const matchCategory = t.category.toLowerCase().includes(q);
+            const matchTitle = (t.title || '').toLowerCase().includes(q);
+            const matchCategory = (t.category || '').toLowerCase().includes(q);
             const matchAmount = String(t.amount).includes(q);
             if (!matchTitle && !matchCategory && !matchAmount) return false;
           }
@@ -17148,44 +17236,68 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         });
       }, [allTransactions, filterTab, searchQuery]);
 
-      const filteredProfitabilityRows = useMemo(() => {
-        return reservationFinancials.filter(rf => {
-          if (!searchQuery.trim()) return true;
-          const q = searchQuery.toLowerCase();
-          const r = rf.reservation;
-          return (r.customerName || '').toLowerCase().includes(q) ||
-                 (r.id || '').toLowerCase().includes(q) ||
-                 (rf.venueName || '').toLowerCase().includes(q);
-        });
-      }, [reservationFinancials, searchQuery]);
+      // 4. MONTHLY REPORT DATA AGGREGATION
+      const monthlyReportData = useMemo(() => {
+        const monthPrefix = selectedReportMonth; // e.g. '2026-08'
+        const monthInflows = incomeTransactions.filter(t => (t.date || '').startsWith(monthPrefix));
+        const monthOutflows = expenseTransactions.filter(t => (t.date || '').startsWith(monthPrefix));
 
-      const handleAddExpense = (e) => {
+        const sumInflow = monthInflows.reduce((sum, t) => sum + t.amount, 0);
+        const sumOutflow = monthOutflows.reduce((sum, t) => sum + t.amount, 0);
+        const netDiff = sumInflow - sumOutflow;
+
+        // Group expenses by category
+        const categoryMap = {};
+        monthOutflows.forEach(t => {
+          const cat = t.category || 'Diğer';
+          categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
+        });
+
+        // Group incomes by category
+        const incomeCategoryMap = {};
+        monthInflows.forEach(t => {
+          const cat = t.category || 'Diğer';
+          incomeCategoryMap[cat] = (incomeCategoryMap[cat] || 0) + t.amount;
+        });
+
+        const monthEventsCount = (reservations || []).filter(r => (r.date || r.eventDate || '').startsWith(monthPrefix)).length;
+
+        return {
+          monthInflows,
+          monthOutflows,
+          sumInflow,
+          sumOutflow,
+          netDiff,
+          categoryMap,
+          incomeCategoryMap,
+          monthEventsCount
+        };
+      }, [incomeTransactions, expenseTransactions, selectedReportMonth, reservations]);
+
+      // Handle Add General Cash Transaction (Income or Expense)
+      const handleAddGeneralTransaction = async (e) => {
         e.preventDefault();
         if (!newTitle.trim() || !newAmount) return;
 
-        const newExp = {
-          id: `exp-${Date.now()}`,
+        const newTrans = {
+          id: `trans-${Date.now()}`,
           title: newTitle.trim(),
           category: newCategory,
-          type: 'gider',
+          type: transType, // 'gelir' or 'gider'
           amount: Number(newAmount),
           date: newDate || new Date().toISOString().split('T')[0],
+          description: `Kasa Hareketi (${transType === 'gelir' ? 'Gelir' : 'Gider'})`,
           status: newStatus
         };
 
         setExpenses(prev => {
-          const updated = [newExp, ...prev];
+          const updated = [newTrans, ...prev.filter(x => x.id !== newTrans.id)];
           try {
             const fetchFn = window.fetchWithRetry || fetch;
             fetchFn('/api/expenses', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newExp)
-            }).catch(() => {});
-            fetchFn('/api/public-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ expenses: updated, updatedAt: new Date().toISOString() })
+              body: JSON.stringify(newTrans)
             }).catch(() => {});
           } catch(err) {}
           return updated;
@@ -17196,7 +17308,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         setIsModalOpen(false);
       };
 
-      const handleDeleteExpense = (expId) => {
+      const handleDeleteGeneralExpense = (expId) => {
+        if (!confirm('Bu kasa hareketini silmek istediğinize emin misiniz?')) return;
         setExpenses(prev => {
           const updated = prev.filter(e => e.id !== expId);
           try {
@@ -17253,30 +17366,30 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
             <div>
               <h2 className="text-2xl font-heading font-extrabold gold-gradient-text flex items-center space-x-2">
-                <span><ThemeIcon icon="money" className="w-4 h-4 inline-block shrink-0" /></span>
-                <span>Finans Yönetimi & Detaylı Kar/Zarar Tablosu</span>
+                <span><ThemeIcon icon="money" className="w-5 h-5 inline-block shrink-0" /></span>
+                <span>Finans Yönetimi & Kasa Nakit Akışı</span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                Mekan maliyetleri, ek hizmet maliyetleri ve rezervasyon özel harcamaları ile gerçek net kâr hesabı.
+                Sözleşme kârlılığı, parçalı tahsilatlar, harici gelir/giderler ve ay bazlı kasa nakit raporu.
               </p>
             </div>
 
-            <div className="flex items-center space-x-2 w-full md:w-auto">
+            <div className="flex items-center space-x-2 w-full md:w-auto flex-wrap gap-2">
               <div className="flex bg-slate-100 dark:bg-brand-dark p-1 rounded-2xl border border-slate-200 dark:border-brand-border">
                 <button
                   onClick={() => setActiveSubTab('profitability')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer ${
                     activeSubTab === 'profitability'
                       ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
                       : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <span><ThemeIcon icon="chart" className="w-4 h-4 inline-block shrink-0" /></span>
-                  <span>Gelir - Gider Kar/Zarar Tablosu</span>
+                  <span>Sözleşme Kârlılığı</span>
                 </button>
                 <button
                   onClick={() => setActiveSubTab('kasa')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer ${
                     activeSubTab === 'kasa'
                       ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
                       : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
@@ -17285,105 +17398,111 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   <span><ThemeIcon icon="card" className="w-4 h-4 inline-block shrink-0" /></span>
                   <span>Kasa & Harcama Akışı</span>
                 </button>
+                <button
+                  onClick={() => setActiveSubTab('monthly')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer ${
+                    activeSubTab === 'monthly'
+                      ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
+                      : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <span><ThemeIcon icon="calendar" className="w-4 h-4 inline-block shrink-0" /></span>
+                  <span>Aylık Nakit Raporu</span>
+                </button>
               </div>
 
               {activeSubTab === 'kasa' && (
                 <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="gold-button font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1.5 shrink-0"
+                  onClick={() => {
+                    setTransType('gider');
+                    setIsModalOpen(true);
+                  }}
+                  className="px-4 py-2 gold-button font-extrabold text-xs rounded-xl shadow cursor-pointer flex items-center space-x-1.5"
                 >
-                  <span><ThemeIcon icon="plus" className="w-4 h-4 inline-block shrink-0" /></span>
-                  <span>Gider Kaydı Ekle</span>
+                  <span>+ Kasa Hareketi Ekle</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* FINANCIAL OVERVIEW WIDGET CARDS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 shadow-sm">
-              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
-                <span>Toplam Brüt Gelir (Satış)</span>
-                <span className="text-amber-500 text-base"><ThemeIcon icon="money" className="w-4 h-4 inline-block shrink-0" /></span>
+          {/* 3 TOP KPI CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>{activeSubTab === 'profitability' ? 'Toplam Ciro (Sözleşmeler)' : 'Fiili Kasa Girişi (+)'}</span>
+                <span className="text-emerald-500 text-lg font-bold">↗</span>
               </div>
-              <div className="text-2xl font-heading font-extrabold gold-gradient-text mt-2">{formatCurrency(totalGrossRevenue)}</div>
-              <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">↑ Tüm Sözleşme Satış Cirosu</div>
+              <div className="text-2xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(activeSubTab === 'profitability' ? totalGrossRevenue : totalCashInflow)}
+              </div>
+              <div className="text-[11px] text-slate-400 font-medium">
+                {activeSubTab === 'profitability' ? `${reservations.length} Adet Rezervasyon` : `${incomeTransactions.length} Adet Gelir / Tahsilat`}
+              </div>
             </div>
 
-            <div className="glass-panel p-5 rounded-3xl border border-red-500/30 shadow-sm">
-              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
-                <span>Toplam Maliyet & Ek Giderler</span>
-                <span className="text-red-500 text-base"><ThemeIcon icon="chart" className="w-4 h-4 inline-block shrink-0" /></span>
+            <div className="glass-panel p-5 rounded-3xl border border-red-500/30 bg-red-500/5 space-y-1 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>{activeSubTab === 'profitability' ? 'Toplam Maliyet (Etkinlikler)' : 'Fiili Kasa Çıkışı (-)'}</span>
+                <span className="text-red-500 text-lg font-bold">↘</span>
               </div>
-              <div className="text-2xl font-heading font-extrabold text-red-600 dark:text-red-400 mt-2">{formatCurrency(totalCalculatedCosts)}</div>
-              <div className="text-[10px] text-red-500 font-bold mt-1">↓ Mekan + Hizmet + Özel Ek Giderler</div>
+              <div className="text-2xl font-mono font-extrabold text-red-600 dark:text-red-400">
+                {formatCurrency(activeSubTab === 'profitability' ? totalCalculatedCosts : totalCashOutflow)}
+              </div>
+              <div className="text-[11px] text-slate-400 font-medium">
+                {activeSubTab === 'profitability' ? 'Salon + Hizmet + Özel Giderler' : `${expenseTransactions.length} Adet Gider Kalemi`}
+              </div>
             </div>
 
-            <div className={`glass-panel p-5 rounded-3xl border shadow-sm ${totalNetProfit >= 0 ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-red-500/40 bg-red-500/5'}`}>
-              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
-                <span>Toplam Net Kâr</span>
-                <span className="text-base">{totalNetProfit >= 0 ? '' : ''}</span>
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/40 bg-amber-500/5 space-y-1 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>{activeSubTab === 'profitability' ? 'Net Kâr (Kâr Marjı %' + avgProfitMargin + ')' : 'Net Kasa Dengesi (+/-)'}</span>
+                <span className="text-amber-500 text-lg font-bold">★</span>
               </div>
-              <div className={`text-2xl font-heading font-extrabold mt-2 ${totalNetProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                {formatCurrency(totalNetProfit)}
+              <div className={`text-2xl font-mono font-extrabold ${(activeSubTab === 'profitability' ? totalNetProfit : netCashBalance) >= 0 ? 'text-emerald-600 dark:text-gold-400' : 'text-red-600'}`}>
+                {formatCurrency(activeSubTab === 'profitability' ? totalNetProfit : netCashBalance)}
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-gray-300 font-bold mt-1">Net Kar (Ciro - Toplam Maliyet)</div>
-            </div>
-
-            <div className="glass-panel p-5 rounded-3xl border border-blue-500/30 shadow-sm">
-              <div className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center justify-between">
-                <span>Ortalama Kâr Marjı (%)</span>
-                <span className="text-blue-500 text-base"><ThemeIcon icon="chart" className="w-4 h-4 inline-block shrink-0" /></span>
+              <div className="text-[11px] text-slate-400 font-medium">
+                {activeSubTab === 'profitability' ? 'Sözleşme Bazlı Net Kârlılık' : 'Kasada Kalan Net Nakit'}
               </div>
-              <div className="text-2xl font-heading font-extrabold text-blue-600 dark:text-blue-400 mt-2">%{avgProfitMargin}</div>
-              <div className="text-[10px] text-blue-500 font-bold mt-1">İşletme Kar Verimlilik Oranı</div>
             </div>
           </div>
 
-          {/* TAB 1: REZERVASYON BAZLI GELİR - GİDER & MALİYET TABLOSU */}
+          {/* TAB 1: SÖZLEŞME BAZLI KÂRLILIK VE DETAY DÖKÜMÜ */}
           {activeSubTab === 'profitability' && (
             <div className="space-y-4">
-              
-              {/* SEARCH & INFO BANNER */}
-              <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="text-xs text-slate-600 dark:text-gray-300 font-medium">
-                  <ThemeIcon icon="idea" className="w-4 h-4 inline-block shrink-0" /> <strong>Satır Satır Finans Analizi:</strong> Her rezervasyonun satış geliri, salon maliyeti, ek hizmet maliyetleri ve özel ek harcamaları ayrı ayrı hesaplanarak net kârı gösterilmektedir.
-                </div>
-
-                <div className="relative w-full md:w-80 shrink-0">
+              <div className="glass-panel p-4 rounded-3xl flex justify-between items-center gap-4 border border-slate-200 dark:border-brand-border">
+                <div className="relative w-full md:w-80">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><ThemeIcon icon="search" className="w-4 h-4 inline-block shrink-0" /></span>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Müşteri, sözleşme kodu veya salon ara..."
-                    className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-none focus:border-amber-500"
+                    placeholder="Müşteri, salon veya sözleşme ara..."
+                    className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
 
-              {/* PROFITABILITY AUDIT TABLE */}
               <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm">
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-100/90 dark:bg-brand-card/90 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-extrabold uppercase tracking-wider">
-                        <th className="p-3.5">Sözleşme / Tarih</th>
-                        <th className="p-3.5">Müşteri / Çift</th>
-                        <th className="p-3.5 text-right text-emerald-700 dark:text-emerald-400">Brüt Gelir (Satış)</th>
-                        <th className="p-3.5 text-right text-blue-600 dark:text-blue-400">Mekan Maliyeti</th>
-                        <th className="p-3.5 text-right text-purple-600 dark:text-purple-400">Hizmet Maliyeti</th>
-                        <th className="p-3.5 text-right text-amber-700 dark:text-gold-400">Rezervasyon Ek Gideri</th>
-                        <th className="p-3.5 text-right text-red-600 dark:text-red-400">Toplam Maliyet</th>
-                        <th className="p-3.5 text-right">Net Kâr / Marj</th>
-                        <th className="p-3.5 text-center">İşlemler</th>
+                      <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
+                        <th className="p-3.5">Sözleşme & Müşteri</th>
+                        <th className="p-3.5">Etkinlik Tarihi</th>
+                        <th className="p-3.5 text-right">Ciro (Gelir)</th>
+                        <th className="p-3.5 text-right">Maliyet</th>
+                        <th className="p-3.5 text-right">Özel Gider</th>
+                        <th className="p-3.5 text-right">Net Kâr</th>
+                        <th className="p-3.5 text-center">Kâr %</th>
+                        <th className="p-3.5 text-center">İşlem</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40 font-medium">
                       {filteredProfitabilityRows.length === 0 ? (
                         <tr>
-                          <td colSpan="9" className="text-center py-8 text-slate-400 font-bold">
-                            Kriterlere uygun rezervasyon maliyet kaydı bulunamadı.
+                          <td colSpan="8" className="text-center py-8 text-slate-400 font-bold">
+                            Kayıtlı rezervasyon finansmanı bulunamadı.
                           </td>
                         </tr>
                       ) : (
@@ -17392,216 +17511,94 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                           .map(rf => {
                             const r = rf.reservation;
                             const isExpanded = !!expandedResIds[r.id];
-                            const remainingBalance = Math.max(0, rf.grossIncome - Number(r.depositPaid || 0));
                             return (
                               <React.Fragment key={r.id}>
-                                <tr
-                                  onClick={() => toggleExpandRes(r.id)}
-                                  className={`cursor-pointer transition-all duration-200 ${
-                                    isExpanded 
-                                      ? 'bg-amber-500/10 dark:bg-amber-500/15 border-l-4 border-l-amber-500 font-semibold' 
-                                      : 'hover:bg-amber-500/5 dark:hover:bg-brand-card/70'
-                                  }`}
-                                >
-                                  <td className="p-3.5 whitespace-nowrap">
-                                    <div className="flex items-center space-x-2">
-                                      <span className={`text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90 text-amber-500 font-extrabold' : 'text-slate-400'}`}>
-                                        ▶
-                                      </span>
-                                      <div>
-                                        <div className="font-mono font-extrabold text-amber-700 dark:text-gold-400">{r.id}</div>
-                                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">{formatDate(r.eventDate || r.date)}</div>
-                                      </div>
-                                    </div>
+                                <tr className="hover:bg-slate-50/60 dark:hover:bg-brand-card/50 transition">
+                                  <td className="p-3.5">
+                                    <div className="font-bold text-slate-800 dark:text-gray-100">{r.customerName}</div>
+                                    <div className="text-[10px] text-slate-400 font-mono">{r.id} • {rf.venueName}</div>
                                   </td>
-
-                                <td className="p-3.5">
-                                  <div className="font-bold text-slate-900 dark:text-white">{r.customerName}</div>
-                                  <div className="text-[10px] text-slate-500 font-medium">{rf.venueName}</div>
-                                </td>
-
-                                <td className="p-3.5 text-right font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
-                                  {formatCurrency(rf.grossIncome)}
-                                </td>
-
-                                <td className="p-3.5 text-right font-mono font-bold text-blue-600 dark:text-blue-400">
-                                  {formatCurrency(rf.venueCost)}
-                                </td>
-
-                                <td className="p-3.5 text-right font-mono font-bold text-purple-600 dark:text-purple-400">
-                                  {formatCurrency(rf.servicesCost)}
-                                </td>
-
-                                <td className="p-3.5 text-right font-mono">
-                                  {rf.customExpensesTotal > 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => setCustomExpenseModalRes(r)}
-                                      className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-800 dark:text-gold-400 border border-amber-500/30 font-bold text-[11px] hover:underline"
-                                      title="Özel Ek Giderleri Görüntüle & Düzenle"
-                                    >
-                                      <span>{formatCurrency(rf.customExpensesTotal)}</span>
-                                      <span className="text-[9px] font-extrabold">({rf.customExpensesList.length})</span>
-                                    </button>
-                                  ) : (
-                                    <span className="text-slate-400 text-[11px]">0 ₺</span>
-                                  )}
-                                </td>
-
-                                <td className="p-3.5 text-right font-mono font-extrabold text-red-600 dark:text-red-400">
-                                  {formatCurrency(rf.totalCost)}
-                                </td>
-
-                                <td className="p-3.5 text-right whitespace-nowrap">
-                                  <div className={`font-mono font-extrabold text-sm ${rf.netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                    {rf.netProfit >= 0 ? '+' : ''}{formatCurrency(rf.netProfit)}
-                                  </div>
-                                  <span className={`inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-full mt-0.5 ${
-                                    rf.netProfit >= 0 
-                                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                                      : 'bg-red-500/15 text-red-700 dark:text-red-300 border border-red-500/30'
-                                  }`}>
-                                    %{rf.profitMargin} Marj
-                                  </span>
-                                </td>
-
-                                <td className="p-3.5 text-center whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                  <button
-                                    type="button"
-                                    onClick={() => setCustomExpenseModalRes(r)}
-                                    className="px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-gold-400 font-bold text-xs border border-amber-500/40 transition inline-flex items-center space-x-1 cursor-pointer"
-                                    title="Rezervasyona Özel Ek Gider Ekle veya Çıkar"
-                                  >
-                                    <ThemeIcon icon="plus" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
-                                    <span>Ek Gider Yönet</span>
-                                  </button>
-                                </td>
-                              </tr>
-
-                              {/* <span className="inline-block text-xs">▼</span> EXPANDABLE ITEMIZED EXPENSE & REMAINING BALANCE PANEL */}
-                              {isExpanded && (
-                                <tr className="bg-slate-50/90 dark:bg-brand-dark/90 border-b border-amber-500/30 animate-fade-in">
-                                  <td colSpan="9" className="p-4">
-                                    <div className="glass-panel p-4 rounded-2xl border border-amber-500/30 space-y-4 shadow-inner">
-                                      {/* HEADER */}
-                                      <div className="flex justify-between items-center border-b pb-2 border-slate-200 dark:border-brand-border/40">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-amber-500 font-bold"><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /></span>
-                                          <span className="font-bold text-slate-800 dark:text-gray-100 text-xs">
-                                            {r.id} — Kalem Kalem Gider & Finansal Döküm Detayı ({r.customerName})
-                                          </span>
-                                        </div>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/30">
-                                          {rf.venueName}
-                                        </span>
-                                      </div>
-
-                                      {/* 3-COLUMN ITEMIZATION GRID */}
-                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                                        
-                                        {/* COLUMN 1: VENUE COST */}
-                                        <div className="bg-white dark:bg-brand-card p-3 rounded-xl border border-slate-200 dark:border-brand-border/40 space-y-2">
-                                          <div className="font-bold text-blue-600 dark:text-blue-400 flex items-center space-x-1.5 border-b pb-1.5 border-slate-100 dark:border-brand-border/30">
-                                            <span><ThemeIcon icon="venue" className="w-4 h-4 inline-block shrink-0" /> Salon İşletim Maliyeti</span>
-                                          </div>
-                                          <div className="flex justify-between items-center pt-1 font-mono">
-                                            <span className="text-slate-500">Mekan Tahsis Maliyeti:</span>
-                                            <span className="font-bold text-blue-600 dark:text-blue-400">{formatCurrency(rf.venueCost)}</span>
-                                          </div>
-                                          <p className="text-[10px] text-slate-400 italic">Salon kiralama, enerji ve personel hazırlık maliyet bedeli.</p>
-                                        </div>
-
-                                        {/* COLUMN 2: SELECTED EXTRA SERVICES COSTS */}
-                                        <div className="bg-white dark:bg-brand-card p-3 rounded-xl border border-slate-200 dark:border-brand-border/40 space-y-2">
-                                          <div className="font-bold text-purple-600 dark:text-purple-400 flex items-center justify-between border-b pb-1.5 border-slate-100 dark:border-brand-border/30">
-                                            <span><ThemeIcon icon="settings" className="w-4 h-4 inline-block shrink-0" /> Seçilen Ek Hizmetler ({(r.selectedServices || []).length})</span>
-                                            <span className="font-mono text-xs font-extrabold">{formatCurrency(rf.servicesCost)}</span>
-                                          </div>
-                                          <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
-                                            {(r.selectedServices || []).length === 0 ? (
-                                              <div className="text-[11px] text-slate-400 italic py-1">Ek hizmet seçilmemiş.</div>
-                                            ) : (
-                                              (r.selectedServices || []).map((s, idx) => {
-                                                const sObj = (services || []).find(srv => srv.id === s.serviceId);
-                                                const uCost = s.costPrice !== undefined ? Number(s.costPrice) : (sObj?.costPrice !== undefined ? Number(sObj.costPrice) : Math.round(Number(s.unitPrice || 250) * 0.6));
-                                                const itemTotalCost = uCost * Number(s.quantity || 1);
-                                                return (
-                                                  <div key={idx} className="flex justify-between items-center text-[11px] p-1.5 bg-slate-50 dark:bg-brand-dark/50 rounded-lg">
-                                                    <div className="truncate pr-2">
-                                                      <span className="font-bold text-slate-700 dark:text-gray-200">{s.serviceName || sObj?.name || s.serviceId}</span>
-                                                      <span className="text-[9px] text-slate-400 block">{s.quantity || 1} adet x {formatCurrency(uCost)} maliyet</span>
-                                                    </div>
-                                                    <span className="font-mono font-bold text-purple-600 dark:text-purple-400 shrink-0">{formatCurrency(itemTotalCost)}</span>
-                                                  </div>
-                                                );
-                                              })
-                                            )}
-                                          </div>
-                                        </div>
-
-                                        {/* COLUMN 3: CUSTOM EXPENSES / YEVMİYELER */}
-                                        <div className="bg-white dark:bg-brand-card p-3 rounded-xl border border-slate-200 dark:border-brand-border/40 space-y-2">
-                                          <div className="font-bold text-amber-700 dark:text-gold-400 flex items-center justify-between border-b pb-1.5 border-slate-100 dark:border-brand-border/30">
-                                            <span><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /> Harcama & Yevmiyeler ({(rf.customExpensesList || []).length})</span>
-                                            <span className="font-mono text-xs font-extrabold">{formatCurrency(rf.customExpensesTotal)}</span>
-                                          </div>
-                                          <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
-                                            {(rf.customExpensesList || []).length === 0 ? (
-                                              <div className="text-[11px] text-slate-400 italic py-1">Özel ek harcama girilmemiş.</div>
-                                            ) : (
-                                              (rf.customExpensesList || []).map((exp, idx) => (
-                                                <div key={idx} className="flex justify-between items-center text-[11px] p-1.5 bg-slate-50 dark:bg-brand-dark/50 rounded-lg">
-                                                  <div className="truncate pr-2">
-                                                    <span className="font-bold text-slate-700 dark:text-gray-200">{exp.title}</span>
-                                                    <span className="text-[9px] text-slate-400 block">{exp.category} ({exp.date || ''})</span>
-                                                  </div>
-                                                  <span className="font-mono font-bold text-amber-600 dark:text-gold-400 shrink-0">{formatCurrency(exp.amount || 0)}</span>
-                                                </div>
-                                              ))
-                                            )}
-                                          </div>
-                                        </div>
-
-                                      </div>
-
-                                      {/* SUMMARY FOOTER BAR: KALAN BAKİYE & FİNANSAL TABLO */}
-                                      <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                                        <div className="flex flex-wrap items-center gap-4">
-                                          <div>
-                                            <span className="text-slate-500 text-[10px] font-bold block">Sözleşme Tutarı:</span>
-                                            <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400">{formatCurrency(rf.grossIncome)}</span>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-500 text-[10px] font-bold block">Tahsil Edilen Kapora:</span>
-                                            <span className="font-mono font-bold text-slate-700 dark:text-gray-200">{formatCurrency(r.depositPaid || 0)}</span>
-                                          </div>
-                                          <div className="p-1.5 bg-amber-500/20 rounded-lg border border-amber-500/40">
-                                            <span className="text-amber-900 dark:text-gold-300 text-[10px] font-bold block"><ThemeIcon icon="money" className="w-4 h-4 inline-block shrink-0" /> Kalan Tahsil Edilecek Bakiye:</span>
-                                            <span className="font-mono font-extrabold text-amber-700 dark:text-gold-400">{formatCurrency(remainingBalance)}</span>
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center space-x-4 border-t sm:border-t-0 sm:border-l pt-2 sm:pt-0 sm:pl-4 border-amber-500/30">
-                                          <div>
-                                            <span className="text-slate-500 text-[10px] font-bold block">Toplam Gider:</span>
-                                            <span className="font-mono font-bold text-red-600 dark:text-red-400">{formatCurrency(rf.totalCost)}</span>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-500 text-[10px] font-bold block">Net Kâr (Marj):</span>
-                                            <span className={`font-mono font-extrabold ${rf.netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                              {rf.netProfit >= 0 ? '+' : ''}{formatCurrency(rf.netProfit)} (%{rf.profitMargin})
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-
+                                  <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-300">
+                                    {formatDate(r.date || r.eventDate)}
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono font-bold text-slate-800 dark:text-gray-100">
+                                    {formatCurrency(rf.grossIncome)}
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono text-red-500 dark:text-red-400 font-bold">
+                                    {formatCurrency(rf.venueCost + rf.servicesCost)}
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono font-bold">
+                                    {rf.customExpensesTotal > 0 ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => setCustomExpenseModalRes(r)}
+                                        className="text-amber-600 dark:text-gold-400 hover:underline cursor-pointer flex items-center justify-end space-x-1 ml-auto"
+                                        title="Ek giderleri yönet"
+                                      >
+                                        <span>{formatCurrency(rf.customExpensesTotal)}</span>
+                                        <span className="text-[9px] font-extrabold bg-amber-500/10 px-1 rounded">({rf.customExpensesList.length})</span>
+                                      </button>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => setCustomExpenseModalRes(r)}
+                                        className="text-[10px] text-slate-400 hover:text-amber-500 hover:underline cursor-pointer"
+                                      >
+                                        + Gider Ekle
+                                      </button>
+                                    )}
+                                  </td>
+                                  <td className={`p-3.5 text-right font-mono font-extrabold ${rf.netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600'}`}>
+                                    {formatCurrency(rf.netProfit)}
+                                  </td>
+                                  <td className="p-3.5 text-center whitespace-nowrap">
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${rf.profitMargin >= 35 ? 'bg-emerald-500/10 text-emerald-600' : (rf.profitMargin > 0 ? 'bg-amber-500/10 text-amber-600' : 'bg-red-500/10 text-red-600')}`}>
+                                      %{rf.profitMargin}
+                                    </span>
+                                  </td>
+                                  <td className="p-3.5 text-center whitespace-nowrap">
+                                    <div className="flex items-center justify-center space-x-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleExpandRes(r.id)}
+                                        className="px-2 py-1 bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 text-slate-600 dark:text-gray-300 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                                      >
+                                        {isExpanded ? '▲ Kapat' : '▼ Detay'}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setCustomExpenseModalRes(r)}
+                                        className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500 text-amber-700 hover:text-white rounded-lg text-[10px] font-bold transition cursor-pointer border border-amber-500/30"
+                                      >
+                                        + Ek Gider
+                                      </button>
                                     </div>
                                   </td>
                                 </tr>
-                              )}
-                            </React.Fragment>
-                          );
-                        })
+
+                                {isExpanded && (
+                                  <tr className="bg-slate-50/80 dark:bg-brand-dark/50">
+                                    <td colSpan="8" className="p-4">
+                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                                        <div className="p-3 bg-white dark:bg-brand-card rounded-xl border border-slate-200 dark:border-brand-border space-y-1">
+                                          <span className="text-[10px] font-bold text-slate-400 uppercase">Mekan Maliyeti</span>
+                                          <div className="font-mono font-bold text-slate-800 dark:text-gray-200">{formatCurrency(rf.venueCost)}</div>
+                                        </div>
+                                        <div className="p-3 bg-white dark:bg-brand-card rounded-xl border border-slate-200 dark:border-brand-border space-y-1">
+                                          <span className="text-[10px] font-bold text-slate-400 uppercase">Ek Hizmetler Maliyeti</span>
+                                          <div className="font-mono font-bold text-slate-800 dark:text-gray-200">{formatCurrency(rf.servicesCost)}</div>
+                                        </div>
+                                        <div className="p-3 bg-white dark:bg-brand-card rounded-xl border border-slate-200 dark:border-brand-border space-y-1">
+                                          <span className="text-[10px] font-bold text-slate-400 uppercase">Özel Harcamalar & Yevmiyeler</span>
+                                          <div className="font-mono font-bold text-amber-600 dark:text-gold-400">{formatCurrency(rf.customExpensesTotal)}</div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
+                              </React.Fragment>
+                            );
+                          })
                       )}
                     </tbody>
                   </table>
@@ -17618,14 +17615,14 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             </div>
           )}
 
-          {/* TAB 2: GENERAL CASH FLOW & MANUAL EXPENSES */}
+          {/* TAB 2: KASA VE HARCAMA AKIŞI */}
           {activeSubTab === 'kasa' && (
             <div className="space-y-4">
               <div className="glass-panel p-4 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 border border-slate-200 dark:border-brand-border">
                 <div className="flex bg-slate-100 dark:bg-brand-card p-1 rounded-2xl border border-slate-200 dark:border-brand-border/60 w-full md:w-auto">
                   <button
                     onClick={() => setFilterTab('all')}
-                    className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none ${
+                    className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none cursor-pointer ${
                       filterTab === 'all' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -17633,7 +17630,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </button>
                   <button
                     onClick={() => setFilterTab('income')}
-                    className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none ${
+                    className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none cursor-pointer ${
                       filterTab === 'income' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -17641,11 +17638,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </button>
                   <button
                     onClick={() => setFilterTab('expense')}
-                    className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none ${
+                    className={`px-4 py-2 text-xs font-bold rounded-xl transition flex-1 md:flex-none cursor-pointer ${
                       filterTab === 'expense' ? 'bg-red-600 text-white shadow' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    Giderler (-) ({expenses.length})
+                    Giderler (-) ({expenseTransactions.length})
                   </button>
                 </div>
 
@@ -17667,7 +17664,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                     <thead>
                       <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
                         <th className="p-3.5">Tarih</th>
-                        <th className="p-3.5">Açıklama</th>
+                        <th className="p-3.5">Açıklama & Hareket</th>
                         <th className="p-3.5">Kategori</th>
                         <th className="p-3.5 text-center">Tür</th>
                         <th className="p-3.5 text-right">Tutar</th>
@@ -17688,7 +17685,10 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                           .map(t => (
                           <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-brand-card/50 transition">
                             <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-400">{formatDate(t.date)}</td>
-                            <td className="p-3.5 font-bold text-slate-800 dark:text-gray-100">{t.title}</td>
+                            <td className="p-3.5 font-bold text-slate-800 dark:text-gray-100">
+                              <div>{t.title}</div>
+                              {t.resId && <span className="text-[10px] text-amber-600 dark:text-gold-400 font-mono">{t.resId}</span>}
+                            </td>
                             <td className="p-3.5">
                               <span className="bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
                                 {t.category}
@@ -17709,26 +17709,22 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                               {t.type === 'gelir' ? '+' : '-'}{formatCurrency(t.amount)}
                             </td>
                             <td className="p-3.5 text-center whitespace-nowrap">
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                t.status === 'Ödendi' || t.status === 'Tahsil Edildi' || t.status === 'Tamamlandı'
-                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                                  : 'bg-amber-500/10 text-amber-600 dark:text-gold-400'
-                              }`}>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                 {t.status}
                               </span>
                             </td>
                             <td className="p-3.5 text-center whitespace-nowrap">
-                              {t.type === 'gider' ? (
+                              {t.isExternal ? (
                                 <button
                                   type="button"
-                                  onClick={() => handleDeleteExpense(t.id)}
+                                  onClick={() => handleDeleteGeneralExpense(t.id)}
                                   className="px-2 py-1 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white rounded-lg text-[10px] font-bold transition cursor-pointer border border-red-500/20"
-                                  title="Bu gider kaydını sil"
+                                  title="Bu kasa hareketini sil"
                                 >
                                   🗑️ Sil
                                 </button>
                               ) : (
-                                <span className="text-[10px] text-slate-400 font-mono">-</span>
+                                <span className="text-[10px] text-slate-400 font-mono" title="Rezervasyon üzerinden yönetilir">Sözleşmeli</span>
                               )}
                             </td>
                           </tr>
@@ -17749,7 +17745,134 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             </div>
           )}
 
-          {/* <ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /> DEDICATED RESERVATION CUSTOM EXPENSE MANAGEMENT MODAL */}
+          {/* TAB 3: AYLIK NAKİT AKIŞI VE KASA RAPORU */}
+          {activeSubTab === 'monthly' && (
+            <div className="space-y-6">
+              {/* MONTH PICKER & QUICK STATS */}
+              <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 font-bold flex items-center justify-center text-lg">
+                    <ThemeIcon icon="calendar" className="w-5 h-5 shrink-0" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-slate-800 dark:text-gray-100">Raporlanacak Ayı Seçin</h3>
+                    <p className="text-xs text-slate-400">Kasaya fiilen giren ve çıkan nakit hareketleri</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={selectedReportMonth}
+                    onChange={e => setSelectedReportMonth(e.target.value)}
+                    className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-xl px-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 cursor-pointer shadow-xs focus:outline-none"
+                  >
+                    <option value="2026-05">Mayıs 2026</option>
+                    <option value="2026-06">Haziran 2026</option>
+                    <option value="2026-07">Temmuz 2026</option>
+                    <option value="2026-08">Ağustos 2026</option>
+                    <option value="2026-09">Eylül 2026</option>
+                    <option value="2026-10">Ekim 2026</option>
+                    <option value="2026-11">Kasım 2026</option>
+                    <option value="2026-12">Aralık 2026</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* MONTHLY KPI 4-GRID */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase">Bu Ay Kasa Girişi (+)</span>
+                  <div className="text-2xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {formatCurrency(monthlyReportData.sumInflow)}
+                  </div>
+                  <div className="text-[10px] text-slate-400">{monthlyReportData.monthInflows.length} Adet Tahsilat / Gelir</div>
+                </div>
+
+                <div className="glass-panel p-5 rounded-3xl border border-red-500/30 bg-red-500/5 space-y-1">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase">Bu Ay Kasa Çıkışı (-)</span>
+                  <div className="text-2xl font-mono font-extrabold text-red-600 dark:text-red-400">
+                    {formatCurrency(monthlyReportData.sumOutflow)}
+                  </div>
+                  <div className="text-[10px] text-slate-400">{monthlyReportData.monthOutflows.length} Adet Gider / Harcama</div>
+                </div>
+
+                <div className="glass-panel p-5 rounded-3xl border border-amber-500/40 bg-amber-500/5 space-y-1">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase">Net Kasa Farkı (+ / -)</span>
+                  <div className={`text-2xl font-mono font-extrabold ${monthlyReportData.netDiff >= 0 ? 'text-emerald-600 dark:text-gold-400' : 'text-red-600'}`}>
+                    {formatCurrency(monthlyReportData.netDiff)}
+                  </div>
+                  <div className="text-[10px] text-slate-400">Seçili Ayın Net Kasa Biyesi</div>
+                </div>
+
+                <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-1">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase">Bu Ayki Düğün / Etkinlik</span>
+                  <div className="text-2xl font-mono font-extrabold text-slate-800 dark:text-gray-100">
+                    {monthlyReportData.monthEventsCount} Adet
+                  </div>
+                  <div className="text-[10px] text-slate-400">Bu ay salonlarda icra edilen</div>
+                </div>
+              </div>
+
+              {/* MONTHLY EXPENSES CATEGORY BREAKDOWN CARDS */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
+                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <span className="text-red-500">↘</span>
+                    <span>Seçili Ay Gider Dağılımı (Kategori Bazlı)</span>
+                  </h4>
+                  <div className="space-y-2.5">
+                    {Object.keys(monthlyReportData.categoryMap).length === 0 ? (
+                      <div className="text-center py-6 text-slate-400 text-xs font-medium">Bu ay için henüz gider kaydı bulunmuyor.</div>
+                    ) : (
+                      Object.entries(monthlyReportData.categoryMap).map(([cat, amt]) => {
+                        const pct = monthlyReportData.sumOutflow > 0 ? Math.round((amt / monthlyReportData.sumOutflow) * 100) : 0;
+                        return (
+                          <div key={cat} className="space-y-1">
+                            <div className="flex justify-between items-center text-xs font-bold">
+                              <span className="text-slate-700 dark:text-gray-300">{cat}</span>
+                              <span className="font-mono text-red-500">{formatCurrency(amt)} (%{pct})</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 dark:bg-brand-dark rounded-full overflow-hidden">
+                              <div className="h-full bg-red-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
+                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2">
+                    <span className="text-emerald-500">↗</span>
+                    <span>Seçili Ay Gelir Dağılımı (Kategori Bazlı)</span>
+                  </h4>
+                  <div className="space-y-2.5">
+                    {Object.keys(monthlyReportData.incomeCategoryMap).length === 0 ? (
+                      <div className="text-center py-6 text-slate-400 text-xs font-medium">Bu ay için henüz tahsilat kaydı bulunmuyor.</div>
+                    ) : (
+                      Object.entries(monthlyReportData.incomeCategoryMap).map(([cat, amt]) => {
+                        const pct = monthlyReportData.sumInflow > 0 ? Math.round((amt / monthlyReportData.sumInflow) * 100) : 0;
+                        return (
+                          <div key={cat} className="space-y-1">
+                            <div className="flex justify-between items-center text-xs font-bold">
+                              <span className="text-slate-700 dark:text-gray-300">{cat}</span>
+                              <span className="font-mono text-emerald-600 dark:text-emerald-400">{formatCurrency(amt)} (%{pct})</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 dark:bg-brand-dark rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DEDICATED RESERVATION CUSTOM EXPENSE MANAGEMENT MODAL */}
           {customExpenseModalRes && (
             <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
               <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
@@ -17760,7 +17883,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       <ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /> {customExpenseModalRes.id} - {customExpenseModalRes.customerName}
                     </h3>
                   </div>
-                  <button onClick={() => setCustomExpenseModalRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center">✕</button>
+                  <button onClick={() => setCustomExpenseModalRes(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center hover:bg-slate-200">✕</button>
                 </div>
 
                 {/* ADD NEW EXPENSE FORM */}
@@ -17772,75 +17895,74 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   <div className="space-y-2">
                     <input
                       type="text"
-                      placeholder="Gider Açıklaması (Örn: Ekstra Orkestra Harcaması, Garson Mesai, Sürpriz Volkan)"
+                      placeholder="Gider Açıklaması (Örn: Ekstra Orkestra, Garson Mesai, Sürpriz Volkan)"
                       value={newResExpTitle}
                       onChange={e => setNewResExpTitle(e.target.value)}
                       required
-                      className="w-full bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100"
+                      className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-xs text-slate-800 dark:text-gray-100 font-medium"
                     />
 
                     <div className="grid grid-cols-2 gap-2">
-                      <select
-                        value={newResExpCategory}
-                        onChange={e => setNewResExpCategory(e.target.value)}
-                        className="bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100"
-                      >
-                        <option value="Personel & Yevmiye">Personel & Yevmiye</option>
-                        <option value="Catering & Malzeme">Catering & Malzeme</option>
-                        <option value="Dekorasyon & Çiçek">Dekorasyon & Çiçek</option>
-                        <option value="Lojistik & Ulaşım">Lojistik & Ulaşım</option>
-                        <option value="Sürpriz & Ekstra Şov">Sürpriz & Ekstra Şov</option>
-                        <option value="Diğer Harcama">Diğer Harcama</option>
-                      </select>
-
-                      <input
-                        type="number"
-                        placeholder="Miktar (TL)"
-                        value={newResExpAmount}
-                        onChange={e => setNewResExpAmount(e.target.value)}
-                        required
-                        className="bg-white dark:bg-brand-dark border border-amber-500/40 rounded-xl p-2 font-extrabold text-amber-700 dark:text-gold-400"
-                      />
+                      <div>
+                        <select
+                          value={newResExpCategory}
+                          onChange={e => setNewResExpCategory(e.target.value)}
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-xs text-slate-800 dark:text-gray-100 font-bold"
+                        >
+                          <option value="Personel & Yevmiye">Personel & Yevmiye</option>
+                          <option value="Dekorasyon & Çiçek">Dekorasyon & Çiçek</option>
+                          <option value="Ses, Sahne & Sanatçı">Ses, Sahne & Sanatçı</option>
+                          <option value="Mutfak & İkram">Mutfak & İkram</option>
+                          <option value="Fotoğraf & Video Ekstra">Fotoğraf & Video Ekstra</option>
+                          <option value="Diğer Özel Harcama">Diğer Özel Harcama</option>
+                        </select>
+                      </div>
+                      <div>
+                        <input
+                          type="number"
+                          placeholder="Tutar (TL)"
+                          value={newResExpAmount}
+                          onChange={e => setNewResExpAmount(e.target.value)}
+                          required
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-xs font-mono font-bold text-slate-800 dark:text-gray-100"
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    type="submit"
-                    className="w-full gold-button font-bold py-2 rounded-xl text-xs shadow flex items-center justify-center space-x-1"
-                  >
-                    <span>Kaydet & Ek Gider Hesabına Ekle ✓</span>
-                  </button>
+                    <button
+                      type="submit"
+                      className="w-full gold-button font-bold py-2 rounded-xl text-xs shadow-sm hover:scale-[1.01] transition"
+                    >
+                      + Bu Rezervasyona Gideri Ekle
+                    </button>
+                  </div>
                 </form>
 
-                {/* CURRENT CUSTOM EXPENSES LIST FOR THIS RESERVATION */}
-                <div className="space-y-2 text-xs">
-                  <span className="font-extrabold block text-slate-700 dark:text-gray-200">
-                    <ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /> Kayıtlı Özel Ek Giderler ({(customExpenseModalRes.customExpenses || []).length}):
+                {/* CURRENT CUSTOM EXPENSES LIST */}
+                <div className="space-y-2">
+                  <span className="font-extrabold text-xs block text-slate-700 dark:text-gray-300">
+                    Kayıtlı Özel Ek Giderler ({(customExpenseModalRes.customExpenses || []).length}):
                   </span>
-
                   {(!customExpenseModalRes.customExpenses || customExpenseModalRes.customExpenses.length === 0) ? (
-                    <div className="p-4 text-center text-slate-400 font-medium bg-slate-50 dark:bg-brand-dark rounded-xl border border-dashed">
-                      Bu rezervasyona henüz özel bir ek gider girilmemiş.
+                    <div className="text-center py-4 text-slate-400 text-xs border border-dashed rounded-xl border-slate-200 dark:border-brand-border">
+                      Bu rezervasyona ait özel ek harcama girilmemiş.
                     </div>
                   ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
                       {customExpenseModalRes.customExpenses.map(exp => (
-                        <div key={exp.id} className="p-3 bg-white dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border flex justify-between items-center shadow-xs">
+                        <div key={exp.id} className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-brand-dark rounded-xl border border-slate-200 dark:border-brand-border text-xs">
                           <div>
-                            <div className="font-bold text-slate-800 dark:text-gray-100">{exp.title}</div>
-                            <div className="text-[10px] text-slate-400 font-medium">{exp.category} • {formatDate(exp.date)}</div>
+                            <div className="font-bold text-slate-800 dark:text-gray-200">{exp.title}</div>
+                            <div className="text-[10px] text-slate-400">{exp.category}</div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className="font-mono font-extrabold text-red-600 dark:text-red-400 text-xs">
-                              -{formatCurrency(exp.amount)}
-                            </span>
+                            <span className="font-mono font-bold text-red-500">{formatCurrency(exp.amount)}</span>
                             <button
                               type="button"
                               onClick={() => handleDeleteCustomExpenseFromRes(exp.id)}
-                              className="text-red-500 hover:text-red-700 p-1 text-xs font-bold"
-                              title="Gider Kalemini Sil"
+                              className="text-red-500 hover:text-red-700 w-5 h-5 flex items-center justify-center rounded bg-red-500/10 hover:bg-red-500/20 text-xs"
                             >
-                              <ThemeIcon icon="trash" className="w-4 h-4 inline-block shrink-0" />
+                              ✕
                             </button>
                           </div>
                         </div>
@@ -17853,7 +17975,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   <button
                     type="button"
                     onClick={() => setCustomExpenseModalRes(null)}
-                    className="px-5 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl font-bold text-xs"
+                    className="px-5 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl font-bold text-xs cursor-pointer"
                   >
                     Kapat
                   </button>
@@ -17862,29 +17984,53 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             </div>
           )}
 
-          {/* GENERAL EXPENSE MODAL */}
+          {/* GENERAL CASHFLOW TRANSACTION MODAL (GELİR / GİDER SEÇİMLİ) */}
           {isModalOpen && (
             <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
               <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
                 <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                    <span><ThemeIcon icon="money" className="w-4 h-4 inline-block shrink-0" /></span>
-                    <span>Yeni Gider Kaydı Ekle</span>
+                    <span><ThemeIcon icon="money" className="w-5 h-5 inline-block shrink-0" /></span>
+                    <span>Yeni Kasa Hareketi Ekle</span>
                   </h3>
-                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">✕</button>
                 </div>
-                <form onSubmit={handleAddExpense} className="space-y-3 text-xs">
+
+                {/* TYPE SWITCHER: GELİR (+) vs GİDER (-) */}
+                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border">
+                  <button
+                    type="button"
+                    onClick={() => setTransType('gelir')}
+                    className={`py-2 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                      transType === 'gelir' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>+ Harici Gelir (+)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTransType('gider')}
+                    className={`py-2 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                      transType === 'gider' ? 'bg-red-600 text-white shadow-md' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>- Harici Gider (-)</span>
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddGeneralTransaction} className="space-y-3 text-xs">
                   <div>
-                    <label className="font-bold block mb-1">Harcama Başlığı:</label>
+                    <label className="font-bold block mb-1">Harcama / Gelir Açıklaması:</label>
                     <input
                       type="text"
                       value={newTitle}
                       onChange={e => setNewTitle(e.target.value)}
-                      placeholder="Örn: Garson Yevmiyeleri Ödemesi"
+                      placeholder={transType === 'gelir' ? 'Örn: Dış Fotoğraf Çekim Alanı Kiralama' : 'Örn: Temmuz Ayı Elektrik Faturası Ödemesi'}
                       required
                       className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
                     />
                   </div>
+
                   <div>
                     <label className="font-bold block mb-1">Kategori:</label>
                     <select
@@ -17892,58 +18038,68 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       onChange={e => setNewCategory(e.target.value)}
                       className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
                     >
-                      <option value="Faturalar & Enerji">💡 Faturalar & Enerji (Elektrik, Su, Doğalgaz, İnternet)</option>
-                      <option value="Yemek & Mutfak & İkram">🍽️ Yemek & Mutfak & İkram</option>
-                      <option value="Keyfi & Temsil Ağırlama">☕ Keyfi & Temsil Ağırlama Harcamaları</option>
-                      <option value="Personel & Yevmiye">👥 Personel & Yevmiye & Sanatçı</option>
-                      <option value="Dekorasyon & Çiçek">🌸 Dekorasyon, Çiçek & Süsleme</option>
-                      <option value="Ekipman & Bakım">🔊 Ekipman, Ses, Işık & Bakım Onarım</option>
-                      <option value="Ofis & Kırtasiye & Sarf">📑 Ofis, Muhasebe & Sarf Malzeme</option>
-                      <option value="Genel Harcama">📦 Diğer Genel İşletme Giderleri</option>
+                      {transType === 'gelir' ? (
+                        <>
+                          <option value="Dış Çekim & Plato">📷 Dış Çekim & Plato Kiralama Geliri</option>
+                          <option value="Kafeterya & Mutfak Satışı">☕ Kafeterya & Mutfak Günlük Satış</option>
+                          <option value="Ses & Işık Kiralama">🔊 Ses & Işık Ekipman Dış Kiralama</option>
+                          <option value="Sponsorluk & Reklam">🏷️ Sponsorluk & Reklam Geliri</option>
+                          <option value="Ekipman & Hurda Satışı">📦 Eski Ekipman / Hurda Satış Geliri</option>
+                          <option value="Muhtelif Gelir">💵 Diğer Muhtelif Kasa Geliri</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Faturalar & Enerji">💡 Faturalar & Enerji (Elektrik, Su, Doğalgaz, Fiber İnternet)</option>
+                          <option value="Yemek & Mutfak & İkram">🍽️ Yemek & Mutfak & İkram Alımları</option>
+                          <option value="Keyfi & Temsil Ağırlama">☕ Keyfi & Temsil Ağırlama (Kahve, Yemek vb.)</option>
+                          <option value="Personel & Yevmiye">👥 Personel Maaş, Yevmiye & SGK</option>
+                          <option value="Dekorasyon & Çiçek">🌸 Dekorasyon, Çiçek & Sahne Süsleme</option>
+                          <option value="Ekipman & Bakım">🔊 Ekipman, Ses, Işık & Bakım Onarım</option>
+                          <option value="Ofis & Kırtasiye & Sarf">📑 Ofis, Kırtasiye & Sarf Malzeme</option>
+                          <option value="Vergi & Muhasebe">⚖️ Vergi, Harç & Muhasebe Ödemeleri</option>
+                          <option value="Genel Harcama">📦 Diğer Genel İşletme Giderleri</option>
+                        </>
+                      )}
                     </select>
                   </div>
-                  <div>
-                    <label className="font-bold block mb-1">Tutar (TL):</label>
-                    <input
-                      type="number"
-                      value={newAmount}
-                      onChange={e => setNewAmount(e.target.value)}
-                      placeholder="0"
-                      required
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
-                    />
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="font-bold block mb-1">Tutar (TL):</label>
+                      <input
+                        type="number"
+                        value={newAmount}
+                        onChange={e => setNewAmount(e.target.value)}
+                        placeholder="0"
+                        required
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1">İşlem Tarihi:</label>
+                      <input
+                        type="date"
+                        value={newDate}
+                        onChange={e => setNewDate(e.target.value)}
+                        required
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="font-bold block mb-1">Tarih:</label>
-                    <input
-                      type="date"
-                      value={newDate}
-                      onChange={e => setNewDate(e.target.value)}
-                      required
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold block mb-1">Ödeme Durumu:</label>
-                    <select
-                      value={newStatus}
-                      onChange={e => setNewStatus(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
-                    >
-                      <option value="Ödendi">Ödendi</option>
-                      <option value="Bekliyor">Bekliyor</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-brand-border">
+
+                  <div className="pt-2 flex justify-end space-x-2 border-t border-slate-200 dark:border-brand-border">
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold"
+                      className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl font-bold cursor-pointer"
                     >
                       İptal
                     </button>
-                    <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">
-                      Gider Kaydet ✓
+                    <button
+                      type="submit"
+                      className={`font-bold px-5 py-2 rounded-xl text-white shadow cursor-pointer ${transType === 'gelir' ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-red-600 hover:bg-red-500'}`}
+                    >
+                      {transType === 'gelir' ? '+ Geliri Kaydet' : '- Gideri Kaydet'}
                     </button>
                   </div>
                 </form>
@@ -21345,36 +21501,271 @@ function RolesPageComponent({ activeRole, roles, users = [], tabPermissions, onA
       );
     }
 
-// --- RESERVATION DETAIL MODAL ---
+// --- RESERVATION DETAIL & MULTI-PAYMENT MODAL ---
     function ReservationDetailModal({ res, venues = [], services = [], onClose, onPrintInvoice, onUpdatePayment, onShowEmail, onEditReservation }) {
       if (!res) return null;
       const venue = (venues || []).find(v => v.id === res.venueId);
-      const [deposit, setDeposit] = useState(res.depositPaid || 0);
-      const [status, setStatus] = useState(res.paymentStatus || 'Bekliyor');
+      const [payments, setPayments] = useState(Array.isArray(res.payments) ? res.payments : []);
+      const [isAddingPayment, setIsAddingPayment] = useState(false);
+      const [payAmount, setPayAmount] = useState('');
+      const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
+      const [payMethod, setPayMethod] = useState('Banka Havalesi & EFT');
+      const [payType, setPayType] = useState('Kısmi Ara Ödeme');
+      const [payNote, setPayNote] = useState('');
+      const [payReceipt, setPayReceipt] = useState('');
+      const [isSubmitting, setIsSubmitting] = useState(false);
+
+      const totalAmount = Number(res.totalAmount || 0);
+      const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const remainingBalance = Math.max(0, totalAmount - totalPaid);
+      const paymentPercent = totalAmount > 0 ? Math.min(100, Math.round((totalPaid / totalAmount) * 100)) : 0;
+
+      const handleAddPaymentSubmit = async (e) => {
+        e.preventDefault();
+        if (!payAmount || Number(payAmount) <= 0) return;
+        setIsSubmitting(true);
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn(`/api/reservations/${res.id}/payments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount: Number(payAmount),
+              date: payDate,
+              method: payMethod,
+              type: payType,
+              note: payNote,
+              receiptNo: payReceipt,
+              recordedBy: 'Yetkili Yönetici'
+            })
+          });
+          const data = await resp.json();
+          if (data.success && data.payments) {
+            setPayments(data.payments);
+            setPayAmount('');
+            setPayNote('');
+            setPayReceipt('');
+            setIsAddingPayment(false);
+            if (onUpdatePayment) {
+              onUpdatePayment(res.id, data.depositPaid, data.paymentStatus, data.payments);
+            }
+          }
+        } catch(err) {
+          console.error('Payment submit error:', err);
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+
+      const handleDeletePayment = async (paymentId) => {
+        if (!confirm('Bu tahsilat kaydını silmek istediğinize emin misiniz?')) return;
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn(`/api/reservations/${res.id}/payments/${paymentId}`, {
+            method: 'DELETE'
+          });
+          const data = await resp.json();
+          if (data.success && data.payments) {
+            setPayments(data.payments);
+            if (onUpdatePayment) {
+              onUpdatePayment(res.id, data.depositPaid, data.paymentStatus, data.payments);
+            }
+          }
+        } catch(err) {
+          console.error('Payment delete error:', err);
+        }
+      };
 
       return (
         <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar my-auto shadow-2xl">
+          <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar my-auto shadow-2xl">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-brand-border pb-3">
               <div>
                 <span className="font-mono text-amber-700 dark:text-gold-400 font-bold text-xs">{res.id}</span>
-                <h3 id="modal-title" className="text-lg font-bold text-slate-800 dark:text-gray-100">{res.customerName}</h3>
+                <h3 id="modal-title" className="text-xl font-heading font-extrabold text-slate-900 dark:text-white">{res.customerName}</h3>
               </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white" aria-label="Modalı Kapat">✕</button>
+              <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 font-bold flex items-center justify-center hover:bg-slate-200" aria-label="Modalı Kapat">✕</button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Salon</div><div className="font-bold text-slate-800 dark:text-gray-200">{venue?.name || '-'}</div></div>
-              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Tarih</div><div className="font-bold text-slate-800 dark:text-gray-200">{formatDate(res.date)} ({res.timeSlot})</div></div>
-              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Toplam Tutar</div><div className="font-bold text-amber-700 dark:text-gold-400">{formatCurrency(res.totalAmount)}</div></div>
-              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-xl border border-slate-200 dark:border-brand-border"><div>Kalan Bakiye</div><div className="font-bold text-red-500 dark:text-red-400">{formatCurrency(Math.max(0, res.totalAmount - deposit))}</div></div>
+            {/* QUICK STATS 4-GRID */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                <div className="text-slate-500 text-[10px] font-bold">Salon</div>
+                <div className="font-extrabold text-slate-800 dark:text-gray-200 truncate">{venue?.name || '-'}</div>
+              </div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                <div className="text-slate-500 text-[10px] font-bold">Tarih & Saat</div>
+                <div className="font-extrabold text-slate-800 dark:text-gray-200">{formatDate(res.date || res.eventDate)}</div>
+              </div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                <div className="text-slate-500 text-[10px] font-bold">Sözleşme Tutarı</div>
+                <div className="font-extrabold text-amber-700 dark:text-gold-400">{formatCurrency(totalAmount)}</div>
+              </div>
+              <div className="bg-slate-50 dark:bg-brand-dark p-3 rounded-2xl border border-slate-200 dark:border-brand-border">
+                <div className="text-slate-500 text-[10px] font-bold">Kalan Bakiye</div>
+                <div className="font-extrabold text-red-500 dark:text-red-400">{formatCurrency(remainingBalance)}</div>
+              </div>
+            </div>
+
+            {/* LIVE PAYMENT PROGRESS BAR */}
+            <div className="bg-amber-500/10 dark:bg-brand-dark p-3.5 rounded-2xl border border-amber-500/30 space-y-2">
+              <div className="flex justify-between items-center text-xs font-bold">
+                <span className="text-slate-700 dark:text-gray-300 flex items-center space-x-1.5">
+                  <span>💳 Tahsilat Durumu:</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${remainingBalance === 0 ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-950'}`}>
+                    {remainingBalance === 0 ? 'Tamamı Ödendi' : totalPaid > 0 ? 'Kısmi Ödeme Alındı' : 'Ödeme Bekliyor'}
+                  </span>
+                </span>
+                <span className="font-mono text-amber-700 dark:text-gold-400 font-extrabold">
+                  {formatCurrency(totalPaid)} / {formatCurrency(totalAmount)} (%{paymentPercent})
+                </span>
+              </div>
+              <div className="w-full h-2.5 bg-slate-200 dark:bg-brand-border/60 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-500" style={{ width: `${paymentPercent}%` }}></div>
+              </div>
+            </div>
+
+            {/* PARÇALI TAHSİLAT HAREKETLERİ LİSTESİ & EKLEME */}
+            <div className="bg-slate-50 dark:bg-brand-dark p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-3">
+              <div className="flex justify-between items-center">
+                <h4 className="font-extrabold text-xs text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                  <ThemeIcon icon="money" className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Tahsilat & Ödeme Hareketleri ({payments.length})</span>
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingPayment(!isAddingPayment)}
+                  className="px-3 py-1.5 gold-button font-bold text-[11px] rounded-xl shadow cursor-pointer flex items-center space-x-1"
+                >
+                  <span>{isAddingPayment ? '✕ Vazgeç' : '+ Yeni Tahsilat Ekle'}</span>
+                </button>
+              </div>
+
+              {/* YENİ TAHSİLAT FORMU */}
+              {isAddingPayment && (
+                <form onSubmit={handleAddPaymentSubmit} className="p-3.5 bg-white dark:bg-brand-card rounded-2xl border border-amber-500/40 space-y-3 text-xs animate-fade-in">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-600 dark:text-gray-300">Tahsilat Tutarı (TL):</label>
+                      <input
+                        type="number"
+                        placeholder="Örn: 25000"
+                        value={payAmount}
+                        onChange={e => setPayAmount(e.target.value)}
+                        required
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-600 dark:text-gray-300">Ödeme Tarihi:</label>
+                      <input
+                        type="date"
+                        value={payDate}
+                        onChange={e => setPayDate(e.target.value)}
+                        required
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-600 dark:text-gray-300">Ödeme Türü:</label>
+                      <select
+                        value={payType}
+                        onChange={e => setPayType(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100"
+                      >
+                        <option value="İlk Kapora">İlk Kapora (Sözleşme İmzası)</option>
+                        <option value="Kısmi Ara Ödeme">Kısmi Ara Ödeme (Taksit)</option>
+                        <option value="Kalan Bakiye Kapatma">Kalan Bakiye Kapatma (Düğün Günü)</option>
+                        <option value="Ekstra Hizmet Tahsilatı">Ekstra Hizmet Tahsilatı</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-600 dark:text-gray-300">Ödeme Yöntemi:</label>
+                      <select
+                        value={payMethod}
+                        onChange={e => setPayMethod(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100"
+                      >
+                        <option value="Banka Havalesi & EFT">Banka Havalesi & EFT</option>
+                        <option value="Nakit Elden">Nakit (Elden Kasa)</option>
+                        <option value="Kredi Kartı / POS">Kredi Kartı / POS</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-600 dark:text-gray-300">Dekont / Makbuz No (Opsiyonel):</label>
+                      <input
+                        type="text"
+                        placeholder="Örn: DEK-2026-8849"
+                        value={payReceipt}
+                        onChange={e => setPayReceipt(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-slate-800 dark:text-gray-100 font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-600 dark:text-gray-300">Açıklama / Not:</label>
+                      <input
+                        type="text"
+                        placeholder="Örn: Damat bey bankadan havale yaptı"
+                        value={payNote}
+                        onChange={e => setPayNote(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2 text-slate-800 dark:text-gray-100 font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-2 pt-1">
+                    <button type="button" onClick={() => setIsAddingPayment(false)} className="px-3 py-1.5 bg-slate-100 dark:bg-brand-dark text-slate-600 rounded-xl font-bold">İptal</button>
+                    <button type="submit" disabled={isSubmitting} className="gold-button font-bold px-4 py-1.5 rounded-xl shadow cursor-pointer">
+                      {isSubmitting ? 'Kaydediliyor...' : '✓ Tahsilatı Kaydet'}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* PAYMENTS HISTORY TABLE */}
+              <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
+                {payments.length === 0 ? (
+                  <div className="text-center py-4 text-slate-400 font-medium text-xs bg-white dark:bg-brand-card rounded-xl border border-dashed border-slate-200 dark:border-brand-border">
+                    Henüz kayıtlı bir tahsilat veya kapora bulunmuyor.
+                  </div>
+                ) : (
+                  payments.map(p => (
+                    <div key={p.id} className="p-2.5 bg-white dark:bg-brand-card rounded-xl border border-slate-200/80 dark:border-brand-border flex items-center justify-between text-xs hover:border-amber-400 transition">
+                      <div className="flex items-center space-x-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 font-bold flex items-center justify-center text-sm">₺</div>
+                        <div>
+                          <div className="font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-1.5">
+                            <span>{p.type || 'Tahsilat'}</span>
+                            <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 dark:bg-brand-dark rounded text-slate-500 font-medium">{p.method}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {formatDate(p.date)} {p.receiptNo ? `• No: ${p.receiptNo}` : ''} {p.note ? `• "${p.note}"` : ''}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span className="font-mono text-sm font-extrabold text-emerald-600 dark:text-emerald-400">+{formatCurrency(p.amount)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePayment(p.id)}
+                          className="w-6 h-6 rounded-md bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center transition cursor-pointer text-xs"
+                          title="Tahsilatı Sil"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
 
             {/* FLOW PLAN PREVIEW */}
             {res.flowPlan && res.flowPlan.length > 0 && (
-              <div className="bg-slate-50 dark:bg-brand-dark/70 p-3 rounded-xl border border-slate-200 dark:border-brand-border space-y-2 text-xs">
+              <div className="bg-slate-50 dark:bg-brand-dark/70 p-3 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2 text-xs">
                 <h4 className="font-bold text-amber-700 dark:text-gold-400"><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /> Etkinlik Akış Planlaması ({res.flowPlan.length} Adım):</h4>
-                <div className="space-y-1 max-h-28 overflow-y-auto">
+                <div className="space-y-1 max-h-24 overflow-y-auto">
                   {res.flowPlan.map((fp, idx) => (
                     <div key={idx} className="flex justify-between items-center text-[11px] bg-white dark:bg-brand-card p-1.5 rounded border border-slate-200/60 dark:border-brand-border/40">
                       <span className="font-mono font-bold text-amber-700 dark:text-gold-300">{fp.time}</span>
@@ -21385,33 +21776,15 @@ function RolesPageComponent({ activeRole, roles, users = [], tabPermissions, onA
               </div>
             )}
 
-            <div className="bg-slate-50 dark:bg-brand-dark/70 p-4 rounded-xl border border-amber-500/30 space-y-3">
-              <h4 className="font-bold text-xs text-amber-700 dark:text-gold-400"><ThemeIcon icon="card" className="w-4 h-4 inline-block shrink-0" /> Ödeme ve Kapora Güncelleme</h4>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <label htmlFor="deposit-input" className="text-slate-500 dark:text-gray-400 block mb-1">Tahsil Edilen Kapora (TL):</label>
-                  <input id="deposit-input" type="number" value={deposit} onChange={e => setDeposit(Number(e.target.value))} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200 font-bold" />
-                </div>
-                <div>
-                  <label htmlFor="status-select" className="text-slate-500 dark:text-gray-400 block mb-1">Ödeme Statüsü:</label>
-                  <select id="status-select" value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-lg p-2 text-slate-800 dark:text-gray-200 font-bold">
-                    <option value="Bekliyor">Bekliyor</option>
-                    <option value="Kapora Alındı">Kapora Alındı</option>
-                    <option value="Ödendi">Ödendi</option>
-                    <option value="Tamamlandı">Tamamlandı</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
+            {/* BOTTOM ACTIONS */}
             <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-brand-border gap-2 flex-wrap">
               <div className="flex space-x-2">
-                <button onClick={onPrintInvoice} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
-                  <span><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /></span><span>Yazdır</span>
+                <button onClick={onPrintInvoice} className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow cursor-pointer">
+                  <span><ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /></span><span>Sözleşme Yazdır</span>
                 </button>
                 {onShowEmail && (
-                  <button onClick={() => onShowEmail(res)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow">
-                    <span><ThemeIcon icon="email" className="w-4 h-4 inline-block shrink-0" /></span><span>E-Posta Önizle</span>
+                  <button onClick={() => onShowEmail(res)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow cursor-pointer">
+                    <span><ThemeIcon icon="email" className="w-4 h-4 inline-block shrink-0" /></span><span>E-Posta Gönder</span>
                   </button>
                 )}
                 {onEditReservation && (
@@ -21420,7 +21793,7 @@ function RolesPageComponent({ activeRole, roles, users = [], tabPermissions, onA
                       onClose();
                       onEditReservation(res);
                     }}
-                    className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow"
+                    className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl text-xs inline-flex items-center space-x-1 shadow cursor-pointer"
                   >
                     <span><ThemeIcon icon="edit" className="w-4 h-4 inline-block shrink-0" /></span><span>Düzenle</span>
                   </button>
@@ -21428,8 +21801,7 @@ function RolesPageComponent({ activeRole, roles, users = [], tabPermissions, onA
               </div>
 
               <div className="flex space-x-2">
-                <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl text-xs font-bold">Kapat</button>
-                <button onClick={() => onUpdatePayment(res.id, deposit, status)} className="gold-button font-bold px-5 py-2 rounded-xl text-xs">Ödemeyi Güncelle</button>
+                <button onClick={onClose} className="px-5 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl text-xs font-bold cursor-pointer">Kapat</button>
               </div>
             </div>
           </div>
