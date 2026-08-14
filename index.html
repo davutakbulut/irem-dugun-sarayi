@@ -1382,11 +1382,12 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {/* Mobile Horizontal Carousel / Desktop 3-col Grid */}
+                    <div className="flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 pt-1 px-4 -mx-4 sm:mx-0 sm:px-0 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:space-x-0 md:pb-0">
                       {SERVICES.map((srv) => (
                         <div 
                           key={srv.id}
-                          className="bg-white rounded-sm overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#E3D3B5] transition-all duration-300 group flex flex-col"
+                          className="w-[82vw] sm:w-[360px] md:w-auto shrink-0 snap-center bg-white rounded-sm overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#E3D3B5] transition-all duration-300 group flex flex-col"
                         >
                           <div className="relative h-48 overflow-hidden">
                             <img 
@@ -1408,7 +1409,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                                 setQuoteForm(prev => ({ ...prev, eventType: srv.title }));
                                 setIsQuoteModalOpen(true);
                               }}
-                              className="w-full py-2.5 rounded-sm border border-[#E3D3B5] text-[#8C6D33] hover:bg-[#FAF6EE] font-bold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-1.5 group-hover:border-[#C5A059]"
+                              className="w-full py-2.5 rounded-sm border border-[#E3D3B5] text-[#8C6D33] hover:bg-[#FAF6EE] font-bold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-1.5 group-hover:border-[#C5A059] cursor-pointer"
                             >
                               <span>Hemen Teklif Al</span>
                               <Icon name="arrowRight" className="w-3.5 h-3.5" />
@@ -1416,6 +1417,13 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                           </div>
                         </div>
                       ))}
+                    </div>
+
+                    {/* Mobile Horizontal Scroll Indicator Hint */}
+                    <div className="md:hidden flex items-center justify-center space-x-2 mt-4 text-[11px] font-bold text-[#8C6D33] bg-[#FAF6EE] py-1.5 px-4 rounded-full border border-[#E3D3B5] w-fit mx-auto shadow-xs">
+                      <span>←</span>
+                      <span>Diğer hizmetler için parmağınızla kaydırın</span>
+                      <span>→</span>
                     </div>
                   </div>
                 </section>
@@ -2217,56 +2225,68 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     </p>
                   </div>
 
-                  {/* 6 Event Cards Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {SERVICES.map((s) => (
-                      <div key={s.id} className="bg-white rounded-sm border border-slate-200 shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden flex flex-col group">
-                        <div className="relative h-56 overflow-hidden bg-slate-950">
-                          <img 
-                            src={s.image} 
-                            alt={s.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
-                          <div className="absolute bottom-3 left-4 right-4 text-white">
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-200">İrem Davet & Balo</span>
-                            <h3 className="font-extrabold text-xl text-white leading-tight">{s.title}</h3>
-                          </div>
-                        </div>
-
-                        <div className="p-6 space-y-4 flex-1 flex flex-col justify-between bg-white">
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                            {s.desc}
-                          </p>
-
-                          <div className="space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
-                            <div className="flex items-center space-x-2">
-                              <Icon name="check" className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
-                              <span>Özel Konsept Masa & Şamdan Süslemesi</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Icon name="check" className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
-                              <span>Profesyonel Ses, Işık & Canlı Orkestra</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Icon name="check" className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
-                              <span>Usta Şef Menüleri & Düğün Pastası</span>
+                  {/* 6 Event Cards Grid / Mobile Horizontal Swipe Carousel */}
+                  <div>
+                    <div className="flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 pt-1 px-4 -mx-4 sm:mx-0 sm:px-0 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:space-x-0 md:pb-0">
+                      {SERVICES.map((s) => (
+                        <div 
+                          key={s.id} 
+                          className="w-[85vw] sm:w-[380px] md:w-auto shrink-0 snap-center bg-white rounded-sm border border-slate-200 shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden flex flex-col group"
+                        >
+                          <div className="relative h-56 overflow-hidden bg-slate-950">
+                            <img 
+                              src={s.image} 
+                              alt={s.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                            <div className="absolute bottom-3 left-4 right-4 text-white">
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-200">İrem Davet & Balo</span>
+                              <h3 className="font-extrabold text-xl text-white leading-tight">{s.title}</h3>
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              setQuoteForm(prev => ({ ...prev, eventType: s.title }));
-                              setIsQuoteModalOpen(true);
-                            }}
-                            className="w-full py-3 rounded-sm btn-luxe-gold font-extrabold text-xs uppercase tracking-wider shadow-md cursor-pointer flex items-center justify-center space-x-2"
-                          >
-                            <Icon name="sparkles" className="w-3.5 h-3.5" />
-                            <span>Bu Etkinlik İçin Fiyat Al</span>
-                          </button>
+                          <div className="p-6 space-y-4 flex-1 flex flex-col justify-between bg-white">
+                            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                              {s.desc}
+                            </p>
+
+                            <div className="space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                              <div className="flex items-center space-x-2">
+                                <Icon name="check" className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
+                                <span>Özel Konsept Masa & Şamdan Süslemesi</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Icon name="check" className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
+                                <span>Profesyonel Ses, Işık & Canlı Orkestra</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Icon name="check" className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
+                                <span>Usta Şef Menüleri & Düğün Pastası</span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setQuoteForm(prev => ({ ...prev, eventType: s.title }));
+                                setIsQuoteModalOpen(true);
+                              }}
+                              className="w-full py-3 rounded-sm btn-luxe-gold font-extrabold text-xs uppercase tracking-wider shadow-md cursor-pointer flex items-center justify-center space-x-2"
+                            >
+                              <Icon name="sparkles" className="w-3.5 h-3.5" />
+                              <span>Bu Etkinlik İçin Fiyat Al</span>
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+
+                    {/* Mobile Horizontal Scroll Indicator */}
+                    <div className="md:hidden flex items-center justify-center space-x-2 mt-4 text-[11px] font-bold text-[#8C6D33] bg-[#FAF6EE] py-1.5 px-4 rounded-full border border-[#E3D3B5] w-fit mx-auto shadow-xs">
+                      <span>←</span>
+                      <span>Diğer paketleri görmek için kaydırın</span>
+                      <span>→</span>
+                    </div>
                   </div>
 
                   {/* VIP Package Comparison Table */}
