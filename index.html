@@ -192,44 +192,48 @@
     };
 
     // --- DATA CONSTANTS ---
-    const VENUES = [
-      {
-        id: 'v-kraliyet',
-        name: 'Kraliyet Balo Salonu',
-        subtitle: 'Lüks & Kristal İhtişamı',
-        capacity: '750 Kişilik VIP',
-        area: '1.200 m²',
-        image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
-        features: ['Kristal Avizeler', 'Geniş Dans Pisti', 'Özel VIP Gelin Odası', 'Lazer & Işık Şovu']
-      },
-      {
-        id: 'v-kir-bahcesi',
-        name: 'Göl Kır Bahçesi & Açık Hava',
-        subtitle: 'Doğa & Masalsı Gün Batımı',
-        capacity: '1.000 Kişilik Açık Alan',
-        area: '3.500 m²',
-        image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80',
-        features: ['Panoramik Göl Manzarası', 'Ahşap İskele & Nikah Alanı', 'Botanik Peyzaj', 'Özel Işıklandırma']
-      },
-      {
-        id: 'v-safir',
-        name: 'Safir VIP Balo Salonu',
-        subtitle: 'Modern & Şık Akustik Mimari',
-        capacity: '450 Kişilik',
-        area: '800 m²',
-        image: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80',
-        features: ['LED Sahne Ekranı', 'Akustik Ses İzolasyonu', 'Modern Masa Dizaynı', 'İklimlendirme']
-      },
-      {
-        id: 'v-teras',
-        name: 'Göl Terası Butik Salon',
-        subtitle: 'Zarif & Samimi Kutlamalar',
-        capacity: '250 Kişilik',
-        area: '500 m²',
-        image: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80',
-        features: ['Göl Üstü Açık Teras', 'Kokteyl & Nikah Düzeni', 'Panoramik Cam Cephe', 'Özel Bar Alanı']
-      }
-    ];
+    const MAIN_VENUE = {
+      id: 'v-kraliyet',
+      name: 'İrem Kraliyet Balo Salonu',
+      badge: 'Ana Saray Balo Salonumuz',
+      subtitle: 'Sapanca Gölü Kıyısında Lüks & Kristal İhtişamı',
+      capacity: '750 Kişilik VIP',
+      area: '1.200 m²',
+      ceiling: '8.5m Yüksek Tavan',
+      parking: '500 Araç Ücretsiz Otopark',
+      location: 'Sapanca Göl Kenarı, Sakarya',
+      photos: [
+        {
+          url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+          title: 'Ana Balo & Kristal Salon'
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80',
+          title: 'Göl Manzaralı Fuaye & Bahçe'
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80',
+          title: 'VIP Sahne & Dans Pisti'
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=1200&q=80',
+          title: 'Özel Masa & Şamdan Konsepti'
+        }
+      ],
+      features: [
+        'Panoramik Sapanca Gölü & Doğa Manzarası',
+        'Geniş & Ferah Dans Pisti & Sahne Düzeni',
+        'Özel VIP Gelin Süiti & Dinlenme Odası',
+        'Son Teknoloji Ses, Işık & Lazer Robotları',
+        'Kristal Avizeli & Led Işıklı İhtişamlı Tavan',
+        'Merkezi İklimlendirme & Havalandırma Sistemi',
+        'Usta Şeflerden Sıcak Gurme Düğün Menüleri',
+        'Kişiye Özel Düğün Koordinatörü & Vale Desteği'
+      ],
+      description: "Sapanca Gölü'nün eşsiz manzarasına hakim, 8.5 metre tavan yüksekliği, kristal avizeleri ve son teknoloji lazer-ışık donanımlarıyla tasarlanmış ana saray balo salonumuzda hayatınızın en görkemli düğününü yaşayın."
+    };
+
+    const VENUES = [MAIN_VENUE];
 
     const SERVICES = [
       {
@@ -418,6 +422,7 @@
       const [activeVideoModal, setActiveVideoModal] = useState(null);
       const [activeMenuTab, setActiveMenuTab] = useState('m1');
       const [activeHall360, setActiveHall360] = useState('kraliyet');
+      const [activeVenuePhoto, setActiveVenuePhoto] = useState(0);
 
       // Scroll listener for sticky transparent-to-white header
       useEffect(() => {
@@ -812,86 +817,201 @@
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.4 MEKAN TANITIM KARTLARI (MEKANLARIMIZ)                           */}
                 {/* ------------------------------------------------------------------- */}
+                {/* ------------------------------------------------------------------- */}
+                {/* 2.4 MEKAN TANITIM KARTI (TEK SALON İÇİN ÖZEL LÜKS VİTRİN KARTI)     */}
+                {/* ------------------------------------------------------------------- */}
                 <section className="py-20 bg-white">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                    
+                    {/* Section Header */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                       <div>
-                        <span className="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full">
-                          Ayrıcalıklı Salonlar
+                        <span className="text-amber-600 font-bold text-xs uppercase tracking-widest bg-amber-50 border border-amber-200/60 px-3.5 py-1 rounded-full inline-flex items-center space-x-1.5">
+                          <Icon name="crown" className="w-3.5 h-3.5 text-amber-600" />
+                          <span>Özel Saray Salonumuz</span>
                         </span>
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-2">
-                          Mekanlarımız & Balo Salonları
+                          Mekanımız & Kraliyet Balo Salonu
                         </h2>
+                        <p className="text-slate-600 text-xs sm:text-sm mt-1">
+                          Sapanca Gölü kıyısında, kristal avizeleri ve son teknoloji donanımlarıyla büyüleyici bir düğün deneyimi.
+                        </p>
                       </div>
                       <button
-                        onClick={() => setCurrentTab('virtual-tour')}
-                        className="text-amber-600 hover:text-amber-700 font-bold text-sm inline-flex items-center space-x-1"
+                        onClick={() => {
+                          setActiveHall360('kraliyet');
+                          setCurrentTab('virtual-tour');
+                        }}
+                        className="text-amber-600 hover:text-amber-700 font-bold text-sm inline-flex items-center space-x-1.5 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-xl transition border border-amber-200/60"
                       >
-                        <span>360° Tüm Salonları İncele</span>
+                        <Icon name="panorama" className="w-4 h-4 text-amber-600" />
+                        <span>360° Sanal Turu Başlat</span>
                         <Icon name="arrowRight" className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      {VENUES.map((venue) => (
-                        <div 
-                          key={venue.id}
-                          className="bg-white rounded-3xl border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col"
-                        >
-                          <div className="relative h-64 overflow-hidden">
+                    {/* Grand Single Venue Showcase Card */}
+                    <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+                        
+                        {/* Left Side: Interactive Photo Gallery Showcase (7 Cols) */}
+                        <div className="lg:col-span-7 bg-slate-950 flex flex-col justify-between relative group">
+                          {/* Main Featured Photo */}
+                          <div className="relative h-80 sm:h-96 md:h-[460px] overflow-hidden">
                             <img 
-                              src={venue.image} 
-                              alt={venue.name} 
-                              className="w-full h-full object-cover hover:scale-105 transition duration-500"
+                              src={MAIN_VENUE.photos[activeVenuePhoto]?.url || MAIN_VENUE.photos[0].url} 
+                              alt={MAIN_VENUE.photos[activeVenuePhoto]?.title || MAIN_VENUE.name} 
+                              className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
                             />
-                            <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md text-amber-400 px-3 py-1 rounded-full text-xs font-bold">
-                              {venue.capacity}
+                            
+                            {/* Badges Overlay */}
+                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                              <span className="bg-amber-600 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-md backdrop-blur-md flex items-center space-x-1">
+                                <Icon name="crown" className="w-3.5 h-3.5" />
+                                <span>{MAIN_VENUE.badge}</span>
+                              </span>
+                              <span className="bg-black/60 backdrop-blur-md text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-400/30">
+                                📍 {MAIN_VENUE.location}
+                              </span>
                             </div>
-                            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md text-slate-900 px-3 py-1 rounded-lg text-xs font-extrabold">
-                              {venue.area}
-                            </div>
-                          </div>
 
-                          <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                            <div>
-                              <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">{venue.subtitle}</div>
-                              <h3 className="text-xl font-extrabold text-slate-900 mt-1">{venue.name}</h3>
-                              
-                              <div className="grid grid-cols-2 gap-2 mt-4">
-                                {venue.features.map((feat, fi) => (
-                                  <div key={fi} className="flex items-center space-x-1.5 text-xs text-slate-600">
-                                    <Icon name="check" className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                    <span>{feat}</span>
-                                  </div>
-                                ))}
+                            {/* 360° Virtual Tour Quick Trigger */}
+                            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                              <div className="bg-black/70 backdrop-blur-md text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold">
+                                📸 {MAIN_VENUE.photos[activeVenuePhoto]?.title}
                               </div>
-                            </div>
 
-                            <div className="pt-4 flex items-center gap-3 border-t border-slate-100">
                               <button
                                 onClick={() => {
-                                  setActiveHall360(venue.id.replace('v-', ''));
+                                  setActiveHall360('kraliyet');
                                   setCurrentTab('virtual-tour');
                                 }}
-                                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center justify-center space-x-1"
+                                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl shadow-lg backdrop-blur-md transition flex items-center space-x-1.5 hover:scale-105 active:scale-95"
                               >
-                                <Icon name="panorama" className="w-3.5 h-3.5 text-amber-600" />
-                                <span>360° Tur</span>
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setQuoteForm(prev => ({ ...prev, venue: venue.name }));
-                                  setIsQuoteModalOpen(true);
-                                }}
-                                className="flex-1 py-2.5 rounded-xl gold-btn font-bold text-xs shadow-sm flex items-center justify-center space-x-1"
-                              >
-                                <span>Teklif İste</span>
+                                <Icon name="panorama" className="w-4 h-4" />
+                                <span>360° Salonda Gezin</span>
                               </button>
                             </div>
                           </div>
+
+                          {/* Photo Selector Thumbnail Strip */}
+                          <div className="p-3 bg-slate-900 border-t border-slate-800 grid grid-cols-4 gap-2">
+                            {MAIN_VENUE.photos.map((p, pIdx) => (
+                              <button
+                                key={pIdx}
+                                onClick={() => setActiveVenuePhoto(pIdx)}
+                                className={`relative rounded-xl overflow-hidden h-16 sm:h-20 transition border-2 text-left ${
+                                  activeVenuePhoto === pIdx 
+                                    ? 'border-amber-400 ring-2 ring-amber-400/40 opacity-100 scale-102' 
+                                    : 'border-transparent opacity-60 hover:opacity-100'
+                                }`}
+                              >
+                                <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
+                                  <span className="text-[9px] sm:text-[10px] text-white font-bold truncate leading-tight">
+                                    {p.title}
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      ))}
+
+                        {/* Right Side: Venue Specifications, Features & CTAs (5 Cols) */}
+                        <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between space-y-6 bg-white">
+                          
+                          {/* Heading & Subtitle */}
+                          <div className="space-y-2">
+                            <div className="text-xs font-bold text-amber-600 uppercase tracking-widest flex items-center space-x-1.5">
+                              <span>{MAIN_VENUE.subtitle}</span>
+                            </div>
+                            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                              {MAIN_VENUE.name}
+                            </h3>
+                            <p className="text-slate-600 text-xs sm:text-[13px] leading-relaxed pt-1">
+                              {MAIN_VENUE.description}
+                            </p>
+                          </div>
+
+                          {/* 4 Core Quick Spec Badges */}
+                          <div className="grid grid-cols-2 gap-2.5">
+                            <div className="p-3 rounded-2xl bg-amber-50/60 border border-amber-100 space-y-0.5">
+                              <div className="text-[10px] text-amber-700 font-extrabold uppercase">Kapasite</div>
+                              <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.capacity}</div>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                              <div className="text-[10px] text-slate-500 font-extrabold uppercase">Kullanım Alanı</div>
+                              <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.area}</div>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                              <div className="text-[10px] text-slate-500 font-extrabold uppercase">Tavan Yüksekliği</div>
+                              <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.ceiling}</div>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                              <div className="text-[10px] text-slate-500 font-extrabold uppercase">Otopark & Vale</div>
+                              <div className="font-extrabold text-sm text-slate-900">{MAIN_VENUE.parking}</div>
+                            </div>
+                          </div>
+
+                          {/* Feature Checkmarks List */}
+                          <div className="space-y-2 border-t border-slate-100 pt-4">
+                            <div className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+                              Salon Ayrıcalıkları & Hizmetler
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                              {MAIN_VENUE.features.map((feat, fi) => (
+                                <div key={fi} className="flex items-start space-x-2 text-xs text-slate-700 font-medium">
+                                  <div className="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                    <Icon name="check" className="w-2.5 h-2.5" />
+                                  </div>
+                                  <span>{feat}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Action Button Strip */}
+                          <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                            <button
+                              onClick={() => {
+                                setQuoteForm(prev => ({ ...prev, venue: MAIN_VENUE.name }));
+                                setIsQuoteModalOpen(true);
+                              }}
+                              className="w-full py-3.5 rounded-2xl gold-btn font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                              <Icon name="sparkles" className="w-4 h-4" />
+                              <span>Bu Salon İçin Ücretsiz Fiyat Teklifi Alın</span>
+                            </button>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => {
+                                  setActiveHall360('kraliyet');
+                                  setCurrentTab('virtual-tour');
+                                }}
+                                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+                              >
+                                <Icon name="panorama" className="w-3.5 h-3.5 text-amber-600" />
+                                <span>360° Sanal Tur</span>
+                              </button>
+
+                              <a
+                                href="https://wa.me/905471440054?text=Merhaba,%20Kraliyet%20Balo%20Salonu%20hakkında%20bilgi%20almak%20istiyorum."
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+                              >
+                                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                <span>WhatsApp</span>
+                              </a>
+                            </div>
+                          </div>
+
+                        </div>
+
+                      </div>
                     </div>
+
                   </div>
                 </section>
 
@@ -1353,40 +1473,92 @@
                 <div className="text-center max-w-3xl mx-auto space-y-3">
                   <div className="font-script text-4xl text-amber-600">Sapanca Gölü Kıyısında</div>
                   <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-                    4 Farklı Konsept Balo Salonu
+                    Özel Balo Salonumuz
                   </h1>
+                  <p className="text-slate-600 text-sm">
+                    750 kişilik VIP kapasitesi, 8.5 metre tavan yüksekliği ve kusursuz saray mimarisiyle en özel gününüzün ev sahibi.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {VENUES.map((v) => (
-                    <div key={v.id} className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
-                      <img src={v.image} alt={v.name} className="w-full h-64 object-cover" />
-                      <div className="p-8 space-y-4">
+                {/* Grand Single Venue Card in Venues Page */}
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                  <div className="grid grid-cols-1 lg:grid-cols-12">
+                    <div className="lg:col-span-7 bg-slate-950">
+                      <img 
+                        src={MAIN_VENUE.photos[activeVenuePhoto]?.url || MAIN_VENUE.photos[0].url} 
+                        alt={MAIN_VENUE.name} 
+                        className="w-full h-80 sm:h-96 md:h-[450px] object-cover" 
+                      />
+                      <div className="p-3 bg-slate-900 grid grid-cols-4 gap-2">
+                        {MAIN_VENUE.photos.map((p, pIdx) => (
+                          <button
+                            key={pIdx}
+                            onClick={() => setActiveVenuePhoto(pIdx)}
+                            className={`rounded-xl overflow-hidden h-16 sm:h-20 transition border-2 ${
+                              activeVenuePhoto === pIdx ? 'border-amber-400 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
+                            }`}
+                          >
+                            <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="lg:col-span-5 p-8 flex flex-col justify-between space-y-6">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-amber-600 uppercase">{v.subtitle}</span>
-                          <span className="bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full">{v.capacity}</span>
+                          <span className="text-xs font-bold text-amber-600 uppercase tracking-widest">{MAIN_VENUE.badge}</span>
+                          <span className="bg-amber-100 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full">{MAIN_VENUE.capacity}</span>
                         </div>
-                        <h3 className="text-2xl font-extrabold text-slate-900">{v.name}</h3>
-                        <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                          {v.features.map((f, i) => (
-                            <div key={i} className="flex items-center space-x-1.5">
-                              <Icon name="check" className="w-4 h-4 text-amber-500" />
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">{MAIN_VENUE.name}</h2>
+                        <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">{MAIN_VENUE.description}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase">Alan</div>
+                          <div className="font-extrabold text-xs text-slate-800">{MAIN_VENUE.area}</div>
+                        </div>
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase">Tavan</div>
+                          <div className="font-extrabold text-xs text-slate-800">{MAIN_VENUE.ceiling}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 border-t border-slate-100 pt-4">
+                        <div className="text-xs font-extrabold text-slate-900 uppercase">Özellikler & Hizmetler</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {MAIN_VENUE.features.map((f, i) => (
+                            <div key={i} className="flex items-center space-x-1.5 text-xs text-slate-600">
+                              <Icon name="check" className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                               <span>{f}</span>
                             </div>
                           ))}
                         </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-slate-100 space-y-2">
                         <button
                           onClick={() => {
-                            setQuoteForm(prev => ({ ...prev, venue: v.name }));
+                            setQuoteForm(prev => ({ ...prev, venue: MAIN_VENUE.name }));
                             setIsQuoteModalOpen(true);
                           }}
-                          className="w-full py-3 rounded-xl gold-btn font-bold text-xs sm:text-sm shadow-md"
+                          className="w-full py-3.5 rounded-xl gold-btn font-extrabold text-xs sm:text-sm shadow-md"
                         >
-                          Bu Salon İçin Teklif Al
+                          Ücretsiz Fiyat Teklifi Al
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveHall360('kraliyet');
+                            setCurrentTab('virtual-tour');
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition"
+                        >
+                          360° Sanal Turda Gezin
                         </button>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             )}
