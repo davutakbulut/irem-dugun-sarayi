@@ -17028,7 +17028,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
     }
 
         // --- COMPREHENSIVE FINANCE & CASHFLOW COMPONENT WITH MULTI-INCOME/EXPENSE & MONTHLY REPORTING ---
-    function FinanceComponent({ financialStats, reservations = [], venues = [], services = [], expenses = [], setExpenses = () => {}, onUpdateReservation }) {
+    function FinanceComponent({ financialStats, reservations = [], setReservations = () => {}, venues = [], services = [], expenses = [], setExpenses = () => {}, onUpdateReservation = () => {}, showToast = () => {} }) {
       const [expandedResIds, setExpandedResIds] = useState({});
       const toggleExpandRes = (resId) => {
         setExpandedResIds(prev => ({
@@ -17417,7 +17417,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             });
             const data = await resp.json();
             if (data && data.success) {
-              if (setReservations) {
+              if (typeof setReservations === 'function') {
                 setReservations(prev => {
                   const updated = (prev || []).map(r => {
                     if (r.id === selectedResId) {
@@ -17435,7 +17435,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   return updated;
                 });
               }
-              if (showToast) {
+              if (typeof showToast === 'function') {
                 showToast(`${curRes.customerName} için ${formatCurrency(newAmount)} tahsilat alındı! Kalan Bakiye: ${formatCurrency(data.remainingBalance)}`);
               }
             }
@@ -17479,7 +17479,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           } else {
             setExpenses(prev => [newTrans, ...prev.filter(x => x.id !== newTrans.id)]);
           }
-          if (showToast) {
+          if (typeof showToast === 'function') {
             showToast(`${newTrans.title} kasa hareketi kaydedildi.`);
           }
         } catch(err) {
