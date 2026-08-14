@@ -840,6 +840,44 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
         setIsReelSwiping(false);
       };
 
+      // Gallery Mobile Stacked Deck State & Touch Handlers
+      const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+      const [galleryTouchStartX, setGalleryTouchStartX] = useState(null);
+      const [galleryTouchDeltaX, setGalleryTouchDeltaX] = useState(0);
+      const [isGallerySwiping, setIsGallerySwiping] = useState(false);
+
+      const nextGallery = () => {
+        setActiveGalleryIndex((prev) => (prev + 1) % EXTENDED_GALLERIES.length);
+      };
+
+      const prevGallery = () => {
+        setActiveGalleryIndex((prev) => (prev - 1 + EXTENDED_GALLERIES.length) % EXTENDED_GALLERIES.length);
+      };
+
+      const handleGalleryTouchStart = (e) => {
+        setGalleryTouchStartX(e.touches[0].clientX);
+        setGalleryTouchDeltaX(0);
+        setIsGallerySwiping(true);
+      };
+
+      const handleGalleryTouchMove = (e) => {
+        if (galleryTouchStartX === null) return;
+        const delta = e.touches[0].clientX - galleryTouchStartX;
+        setGalleryTouchDeltaX(delta);
+      };
+
+      const handleGalleryTouchEnd = () => {
+        if (galleryTouchStartX === null) return;
+        if (galleryTouchDeltaX < -40) {
+          nextGallery();
+        } else if (galleryTouchDeltaX > 40) {
+          prevGallery();
+        }
+        setGalleryTouchStartX(null);
+        setGalleryTouchDeltaX(0);
+        setIsGallerySwiping(false);
+      };
+
       const nextReview = () => {
         setActiveReviewIndex((prev) => (prev + 1) % REVIEWS.length);
       };
@@ -1905,13 +1943,160 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                       </button>
                     </div>
 
-                    {/* Horizontal Swipeable Container on Mobile / 4-Col Grid on Desktop */}
-                    <div className="flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 pt-1 px-4 -mx-4 sm:mx-0 sm:px-0 no-scrollbar scroll-smooth md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:space-x-0 md:pb-0">
+                    {/* --- 1. MOBILE VIEW: 4:3 STACKED OVERLAPPING DECK (md:hidden) --- */}
+                    <div className="md:hidden">
+                      <div 
+                        className="relative h-[320px] w-full flex items-center justify-center overflow-hidden py-2 select-none touch-pan-y"
+                        onTouchStart={handleGalleryTouchStart}
+                        onTouchMove={handleGalleryTouchMove}
+                        onTouchEnd={handleGalleryTouchEnd}
+                      >
+                        {EXTENDED_GALLERIES.slice(0, 6).map((gal, idx) => {
+                          const galleryList = EXTENDED_GALLERIES.slice(0, 6);
+                          let offset = idx - activeGalleryIndex;
+                          if (offset > galleryList.length / 2) offset -= galleryList.length;
+                          if (offset < -galleryList.length / 2) offset += galleryList.length;
+
+                          const isCurrent = offset === 0;
+                          const isNext = offset === 1;
+                          const isPrev = offset === -1;
+                          const isSecondNext = offset === 2;
+
+                          let styleClasses = 'opacity-0 pointer-events-none scale-75';
+                          let transformStyle = {};
+
+                          if (isCurrent) {
+                            styleClasses = 'z-30 opacity-100 scale-100 shadow-2xl cursor-pointer';
+                            transformStyle = {
+                              transform: `translateX(${galleryTouchDeltaX * 0.75}px) rotate(${galleryTouchDeltaX * 0.04}deg)`
+                            };
+                          } else if (isNext) {
+                            styleClasses = 'z-20 opacity-75 scale-[0.91] shadow-xl cursor-pointer pointer-events-auto';
+                            transformStyle = {
+                              transform: `translateX(calc(36px + ${galleryTouchDeltaX * 0.35}px)) rotate(2.5deg)`
+                            };
+                          } else if (isPrev) {
+                            styleClasses = 'z-20 opacity-75 scale-[0.91] shadow-xl cursor-pointer pointer-events-auto';
+                            transformStyle = {
+                              transform: `translateX(calc(-36px + ${galleryTouchDeltaX * 0.35}px)) rotate(-2.5deg)`
+                            };
+                          } else if (isSecondNext) {
+                            styleClasses = 'z-10 opacity-35 scale-[0.82] shadow-md pointer-events-none';
+                            transformStyle = {
+                              transform: `translateX(calc(70px + ${galleryTouchDeltaX * 0.15}px)) rotate(5deg)`
+                            };
+                          }
+
+                          return (
+                            <div
+                              key={gal.id}
+                              onClick={() => {
+                                if (isCurrent) {
+                                  setActiveGalleryFilter(gal.category || 'all');
+                                  setCurrentTab('galleries');
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                } else if (isNext) {
+                                  nextGallery();
+                                } else if (isPrev) {
+                                  prevGallery();
+                                }
+                              }}
+                              style={transformStyle}
+                              className={`absolute aspect-[4/3] w-[80vw] max-w-[330px] rounded-2xl overflow-hidden border border-[#E3D3B5]/90 bg-black transition-all duration-400 ease-out ${styleClasses}`}
+                            >
+                              <img 
+                                src={gal.image} 
+                                alt={gal.title} 
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20"></div>
+                              
+                              {/* Subtitle Badge */}
+                              <div className="absolute top-3 left-3 z-10">
+                                <span className="bg-black/60 backdrop-blur-md text-[#EBDCB9] border border-white/20 text-[10px] font-extrabold px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
+                                  {gal.subtitle}
+                                </span>
+                              </div>
+
+                              {/* Title & Click to Open Gallery */}
+                              <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white space-y-1">
+                                <h3 className="font-extrabold text-sm sm:text-base leading-snug line-clamp-2 drop-shadow">
+                                  {gal.title}
+                                </h3>
+                                <div className="flex items-center space-x-1 text-[#EBDCB9] text-xs font-bold uppercase tracking-wider">
+                                  <span>Galeriyi İncele</span>
+                                  <span>→</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Active Gallery Title & Navigation Controls for Mobile */}
+                      <div className="flex flex-col items-center justify-center pt-2 space-y-3">
+                        <div className="text-center font-extrabold text-slate-900 text-base">
+                          {EXTENDED_GALLERIES.slice(0, 6)[activeGalleryIndex]?.title}
+                        </div>
+
+                        {/* Prev / Next & Pagination Dots */}
+                        <div className="flex items-center space-x-4">
+                          <button
+                            onClick={prevGallery}
+                            className="w-9 h-9 rounded-full border border-slate-300 bg-white hover:border-[#C5A059] text-slate-700 hover:text-[#8C6D33] flex items-center justify-center transition shadow-xs cursor-pointer"
+                            aria-label="Önceki Galeri"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
+                          </button>
+
+                          <div className="flex space-x-1.5">
+                            {EXTENDED_GALLERIES.slice(0, 6).map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setActiveGalleryIndex(i)}
+                                className={`h-2 rounded-full transition-all duration-300 ${
+                                  i === activeGalleryIndex ? 'w-6 bg-[#C5A059]' : 'w-2 bg-slate-300'
+                                }`}
+                                aria-label={`Galeri ${i + 1}`}
+                              />
+                            ))}
+                          </div>
+
+                          <button
+                            onClick={nextGallery}
+                            className="w-9 h-9 rounded-full border border-[#C5A059] bg-[#FAF6EE] text-[#8C6D33] hover:bg-[#F4ECD8] flex items-center justify-center transition shadow-xs cursor-pointer"
+                            aria-label="Sonraki Galeri"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            const cur = EXTENDED_GALLERIES.slice(0, 6)[activeGalleryIndex];
+                            setActiveGalleryFilter(cur?.category || 'all');
+                            setCurrentTab('galleries');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="btn-luxe-gold px-5 py-2 rounded-sm text-xs font-extrabold uppercase tracking-wider text-white shadow-sm flex items-center space-x-1.5 cursor-pointer mt-1"
+                        >
+                          <span>Tüm Fotoğrafları Görüntüle</span>
+                          <Icon name="arrowRight" className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* --- 2. DESKTOP VIEW: 4-COL GRID (hidden md:block) --- */}
+                    <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {EXTENDED_GALLERIES.slice(0, 6).map((gal) => (
                         <div 
                           key={gal.id}
-                          onClick={() => setLightboxImage(gal)}
-                          className="w-[74vw] sm:w-[320px] md:w-auto shrink-0 snap-start relative h-72 rounded-sm overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-slate-200 bg-slate-950 flex flex-col justify-end"
+                          onClick={() => {
+                            setActiveGalleryFilter(gal.category || 'all');
+                            setCurrentTab('galleries');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="aspect-[4/3] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-slate-200 bg-slate-950 relative flex flex-col justify-end"
                         >
                           <img 
                             src={gal.image} 
@@ -1928,18 +2113,11 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                               {gal.title}
                             </h3>
                             <span className="text-[10px] text-slate-300 font-medium block pt-0.5">
-                              Büyütmek için dokunun 🔍
+                              Galeriyi açmak için dokunun →
                             </span>
                           </div>
                         </div>
                       ))}
-                    </div>
-
-                    {/* Mobile swipe hint */}
-                    <div className="md:hidden flex items-center justify-center space-x-1.5 mt-3 text-[10.5px] font-bold text-[#8C6D33] bg-white py-1 px-3.5 rounded-full border border-[#E3D3B5] w-fit mx-auto shadow-xs">
-                      <span>←</span>
-                      <span>Diğer fotoğraflar için kaydırın</span>
-                      <span>→</span>
                     </div>
 
                   </div>
