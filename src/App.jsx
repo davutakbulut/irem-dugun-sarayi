@@ -83,9 +83,9 @@ export default function App() {
 
   const [currentTheme, setCurrentTheme] = useState(() => {
     if (typeof document !== 'undefined') {
-      return document.documentElement.getAttribute('data-ui-theme') || 'obsidian-gold';
+      return document.documentElement.getAttribute('data-ui-theme') || localStorage.getItem('irem_theme') || 'gold';
     }
-    return 'obsidian-gold';
+    return 'gold';
   });
 
   const [currentUser, setCurrentUser] = useState({
@@ -131,12 +131,12 @@ export default function App() {
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('data-ui-theme', currentTheme);
       document.documentElement.setAttribute('data-theme', currentTheme);
-      if (currentTheme === 'nordic-light' || currentTheme === 'platinum-silver' || currentTheme === 'apple') {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-      } else {
+      if (currentTheme === 'obsidian-gold' || currentTheme === 'dark') {
         document.documentElement.classList.remove('light');
         document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
       }
     }
   }, [currentTheme]);

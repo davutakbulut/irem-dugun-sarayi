@@ -2330,12 +2330,9 @@ app.post('/api/company-settings', async (req, res) => {
 
 
 // HTML Rota Yönlendirmeleri (Express 5 Uyumlu)
-app.get(/^\/(yonetim|giris|login)(\/.*)?$/, (req, res) => {
+app.get(/^\/(yonetim|giris|login|admin|yonetim\.html)(\/.*)?$/, (req, res) => {
   if (fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
     return res.sendFile('index.html', { root: path.join(__dirname, 'dist') });
-  }
-  if (fs.existsSync(path.join(__dirname, 'yonetim.html'))) {
-    return res.sendFile('yonetim.html', { root: __dirname });
   }
   res.sendFile('index.html', { root: __dirname });
 });

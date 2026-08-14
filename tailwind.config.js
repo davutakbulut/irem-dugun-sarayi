@@ -26,8 +26,11 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        heading: ['Outfit', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Outfit', 'sans-serif'],
+        heading: ['Outfit', '"Plus Jakarta Sans"', 'sans-serif'],
+        serif: ['"Plus Jakarta Sans"', 'Outfit', 'sans-serif'],
+        script: ['"Great Vibes"', 'cursive'],
+        poppins: ['Poppins', 'sans-serif']
       }
     },
   },
