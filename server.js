@@ -2043,8 +2043,8 @@ app.post('/api/company-settings', async (req, res) => {
 });
 
 
-// HTML Rota Yönlendirmeleri
-app.get(['/yonetim', '/yonetim.html', '/giris', '/login'], (req, res) => {
+// HTML Rota Yönlendirmeleri (Express 5 Uyumlu)
+app.get(/^\/(yonetim|giris|login)(\/.*)?$/, (req, res) => {
   res.sendFile('yonetim.html', { root: __dirname });
 });
 

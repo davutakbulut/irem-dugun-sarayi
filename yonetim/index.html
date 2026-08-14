@@ -1720,6 +1720,13 @@
       'mind-map': 'mind-map',
       'mindmap': 'mind-map',
       'ayarlar': 'settings',
+      'company-settings': 'company-settings',
+      'sirket-bilgileri': 'company-settings',
+      'sozlesme-sablonu': 'company-settings',
+      'ayarlar/sirket-bilgileri': 'company-settings',
+      'yonetim/company-settings': 'company-settings',
+      'yonetim/sirket-bilgileri': 'company-settings',
+      'yonetim/sozlesme-sablonu': 'company-settings',
       'eposta-sablonlari': 'email-templates',
       'ayarlar/gorunum': 'settings-appearance',
       'ayarlar/onbellek': 'settings-performance',
@@ -1785,6 +1792,7 @@
       'media': '/yonetim/medya',
       'profile': '/yonetim/profil',
       'mind-map': '/yonetim/zihin-haritasi',
+      'company-settings': '/yonetim/sirket-bilgileri',
       'settings': '/yonetim/ayarlar',
       'settings-appearance': '/yonetim/ayarlar/gorunum',
       'settings-performance': '/yonetim/ayarlar/onbellek',
@@ -10557,6 +10565,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                               {item.id === 'settings' && !isSettingsSubCollapsed && (
                                 <div className="pl-6 space-y-1 my-1 border-l-2 border-amber-500/30 ml-3">
                                   <a
+                                    href="/yonetim/sirket-bilgileri"
+                                    onClick={(e) => { e.preventDefault(); navigateTo('company-settings'); }}
+                                    className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                                      activeTab === 'company-settings' ? 'text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 border border-amber-500/20' : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200'
+                                    }`}
+                                  >
+                                    <ThemeIcon icon="document" fallbackEmoji="" className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                                    <span>Şirket Bilgileri & Sözleşme</span>
+                                  </a>
+                                  <a
                                     href="#/ayarlar/gorunum"
                                     onClick={(e) => { e.preventDefault(); navigateTo('settings-appearance'); }}
                                     className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition ${
@@ -19043,6 +19061,7 @@ const E2E_WORKFLOWS = [
             { id: 'mind-map', label: 'Zihin Haritası (MindMap)', desc: 'İnteraktif sistem zihin haritası ve veri akış topolojisi', icon: 'sparkles', fallbackEmoji: '', badge: 'ADMIN' },
             { id: 'roles', label: 'Rol Yönetimi (Sistem Rolleri)', desc: 'Rol ekleme, düzenleme, silme ve yetki kısıtlama paneli', icon: 'shield', fallbackEmoji: '', badge: 'ADMIN' },
             { id: 'users', label: 'Personel (RBAC Yetkileri)', desc: 'Kullanıcı tanımları ve şifre yönetimi', icon: 'user', fallbackEmoji: '' },
+            { id: 'company-settings', label: 'Şirket Bilgileri & Sözleşme', desc: 'Fatura başlığı, şirket iletişim verileri ve 3 sayfalık resmi sözleşme maddeleri', icon: 'document', fallbackEmoji: '' },
             { id: 'settings-appearance', label: 'Görünüm & Temalar', desc: '5 kurumsal renk teması, buton tarzları ve görünüm modu', icon: 'sparkles', fallbackEmoji: '' },
             { id: 'email-templates', label: 'E-Posta Şablonları & Otomasyon', desc: 'Canlı HTML şablon önizleme, SMTP gönderim testi ve otomasyon ayarları', icon: 'mail', fallbackEmoji: '', badge: 'SMTP 200 OK' },
             { id: 'settings-errors', label: 'Hata & Simülasyon', desc: '404, 500 ve yönlendirme testi simülatörü', icon: 'warning', fallbackEmoji: '', badge: 'TEST' },
