@@ -777,9 +777,10 @@ app.post('/api/upload-media', async (req, res) => {
       fingerprint: fingerprint || null
     };
 
+    const safeMediaKey = (req.body.mediaKey || '').replace(/[^a-zA-Z0-9_-]/g, '_');
     let matchFound = false;
     memoryStore.reservations = memoryStore.reservations.map(r => {
-      const isMatch = r.id === resId || r.mediaKey === resId || r.id === safeResId || r.mediaKey === safeMediaKey;
+      const isMatch = r.id === resId || r.mediaKey === resId || r.id === safeResId || (safeMediaKey && r.mediaKey === safeMediaKey);
       if (isMatch) {
         matchFound = true;
         const existingList = r.mediaFiles || [];
@@ -791,17 +792,18 @@ app.post('/api/upload-media', async (req, res) => {
       return r;
     });
 
-    if (pool) {
+    const activePool = await getPool();
+    if (activePool) {
       try {
-        const [targetRows] = await pool.query('SELECT id, media_json FROM reservations WHERE id = ? OR id = ?', [resId || safeResId, safeResId]);
+        const [targetRows] = await activePool.query('SELECT id, media_json FROM reservations WHERE id = ? OR id = ?', [resId || safeResId, safeResId]);
         if (targetRows && targetRows.length > 0) {
           const currentMedia = targetRows[0].media_json ? (typeof targetRows[0].media_json === 'string' ? JSON.parse(targetRows[0].media_json) : targetRows[0].media_json) : [];
           const updatedMedia = [newMediaObj, ...currentMedia];
-          await pool.query('UPDATE reservations SET media_json = ? WHERE id = ?', [JSON.stringify(updatedMedia), targetRows[0].id]);
+          await activePool.query('UPDATE reservations SET media_json = ? WHERE id = ?', [JSON.stringify(updatedMedia), targetRows[0].id]);
           console.log(`💾 Rezervasyon [${targetRows[0].id}] Medyası MariaDB Veritabanına Yazıldı!`);
         }
 
-        await pool.query(
+        await activePool.query(
           'INSERT INTO media (id, title, category, url, file_size) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=?, url=?',
           [newMediaObj.id, cleanFileName, safeResId, fileUrl, newMediaObj.fileSize, cleanFileName, fileUrl]
         );
