@@ -1680,7 +1680,7 @@ app.delete('/api/reservations/:id', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// 6. GİDERLER ENDPOINTS (/api/expenses)
+// 6. GİDERLER & HARİCİ GELİRLER ENDPOINTS (/api/expenses)
 // -------------------------------------------------------------
 app.get('/api/expenses', async (req, res) => {
   try {
@@ -1690,6 +1690,7 @@ app.get('/api/expenses', async (req, res) => {
       const formatted = (rows || []).map(r => ({
         ...r,
         amount: Number(r.amount || 0),
+        type: (r.type === 'gelir' || r.type === 'income') ? 'gelir' : 'gider',
         date: r.date ? (typeof r.date === 'string' ? r.date.split('T')[0] : (r.date instanceof Date ? `${r.date.getFullYear()}-${String(r.date.getMonth()+1).padStart(2,'0')}-${String(r.date.getDate()).padStart(2,'0')}` : String(r.date).split('T')[0])) : ''
       }));
       return res.json(formatted);
@@ -1702,17 +1703,29 @@ app.get('/api/expenses', async (req, res) => {
 
 app.post('/api/expenses', async (req, res) => {
   try {
-    const item = { id: req.body.id || ('exp-' + Date.now()), ...req.body };
-    const cleanDate = item.date || new Date().toISOString().split('T')[0];
+    const raw = req.body || {};
+    const item = {
+      id: raw.id || (`exp-${Date.now()}`),
+      title: (raw.title || 'Kasa Hareketi').trim(),
+      category: raw.category || 'Genel Harcama',
+      amount: Number(raw.amount || 0),
+      date: raw.date || new Date().toISOString().split('T')[0],
+      description: raw.description || '',
+      type: (raw.type === 'gelir' || raw.type === 'income') ? 'gelir' : 'gider',
+      status: raw.status || 'Tamamlandı'
+    };
+
     const activePool = await getPool();
     if (activePool) {
       await activePool.query(
         `INSERT INTO expenses (id, title, category, amount, date, description, type)
          VALUES (?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE title=VALUES(title), category=VALUES(category), amount=VALUES(amount), date=VALUES(date), description=VALUES(description), type=VALUES(type)`,
-        [item.id, item.title, item.category || 'Genel', Number(item.amount || 0), cleanDate, item.description || '', item.type || 'expense']
+         ON DUPLICATE KEY UPDATE 
+           title=VALUES(title), category=VALUES(category), amount=VALUES(amount), 
+           date=VALUES(date), description=VALUES(description), type=VALUES(type)`,
+        [item.id, item.title, item.category, item.amount, item.date, item.description, item.type]
       );
-      console.log(`💾 Gider [${item.id}] MariaDB Veritabanına Yazıldı: ${item.title} (${item.amount} TL)`);
+      console.log(`💾 Kasa Hareketi [${item.id}] MariaDB Veritabanına Yazıldı: ${item.title} (${item.type === 'gelir' ? '+' : '-'}${item.amount} TL)`);
     }
     
     // Update memoryStore
@@ -1720,7 +1733,7 @@ app.post('/api/expenses', async (req, res) => {
     res.status(201).json({ success: true, item });
   } catch(e) {
     console.error('MySQL POST /api/expenses error:', e.message);
-    res.status(500).json({ error: 'Gider kaydedilemedi', message: e.message });
+    res.status(500).json({ error: 'Kasa hareketi kaydedilemedi', message: e.message });
   }
 });
 
