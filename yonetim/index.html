@@ -6561,6 +6561,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     // --- NORDIC LIGHT & FRESH LOGIN COMPONENT ---
+        function formatTurkishPhone(val) {
+      if (!val) return '';
+      let digits = val.replace(/\D/g, '');
+      if (digits.startsWith('90')) digits = digits.slice(2);
+      if (digits.startsWith('0')) digits = digits.slice(1);
+      digits = digits.slice(0, 10);
+      if (digits.length === 0) return '';
+      if (digits.length <= 3) return `0 (${digits}`;
+      if (digits.length <= 6) return `0 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
+      if (digits.length <= 8) return `0 (${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6)}`;
+      return `0 (${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
+    }
+
     function LoginComponent({ onLoginSuccess, showToast, users = [], customers = [] }) {
       const [loginMethod, setLoginMethod] = useState('email'); // 'email' | 'phone'
       const [emailInput, setEmailInput] = useState('');
@@ -6587,15 +6600,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           if (emailRegex.test(val)) return { isValid: true, message: 'E-posta Formatı Geçerli' };
           return { isValid: false, message: 'Lütfen geçerli bir e-posta adresi giriniz.' };
         } else {
-          const digits = val.replace(/\D/g, '');
-          if ((digits.length === 11 && digits.startsWith('05')) || (digits.length === 10 && digits.startsWith('5'))) {
-            return { isValid: true, message: 'Telefon Numarası Formatı (TR) Geçerli' };
+          let digits = val.replace(/\D/g, '');
+          if (digits.startsWith('90')) digits = digits.slice(2);
+          if (digits.startsWith('0')) digits = digits.slice(1);
+          if (digits.length === 10 && digits.startsWith('5')) {
+            return { isValid: true, message: 'Telefon Formatı Geçerli' };
           }
-          return { isValid: false, message: 'Lütfen geçerli bir 05xx... telefon numarası giriniz.' };
+          return { isValid: false, message: 'Lütfen geçerli bir 0 (5XX) telefon numarası giriniz.' };
         }
       }, [loginMethod, emailInput, phoneInput]);
 
-      const handleFormSubmit = (e) => {
+      const handleFormSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage('');
         if (!inputValidation.isValid) {
@@ -6604,25 +6619,49 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           showToast(msg, 'error');
           return;
         }
+        
+        const passTrim = (password || '').trim();
+        if (!passTrim) {
+          setErrorMessage('Lütfen şifrenizi giriniz.');
+          showToast('Lütfen şifrenizi giriniz.', 'error');
+          return;
+        }
+
         setIsLoading(true);
-        setTimeout(() => {
-          setIsLoading(false);
+
+        try {
+          // Fetch real-time active users from MySQL database
+          let dbUsers = users;
+          try {
+            const uRes = await fetch('/api/users');
+            const uData = await uRes.json();
+            if (Array.isArray(uData) && uData.length > 0) dbUsers = uData;
+          } catch(err) {}
+
+          let dbCustomers = customers;
+          try {
+            const cRes = await fetch('/api/customers');
+            const cData = await cRes.json();
+            if (Array.isArray(cData) && cData.length > 0) dbCustomers = cData;
+          } catch(err) {}
+
           const valLower = (activeValue || '').toLowerCase().trim();
-          const passTrim = (password || '').trim();
-          
+          let digits = valLower.replace(/\D/g, '');
+          if (digits.startsWith('90')) digits = digits.slice(2);
+          if (digits.startsWith('0')) digits = digits.slice(1);
+
           let matchedUser = null;
           let matchedRole = 'admin';
-          let isCustomerMatch = false;
 
-          // 1. Direct check in users list
-          if (users && users.length > 0) {
-            matchedUser = users.find(u => {
+          // 1. Strict match in MySQL users
+          if (dbUsers && dbUsers.length > 0) {
+            matchedUser = dbUsers.find(u => {
               const uEmail = (u.email || '').toLowerCase().trim();
-              const uPhone = (u.phone || '').replace(/\D/g, '');
-              const inputDigits = valLower.replace(/\D/g, '');
+              let uPhone = (u.phone || '').replace(/\D/g, '');
+              if (uPhone.startsWith('90')) uPhone = uPhone.slice(2);
+              if (uPhone.startsWith('0')) uPhone = uPhone.slice(1);
 
-              const identityMatch = loginMethod === 'email' ? (uEmail === valLower) : (uPhone && inputDigits && uPhone.includes(inputDigits));
-              return identityMatch;
+              return loginMethod === 'email' ? (uEmail === valLower) : (uPhone && digits && uPhone === digits);
             });
 
             if (matchedUser) {
@@ -6630,37 +6669,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             }
           }
 
-          // 2. Dedicated fallback for Mustafa Beyazyüz
-          if (!matchedUser && (valLower.includes('mustafa') || valLower === 'mustafa@iremdugunsarayi.com')) {
-            matchedUser = {
-              id: 'u0',
-              name: 'Mustafa Beyazyüz (Yönetici)',
-              email: 'mustafa@iremdugunsarayi.com',
-              role: 'admin',
-              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-            };
-            matchedRole = 'admin';
-          }
-
-          // 3. Dedicated fallback for dvtakblt / Davut Akbulut or superadmin logins
-          if (!matchedUser && (valLower.includes('dvtakblt') || valLower.includes('davut') || valLower === 'dvtakblt@gmail.com' || valLower === 'admin@iremdugunsarayi.com')) {
-            matchedUser = {
-              id: 'u_davut',
-              name: 'Davut Akbulut (Sistem Yöneticisi)',
-              email: 'dvtakblt@gmail.com',
-              role: 'admin',
-              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-            };
-            matchedRole = 'admin';
-          }
-
-          // 4. Check in registered customers list
-          if (!matchedUser && customers && customers.length > 0) {
-            const matchedCust = customers.find(c => {
+          // 2. Strict match in MySQL customers
+          if (!matchedUser && dbCustomers && dbCustomers.length > 0) {
+            const matchedCust = dbCustomers.find(c => {
               const cEmail = (c.email || '').toLowerCase().trim();
-              const cPhone = (c.phone || '').replace(/\D/g, '');
-              const inputDigits = valLower.replace(/\D/g, '');
-              return loginMethod === 'email' ? (cEmail === valLower) : (cPhone && inputDigits && cPhone.includes(inputDigits));
+              let cPhone = (c.phone || '').replace(/\D/g, '');
+              if (cPhone.startsWith('90')) cPhone = cPhone.slice(2);
+              if (cPhone.startsWith('0')) cPhone = cPhone.slice(1);
+
+              return loginMethod === 'email' ? (cEmail === valLower) : (cPhone && digits && cPhone === digits);
             });
 
             if (matchedCust) {
@@ -6668,44 +6685,40 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 id: matchedCust.id,
                 name: matchedCust.name,
                 email: matchedCust.email,
+                phone: matchedCust.phone,
                 role: 'musteri',
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
               };
               matchedRole = 'musteri';
-              isCustomerMatch = true;
             }
           }
 
-          // 5. Dynamic Fallback for valid email input with non-empty password
-          if (!matchedUser && valLower.length > 3 && passTrim.length > 0) {
-            matchedUser = {
-              id: 'u_dyn_' + Date.now(),
-              name: (valLower.split('@')[0] || 'Kullanıcı').toUpperCase() + ' (Yönetici)',
-              email: valLower,
-              role: 'admin',
-              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-            };
-            matchedRole = 'admin';
-          }
-
+          // STRICT REJECTION: BLOCK ALL RANDOM OR UNREGISTERED ACCOUNTS
           if (!matchedUser) {
-            const errorText = `Girdiğiniz ${loginMethod === 'email' ? 'e-posta adresi' : 'telefon numarası'} veya şifre hatalıdır. Lütfen kontrol edip tekrar deneyiniz.`;
+            setIsLoading(false);
+            const errorText = `Girdiğiniz ${loginMethod === 'email' ? 'e-posta adresi' : 'telefon numarası'} veya şifre sistemde kayıtlı değildir.`;
             setErrorMessage(errorText);
             showToast('Hatalı e-posta/telefon veya şifre!', 'error');
             return;
           }
 
+          setIsLoading(false);
           onLoginSuccess({
-            id: matchedUser.id || 'u1',
+            id: matchedUser.id,
             role: matchedRole,
             name: matchedUser.name || 'Kullanıcı',
             userName: matchedUser.name || 'Kullanıcı',
             email: matchedUser.email || valLower,
             userEmail: matchedUser.email || valLower,
+            phone: matchedUser.phone || '',
             avatar: matchedUser.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
           });
-          showToast(`Hoş geldiniz Sayın ${matchedUser.name || 'Kullanıcımız'}! (${matchedRole.toUpperCase()})`);
-        }, 350);
+          showToast(`Hoş geldiniz Sayın ${matchedUser.name}! (${matchedRole.toUpperCase()})`);
+
+        } catch(err) {
+          setIsLoading(false);
+          showToast('Giriş işlemi gerçekleştirilemedi', 'error');
+        }
       };
 
       const handleQuickRoleLogin = (role, name, email, avatar) => {
@@ -6822,9 +6835,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       type="tel"
                       required
                       value={phoneInput}
-                      onChange={e => { setPhoneInput(e.target.value); if (errorMessage) setErrorMessage(''); }}
-                      placeholder="05XX XXX XX XX"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-800 dark:text-white font-medium outline-none transition shadow-xs"
+                      onChange={e => {
+                        const formatted = formatTurkishPhone(e.target.value);
+                        setPhoneInput(formatted);
+                        if (errorMessage) setErrorMessage('');
+                      }}
+                      placeholder="0 (5XX) XXX XX XX"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-800 dark:text-white font-medium outline-none transition shadow-xs tracking-wider"
                     />
                   </div>
                 )}
@@ -6879,52 +6896,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </button>
               </form>
 
-              {/* QUICK DEMO LOGIN BUTTONS */}
-              <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
-                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-2">⚡ Hızlı Test Girişleri (Otomatik Doldur):</p>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginMethod('email');
-                      setEmailInput('dvtakblt@gmail.com');
-                      setPassword('a');
-                      setErrorMessage('');
-                    }}
-                    className="px-2.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 rounded-lg text-[11px] font-extrabold transition cursor-pointer flex items-center space-x-1 shadow-xs"
-                  >
-                    <span>👑 Davut Akbulut (Süper Admin)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginMethod('email');
-                      setEmailInput('mustafa@iremdugunsarayi.com');
-                      setPassword('Msytf2026');
-                      setErrorMessage('');
-                    }}
-                    className="px-2.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 rounded-lg text-[11px] font-extrabold transition cursor-pointer flex items-center space-x-1 shadow-xs"
-                  >
-                    <span>🏛️ Mustafa Beyazyüz (Yönetici)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginMethod('email');
-                      setEmailInput('admin@iremdugunsarayi.com');
-                      setPassword('admin');
-                      setErrorMessage('');
-                    }}
-                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-medium transition cursor-pointer"
-                  >
-                    🏢 İrem Admin
-                  </button>
-                </div>
               </div>
 
-            </div>
-
-            {/* RIGHT COLUMN: SINGLE FRESH NORDIC HERO SHOWCASE */}
+            {/* RIGHT COLUMN:{/* RIGHT COLUMN: SINGLE FRESH NORDIC HERO SHOWCASE */}
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-[#FFF8EE] via-[#F5EEE2] to-[#EBE4D5] dark:from-slate-900 dark:to-slate-950 border border-amber-200/60 dark:border-amber-500/20 rounded-3xl p-8 xl:p-10 space-y-6 relative overflow-hidden shadow-sm flex flex-col justify-between min-h-[520px]">
               
               {/* TOP BRAND BADGE & HEADING */}
