@@ -306,6 +306,7 @@ export function VenueModalComponent({ venue, allServices = [], onClose, onSave }
   const [capacity, setCapacity] = useState(venue?.capacity || 500);
   const [price, setPrice] = useState(venue?.price || 50000);
   const [deposit, setDeposit] = useState(venue?.deposit || 10000);
+  const [costPrice, setCostPrice] = useState(venue?.costPrice !== undefined ? venue.costPrice : Math.round(Number(venue?.price || 50000) * 0.55));
   const [description, setDescription] = useState(venue?.description || '');
   const [image, setImage] = useState(venue?.image || venue?.images?.[0] || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80');
 
@@ -353,6 +354,7 @@ export function VenueModalComponent({ venue, allServices = [], onClose, onSave }
       capacity: Number(capacity),
       price: Number(price),
       deposit: Number(deposit),
+      costPrice: Number(costPrice),
       description,
       image,
       images: [image],
@@ -395,13 +397,17 @@ export function VenueModalComponent({ venue, allServices = [], onClose, onSave }
               <input type="number" value={capacity} onChange={e => setCapacity(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-slate-800 dark:text-gray-200 font-bold" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <div>
               <label className="font-bold block mb-1">Kiralama Fiyatı (TL):</label>
               <input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" />
             </div>
             <div>
-              <label className="font-bold block mb-1">Asgari Kaparo Bedeli (TL):</label>
+              <label className="font-bold block mb-1">İşletme Maliyeti (TL):</label>
+              <input type="number" value={costPrice} onChange={e => setCostPrice(e.target.value)} required placeholder="Örn: 27500" className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-red-600 font-bold" />
+            </div>
+            <div>
+              <label className="font-bold block mb-1">Asgari Kapora (TL):</label>
               <input type="number" value={deposit} onChange={e => setDeposit(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-emerald-600 font-bold" />
             </div>
           </div>
@@ -496,6 +502,7 @@ export function ServiceModalComponent({ service, onClose, onSave }) {
   const [category, setCategory] = useState(service?.category || 'Catering');
   const [pricingType, setPricingType] = useState(service?.pricingType || 'per_person');
   const [price, setPrice] = useState(service?.price || 250);
+  const [costPrice, setCostPrice] = useState(service?.costPrice !== undefined ? service.costPrice : Math.round(Number(service?.price || 250) * 0.6));
   const [description, setDescription] = useState(service?.description || '');
   const [image, setImage] = useState(service?.image || 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=400&q=80');
 
@@ -507,6 +514,7 @@ export function ServiceModalComponent({ service, onClose, onSave }) {
       category,
       pricingType,
       price: Number(price),
+      costPrice: Number(costPrice),
       description,
       image
     });
@@ -550,9 +558,15 @@ export function ServiceModalComponent({ service, onClose, onSave }) {
               </select>
             </div>
           </div>
-          <div>
-            <label className="font-bold block mb-1">Birim Fiyat (TL):</label>
-            <input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold block mb-1">Satış Fiyatı (TL):</label>
+              <input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-amber-700 font-bold" />
+            </div>
+            <div>
+              <label className="font-bold block mb-1">Birim Maliyeti (TL):</label>
+              <input type="number" value={costPrice} onChange={e => setCostPrice(e.target.value)} required placeholder="Örn: 150" className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 text-red-600 font-bold" />
+            </div>
           </div>
           <ImageDropzoneUploader
             label="Hizmet Kapak Görseli Yükle"

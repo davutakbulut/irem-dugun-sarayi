@@ -73,6 +73,11 @@ export function ReservationsListComponent({
         if (endDateFilter && rDate > endDateFilter) matchesDate = false;
 
         return matchesSearch && matchesVenue && matchesStatus && matchesDate;
+      }).sort((a, b) => {
+        const tA = new Date(a.created_at || a.createdAt || 0).getTime();
+        const tB = new Date(b.created_at || b.createdAt || 0).getTime();
+        if (tB !== tA) return tB - tA;
+        return String(b.id || '').localeCompare(String(a.id || ''));
       });
 
       // Dynamic Month & Year Navigation State (Defaults to real current date)

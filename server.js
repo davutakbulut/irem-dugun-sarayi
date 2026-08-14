@@ -67,6 +67,9 @@ app.use((req, res, next) => {
   next();
 });
 app.use('/uploads', express.static(uploadsDir));
+if (fs.existsSync(path.join(__dirname, 'dist'))) {
+  app.use(express.static(path.join(__dirname, 'dist')));
+}
 app.use(express.static(path.join(__dirname, './')));
 
 app.get('/api/db-status', async (req, res) => {
@@ -2328,7 +2331,13 @@ app.post('/api/company-settings', async (req, res) => {
 
 // HTML Rota Yönlendirmeleri (Express 5 Uyumlu)
 app.get(/^\/(yonetim|giris|login)(\/.*)?$/, (req, res) => {
-  res.sendFile('yonetim.html', { root: __dirname });
+  if (fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
+    return res.sendFile('index.html', { root: path.join(__dirname, 'dist') });
+  }
+  if (fs.existsSync(path.join(__dirname, 'yonetim.html'))) {
+    return res.sendFile('yonetim.html', { root: __dirname });
+  }
+  res.sendFile('index.html', { root: __dirname });
 });
 
 // Safe fallback for any lingering draft reservation requests from cached clients
@@ -2519,6 +2528,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API Uç Noktası Bulunamadı' });
+  }
+  if (fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
+    return res.sendFile('index.html', { root: path.join(__dirname, 'dist') });
   }
   res.sendFile('index.html', { root: __dirname });
 });

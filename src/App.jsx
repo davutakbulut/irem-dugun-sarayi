@@ -5,7 +5,14 @@ import MobileDrawer from './components/MobileDrawer';
 import { NotificationPopup } from './components/NotificationPopup';
 import { PageErrorBoundary } from './components/PageErrorBoundary';
 import { GlobalFooterComponent } from './components/Footer';
-import { VersionHistoryModalComponent } from './components/Modals';
+import {
+  VersionHistoryModalComponent,
+  VenueModalComponent,
+  ServiceModalComponent,
+  CustomerFormModal,
+  CampaignModalComponent,
+  UserModalComponent
+} from './components/Modals';
 
 // Data & Pages
 import {
@@ -96,6 +103,13 @@ export default function App() {
   const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
   const [users, setUsers] = useState(INITIAL_USERS);
   const [systemLogs, setSystemLogs] = useState(INITIAL_SYSTEM_LOGS);
+
+  // Management CRUD Modal Data States
+  const [venueModalData, setVenueModalData] = useState(null);
+  const [serviceModalData, setServiceModalData] = useState(null);
+  const [customerModalData, setCustomerModalData] = useState(null);
+  const [campaignModalData, setCampaignModalData] = useState(null);
+  const [userModalData, setUserModalData] = useState(null);
 
   // Floating Notification Modal State
   const [alertModal, setAlertModal] = useState({
@@ -344,14 +358,32 @@ export default function App() {
   };
 
   // Venue Handlers
-  const handleAddVenue = (vObj) => {
-    setVenues(prev => [vObj, ...prev]);
-    showAlert('🏰 Düğün Salonu Eklendi', `${vObj.name} başarıyla sisteme kaydedildi.`);
+  const handleSaveVenue = async (vObj) => {
+    try {
+      const isEdit = venues.some(v => v.id === vObj.id);
+      const res = await fetch('/api/venues', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(vObj)
+      });
+      if (res.ok) {
+        setVenues(prev => isEdit ? prev.map(x => x.id === vObj.id ? vObj : x) : [vObj, ...prev]);
+        setVenueModalData(null);
+        showAlert('🏰 Düğün Salonu Kaydedildi', `${vObj.name} başarıyla veritabanına kaydedildi.`);
+      }
+    } catch (e) {
+      setVenues(prev => prev.some(x => x.id === vObj.id) ? prev.map(x => x.id === vObj.id ? vObj : x) : [vObj, ...prev]);
+      setVenueModalData(null);
+      showAlert('🏰 Düğün Salonu Kaydedildi', `${vObj.name} kaydedildi.`);
+    }
   };
 
-  const handleEditVenue = (vObj) => {
-    setVenues(prev => prev.map(x => x.id === vObj.id ? vObj : x));
-    showAlert('✏️ Salon Düzenlendi', `${vObj.name} güncellendi.`);
+  const handleDeleteVenue = async (venueId) => {
+    try {
+      await fetch(`/api/venues/${venueId}`, { method: 'DELETE' });
+    } catch (e) {}
+    setVenues(prev => prev.filter(v => v.id !== venueId));
+    showAlert('🗑️ Salon Silindi', `Salon başarıyla sistemden kaldırıldı.`);
   };
 
   const handleUpdateVenuePrice = (venueId, newPrice) => {
@@ -360,36 +392,74 @@ export default function App() {
   };
 
   // Service Handlers
-  const handleAddService = (sObj) => {
-    setServices(prev => [sObj, ...prev]);
-    showAlert('🎁 Hizmet Eklendi', `${sObj.name} eklendi.`);
+  const handleSaveService = async (sObj) => {
+    try {
+      const isEdit = services.some(s => s.id === sObj.id);
+      const res = await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sObj)
+      });
+      if (res.ok) {
+        setServices(prev => isEdit ? prev.map(x => x.id === sObj.id ? sObj : x) : [sObj, ...prev]);
+        setServiceModalData(null);
+        showAlert('🎁 Ek Hizmet Kaydedildi', `${sObj.name} başarıyla kaydedildi.`);
+      }
+    } catch (e) {
+      setServices(prev => prev.some(x => x.id === sObj.id) ? prev.map(x => x.id === sObj.id ? sObj : x) : [sObj, ...prev]);
+      setServiceModalData(null);
+      showAlert('🎁 Ek Hizmet Kaydedildi', `${sObj.name} kaydedildi.`);
+    }
   };
 
-  const handleEditService = (sObj) => {
-    setServices(prev => prev.map(x => x.id === sObj.id ? sObj : x));
-    showAlert('✏️ Hizmet Güncellendi', `${sObj.name} güncellendi.`);
+  const handleDeleteService = async (serviceId) => {
+    try {
+      await fetch(`/api/services/${serviceId}`, { method: 'DELETE' });
+    } catch (e) {}
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+    showAlert('🗑️ Ek Hizmet Silindi', `Hizmet sistemden kaldırıldı.`);
   };
 
   // Customer Handlers
-  const handleAddCustomer = (cObj) => {
-    setCustomers(prev => [cObj, ...prev]);
-    showAlert('👥 Müşteri Eklendi', `${cObj.name} eklendi.`);
+  const handleSaveCustomer = async (cObj) => {
+    try {
+      const isEdit = customers.some(c => c.id === cObj.id);
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cObj)
+      });
+      if (res.ok) {
+        setCustomers(prev => isEdit ? prev.map(x => x.id === cObj.id ? cObj : x) : [cObj, ...prev]);
+        setCustomerModalData(null);
+        showAlert('👥 Müşteri Kaydedildi', `${cObj.name} müşteri rehberine kaydedildi.`);
+      }
+    } catch (e) {
+      setCustomers(prev => prev.some(x => x.id === cObj.id) ? prev.map(x => x.id === cObj.id ? cObj : x) : [cObj, ...prev]);
+      setCustomerModalData(null);
+      showAlert('👥 Müşteri Kaydedildi', `${cObj.name} müşteri rehberine kaydedildi.`);
+    }
   };
 
-  const handleEditCustomer = (cObj) => {
-    setCustomers(prev => prev.map(x => x.id === cObj.id ? cObj : x));
-    showAlert('✏️ Müşteri Güncellendi', `${cObj.name} güncellendi.`);
+  const handleDeleteCustomer = async (customerId) => {
+    try {
+      await fetch(`/api/customers/${customerId}`, { method: 'DELETE' });
+    } catch (e) {}
+    setCustomers(prev => prev.filter(c => c.id !== customerId));
+    showAlert('🗑️ Müşteri Silindi', `Müşteri kaydı silindi.`);
   };
 
   // Campaign Handlers
-  const handleAddCampaign = (cObj) => {
-    setCampaigns(prev => [cObj, ...prev]);
-    showAlert('🔥 Kampanya Eklendi', `${cObj.title} (${cObj.code}) tanımlandı.`);
+  const handleSaveCampaign = async (cObj) => {
+    const isEdit = campaigns.some(c => c.id === cObj.id);
+    setCampaigns(prev => isEdit ? prev.map(x => x.id === cObj.id ? cObj : x) : [cObj, ...prev]);
+    setCampaignModalData(null);
+    showAlert('🔥 Kampanya Kaydedildi', `${cObj.title} (${cObj.code}) tanımlandı.`);
   };
 
-  const handleEditCampaign = (cObj) => {
-    setCampaigns(prev => prev.map(x => x.id === cObj.id ? cObj : x));
-    showAlert('✏️ Kampanya Güncellendi', `${cObj.title} güncellendi.`);
+  const handleDeleteCampaign = (campaignId) => {
+    setCampaigns(prev => prev.filter(c => c.id !== campaignId));
+    showAlert('🗑️ Kampanya Silindi', `Kampanya kaldırıldı.`);
   };
 
   const handleConvertToCampaign = (aiObj) => {
@@ -410,14 +480,32 @@ export default function App() {
   };
 
   // User Handlers
-  const handleAddUser = (uObj) => {
-    setUsers(prev => [uObj, ...prev]);
-    showAlert('🛡️ Personel Eklendi', `${uObj.name} sisteme eklendi.`);
+  const handleSaveUser = async (uObj) => {
+    try {
+      const isEdit = users.some(u => u.id === uObj.id);
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(uObj)
+      });
+      if (res.ok) {
+        setUsers(prev => isEdit ? prev.map(x => x.id === uObj.id ? uObj : x) : [uObj, ...prev]);
+        setUserModalData(null);
+        showAlert('🛡️ Personel Kaydedildi', `${uObj.name} sisteme kaydedildi.`);
+      }
+    } catch (e) {
+      setUsers(prev => prev.some(x => x.id === uObj.id) ? prev.map(x => x.id === uObj.id ? uObj : x) : [uObj, ...prev]);
+      setUserModalData(null);
+      showAlert('🛡️ Personel Kaydedildi', `${uObj.name} kaydedildi.`);
+    }
   };
 
-  const handleEditUser = (uObj) => {
-    setUsers(prev => prev.map(x => x.id === uObj.id ? uObj : x));
-    showAlert('✏️ Personel Güncellendi', `${uObj.name} güncellendi.`);
+  const handleDeleteUser = async (userId) => {
+    try {
+      await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+    } catch (e) {}
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    showAlert('🗑️ Personel Silindi', `Kullanıcı kaldırıldı.`);
   };
 
   // 1. MANAGEMENT ROUTE DETECTION (STRICTLY FOR /yonetim, /giris, /login ONLY)
@@ -545,8 +633,13 @@ export default function App() {
           {activeTab === 'finance' && (
             <PageErrorBoundary pageName="Finans & Kasa" onNavigateHome={navigateTo}>
               <FinancePage
-                financialStats={{ totalRev: reservations.reduce((a, b) => a + Number(b.totalAmount || 0), 0), totalDeposit: 45000 }}
+                financialStats={{ totalRev: reservations.reduce((a, b) => a + Number(b.totalAmount || 0), 0), totalDeposit: reservations.reduce((a, b) => a + Number(b.depositPaid || 0), 0) }}
                 reservations={reservations}
+                setReservations={setReservations}
+                venues={venues}
+                services={services}
+                onUpdateReservation={handleUpdateReservation}
+                showToast={(msg) => showAlert('💰 Finans Bildirimi', msg)}
               />
             </PageErrorBoundary>
           )}
@@ -555,8 +648,10 @@ export default function App() {
             <PageErrorBoundary pageName="Düğün Salonlarım" onNavigateHome={navigateTo}>
               <VenuesPage
                 venues={venues}
-                onAddVenue={handleAddVenue}
-                onEditVenue={handleEditVenue}
+                services={services}
+                onAddClick={() => setVenueModalData('new')}
+                onEditClick={(v) => setVenueModalData(v)}
+                onDeleteClick={handleDeleteVenue}
               />
             </PageErrorBoundary>
           )}
@@ -565,8 +660,9 @@ export default function App() {
             <PageErrorBoundary pageName="Ek Hizmetlerim" onNavigateHome={navigateTo}>
               <ServicesPage
                 services={services}
-                onAddService={handleAddService}
-                onEditService={handleEditService}
+                onAddClick={() => setServiceModalData('new')}
+                onEditClick={(s) => setServiceModalData(s)}
+                onDeleteClick={handleDeleteService}
               />
             </PageErrorBoundary>
           )}
@@ -575,8 +671,9 @@ export default function App() {
             <PageErrorBoundary pageName="Müşteri Rehberi" onNavigateHome={navigateTo}>
               <CustomersPage
                 customers={customers}
-                onAddCustomer={handleAddCustomer}
-                onEditCustomer={handleEditCustomer}
+                onAddClick={() => setCustomerModalData('new')}
+                onEditClick={(c) => setCustomerModalData(c)}
+                onDeleteClick={handleDeleteCustomer}
               />
             </PageErrorBoundary>
           )}
@@ -585,8 +682,14 @@ export default function App() {
             <PageErrorBoundary pageName="Kampanyalar" onNavigateHome={navigateTo}>
               <CampaignsPage
                 campaigns={campaigns}
-                onAddCampaign={handleAddCampaign}
-                onEditCampaign={handleEditCampaign}
+                venues={venues}
+                services={services}
+                reservations={reservations}
+                onAddClick={() => setCampaignModalData('new')}
+                onEditClick={(c) => setCampaignModalData(c)}
+                onDeleteClick={handleDeleteCampaign}
+                onConvertToCampaign={handleConvertToCampaign}
+                onUpdateVenuePrice={handleUpdateVenuePrice}
               />
             </PageErrorBoundary>
           )}
@@ -607,8 +710,9 @@ export default function App() {
             <PageErrorBoundary pageName="Kullanıcı Yönetimi" onNavigateHome={navigateTo}>
               <UsersPage
                 users={users}
-                onAddUser={handleAddUser}
-                onEditUser={handleEditUser}
+                onAddClick={() => setUserModalData('new')}
+                onEditClick={(u) => setUserModalData(u)}
+                onDeleteClick={handleDeleteUser}
               />
             </PageErrorBoundary>
           )}
@@ -766,6 +870,49 @@ export default function App() {
         systemVersion={systemVersion}
         versionHistory={versionHistoryState}
       />
+
+      {/* CRUD MANAGEMENT MODALS */}
+      {venueModalData && (
+        <VenueModalComponent
+          venue={venueModalData === 'new' ? null : venueModalData}
+          allServices={services}
+          onClose={() => setVenueModalData(null)}
+          onSave={handleSaveVenue}
+        />
+      )}
+
+      {serviceModalData && (
+        <ServiceModalComponent
+          service={serviceModalData === 'new' ? null : serviceModalData}
+          onClose={() => setServiceModalData(null)}
+          onSave={handleSaveService}
+        />
+      )}
+
+      {customerModalData && (
+        <CustomerFormModal
+          customer={customerModalData === 'new' ? null : customerModalData}
+          onClose={() => setCustomerModalData(null)}
+          onSave={handleSaveCustomer}
+        />
+      )}
+
+      {campaignModalData && (
+        <CampaignModalComponent
+          campaign={campaignModalData === 'new' ? null : campaignModalData}
+          campaigns={campaigns}
+          onClose={() => setCampaignModalData(null)}
+          onSave={handleSaveCampaign}
+        />
+      )}
+
+      {userModalData && (
+        <UserModalComponent
+          user={userModalData === 'new' ? null : userModalData}
+          onClose={() => setUserModalData(null)}
+          onSave={handleSaveUser}
+        />
+      )}
     </div>
   );
 }

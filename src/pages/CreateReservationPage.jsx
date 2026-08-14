@@ -509,14 +509,25 @@ export function CreateReservationPageComponent({ venues, services, customers, ca
       const selectedVenue = venues.find(v => v.id === venueId);
       const existingCustomer = customers.find(c => c.id === selectedCustomerId);
 
-      // Filter available extra services based on selected venue (Etkinlik Mekanı)
+      // Filter available extra services based strictly on selected venue (Etkinlik Mekanı)
       const availableServicesForVenue = useMemo(() => {
         if (!selectedVenue) return services;
-        if (!selectedVenue.availableServices || selectedVenue.availableServices.length === 0) {
-          return services;
+        const venueServicesList = selectedVenue.availableServices || selectedVenue.available_services;
+        if (Array.isArray(venueServicesList) && venueServicesList.length > 0) {
+          return (services || []).filter(s => venueServicesList.includes(s.id));
         }
-        return services.filter(s => selectedVenue.availableServices.includes(s.id));
+        return services || [];
       }, [selectedVenue, services]);
+
+      // Automatically prune previously selected services if they are not offered by the newly selected venue
+      useEffect(() => {
+        if (selectedVenue && Array.isArray(selectedServices) && selectedServices.length > 0) {
+          const venueServicesList = selectedVenue.availableServices || selectedVenue.available_services;
+          if (Array.isArray(venueServicesList) && venueServicesList.length > 0) {
+            setSelectedServices(prev => prev.filter(item => venueServicesList.includes(item.serviceId)));
+          }
+        }
+      }, [venueId]);
 
       // Financial Calculation with Paid Services Breakdown & Deduction
       const calculations = useMemo(() => {

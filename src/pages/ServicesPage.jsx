@@ -151,13 +151,23 @@ export function ServicesComponent({ services, onAddClick, onEditClick, onDeleteC
                         <OptimizedImage src={s.image} alt={`${s.name} Görseli`} className="w-full h-36 object-cover rounded-xl border border-slate-200 dark:border-brand-border" />
                         <div className="flex justify-between items-center pt-3">
                           <h3 className="font-bold text-sm text-slate-800 dark:text-gray-100">{s.name}</h3>
-                          <span className="font-mono font-extrabold text-xs text-amber-600 dark:text-gold-400">{formatCurrency(s.price)}</span>
+                          <div className="text-right">
+                            <span className="font-mono font-extrabold text-xs text-amber-600 dark:text-gold-400 block">{formatCurrency(s.price)}</span>
+                            {s.costPrice !== undefined && Number(s.costPrice) > 0 && (
+                              <span className="font-mono text-[10px] text-red-500 font-bold block">Maliyet: {formatCurrency(s.costPrice)}</span>
+                            )}
+                          </div>
                         </div>
-                        {s.category && (
-                          <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block mt-1">
-                            {s.category}
+                        <div className="flex items-center space-x-1 pt-1">
+                          {s.category && (
+                            <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block">
+                              {s.category}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-brand-dark px-2 py-0.5 rounded-full border border-slate-200 dark:border-brand-border inline-block">
+                            {s.pricingType === 'per_person' ? 'Kişi Başı' : 'Sabit Paket'}
                           </span>
-                        )}
+                        </div>
                         <p className="text-xs text-slate-500 dark:text-gray-400 pt-2 line-clamp-2">{s.description}</p>
                       </div>
 
@@ -184,7 +194,8 @@ export function ServicesComponent({ services, onAddClick, onEditClick, onDeleteC
                           <th className="py-3.5 px-4">Görsel</th>
                           <th className="py-3.5 px-4">Hizmet Adı</th>
                           <th className="py-3.5 px-4">Kategori</th>
-                          <th className="py-3.5 px-4">Paket / Ek Fiyat</th>
+                          <th className="py-3.5 px-4 text-right">Satış Fiyatı</th>
+                          <th className="py-3.5 px-4 text-right">Birim Maliyet</th>
                           <th className="py-3.5 px-4">Açıklama</th>
                           <th className="py-3.5 px-4 text-right">Aksiyonlar</th>
                         </tr>
@@ -200,15 +211,19 @@ export function ServicesComponent({ services, onAddClick, onEditClick, onDeleteC
                               </div>
                             </td>
                             <td className="py-3 px-4 font-bold text-slate-900 dark:text-gray-100">
-                              {s.name}
+                              <div>{s.name}</div>
+                              <span className="text-[10px] text-slate-400 font-mono">{s.pricingType === 'per_person' ? 'Kişi Başı' : 'Sabit Paket'}</span>
                             </td>
                             <td className="py-3 px-4">
                               <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-full">
                                 {s.category || 'Genel Hizmet'}
                               </span>
                             </td>
-                            <td className="py-3 px-4 font-mono font-extrabold text-amber-600 dark:text-gold-400">
+                            <td className="py-3 px-4 text-right font-mono font-extrabold text-amber-600 dark:text-gold-400">
                               {formatCurrency(s.price)}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono font-bold text-red-500">
+                              {s.costPrice !== undefined && Number(s.costPrice) > 0 ? formatCurrency(s.costPrice) : formatCurrency(Math.round(Number(s.price || 0) * 0.6))}
                             </td>
                             <td className="py-3 px-4 max-w-xs truncate text-slate-500 dark:text-gray-400">
                               {s.description}
