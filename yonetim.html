@@ -18185,8 +18185,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           )}
 
           {/* DEDICATED RESERVATION CUSTOM EXPENSE MANAGEMENT MODAL */}
-          {customExpenseModalRes && (
-            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          {customExpenseModalRes && typeof document !== 'undefined' && ReactDOM.createPortal(
+            <div className="fixed inset-0 z-[999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in">
               <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
                 <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
                   <div>
@@ -18293,13 +18293,14 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
-          {/* GENERAL CASHFLOW TRANSACTION MODAL (GELİR / GİDER SEÇİMLİ) */}
-          {isModalOpen && (
-            <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+          {/* GENERAL CASHFLOW TRANSACTION MODAL (GELİR / GİDER SEÇİMLİ - GLOBAL BODY PORTAL) */}
+          {isModalOpen && typeof document !== 'undefined' && ReactDOM.createPortal(
+            <div className="fixed inset-0 z-[999999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in" onClick={() => setIsModalOpen(false)}>
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl my-auto max-h-[92vh] overflow-y-auto custom-scrollbar relative" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
                     <span><ThemeIcon icon="money" className="w-5 h-5 inline-block shrink-0" /></span>
@@ -18570,7 +18571,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </div>
                 </form>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       );
