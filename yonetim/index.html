@@ -1720,9 +1720,19 @@
     const AI_RECOMMENDATIONS = generateSmartAIRecommendations(INITIAL_RESERVATIONS, INITIAL_VENUES, INITIAL_SERVICES);
 
 
-    const TAB_TO_SLUG = {
-      'quote-requests': 'quote-requests',
-      'teklif-talepleri': 'teklif-talepleri',
+    // ==========================================
+    // ZERO-CONFIG SMART DYNAMIC SPA ROUTER (SINGLE SOURCE OF TRUTH)
+    // ==========================================
+    const KNOWN_ADMIN_TABS = new Set([
+      'dashboard', 'create-reservation', 'venues', 'services', 'reservations',
+      'calendar', 'campaigns', 'finance', 'customers', 'quote-requests',
+      'reports', 'media', 'profile', 'mind-map', 'roles', 'users',
+      'company-settings', 'settings', 'settings-appearance', 'settings-performance',
+      'settings-rbac', 'settings-indexing', 'settings-errors', 'email-templates',
+      'home', 'home-gateway', 'login', 'simulasyon-404', 'simulasyon-301', 'simulasyon-403', 'simulasyon-500'
+    ]);
+
+    const TAB_TO_SLUG_MAP = {
       'dashboard': 'anasayfa',
       'create-reservation': 'yeni-rezervasyon',
       'venues': 'dugun-salonlari',
@@ -1732,6 +1742,7 @@
       'campaigns': 'kampanyalar',
       'finance': 'finans',
       'customers': 'musteri-rehberi',
+      'quote-requests': 'quote-requests',
       'users': 'kullanici-yonetimi',
       'roles': 'roller',
       'reports': 'raporlar-ai',
@@ -1739,6 +1750,7 @@
       'profile': 'profil',
       'mind-map': 'zihin-haritasi',
       'settings': 'ayarlar',
+      'company-settings': 'sirket-bilgileri',
       'settings-appearance': 'ayarlar/gorunum',
       'settings-performance': 'ayarlar/onbellek',
       'settings-rbac': 'ayarlar/rol-izinleri',
@@ -1751,75 +1763,87 @@
       'simulasyon-500': 'simulasyon-500'
     };
 
-    const SLUG_TO_TAB = {
+    const TAB_TO_SLUG = new Proxy(TAB_TO_SLUG_MAP, {
+      get(target, prop) {
+        if (typeof prop !== 'string') return undefined;
+        return target[prop] || prop;
+      }
+    });
+
+    const SLUG_ALIASES = {
+      '': 'dashboard',
+      'dashboard': 'dashboard',
+      'anasayfa': 'dashboard',
+      'istatistikler': 'dashboard',
+      'medya': 'media',
+      'm': 'media',
+      'foto-yukle': 'media',
+      'medya-yukle': 'media',
+      'yeni-rezervasyon': 'create-reservation',
+      'rezervasyon-olustur': 'create-reservation',
+      'dugun-salonlari': 'venues',
+      'salonlar': 'venues',
+      'mekanlar': 'venues',
+      'etkinlik-mekanlari': 'venues',
+      'ek-hizmetler': 'services',
+      'hizmetler': 'services',
+      'rezervasyonlar': 'reservations',
+      'rezervasyon-listesi': 'reservations',
+      'rezervasyon-yonetimi': 'reservations',
+      'takvim': 'calendar',
+      'interaktif-takvim': 'calendar',
+      'kampanyalar': 'campaigns',
+      'kampanya-yonetimi': 'campaigns',
+      'finans': 'finance',
+      'kasa': 'finance',
+      'giderler': 'finance',
+      'musteri-rehberi': 'customers',
+      'musteriler': 'customers',
+      'crm': 'customers',
       'quote-requests': 'quote-requests',
       'teklif-talepleri': 'quote-requests',
       'teklif-istekleri': 'quote-requests',
       'teklifler': 'quote-requests',
       'leads': 'quote-requests',
-      'yonetim/quote-requests': 'quote-requests',
-      'yonetim/teklif-talepleri': 'quote-requests',
-      '': 'dashboard',
-      'dashboard': 'dashboard',
-      'anasayfa': 'dashboard',
-      'medya': 'media',
-      'm': 'media',
-      'yeni-rezervasyon': 'create-reservation',
-      'rezervasyon-olustur': 'create-reservation',
-      'dugun-salonlari': 'venues',
-      'ek-hizmetler': 'services',
-      'rezervasyonlar': 'reservations',
-      'rezervasyon-yonetimi': 'reservations',
-      'takvim': 'calendar',
-      'kampanyalar': 'campaigns',
-      'finans': 'finance',
-      'musteri-rehberi': 'customers',
-      'musteriler': 'customers',
       'kullanici-yonetimi': 'users',
       'kullanicilar': 'users',
       'roller': 'roles',
+      'rol-yonetimi': 'roles',
       'raporlar-ai': 'reports',
       'raporlar': 'reports',
-      'medya-yukle': 'media',
+      'grafikler': 'reports',
       'profil': 'profile',
+      'profil-duzenle': 'profile',
+      'hesabim': 'profile',
+      'profile': 'profile',
       'zihin-haritasi': 'mind-map',
       'zihinharitasi': 'mind-map',
       'mind-map': 'mind-map',
       'mindmap': 'mind-map',
-            'ayarlar': 'settings',
+      'ayarlar': 'settings',
+      'sistem-ayarlari': 'settings',
       'company-settings': 'company-settings',
       'sirket-bilgileri': 'company-settings',
       'sozlesme-sablonu': 'company-settings',
       'ayarlar/sirket-bilgileri': 'company-settings',
-      'yonetim/company-settings': 'company-settings',
-      'yonetim/sirket-bilgileri': 'company-settings',
-      'yonetim/sozlesme-sablonu': 'company-settings',
+      'ayarlar/gorunum': 'settings-appearance',
+      'gorunum': 'settings-appearance',
+      'tema': 'settings-appearance',
+      'ayarlar/onbellek': 'settings-performance',
+      'onbellek': 'settings-performance',
+      'performans': 'settings-performance',
       'ayarlar/rol-izinleri': 'settings-rbac',
       'rol-izinleri': 'settings-rbac',
-      'settings-rbac': 'settings-rbac',
-      'ayarlar/seo-indeksleme': 'settings-indexing',
-      'settings-indexing': 'settings-indexing',
-      'seo-indeksleme': 'settings-indexing',
-      'indeksleme': 'settings-indexing',
-      'arama-motoru-ayarlari': 'settings-indexing',
-      'ayarlar/gorunum': 'settings-appearance',
-      'settings-appearance': 'settings-appearance',
-      'gorunum': 'settings-appearance',
-      'ayarlar/onbellek': 'settings-performance',
-      'settings-performance': 'settings-performance',
-      'onbellek': 'settings-performance',
-      'ayarlar/hata-simulasyonu': 'settings-errors',
-      'settings-errors': 'settings-errors',
-      'eposta-sablonlari': 'email-templates',
-      'ayarlar/gorunum': 'settings-appearance',
-      'ayarlar/onbellek': 'settings-performance',
-      'ayarlar/rol-izinleri': 'settings-rbac',
       'ayarlar/seo-indeksleme': 'settings-indexing',
       'ayarlar/indeksleme': 'settings-indexing',
       'seo-indeksleme': 'settings-indexing',
       'indeksleme': 'settings-indexing',
       'arama-motoru-ayarlari': 'settings-indexing',
       'ayarlar/hata-simulasyonu': 'settings-errors',
+      'ayarlar/simulasyon': 'settings-errors',
+      'hata-simulasyonu': 'settings-errors',
+      'eposta-sablonlari': 'email-templates',
+      'eposta-otomasyon': 'email-templates',
       'simulasyon-404': 'simulasyon-404',
       'simulasyon-301': 'simulasyon-301',
       'simulasyon-403': 'simulasyon-403',
@@ -1834,15 +1858,29 @@
       'yonetim/login': 'login'
     };
 
-    const TAB_TO_PATH = {
+    const SLUG_TO_TAB = new Proxy(SLUG_ALIASES, {
+      get(target, prop) {
+        if (typeof prop !== 'string') return undefined;
+        let clean = prop.replace(/^\/?(yonetim\/)?/, '').replace(/\/$/, '');
+        if (!clean || clean === '') return 'dashboard';
+        if (clean in target) return target[clean];
+        if (KNOWN_ADMIN_TABS.has(clean)) return clean;
+        let normalized = clean.replace(/\//g, '-');
+        if (normalized in target) return target[normalized];
+        if (KNOWN_ADMIN_TABS.has(normalized)) return normalized;
+        let cleanSub = clean.replace(/^ayarlar-/, 'settings-').replace(/^ayarlar\//, 'settings-');
+        if (cleanSub in target) return target[cleanSub];
+        if (KNOWN_ADMIN_TABS.has(cleanSub)) return cleanSub;
+        return undefined;
+      }
+    });
+
+    const TAB_TO_PATH_MAP = {
       'home': '/',
       'home-gateway': '/',
-      'quote-requests': '/yonetim/quote-requests',
-      'teklif-talepleri': '/yonetim/quote-requests',
-      '/yonetim/quote-requests': '/yonetim/quote-requests',
-      '/yonetim/teklif-talepleri': '/yonetim/quote-requests',
+      'dashboard': '/yonetim',
+      'login': '/yonetim/giris',
       'public-home': '/',
-      'home-gateway': '/',
       'public-halls': '/salonlar',
       'public-virtual-tour': '/360-tur',
       'public-organizations': '/organizasyonlar',
@@ -1852,53 +1890,24 @@
       'public-contact': '/iletisim',
       'public-customer-login': '/musteri-giris',
       'public-customer-register': '/musteri-kayit',
-
-      '/': '/',
-      '/salonlar': '/salonlar',
-      '/360-tur': '/360-tur',
-      '/sanal-tur': '/360-tur',
-      '/organizasyonlar': '/organizasyonlar',
-      '/videolar': '/videolar',
-      '/blog': '/blog',
-      '/hakkimizda': '/hakkimizda',
-      '/iletisim': '/iletisim',
-      '/musteri-giris': '/musteri-giris',
-      '/musteri-kayit': '/musteri-kayit',
-
-      'login': '/yonetim/giris',
-      'dashboard': '/yonetim',
-      'create-reservation': '/yonetim/yeni-rezervasyon',
-      'reservations': '/yonetim/rezervasyonlar',
-      'calendar': '/yonetim/takvim',
-      'finance': '/yonetim/finans',
-      'venues': '/yonetim/dugun-salonlari',
-      'services': '/yonetim/ek-hizmetler',
-      'customers': '/yonetim/musteri-rehberi',
-      'campaigns': '/yonetim/kampanyalar',
-      'reports': '/yonetim/raporlar-ai',
-      'users': '/yonetim/kullanici-yonetimi',
-      'roles': '/yonetim/roller',
-      'media': '/yonetim/medya',
-      'profile': '/yonetim/profil',
-      'mind-map': '/yonetim/zihin-haritasi',
       'company-settings': '/yonetim/sirket-bilgileri',
-            'company-settings': '/yonetim/sirket-bilgileri',
-      'settings': '/yonetim/ayarlar',
       'settings-appearance': '/yonetim/ayarlar/gorunum',
       'settings-performance': '/yonetim/ayarlar/onbellek',
       'settings-rbac': '/yonetim/ayarlar/rol-izinleri',
       'settings-indexing': '/yonetim/ayarlar/seo-indeksleme',
       'settings-errors': '/yonetim/ayarlar/hata-simulasyonu',
-      'email-templates': '/yonetim/eposta-sablonlari',
-      'simulasyon-404': '/yonetim/simulasyon-404',
-      'simulasyon-301': '/yonetim/simulasyon-301',
-      'simulasyon-403': '/yonetim/simulasyon-403',
-      'simulasyon-500': '/yonetim/simulasyon-500',
-      '404': '/yonetim/simulasyon-404',
-      '301': '/yonetim/simulasyon-301',
-      '403': '/yonetim/simulasyon-403',
-      '500': '/yonetim/simulasyon-500'
+      'email-templates': '/yonetim/eposta-sablonlari'
     };
+
+    const TAB_TO_PATH = new Proxy(TAB_TO_PATH_MAP, {
+      get(target, prop) {
+        if (typeof prop !== 'string') return undefined;
+        if (prop in target) return target[prop];
+        if (prop.startsWith('/')) return prop;
+        const slug = TAB_TO_SLUG[prop] || prop;
+        return `/yonetim/${slug}`;
+      }
+    });
 
     // ==========================================
     // SYSTEM-WIDE PERFORMANCE FRAMEWORK (5 LAYERS)
@@ -10623,9 +10632,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [reservations, resSearchQuery, resStatusFilter]);
 
       const isAuthorized = useMemo(() => {
-        const allowedRoles = TAB_PERMISSIONS[activeTab] || ['admin'];
+        if (activeRole === 'admin') return true;
+        const allowedRoles = tabPermissionsState[activeTab] || TAB_PERMISSIONS[activeTab] || ['admin', 'satisci', 'sosyal_medyaci'];
         return allowedRoles.includes(activeRole);
-      }, [activeTab, activeRole]);
+      }, [activeTab, activeRole, tabPermissionsState]);
 
       // Print Invoice Helper (100% Dynamic with Database Company Settings & 3-Page Contract Clauses)
       const handlePrintInvoice = (res) => {
