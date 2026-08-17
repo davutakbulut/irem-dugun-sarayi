@@ -593,6 +593,22 @@ const initMysql = async () => {
       `);
 
       await pool.query(`
+        CREATE TABLE IF NOT EXISTS quote_requests (
+          id VARCHAR(50) PRIMARY KEY,
+          customer_name VARCHAR(150),
+          customer_phone VARCHAR(50),
+          customer_email VARCHAR(100),
+          event_type VARCHAR(100),
+          preferred_venue VARCHAR(100),
+          guest_count INT(11) DEFAULT 0,
+          event_date DATE NULL,
+          notes TEXT,
+          status VARCHAR(50) DEFAULT 'beklemede',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await pool.query(`
         CREATE TABLE IF NOT EXISTS system_settings (
           id INT(11) PRIMARY KEY,
           settings_json LONGTEXT,
@@ -1287,6 +1303,101 @@ app.delete('/api/customers/:id', deleteCustomerHandler);
 app.post(['/api/customers/delete/:id', '/api/customers/delete'], deleteCustomerHandler);
 
 // -------------------------------------------------------------
+
+// -------------------------------------------------------------
+// 10. TEKLİF TALEPLERİ ENDPOINTS (/api/quote-requests & /api/leads)
+// -------------------------------------------------------------
+app.get(['/api/quote-requests', '/api/leads'], async (req, res) => {
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT * FROM quote_requests ORDER BY created_at DESC');
+      const formatted = (rows || []).map(q => ({
+        id: q.id,
+        customerName: q.customer_name || '',
+        customerPhone: q.customer_phone || '',
+        customerEmail: q.customer_email || '',
+        eventType: q.event_type || 'Düğün',
+        preferredVenue: q.preferred_venue || '',
+        guestCount: Number(q.guest_count || 0),
+        eventDate: q.event_date ? (q.event_date instanceof Date ? q.event_date.toISOString().split('T')[0] : String(q.event_date).split('T')[0]) : '',
+        notes: q.notes || '',
+        status: q.status || 'beklemede',
+        createdAt: q.created_at || new Date().toISOString()
+      }));
+      return res.json(formatted);
+    }
+  } catch(e) {
+    console.error('MySQL GET /api/quote-requests error:', e.message);
+  }
+  res.json(memoryStore.quoteRequests || []);
+});
+
+const deleteQuoteRequestHandler = async (req, res) => {
+  try {
+    const id = req.params.id || req.body.id || req.query.id;
+    if (!id) return res.status(400).json({ error: 'Talep ID eksik' });
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query('DELETE FROM quote_requests WHERE id = ?', [id]);
+      console.log(`🗑️ Teklif Talebi [${id}] MariaDB Veritabanından Silindi.`);
+    }
+    memoryStore.quoteRequests = (memoryStore.quoteRequests || []).filter(q => q.id !== id);
+    res.json({ success: true, id });
+  } catch(e) {
+    console.error('MySQL DELETE /api/quote-requests error:', e.message);
+    res.status(500).json({ error: 'Talep silinemedi', message: e.message });
+  }
+};
+app.delete(['/api/quote-requests/:id', '/api/leads/:id'], deleteQuoteRequestHandler);
+app.post(['/api/quote-requests/delete/:id', '/api/quote-requests/delete', '/api/leads/delete/:id', '/api/leads/delete'], deleteQuoteRequestHandler);
+
+app.post(['/api/quote-requests', '/api/leads'], async (req, res) => {
+  try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteQuoteRequestHandler(req, res);
+    }
+    const raw = req.body || {};
+    const eDate = raw.eventDate || raw.event_date || null;
+    const cleanEDate = (eDate && typeof eDate === 'string' && eDate.trim().length >= 8) ? eDate.trim().split('T')[0] : null;
+
+    const item = {
+      id: raw.id || ('QUOTE-' + Date.now()),
+      customerName: (raw.customerName || raw.customer_name || 'İsimsiz Talep').trim(),
+      customerPhone: (raw.customerPhone || raw.customer_phone || '').trim(),
+      customerEmail: (raw.customerEmail || raw.customer_email || '').trim(),
+      eventType: raw.eventType || raw.event_type || 'Düğün',
+      preferredVenue: raw.preferredVenue || raw.preferred_venue || '',
+      guestCount: Number(raw.guestCount || raw.guest_count || 0),
+      eventDate: cleanEDate || '',
+      notes: raw.notes || '',
+      status: raw.status || 'beklemede',
+      createdAt: raw.createdAt || raw.created_at || new Date().toISOString()
+    };
+
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query(
+        `INSERT INTO quote_requests (id, customer_name, customer_phone, customer_email, event_type, preferred_venue, guest_count, event_date, notes, status) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+         ON DUPLICATE KEY UPDATE 
+           customer_name=VALUES(customer_name), customer_phone=VALUES(customer_phone), 
+           customer_email=VALUES(customer_email), event_type=VALUES(event_type), 
+           preferred_venue=VALUES(preferred_venue), guest_count=VALUES(guest_count), 
+           event_date=VALUES(event_date), notes=VALUES(notes), status=VALUES(status)`,
+        [item.id, item.customerName, item.customerPhone, item.customerEmail, item.eventType, item.preferredVenue, item.guestCount, cleanEDate, item.notes, item.status]
+      );
+      console.log(`📋 Teklif Talebi [${item.id}] MariaDB Veritabanına Yazıldı: ${item.customerName}`);
+    }
+
+    memoryStore.quoteRequests = [item, ...(memoryStore.quoteRequests || []).filter(q => q.id !== item.id)];
+    res.status(201).json({ success: true, item });
+  } catch(e) {
+    console.error('MySQL POST /api/quote-requests error:', e.message);
+    res.status(500).json({ error: 'Talep kaydedilemedi', message: e.message });
+  }
+});
+
 // 4. KULLANICILAR ENDPOINTS (/api/users)
 // -------------------------------------------------------------
 app.get('/api/users', async (req, res) => {

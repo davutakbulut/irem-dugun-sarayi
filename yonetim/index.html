@@ -9364,63 +9364,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
     function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
-      const [venues, setVenues] = useState([]);
-      const [services, setServices] = useState([]);
-      const [campaigns, setCampaigns] = useState([]);
-      const [customers, setCustomers] = useState([]);
-      const [quoteRequests, setQuoteRequests] = useState(() => CacheService.get('quote_requests', INITIAL_QUOTE_REQUESTS));
-
-      const handleSaveQuoteRequest = (newQuote) => {
-        setQuoteRequests(prev => {
-          const updated = [newQuote, ...(prev || [])];
-          CacheService.set('quote_requests', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ quoteRequests: updated })
-            }).catch(() => {});
-          }
-          return updated;
-        });
-      };
-      // Auto-normalize mediaKey on all reservations while PRESERVING custom initial keys like MEDIA-8X92M1KP
-      const normalizeReservationsMediaKeys = (list) => {
-        if (!Array.isArray(list)) return [];
-        const initialMap = {
-          'RES-2026-001': 'MEDIA-8X92M1KP',
-          'RES-2026-002': 'MEDIA-7K34P9LV'
-        };
-        return list.map((r, idx) => {
-          const knownKey = initialMap[r.id] || r.mediaKey;
-          const cleanMediaFiles = (r.mediaFiles || []).filter(f => f && f.url && f.url.startsWith('/uploads/'));
-          return {
-            ...r,
-            mediaKey: knownKey || ('MEDIA-' + (r.id || 'RES-' + idx).replace(/[^A-Za-z0-9]/g, '')),
-            mediaFiles: cleanMediaFiles
-          };
-        });
-      };
-
-      const [reservations, setReservations] = useState(() => {
-        const cached = CacheService.get('reservations', INITIAL_RESERVATIONS) || INITIAL_RESERVATIONS;
-        const demoIds = ['RES-2026-AUG-06', 'RES-2026-AUG-05', 'RES-2026-AUG-07A', 'RES-2026-AUG-07B', 'RES-2026-AUG-04'];
-        const clean = (Array.isArray(cached) ? cached : []).filter(r => r && !demoIds.includes(r.id));
-        if (Array.isArray(cached) && cached.length !== clean.length) {
-          CacheService.set('reservations', clean);
-        }
-        return normalizeReservationsMediaKeys(clean);
-      });
+      const [venues, setVenues] = useState(() => CacheService.get('venues', null) || []);
+      const [services, setServices] = useState(() => CacheService.get('services', null) || []);
+      const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', null) || []);
+      const [customers, setCustomers] = useState(() => CacheService.get('customers', null) || []);
+      const [quoteRequests, setQuoteRequests] = useState(() => CacheService.get('quote_requests', null) || []);
+      const [reservations, setReservations] = useState(() => CacheService.get('reservations', null) || []);
       const [draftReservations, setDraftReservations] = useState([]);
-      const [expenses, setExpenses] = useState(() => CacheService.get('expenses', (typeof INITIAL_EXPENSES !== 'undefined' ? INITIAL_EXPENSES : [])) || []);
+      const [expenses, setExpenses] = useState(() => CacheService.get('expenses', null) || []);
       const isInitialLoadDoneRef = useRef(false);
-      const [users, setUsers] = useState(() => {
-        const cachedUsers = CacheService.get('users', null);
-        if (cachedUsers && Array.isArray(cachedUsers) && cachedUsers.length > 0) {
-          return cachedUsers;
-        }
-        return [];
-      });
+      const [users, setUsers] = useState(() => CacheService.get('users', null) || []);
 
       const lastSyncedVenuesRef = useRef('');
       const lastSyncedServicesRef = useRef('');
@@ -9698,6 +9651,17 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 if (Array.isArray(data)) {
                   lastSyncedExpensesRef.current = JSON.stringify(data);
                   setExpenses(data);
+                }
+              })
+              .catch(() => {});
+
+            // Fetch Quote Requests (Leads)
+            fetchFn('/api/quote-requests')
+              .then(res => res.json())
+              .then(data => {
+                if (Array.isArray(data)) {
+                  setQuoteRequests(data);
+                  CacheService.set('quote_requests', data);
                 }
               })
               .catch(() => {});
