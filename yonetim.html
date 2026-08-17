@@ -17787,6 +17787,9 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const [newAmount, setNewAmount] = useState('');
       const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
       const [newStatus, setNewStatus] = useState('Tamamlandı');
+      const [expenseScope, setExpenseScope] = useState('general_fixed'); // 'general_fixed' | 'reservation_specific'
+      const [expenseResId, setExpenseResId] = useState('');
+      const [selectedProfitMonth, setSelectedProfitMonth] = useState('all'); // 'all' | '2026-07' | '2026-08' | '2026-09'
 
       // Update default category when transType changes
       useEffect(() => {
@@ -17797,23 +17800,80 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         }
       }, [transType]);
 
-      // 1. RESERVATION ITEMIZED FINANCIAL & PROFITABILITY CALCULATION
+      // 1. MONTHLY FIXED OVERHEAD POOL & ALLOCATION HELPER (Absorption Costing)
+      const getMonthKey = (dateVal) => {
+        if (!dateVal) return '';
+        if (typeof dateVal === 'string') {
+          if (dateVal.includes('T')) dateVal = dateVal.split('T')[0];
+          const parts = dateVal.split('-');
+          if (parts.length >= 2) return `${parts[0]}-${parts[1]}`;
+        }
+        try {
+          const d = new Date(dateVal);
+          if (!isNaN(d.getTime())) {
+            const yr = d.getFullYear();
+            const mo = String(d.getMonth() + 1).padStart(2, '0');
+            return `${yr}-${mo}`;
+          }
+        } catch(e){}
+        return '';
+      };
+
+      const monthlyFixedExpenseStats = useMemo(() => {
+        const stats = {};
+
+        // 1. Group all general fixed overhead expenses by month
+        (expenses || []).forEach(e => {
+          if (e.type === 'gider' && e.expenseScope !== 'reservation_specific' && !e.reservationId && !e.reservation_id) {
+            const mKey = getMonthKey(e.date);
+            if (mKey) {
+              if (!stats[mKey]) stats[mKey] = { fixedTotal: 0, count: 0, items: [] };
+              stats[mKey].fixedTotal += Number(e.amount || 0);
+              stats[mKey].count += 1;
+              stats[mKey].items.push(e);
+            }
+          }
+        });
+
+        // 2. Count reservations per month
+        const resCountPerMonth = {};
+        (reservations || []).forEach(r => {
+          const mKey = getMonthKey(r.eventDate || r.startDate || r.date);
+          if (mKey) {
+            resCountPerMonth[mKey] = (resCountPerMonth[mKey] || 0) + 1;
+          }
+        });
+
+        // 3. Compute costPerRes for all known months
+        const allMonths = new Set([...Object.keys(stats), ...Object.keys(resCountPerMonth)]);
+        allMonths.forEach(mKey => {
+          if (!stats[mKey]) stats[mKey] = { fixedTotal: 0, count: 0, items: [] };
+          const effectiveFixedTotal = stats[mKey].fixedTotal > 0 ? stats[mKey].fixedTotal : 150000;
+          const rCount = resCountPerMonth[mKey] || 0;
+          const costPerRes = rCount > 0 ? Math.round(effectiveFixedTotal / rCount) : effectiveFixedTotal;
+          stats[mKey].effectiveFixedTotal = effectiveFixedTotal;
+          stats[mKey].resCount = rCount;
+          stats[mKey].costPerRes = costPerRes;
+        });
+
+        return stats;
+      }, [expenses, reservations]);
+
+      // 2. RESERVATION ITEMIZED FINANCIAL & PROFITABILITY CALCULATION
       const reservationFinancials = useMemo(() => {
         return (reservations || []).map(r => {
           const vObj = (venues || []).find(v => v.id === r.venueId);
-          const soldVenuePrice = Number(r.customVenuePrice !== undefined && Number(r.customVenuePrice) > 0 ? r.customVenuePrice : (r.venuePrice !== undefined && Number(r.venuePrice) > 0 ? r.venuePrice : (vObj?.price || 0)));
+          const soldVenuePrice = Number(r.customVenuePrice !== undefined && Number(r.customVenuePrice) > 0 ? r.customVenuePrice : (r.venuePrice !== undefined && Number(r.venuePrice) > 0 ? r.venuePrice : (vObj?.price || 100000)));
           const grossIncome = Number(r.totalAmount !== undefined && Number(r.totalAmount) > 0 ? r.totalAmount : (r.subtotal || soldVenuePrice));
 
-          // 1. ÖNCELİK: Mekan Kartına Tanımlı Gerçek Maliyet Bedeli
-          const venueCost = (vObj && vObj.costPrice !== undefined && Number(vObj.costPrice) > 0)
-            ? Number(vObj.costPrice)
-            : (r.venueCost !== undefined && Number(r.venueCost) > 0
-                ? Number(r.venueCost)
-                : Math.round(Number(soldVenuePrice || 60000) * 0.55));
+          // DÖNEMSEL SABİT TESİS MALİYETİ (Absorption Costing)
+          const mKey = getMonthKey(r.eventDate || r.startDate || r.date) || '2026-08';
+          const monthStat = monthlyFixedExpenseStats[mKey] || { effectiveFixedTotal: 150000, resCount: 1, costPerRes: 15000 };
+          const allocatedFixedCost = monthStat.costPerRes || 15000;
 
-          // 1. ÖNCELİK: Ek Hizmet Kartına Tanımlı Gerçek Birim Maliyeti
+          // REZERVASYONA ÖZEL SEÇİLİ HİZMETLER & MENÜ BİRİM MALİYETLERİ
           const servicesCost = (r.selectedServices || []).reduce((sum, s) => {
-            const sObj = (services || []).find(srv => srv.id === s.serviceId);
+            const sObj = (services || []).find(srv => srv.id === s.serviceId || srv.id === s.id);
             const uCost = (sObj && sObj.costPrice !== undefined && Number(sObj.costPrice) > 0)
               ? Number(sObj.costPrice)
               : (s.costPrice !== undefined && Number(s.costPrice) > 0
@@ -17822,10 +17882,27 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             return sum + (uCost * Number(s.quantity || 1));
           }, 0);
 
-          const customExpensesList = r.customExpenses || [];
-          const customExpensesTotal = customExpensesList.reduce((sum, exp) => sum + Number(exp.amount || 0), 0);
+          // REZERVASYONA ÖZEL EK HARCAMALAR (Davulcu, Özel Çiçek, Dış Çekim vb.)
+          const customExpensesFromRes = r.customExpenses || [];
+          const customExpensesFromGlobal = (expenses || []).filter(e => (e.reservationId === r.id || e.reservation_id === r.id) && e.type === 'gider');
+          
+          const mergedCustomExpenses = [...customExpensesFromRes];
+          customExpensesFromGlobal.forEach(gExp => {
+            if (!mergedCustomExpenses.some(e => e.id === gExp.id)) {
+              mergedCustomExpenses.push({
+                id: gExp.id,
+                title: gExp.title,
+                amount: Number(gExp.amount || 0),
+                category: gExp.category,
+                date: gExp.date,
+                paid: true
+              });
+            }
+          });
+          const customExpensesTotal = mergedCustomExpenses.reduce((sum, exp) => sum + Number(exp.amount || 0), 0);
 
-          const totalCost = Math.round(venueCost + servicesCost + customExpensesTotal);
+          // TOPLAM REEL MALİYET = DÖNEMSEL SABİT TESİS PAYI + MENÜ/HİZMET MALİYETİ + DİREKT ÖZEL GİDERLER
+          const totalCost = Math.round(allocatedFixedCost + servicesCost + customExpensesTotal);
           const netProfit = Math.round(grossIncome - totalCost);
           const profitMargin = grossIncome > 0 ? ((netProfit / grossIncome) * 100).toFixed(1) : '0.0';
 
@@ -17833,19 +17910,23 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             reservation: r,
             created_at: r.created_at || r.createdAt || '',
             createdAt: r.createdAt || r.created_at || '',
-            venueName: vObj?.name || r.venueName || r.venueId,
+            venueName: vObj?.name || r.venueName || 'Kraliyet Balo Salonu',
+            monthKey: mKey,
+            monthFixedTotal: monthStat.effectiveFixedTotal,
+            monthResCount: monthStat.resCount,
+            allocatedFixedCost,
             soldVenuePrice,
             grossIncome,
-            venueCost,
+            venueCost: allocatedFixedCost,
             servicesCost,
-            customExpensesList,
+            customExpensesList: mergedCustomExpenses,
             customExpensesTotal,
             totalCost,
             netProfit,
             profitMargin: Number(profitMargin)
           };
         });
-      }, [reservations, venues, services]);
+      }, [reservations, venues, services, expenses, monthlyFixedExpenseStats]);
 
       // Global Summary Totals for Contracts
       const totalGrossRevenue = useMemo(() => {
@@ -18159,6 +18240,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         // B) HARİCİ GELİR VEYA HARİCİ GİDER İŞLEMİ
         if (!newTitle.trim()) return;
 
+        const isResSpecific = transType === 'gider' && expenseScope === 'reservation_specific' && !!expenseResId;
         const newTrans = {
           id: `trans-${Date.now()}`,
           title: newTitle.trim(),
@@ -18168,7 +18250,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           createdAt: new Date().toISOString(),
           recordTimestamp: Date.now(),
           date: newDate || new Date().toISOString().split('T')[0],
-          description: `Kasa Hareketi (${transType === 'gelir' ? 'Harici Gelir' : 'Harici Gider'})`,
+          reservationId: isResSpecific ? expenseResId : null,
+          reservation_id: isResSpecific ? expenseResId : null,
+          expenseScope: isResSpecific ? 'reservation_specific' : 'general_fixed',
+          expense_scope: isResSpecific ? 'reservation_specific' : 'general_fixed',
+          description: isResSpecific ? `Rezervasyona Özel Harcama (${expenseResId})` : `Genel Tesis/Kasa Hareketi (${transType === 'gelir' ? 'Harici Gelir' : 'Genel Sabit Gider'})`,
           status: newStatus
         };
 
@@ -18454,6 +18540,65 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           {/* TAB 1: SÖZLEŞME BAZLI KÂRLILIK VE DETAY DÖKÜMÜ */}
           {activeSubTab === 'profitability' && (
             <div className="space-y-4">
+              {/* ABSORPTION COSTING & MONTHLY BREAK-EVEN (BAŞA BAŞ) BANNER */}
+              {(() => {
+                const activeMonthKey = selectedProfitMonth === 'all' ? '2026-07' : selectedProfitMonth;
+                const mStat = monthlyFixedExpenseStats[activeMonthKey] || { effectiveFixedTotal: 150000, resCount: 10, costPerRes: 15000 };
+                const breakEvenCount = Math.max(1, Math.ceil(mStat.effectiveFixedTotal / 85000));
+                const monthNameMap = { 'all': 'Tüm Sezon (Genel)', '2026-07': 'Temmuz 2026', '2026-08': 'Ağustos 2026', '2026-09': 'Eylül 2026', '2026-10': 'Ekim 2026', '2026-11': 'Kasım 2026' };
+
+                return (
+                  <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-brand-dark/40 to-emerald-500/5 space-y-3 shadow-sm">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-2.5 border-slate-200/60 dark:border-brand-border/40">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
+                        <h4 className="font-heading font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>🏢 Dinamik Sabit Tesis & Fatura Havuzu (Dönemsel Maliyet Paylaştırma)</span>
+                        </h4>
+                      </div>
+                      <div className="flex items-center space-x-1.5 bg-slate-100 dark:bg-brand-dark p-1 rounded-xl border border-slate-200 dark:border-brand-border text-xs">
+                        <span className="text-[10px] text-slate-400 font-bold px-1.5">Dönem:</span>
+                        {['all', '2026-07', '2026-08', '2026-09'].map(m => (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => setSelectedProfitMonth(m)}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition cursor-pointer ${
+                              selectedProfitMonth === m ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-600 dark:text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            {monthNameMap[m] || m}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                      <div className="p-3 bg-white/70 dark:bg-brand-card/70 rounded-2xl border border-slate-200/80 dark:border-brand-border/60">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">Sabit Gider Havuzu:</span>
+                        <span className="font-mono font-extrabold text-red-500 dark:text-red-400 text-base">{formatCurrency(mStat.effectiveFixedTotal)}</span>
+                        <span className="text-[9px] text-slate-400 block mt-0.5">Kira + Elektrik + Sabit Faturalar</span>
+                      </div>
+                      <div className="p-3 bg-white/70 dark:bg-brand-card/70 rounded-2xl border border-slate-200/80 dark:border-brand-border/60">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">Dönem Rezervasyonları:</span>
+                        <span className="font-mono font-extrabold text-slate-800 dark:text-gray-100 text-base">{mStat.resCount} Düğün</span>
+                        <span className="text-[9px] text-slate-400 block mt-0.5">Kesinleşmiş Organizasyon</span>
+                      </div>
+                      <div className="p-3 bg-white/70 dark:bg-brand-card/70 rounded-2xl border border-amber-500/30 bg-amber-500/5">
+                        <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold block uppercase">Düğün Başı Sabit Payı:</span>
+                        <span className="font-mono font-extrabold text-amber-600 dark:text-gold-400 text-base">{formatCurrency(mStat.costPerRes)}</span>
+                        <span className="text-[9px] text-slate-400 block mt-0.5">Sabit Havuz ÷ Düğün Sayısı</span>
+                      </div>
+                      <div className="p-3 bg-white/70 dark:bg-brand-card/70 rounded-2xl border border-emerald-500/30 bg-emerald-500/5">
+                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block uppercase">Başa Baş Noktası:</span>
+                        <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-base">{breakEvenCount} Düğün</span>
+                        <span className="text-[9px] text-slate-400 block mt-0.5">Sabitleri çıkaran minimum adet</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div className="glass-panel p-4 rounded-3xl flex justify-between items-center gap-4 border border-slate-200 dark:border-brand-border">
                 <div className="relative w-full md:w-80">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><ThemeIcon icon="search" className="w-4 h-4 inline-block shrink-0" /></span>
@@ -18474,10 +18619,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
                         <th className="p-3.5">Sözleşme & Müşteri</th>
                         <th className="p-3.5">Etkinlik Tarihi</th>
-                        <th className="p-3.5 text-right">Mekan Kiralama</th>
                         <th className="p-3.5 text-right">Toplam Ciro</th>
-                        <th className="p-3.5 text-right">Maliyet</th>
+                        <th className="p-3.5 text-right">Sabit Tesis Payı</th>
+                        <th className="p-3.5 text-right">Hizmet/Menü</th>
                         <th className="p-3.5 text-right">Özel Gider</th>
+                        <th className="p-3.5 text-right">Toplam Maliyet</th>
                         <th className="p-3.5 text-right">Net Kâr</th>
                         <th className="p-3.5 text-center">Kâr %</th>
                         <th className="p-3.5 text-center">İşlem</th>
@@ -18506,14 +18652,17 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                   <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-300">
                                     {formatDate(r.date || r.eventDate)}
                                   </td>
-                                  <td className="p-3.5 text-right font-mono font-extrabold text-slate-700 dark:text-gray-200">
-                                    {formatCurrency(rf.soldVenuePrice)}
-                                  </td>
                                   <td className="p-3.5 text-right font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
                                     {formatCurrency(rf.grossIncome)}
                                   </td>
-                                  <td className="p-3.5 text-right font-mono text-red-500 dark:text-red-400 font-bold">
-                                    {formatCurrency(rf.venueCost + rf.servicesCost)}
+                                  <td className="p-3.5 text-right font-mono font-bold text-amber-600 dark:text-gold-400">
+                                    <div className="flex flex-col items-end">
+                                      <span>{formatCurrency(rf.allocatedFixedCost)}</span>
+                                      <span className="text-[9px] text-slate-400">({rf.monthResCount} Rez. Payı)</span>
+                                    </div>
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono text-slate-600 dark:text-gray-300 font-bold">
+                                    {formatCurrency(rf.servicesCost)}
                                   </td>
                                   <td className="p-3.5 text-right font-mono font-bold">
                                     {rf.customExpensesTotal > 0 ? (
@@ -18535,6 +18684,9 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                         + Gider Ekle
                                       </button>
                                     )}
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono font-extrabold text-red-500 dark:text-red-400">
+                                    {formatCurrency(rf.totalCost)}
                                   </td>
                                   <td className={`p-3.5 text-right font-mono font-extrabold ${rf.netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600'}`}>
                                     {formatCurrency(rf.netProfit)}
@@ -18584,26 +18736,30 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                       </div>
 
                                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
-                                        {/* 1. MEKAN & BALO SALONU MALİYETİ */}
+                                        {/* 1. DÖNEMSEL SABİT TESİS & FATURA PAYI */}
                                         <div className="bg-white dark:bg-brand-card p-4 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2.5 shadow-xs">
                                           <div className="flex justify-between items-center">
                                             <span className="font-bold text-slate-700 dark:text-gray-200 flex items-center space-x-1">
-                                              <ThemeIcon icon="venue" className="w-4 h-4 text-amber-500 shrink-0 inline-block mr-1.5" /><span>Mekan & Salon Maliyeti</span>
+                                              <ThemeIcon icon="venue" className="w-4 h-4 text-amber-500 shrink-0 inline-block mr-1.5" /><span>Aylık Sabit Tesis & Fatura Payı</span>
                                             </span>
-                                            <span className="font-mono font-extrabold text-red-500 dark:text-red-400">{formatCurrency(rf.venueCost)}</span>
+                                            <span className="font-mono font-extrabold text-amber-600 dark:text-gold-400">{formatCurrency(rf.allocatedFixedCost)}</span>
                                           </div>
                                           <div className="p-2.5 bg-slate-50 dark:bg-brand-dark rounded-xl text-[11px] space-y-1 text-slate-600 dark:text-gray-300 border border-slate-200/60 dark:border-brand-border/40">
                                             <div className="flex justify-between font-medium">
-                                              <span>Salon Adı:</span>
+                                              <span>Salon:</span>
                                               <span className="font-bold text-slate-800 dark:text-gray-100">{rf.venueName}</span>
                                             </div>
                                             <div className="flex justify-between font-medium">
-                                              <span>Sözleşme Salon Fiyatı:</span>
-                                              <span className="font-bold font-mono">{formatCurrency(r.venuePrice || r.customVenuePrice || 0)}</span>
+                                              <span>Ayın Sabit Gider Havuzu:</span>
+                                              <span className="font-bold font-mono text-red-500">{formatCurrency(rf.monthFixedTotal)}</span>
                                             </div>
                                             <div className="flex justify-between font-medium">
-                                              <span>Temel İşletme Maliyeti:</span>
-                                              <span className="font-bold font-mono text-red-500">{formatCurrency(rf.venueCost)}</span>
+                                              <span>Bu Aydaki Düğün Sayısı:</span>
+                                              <span className="font-bold font-mono">{rf.monthResCount} Rezervasyon</span>
+                                            </div>
+                                            <div className="flex justify-between font-medium pt-1 border-t border-slate-200 dark:border-brand-border/60 text-amber-600 dark:text-gold-400 font-bold">
+                                              <span>Düğün Başı Sabit Pay:</span>
+                                              <span className="font-mono">{formatCurrency(rf.allocatedFixedCost)}</span>
                                             </div>
                                           </div>
                                         </div>
@@ -19356,6 +19512,53 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                     <span>- İşletme Gideri (-)</span>
                   </button>
                 </div>
+
+                {/* IF GIDER: SUB-TOGGLE FOR GENERAL FIXED OVERHEAD VS RESERVATION SPECIFIC EXPENSE */}
+                {transType === 'gider' && (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2 p-1 bg-red-500/10 rounded-2xl border border-red-500/30">
+                      <button
+                        type="button"
+                        onClick={() => setExpenseScope('general_fixed')}
+                        className={`py-1.5 rounded-xl text-[11px] font-extrabold transition cursor-pointer flex items-center justify-center space-x-1 ${
+                          expenseScope === 'general_fixed' ? 'bg-red-600 text-white shadow-sm' : 'text-red-800 dark:text-red-300 hover:bg-red-500/20'
+                        }`}
+                      >
+                        <ThemeIcon icon="venue" className="w-3.5 h-3.5 inline mr-1" />
+                        <span>🏢 Genel Tesis (Ayın Tümüne Böl)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setExpenseScope('reservation_specific')}
+                        className={`py-1.5 rounded-xl text-[11px] font-extrabold transition cursor-pointer flex items-center justify-center space-x-1 ${
+                          expenseScope === 'reservation_specific' ? 'bg-red-600 text-white shadow-sm' : 'text-red-800 dark:text-red-300 hover:bg-red-500/20'
+                        }`}
+                      >
+                        <ThemeIcon icon="calendar" className="w-3.5 h-3.5 inline mr-1" />
+                        <span>🎯 Rezervasyona Özel Gider</span>
+                      </button>
+                    </div>
+
+                    {expenseScope === 'reservation_specific' && (
+                      <div className="p-3 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
+                        <label className="font-bold text-[11px] block">Giderin Bağlanacağı Rezervasyon:</label>
+                        <select
+                          value={expenseResId}
+                          onChange={e => setExpenseResId(e.target.value)}
+                          required
+                          className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl p-2 font-bold text-slate-800 dark:text-gray-100 text-xs"
+                        >
+                          <option value="">-- Lütfen Düğün / Sözleşme Seçiniz --</option>
+                          {(reservations || []).map(r => (
+                            <option key={r.id} value={r.id}>
+                              {formatDate(r.date || r.eventDate)} - {r.customerName} ({r.id})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* IF GELIR: SUB-TOGGLE FOR RESERVATION PAYMENT VS EXTERNAL INCOME */}
                 {transType === 'gelir' && (

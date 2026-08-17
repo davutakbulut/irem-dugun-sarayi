@@ -553,9 +553,16 @@ const initMysql = async () => {
           date DATE,
           description TEXT,
           type VARCHAR(50) DEFAULT 'expense',
+          reservation_id VARCHAR(50) NULL,
+          expense_scope VARCHAR(50) DEFAULT 'general_fixed',
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      try {
+        await pool.query("ALTER TABLE expenses ADD COLUMN IF NOT EXISTS reservation_id VARCHAR(50) NULL AFTER type");
+        await pool.query("ALTER TABLE expenses ADD COLUMN IF NOT EXISTS expense_scope VARCHAR(50) DEFAULT 'general_fixed' AFTER reservation_id");
+      } catch(err){}
 
       await pool.query(`
         CREATE TABLE IF NOT EXISTS campaigns (
@@ -1883,6 +1890,10 @@ app.get('/api/expenses', async (req, res) => {
         ...r,
         amount: Number(r.amount || 0),
         type: (r.type === 'gelir' || r.type === 'income') ? 'gelir' : 'gider',
+        reservationId: r.reservation_id || '',
+        reservation_id: r.reservation_id || '',
+        expenseScope: r.expense_scope || (r.reservation_id ? 'reservation_specific' : 'general_fixed'),
+        expense_scope: r.expense_scope || (r.reservation_id ? 'reservation_specific' : 'general_fixed'),
         date: r.date ? (typeof r.date === 'string' ? r.date.split('T')[0] : (r.date instanceof Date ? `${r.date.getFullYear()}-${String(r.date.getMonth()+1).padStart(2,'0')}-${String(r.date.getDate()).padStart(2,'0')}` : String(r.date).split('T')[0])) : ''
       }));
       return res.json(formatted);
@@ -1899,6 +1910,9 @@ app.post('/api/expenses', async (req, res) => {
       return deleteExpenseHandler(req, res);
     }
     const raw = req.body || {};
+    const resId = (raw.reservationId || raw.reservation_id || '').trim() || null;
+    const expScope = raw.expenseScope || raw.expense_scope || (resId ? 'reservation_specific' : 'general_fixed');
+
     const item = {
       id: raw.id || (`exp-${Date.now()}`),
       title: (raw.title || 'Kasa Hareketi').trim(),
@@ -1907,20 +1921,25 @@ app.post('/api/expenses', async (req, res) => {
       date: raw.date || new Date().toISOString().split('T')[0],
       description: raw.description || '',
       type: (raw.type === 'gelir' || raw.type === 'income') ? 'gelir' : 'gider',
+      reservationId: resId,
+      reservation_id: resId,
+      expenseScope: expScope,
+      expense_scope: expScope,
       status: raw.status || 'Tamamlandı'
     };
 
     const activePool = await getPool();
     if (activePool) {
       await activePool.query(
-        `INSERT INTO expenses (id, title, category, amount, date, description, type)
-         VALUES (?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO expenses (id, title, category, amount, date, description, type, reservation_id, expense_scope)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE 
            title=VALUES(title), category=VALUES(category), amount=VALUES(amount), 
-           date=VALUES(date), description=VALUES(description), type=VALUES(type)`,
-        [item.id, item.title, item.category, item.amount, item.date, item.description, item.type]
+           date=VALUES(date), description=VALUES(description), type=VALUES(type),
+           reservation_id=VALUES(reservation_id), expense_scope=VALUES(expense_scope)`,
+        [item.id, item.title, item.category, item.amount, item.date, item.description, item.type, item.reservation_id, item.expense_scope]
       );
-      console.log(`💾 Kasa Hareketi [${item.id}] MariaDB Veritabanına Yazıldı: ${item.title} (${item.type === 'gelir' ? '+' : '-'}${item.amount} TL)`);
+      console.log(`💾 Kasa Hareketi [${item.id}] MariaDB Veritabanına Yazıldı: ${item.title} (${item.type === 'gelir' ? '+' : '-'}${item.amount} TL - ${item.expenseScope})`);
     }
     
     // Update memoryStore
