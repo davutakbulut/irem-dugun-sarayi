@@ -2730,6 +2730,17 @@
       return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(dateString));
     }
 
+    function formatDateTime(dateString) {
+      if (!dateString) return '';
+      try {
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return String(dateString);
+        return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d);
+      } catch(e) {
+        return String(dateString);
+      }
+    }
+
     function formatPhoneNumber(value) {
       if (!value) return '';
       let digits = value.replace(/\D/g, '');
@@ -3214,8 +3225,9 @@ function ReservationsListComponent({
 
         return matchesSearch && matchesVenue && matchesStatus && matchesDate;
       }).sort((a, b) => {
-        const getTs = (item) => {
+        const getCreationTimestamp = (item) => {
           if (!item) return 0;
+          if (item.recordTimestamp && Number(item.recordTimestamp) > 0) return Number(item.recordTimestamp);
           if (item.created_at) {
             const t = new Date(item.created_at).getTime();
             if (!isNaN(t) && t > 0) return t;
@@ -3231,15 +3243,11 @@ function ReservationsListComponent({
               if (num > 1000000000) return num > 100000000000 ? num : num * 1000;
             }
           }
-          if (item.date) {
-            const t = new Date(item.date).getTime();
-            if (!isNaN(t) && t > 0) return t;
-          }
           return 0;
         };
-        const tsA = getTs(a);
-        const tsB = getTs(b);
-        if (tsB !== tsA) return tsB - tsA;
+        const tsA = getCreationTimestamp(a);
+        const tsB = getCreationTimestamp(b);
+        if (tsB !== tsA) return tsB - tsA; // En son oluşturulan en başta (Creation Date DESC)
         return String(b.id || '').localeCompare(String(a.id || ''));
       });
 
@@ -3531,7 +3539,14 @@ function ReservationsListComponent({
                           return (
                             <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
                               <td className="py-3.5 px-3 text-center font-mono font-bold text-slate-400 dark:text-slate-500">{sequenceNo}</td>
-                              <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{res.id}</td>
+                              <td className="py-3.5 px-3 font-mono">
+                                <div className="font-bold text-amber-700 dark:text-gold-400">{res.id}</div>
+                                {(res.created_at || res.createdAt) && (
+                                  <div className="text-[10px] text-slate-400 font-sans">
+                                    Kayıt: {formatDateTime(res.created_at || res.createdAt)}
+                                  </div>
+                                )}
+                              </td>
                               <td className="py-3.5 px-3">
                                 <div className="font-bold">{res.customerName}</div>
                                 <div className="text-[10px] text-slate-400">{res.customerPhone}</div>
