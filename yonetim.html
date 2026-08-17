@@ -15135,6 +15135,69 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return generateSmartAIRecommendations(reservations, venues, services, customers);
       }, [reservations, venues, services, customers]);
 
+      // Dashboard Recent Reservations strictly sorted by Creation and Latest Activity Timestamp (DESC)
+      const recentSortedReservations = useMemo(() => {
+        const getLastActivityTimestamp = (r) => {
+          if (!r) return 0;
+          let maxTs = 0;
+
+          if (r.recordTimestamp && Number(r.recordTimestamp) > 0) {
+            maxTs = Math.max(maxTs, Number(r.recordTimestamp));
+          }
+          if (r.updated_at) {
+            const t = new Date(r.updated_at).getTime();
+            if (!isNaN(t) && t > 0) maxTs = Math.max(maxTs, t);
+          }
+          if (r.updatedAt) {
+            const t = new Date(r.updatedAt).getTime();
+            if (!isNaN(t) && t > 0) maxTs = Math.max(maxTs, t);
+          }
+          if (Array.isArray(r.payments) && r.payments.length > 0) {
+            r.payments.forEach(p => {
+              if (p.recordTimestamp && Number(p.recordTimestamp) > 0) {
+                maxTs = Math.max(maxTs, Number(p.recordTimestamp));
+              } else if (p.date) {
+                const t = new Date(p.date).getTime();
+                if (!isNaN(t) && t > 0) maxTs = Math.max(maxTs, t);
+              }
+            });
+          }
+          if (Array.isArray(r.customExpenses) && r.customExpenses.length > 0) {
+            r.customExpenses.forEach(exp => {
+              if (exp.recordTimestamp && Number(exp.recordTimestamp) > 0) {
+                maxTs = Math.max(maxTs, Number(exp.recordTimestamp));
+              } else if (exp.date) {
+                const t = new Date(exp.date).getTime();
+                if (!isNaN(t) && t > 0) maxTs = Math.max(maxTs, t);
+              }
+            });
+          }
+          if (r.created_at) {
+            const t = new Date(r.created_at).getTime();
+            if (!isNaN(t) && t > 0) maxTs = Math.max(maxTs, t);
+          }
+          if (r.createdAt) {
+            const t = new Date(r.createdAt).getTime();
+            if (!isNaN(t) && t > 0) maxTs = Math.max(maxTs, t);
+          }
+          if (maxTs === 0 && typeof r.id === 'string') {
+            const m = r.id.match(/\d{10,13}/);
+            if (m) {
+              const num = Number(m[0]);
+              if (num > 1000000000) maxTs = num > 100000000000 ? num : num * 1000;
+            }
+          }
+          return maxTs;
+        };
+
+        return [...(reservations || [])].sort((a, b) => {
+          const tsA = getLastActivityTimestamp(a);
+          const tsB = getLastActivityTimestamp(b);
+          if (tsB !== tsA) return tsB - tsA; // En son oluşturulan veya işlem gören daima en üstte
+          return String(b.id || '').localeCompare(String(a.id || ''));
+        });
+      }, [reservations]);
+
       return (
         <div className="space-y-6 pb-12 animate-fade-in">
           {/* HEADER BANNER */}
@@ -15612,23 +15675,40 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-brand-border/30">
-                    {reservations.slice(0, 5).map(r => (
-                      <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 transition">
-                        <td className="py-2.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">{r.id}</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-gray-200">{r.customerName}</td>
-                        <td className="py-2.5 px-3 text-slate-600 dark:text-gray-400">{formatDate(r.date)} ({r.timeSlot})</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-gray-100">{formatCurrency(r.totalAmount)}</td>
-                        <td className="py-2.5 px-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                            r.paymentStatus === 'Tamamlandı' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
-                            r.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30' :
-                            'bg-red-500/20 text-red-600 border border-red-500/30'
-                          }`}>
-                            {r.paymentStatus}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {(recentSortedReservations || []).slice(0, 6).map(r => {
+                      const vObj = (venues || []).find(v => v.id === r.venueId);
+                      const totalVal = r.totalAmount !== undefined && Number(r.totalAmount) > 0 ? Number(r.totalAmount) : (r.subtotal || r.customVenuePrice || 0);
+                      return (
+                        <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 transition">
+                          <td className="py-2.5 px-3 font-mono">
+                            <div className="font-bold text-amber-700 dark:text-gold-400">{r.id}</div>
+                            {(r.created_at || r.createdAt) && (
+                              <div className="text-[9px] text-slate-400 font-sans">
+                                Kayıt: {typeof formatDateTime === 'function' ? formatDateTime(r.created_at || r.createdAt) : formatDate(r.created_at || r.createdAt)}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="font-bold text-slate-800 dark:text-gray-200">{r.customerName}</div>
+                            <div className="text-[10px] text-slate-400">{vObj?.name || r.venueId}</div>
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-600 dark:text-gray-400">
+                            <div>{formatDate(r.eventDate || r.date)}</div>
+                            <div className="text-[10px] text-slate-400">{r.startTime || '18:00'} - {r.endTime || '23:00'}</div>
+                          </td>
+                          <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-gray-100 font-mono">{formatCurrency(totalVal)}</td>
+                          <td className="py-2.5 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                              r.paymentStatus === 'Tamamlandı' || r.paymentStatus === 'Ödendi' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
+                              r.paymentStatus === 'Kapora Alındı' ? 'bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30' :
+                              'bg-slate-500/20 text-slate-600 border border-slate-500/30'
+                            }`}>
+                              {r.paymentStatus || 'Beklemede'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
