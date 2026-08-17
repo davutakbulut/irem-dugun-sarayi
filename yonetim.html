@@ -18052,6 +18052,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const [expenseScope, setExpenseScope] = useState('general_fixed'); // 'general_fixed' | 'reservation_specific'
       const [expenseResId, setExpenseResId] = useState('');
       const [selectedProfitMonth, setSelectedProfitMonth] = useState('all'); // 'all' | '2026-07' | '2026-08' | '2026-09'
+      const [selectedKasaMonth, setSelectedKasaMonth] = useState('2026-08'); // Kasa aylık filtreleme: 'all' | '2026' | '2026-08'
 
       // Update default category when transType changes
       useEffect(() => {
@@ -18341,11 +18342,20 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const totalCashOutflow = useMemo(() => expenseTransactions.reduce((sum, t) => sum + t.amount, 0), [expenseTransactions]);
       const netCashBalance = totalCashInflow - totalCashOutflow;
 
-      // Filtered Transactions
+      // Filtered Transactions (Period-Aware Monthly Filtering)
       const filteredTransactions = useMemo(() => {
         return allTransactions.filter(t => {
           if (filterTab === 'income' && t.type !== 'gelir') return false;
           if (filterTab === 'expense' && t.type !== 'gider') return false;
+
+          if (selectedKasaMonth && selectedKasaMonth !== 'all') {
+            const tDate = t.date ? (t.date instanceof Date ? t.date.toISOString().split('T')[0] : String(t.date).split('T')[0]) : '';
+            if (selectedKasaMonth.length === 4) {
+              if (!tDate.startsWith(selectedKasaMonth)) return false;
+            } else if (selectedKasaMonth.length === 7) {
+              if (!tDate.startsWith(selectedKasaMonth)) return false;
+            }
+          }
 
           if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
@@ -18356,7 +18366,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           }
           return true;
         });
-      }, [allTransactions, filterTab, searchQuery]);
+      }, [allTransactions, filterTab, searchQuery, selectedKasaMonth]);
 
       // Filtered Profitability Rows (Strictly Sorted by System created_at / Creation Timestamp: Newest First)
       const filteredProfitabilityRows = useMemo(() => {
@@ -19099,9 +19109,20 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                     {formatCurrency(rf.netProfit)}
                                   </td>
                                   <td className="p-3.5 text-center whitespace-nowrap">
-                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${rf.profitMargin >= 35 ? 'bg-emerald-500/10 text-emerald-600' : (rf.profitMargin > 0 ? 'bg-amber-500/10 text-amber-600' : 'bg-red-500/10 text-red-600')}`}>
-                                      %{rf.profitMargin}
-                                    </span>
+                                    {(() => {
+                                      const eDate = r.eventDate || r.date || '';
+                                      const isFuture = eDate && new Date(eDate).getTime() > new Date().getTime();
+                                      return (
+                                        <div className="flex flex-col items-center space-y-0.5">
+                                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${rf.profitMargin >= 35 ? 'bg-emerald-500/10 text-emerald-600' : (rf.profitMargin > 0 ? 'bg-amber-500/10 text-amber-600' : 'bg-red-500/10 text-red-600')}`}>
+                                            %{rf.profitMargin}
+                                          </span>
+                                          <span className={`text-[9px] font-bold ${isFuture ? 'text-amber-600 dark:text-gold-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                            {isFuture ? '⏳ Projeksiyon' : '✓ Kesinleşti'}
+                                          </span>
+                                        </div>
+                                      );
+                                    })()}
                                   </td>
                                   <td className="p-3.5 text-center whitespace-nowrap">
                                     <div className="flex items-center justify-center space-x-1.5">
@@ -19288,9 +19309,152 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             </div>
           )}
 
-          {/* TAB 2: KASA VE HARCAMA AKIŞI */}
-          {activeSubTab === 'kasa' && (
+          {/* TAB 2: KASA VE HARCAMA AKIŞI (AYLIK FİLTRELİ VE GERÇEKLEŞEN NAKİT AKIŞI) */}
+          {activeSubTab === 'kasa' && (() => {
+            const currentKasaYear = selectedKasaMonth.includes('-') ? selectedKasaMonth.split('-')[0] : (selectedKasaMonth === 'all' ? '2026' : selectedKasaMonth);
+            const periodInflows = filteredTransactions.filter(t => t.type === 'gelir').reduce((s, t) => s + t.amount, 0);
+            const periodOutflows = filteredTransactions.filter(t => t.type === 'gider').reduce((s, t) => s + t.amount, 0);
+            const periodNetCash = periodInflows - periodOutflows;
+
+            return (
             <div className="space-y-4">
+              {/* DÖNEMSEL AY & YIL SEÇİCİ KART (SÖZLEŞME KÂRLILIĞI İLE BİREBİR UYUMLU) */}
+              <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-brand-border shadow-xs space-y-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200/80 dark:border-brand-border/60 pb-3">
+                  <div>
+                    <h3 className="font-serif font-extrabold text-slate-900 dark:text-gold-400 text-base flex items-center space-x-2">
+                      <ThemeIcon icon="calculator" className="w-4 h-4 inline-block text-amber-500 shrink-0" />
+                      <span>Dönemsel Kasa & Fiili Nakit Akışı</span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">
+                      Günü gelmemiş rezervasyonların henüz ödenmemiş hizmet giderleri kasadan düşülmez; yalnızca fiilen tahsil edilen ve harcanan tutarlar işlenir.
+                    </p>
+                  </div>
+
+                  {/* YIL & AY SEÇİCİLERİ */}
+                  <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    {/* TÜMÜ BUTONU */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedKasaMonth('all')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                        selectedKasaMonth === 'all'
+                          ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 hover:bg-slate-200'
+                      }`}
+                    >
+                      Tüm Zamanlar
+                    </button>
+
+                    {/* YIL SEÇİMİ (DROPDOWN) */}
+                    <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border px-2.5 py-1 rounded-xl shadow-xs">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Yıl:</span>
+                      <select
+                        value={currentKasaYear}
+                        onChange={e => {
+                          const yr = e.target.value;
+                          if (selectedKasaMonth === 'all' || selectedKasaMonth.length === 4) {
+                            setSelectedKasaMonth(yr);
+                          } else {
+                            const mPart = selectedKasaMonth.split('-')[1] || '08';
+                            setSelectedKasaMonth(`${yr}-${mPart}`);
+                          }
+                        }}
+                        className="bg-transparent text-xs font-black text-amber-700 dark:text-gold-400 focus:outline-none cursor-pointer"
+                      >
+                        {[2024, 2025, 2026, 2027, 2028, 2029].map(yr => (
+                          <option key={yr} value={String(yr)} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">{yr}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* AY SEÇİMİ (TÜM 12 AY DROPDOWN) */}
+                    <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border px-2.5 py-1 rounded-xl shadow-xs">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ay:</span>
+                      <select
+                        value={selectedKasaMonth === 'all' || selectedKasaMonth.length === 4 ? 'all' : selectedKasaMonth}
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val === 'all') {
+                            setSelectedKasaMonth(currentKasaYear);
+                          } else {
+                            setSelectedKasaMonth(val);
+                          }
+                        }}
+                        className="bg-transparent text-xs font-black text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                      >
+                        <option value="all" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">Tüm Yıl ({currentKasaYear})</option>
+                        {['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'].map((mName, idx) => {
+                          const mStr = String(idx + 1).padStart(2, '0');
+                          const mKey = `${currentKasaYear}-${mStr}`;
+                          return (
+                            <option key={mKey} value={mKey} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">
+                              {mName}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    {/* ÖNCEKİ / SONRAKİ AY HIZLI BUTONLARI */}
+                    <div className="flex items-center space-x-1">
+                      <button
+                        type="button"
+                        title="Önceki Ay"
+                        onClick={() => {
+                          let yr = Number(currentKasaYear) || 2026;
+                          let mo = (selectedKasaMonth.includes('-') ? Number(selectedKasaMonth.split('-')[1]) : 8) - 1;
+                          if (mo <= 0) {
+                            yr -= 1;
+                            mo = 12;
+                          }
+                          setSelectedKasaMonth(`${yr}-${String(mo).padStart(2, '0')}`);
+                        }}
+                        className="w-7 h-7 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border hover:bg-amber-500 hover:text-slate-950 flex items-center justify-center font-bold text-slate-600 dark:text-gray-300 transition cursor-pointer shadow-xs active:scale-95"
+                      >
+                        ◀
+                      </button>
+                      <button
+                        type="button"
+                        title="Sonraki Ay"
+                        onClick={() => {
+                          let yr = Number(currentKasaYear) || 2026;
+                          let mo = (selectedKasaMonth.includes('-') ? Number(selectedKasaMonth.split('-')[1]) : 8) + 1;
+                          if (mo > 12) {
+                            yr += 1;
+                            mo = 1;
+                          }
+                          setSelectedKasaMonth(`${yr}-${String(mo).padStart(2, '0')}`);
+                        }}
+                        className="w-7 h-7 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border hover:bg-amber-500 hover:text-slate-950 flex items-center justify-center font-bold text-slate-600 dark:text-gray-300 transition cursor-pointer shadow-xs active:scale-95"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* DÖNEMSEL KASA ÖZET KARTLARI */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3 bg-emerald-500/5 rounded-2xl border border-emerald-500/20 flex flex-col justify-between">
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block uppercase">Seçili Dönem Tahsilat (Gelir):</span>
+                    <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-lg">+{formatCurrency(periodInflows)}</span>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">Fiilen kasaya giren ödeme & kaporalar</span>
+                  </div>
+                  <div className="p-3 bg-red-500/5 rounded-2xl border border-red-500/20 flex flex-col justify-between">
+                    <span className="text-[10px] text-red-700 dark:text-red-400 font-bold block uppercase">Seçili Dönem Fiili Gider:</span>
+                    <span className="font-mono font-extrabold text-red-500 dark:text-red-400 text-lg">-{formatCurrency(periodOutflows)}</span>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">Kasadan ödenen fatura, yevmiye ve masraflar</span>
+                  </div>
+                  <div className={`p-3 rounded-2xl border flex flex-col justify-between ${periodNetCash >= 0 ? 'bg-amber-500/5 border-amber-500/20' : 'bg-red-500/10 border-red-500/30'}`}>
+                    <span className="text-[10px] text-slate-700 dark:text-gray-300 font-bold block uppercase">Dönem Net Kasa Farkı:</span>
+                    <span className={`font-mono font-extrabold text-lg ${periodNetCash >= 0 ? 'text-slate-900 dark:text-gold-400' : 'text-red-600'}`}>{formatCurrency(periodNetCash)}</span>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">{periodNetCash >= 0 ? 'Net pozitif nakit fazlası' : 'Net nakit açığı'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* FİLTRE VE ARAMA ÇUBUĞU */}
               <div className="glass-panel p-4 rounded-3xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3 border border-slate-200 dark:border-brand-border shadow-sm">
                 <div className="flex bg-slate-100 dark:bg-brand-card p-1 rounded-2xl border border-slate-200 dark:border-brand-border/60 w-full lg:w-auto">
                   <button
@@ -19299,7 +19463,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       filterTab === 'all' ? 'bg-amber-500 text-slate-950 shadow font-extrabold' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    Tümü ({allTransactions.length})
+                    Tümü ({filteredTransactions.length})
                   </button>
                   <button
                     onClick={() => setFilterTab('income')}
@@ -19307,7 +19471,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       filterTab === 'income' ? 'bg-emerald-600 text-white shadow font-extrabold' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    Gelirler (+) ({incomeTransactions.length})
+                    Gelirler (+) ({filteredTransactions.filter(t => t.type === 'gelir').length})
                   </button>
                   <button
                     onClick={() => setFilterTab('expense')}
@@ -19315,7 +19479,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       filterTab === 'expense' ? 'bg-red-600 text-white shadow font-extrabold' : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    Giderler (-) ({expenseTransactions.length})
+                    Giderler (-) ({filteredTransactions.filter(t => t.type === 'gider').length})
                   </button>
                 </div>
 
@@ -19343,10 +19507,10 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
               </div>
 
               <div className="glass-panel p-4 rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm space-y-3">
-                {/* PAGINATION AT TOP OF PROFITABILITY TABLE */}
+                {/* PAGINATION AT TOP OF KASA TABLE */}
                 <Pagination
                   currentPage={currentPage}
-                  totalItems={filteredProfitabilityRows.length}
+                  totalItems={filteredTransactions.length}
                   pageSize={pageSize}
                   onPageChange={setCurrentPage}
                   onPageSizeChange={setPageSize}
@@ -19429,7 +19593,8 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
 
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* TAB 3: AYLIK NAKİT AKIŞI VE KASA RAPORU */}
           {activeSubTab === 'monthly' && (
