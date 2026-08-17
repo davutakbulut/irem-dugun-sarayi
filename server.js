@@ -210,9 +210,11 @@ const getPool = async () => {
         database: 'irem_dugun_db',
         dateStrings: true,
         waitForConnections: true,
-        connectionLimit: 10,
+        connectionLimit: 5,
         queueLimit: 0,
-        connectTimeout: 5000
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 10000,
+        connectTimeout: 7000
       });
       await testPool.query('SELECT 1');
       pool = testPool;
@@ -223,6 +225,24 @@ const getPool = async () => {
     }
   }
   return pool;
+};
+
+const queryDb = async (sql, params = []) => {
+  let activePool = await getPool();
+  if (!activePool) return [[]];
+  try {
+    return await activePool.query(sql, params);
+  } catch (err) {
+    if (err.code === 'ECONNRESET' || err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ER_TOO_MANY_USER_CONNECTIONS') {
+      console.warn('⚠️ MariaDB bağlantısı yenileniyor:', err.message);
+      pool = null;
+      activePool = await getPool();
+      if (activePool) {
+        return await activePool.query(sql, params);
+      }
+    }
+    throw err;
+  }
 };
 
 const initMysql = async () => {
@@ -1365,26 +1385,25 @@ app.post(['/api/quote-requests', '/api/leads'], async (req, res) => {
       return deleteQuoteRequestHandler(req, res);
     }
     const raw = req.body || {};
-    const eDate = raw.eventDate || raw.event_date || null;
+    const eDate = raw.eventDate || raw.event_date || raw.date || null;
     const cleanEDate = (eDate && typeof eDate === 'string' && eDate.trim().length >= 8) ? eDate.trim().split('T')[0] : null;
 
     const item = {
       id: raw.id || ('QUOTE-' + Date.now()),
-      customerName: (raw.customerName || raw.customer_name || 'İsimsiz Talep').trim(),
-      customerPhone: (raw.customerPhone || raw.customer_phone || '').trim(),
-      customerEmail: (raw.customerEmail || raw.customer_email || '').trim(),
+      customerName: (raw.customerName || raw.name || raw.customer_name || 'İsimsiz Talep').trim(),
+      customerPhone: (raw.customerPhone || raw.phone || raw.customer_phone || '').trim(),
+      customerEmail: (raw.customerEmail || raw.email || raw.customer_email || '').trim(),
       eventType: raw.eventType || raw.event_type || 'Düğün',
-      preferredVenue: raw.preferredVenue || raw.preferred_venue || '',
-      guestCount: Number(raw.guestCount || raw.guest_count || 0),
+      preferredVenue: (raw.preferredVenue || raw.venue || raw.preferred_venue || 'İrem Kraliyet Balo Salonu').trim(),
+      guestCount: Number(raw.guestCount || raw.guests || raw.guest_count || 0),
       eventDate: cleanEDate || '',
-      notes: raw.notes || '',
+      notes: (raw.notes || raw.message || '').trim(),
       status: raw.status || 'beklemede',
       createdAt: raw.createdAt || raw.created_at || new Date().toISOString()
     };
 
-    const activePool = await getPool();
-    if (activePool) {
-      await activePool.query(
+    try {
+      await queryDb(
         `INSERT INTO quote_requests (id, customer_name, customer_phone, customer_email, event_type, preferred_venue, guest_count, event_date, notes, status) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
          ON DUPLICATE KEY UPDATE 
@@ -1395,6 +1414,8 @@ app.post(['/api/quote-requests', '/api/leads'], async (req, res) => {
         [item.id, item.customerName, item.customerPhone, item.customerEmail, item.eventType, item.preferredVenue, item.guestCount, cleanEDate, item.notes, item.status]
       );
       console.log(`📋 Teklif Talebi [${item.id}] MariaDB Veritabanına Yazıldı: ${item.customerName}`);
+    } catch (dbErr) {
+      console.error('MySQL queryDb error on quote-requests:', dbErr.message);
     }
 
     memoryStore.quoteRequests = [item, ...(memoryStore.quoteRequests || []).filter(q => q.id !== item.id)];

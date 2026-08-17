@@ -926,10 +926,28 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
       const [activeBlogCategory, setActiveBlogCategory] = useState('all');
       const [activeBlogArticle, setActiveBlogArticle] = useState(null);
       
+      // Phone number formatter
+      const formatPhoneNumber = (value) => {
+        if (!value) return '';
+        const digits = value.replace(/\D/g, '');
+        if (!digits) return '';
+        let cleanDigits = digits;
+        if (cleanDigits.startsWith('90')) cleanDigits = cleanDigits.substring(2);
+        if (cleanDigits.startsWith('0')) cleanDigits = cleanDigits.substring(1);
+        cleanDigits = cleanDigits.substring(0, 10);
+        
+        if (cleanDigits.length === 0) return '';
+        if (cleanDigits.length <= 3) return `0 (${cleanDigits}`;
+        if (cleanDigits.length <= 6) return `0 (${cleanDigits.substring(0, 3)}) ${cleanDigits.substring(3)}`;
+        if (cleanDigits.length <= 8) return `0 (${cleanDigits.substring(0, 3)}) ${cleanDigits.substring(3, 6)} ${cleanDigits.substring(6)}`;
+        return `0 (${cleanDigits.substring(0, 3)}) ${cleanDigits.substring(3, 6)} ${cleanDigits.substring(6, 8)} ${cleanDigits.substring(8, 10)}`;
+      };
+
       // Contact Form State
       const [contactForm, setContactForm] = useState({
         name: '', phone: '', email: '', date: '', guests: '500', eventType: 'Düğün', message: ''
       });
+      const [contactErrors, setContactErrors] = useState({});
       const [contactLoading, setContactLoading] = useState(false);
       const [contactSubmitted, setContactSubmitted] = useState(false);
 
@@ -1108,22 +1126,50 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
       };
 
       const handleContactSubmit = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
+        
+        const errs = {};
+        if (!contactForm.name || contactForm.name.trim().length < 2) {
+          errs.name = 'Lütfen ad ve soyadınızı eksiksiz giriniz.';
+        }
+        const digits = (contactForm.phone || '').replace(/\D/g, '');
+        const cleanDigits = digits.startsWith('90') ? digits.substring(2) : (digits.startsWith('0') ? digits.substring(1) : digits);
+        if (cleanDigits.length < 10) {
+          errs.phone = 'Lütfen geçerli bir telefon numarası giriniz (05XX XXX XX XX).';
+        }
+        if (!contactForm.date || contactForm.date.trim() === '') {
+          errs.date = 'Lütfen planlanan tarihi seçiniz.';
+        }
+
+        if (Object.keys(errs).length > 0) {
+          setContactErrors(errs);
+          return;
+        }
+        setContactErrors({});
         setContactLoading(true);
+
+        const payload = {
+          id: 'QUOTE-CONTACT-' + Date.now(),
+          customerName: contactForm.name.trim(),
+          customerPhone: contactForm.phone.trim(),
+          customerEmail: (contactForm.email || '').trim(),
+          eventType: contactForm.eventType || 'Düğün',
+          preferredVenue: 'İrem Kraliyet Balo Salonu',
+          guestCount: Number(contactForm.guests || 500),
+          eventDate: contactForm.date,
+          notes: contactForm.message || '',
+          status: 'beklemede',
+          createdAt: new Date().toISOString()
+        };
+
         try {
-          await fetch('/api/data', {
+          await fetch('/api/quote-requests', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              quoteRequests: [{
-                id: 'contact-' + Date.now(),
-                ...contactForm,
-                createdAt: new Date().toISOString()
-              }]
-            })
+            body: JSON.stringify(payload)
           });
         } catch (err) {
-          console.log('Contact send note:', err);
+          console.error('Contact send error:', err);
         }
         setContactLoading(false);
         setContactSubmitted(true);
@@ -1132,6 +1178,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
           setContactForm({
             name: '', phone: '', email: '', date: '', guests: '500', eventType: 'Düğün', message: ''
           });
+          setContactErrors({});
         }, 4000);
       };
 
@@ -1140,12 +1187,13 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
         name: '',
         phone: '',
         email: '',
-        venue: 'Kraliyet Balo Salonu',
+        venue: 'İrem Kraliyet Balo Salonu',
         eventType: 'Düğün',
         guestCount: '500',
         date: '',
         notes: ''
       });
+      const [quoteErrors, setQuoteErrors] = useState({});
       const [quoteSubmitted, setQuoteSubmitted] = useState(false);
       const [quoteLoading, setQuoteLoading] = useState(false);
 
@@ -1160,22 +1208,53 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
       };
 
       const handleQuoteSubmit = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
+
+        const errs = {};
+        if (!quoteForm.name || quoteForm.name.trim().length < 2) {
+          errs.name = 'Lütfen ad ve soyadınızı eksiksiz giriniz.';
+        }
+        const digits = (quoteForm.phone || '').replace(/\D/g, '');
+        const cleanDigits = digits.startsWith('90') ? digits.substring(2) : (digits.startsWith('0') ? digits.substring(1) : digits);
+        if (cleanDigits.length < 10) {
+          errs.phone = 'Lütfen geçerli 10 haneli telefon numaranızı giriniz (05XX XXX XX XX).';
+        }
+        if (!quoteForm.date || quoteForm.date.trim() === '') {
+          errs.date = 'Lütfen planlanan düğün/etkinlik tarihini seçiniz.';
+        }
+        if (!quoteForm.guestCount || Number(quoteForm.guestCount) < 1) {
+          errs.guestCount = 'Lütfen tahmini davetli sayısını en az 1 giriniz.';
+        }
+
+        if (Object.keys(errs).length > 0) {
+          setQuoteErrors(errs);
+          return;
+        }
+        setQuoteErrors({});
         setQuoteLoading(true);
+
+        const payload = {
+          id: 'QUOTE-' + Date.now(),
+          customerName: quoteForm.name.trim(),
+          customerPhone: quoteForm.phone.trim(),
+          customerEmail: (quoteForm.email || '').trim(),
+          eventType: quoteForm.eventType || 'Düğün',
+          preferredVenue: quoteForm.venue || 'İrem Kraliyet Balo Salonu',
+          guestCount: Number(quoteForm.guestCount || 500),
+          eventDate: quoteForm.date,
+          notes: quoteForm.notes || '',
+          status: 'beklemede',
+          createdAt: new Date().toISOString()
+        };
+
         try {
-          await fetch('/api/public-settings', {
+          await fetch('/api/quote-requests', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              quoteRequests: [{
-                id: 'quote-' + Date.now(),
-                ...quoteForm,
-                createdAt: new Date().toISOString()
-              }]
-            })
+            body: JSON.stringify(payload)
           });
         } catch (err) {
-          console.log('Quote send note:', err);
+          console.error('Quote send error:', err);
         }
         setQuoteLoading(false);
         setQuoteSubmitted(true);
@@ -1183,9 +1262,10 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
           setQuoteSubmitted(false);
           setIsQuoteModalOpen(false);
           setQuoteForm({
-            name: '', phone: '', email: '', venue: 'Kraliyet Balo Salonu', eventType: 'Düğün', guestCount: '500', date: '', notes: ''
+            name: '', phone: '', email: '', venue: 'İrem Kraliyet Balo Salonu', eventType: 'Düğün', guestCount: '500', date: '', notes: ''
           });
-        }, 3000);
+          setQuoteErrors({});
+        }, 3500);
       };
 
       const isHeaderSolid = isScrolled || currentTab !== 'home';
@@ -3341,29 +3421,55 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                           </p>
                         </div>
                       ) : (
-                        <form onSubmit={handleContactSubmit} className="space-y-4 text-left">
+                        <form onSubmit={handleContactSubmit} className="space-y-4 text-left" noValidate>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700">Adınız Soyadınız *</label>
+                              <label className={`text-xs font-bold ${contactErrors.name ? 'text-red-600' : 'text-slate-700'}`}>Adınız Soyadınız *</label>
                               <input
                                 type="text"
-                                required
                                 value={contactForm.name}
-                                onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                                onChange={(e) => {
+                                  setContactForm({ ...contactForm, name: e.target.value });
+                                  if (contactErrors.name) setContactErrors(prev => ({ ...prev, name: null }));
+                                }}
                                 placeholder="Örn: Zeynep Kaya"
-                                className="w-full px-3.5 py-2.5 rounded-sm border border-slate-300 focus:border-[#C5A059] focus:outline-none text-xs"
+                                className={`w-full px-3.5 py-2.5 rounded-sm text-xs outline-none transition ${
+                                  contactErrors.name 
+                                    ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                                    : 'border border-slate-300 focus:border-[#C5A059]'
+                                }`}
                               />
+                              {contactErrors.name && (
+                                <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                                  <span>⚠</span>
+                                  <span>{contactErrors.name}</span>
+                                </p>
+                              )}
                             </div>
+
                             <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700">Telefon Numaranız *</label>
+                              <label className={`text-xs font-bold ${contactErrors.phone ? 'text-red-600' : 'text-slate-700'}`}>Telefon Numaranız *</label>
                               <input
                                 type="tel"
-                                required
                                 value={contactForm.phone}
-                                onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                                placeholder="05XX XXX XX XX"
-                                className="w-full px-3.5 py-2.5 rounded-sm border border-slate-300 focus:border-[#C5A059] focus:outline-none text-xs"
+                                onChange={(e) => {
+                                  const formatted = formatPhoneNumber(e.target.value);
+                                  setContactForm({ ...contactForm, phone: formatted });
+                                  if (contactErrors.phone) setContactErrors(prev => ({ ...prev, phone: null }));
+                                }}
+                                placeholder="0 (5XX) XXX XX XX"
+                                className={`w-full px-3.5 py-2.5 rounded-sm text-xs font-mono outline-none transition ${
+                                  contactErrors.phone 
+                                    ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                                    : 'border border-slate-300 focus:border-[#C5A059]'
+                                }`}
                               />
+                              {contactErrors.phone && (
+                                <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                                  <span>⚠</span>
+                                  <span>{contactErrors.phone}</span>
+                                </p>
+                              )}
                             </div>
                           </div>
 
@@ -3397,14 +3503,28 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700">Planlanan Tarih</label>
+                              <label className={`text-xs font-bold ${contactErrors.date ? 'text-red-600' : 'text-slate-700'}`}>Planlanan Tarih *</label>
                               <input
                                 type="date"
                                 value={contactForm.date}
-                                onChange={(e) => setContactForm({ ...contactForm, date: e.target.value })}
-                                className="w-full px-3.5 py-2.5 rounded-sm border border-slate-300 focus:border-[#C5A059] focus:outline-none text-xs bg-white"
+                                onChange={(e) => {
+                                  setContactForm({ ...contactForm, date: e.target.value });
+                                  if (contactErrors.date) setContactErrors(prev => ({ ...prev, date: null }));
+                                }}
+                                className={`w-full px-3.5 py-2.5 rounded-sm text-xs outline-none transition bg-white ${
+                                  contactErrors.date 
+                                    ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                                    : 'border border-slate-300 focus:border-[#C5A059]'
+                                }`}
                               />
+                              {contactErrors.date && (
+                                <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                                  <span>⚠</span>
+                                  <span>{contactErrors.date}</span>
+                                </p>
+                              )}
                             </div>
+
                             <div className="space-y-1">
                               <label className="text-xs font-bold text-slate-700">Tahmini Davetli Sayısı</label>
                               <select
@@ -3938,7 +4058,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleQuoteSubmit} className="space-y-4">
+                  <form onSubmit={handleQuoteSubmit} className="space-y-4" noValidate>
                     <div className="text-center space-y-1">
                       <div className="font-script text-3xl text-[#8C6D33]">Özel Teklif & Randevu</div>
                       <h3 className="text-xl font-extrabold text-slate-900">Ücretsiz Düğün Fiyat Teklifi Alın</h3>
@@ -3947,26 +4067,56 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Ad Soyad *</label>
+                        <label className={`block text-xs font-bold mb-1 ${quoteErrors.name ? 'text-red-600' : 'text-slate-700'}`}>
+                          Ad Soyad *
+                        </label>
                         <input
                           type="text"
-                          required
                           value={quoteForm.name}
-                          onChange={(e) => setQuoteForm({ ...quoteForm, name: e.target.value })}
+                          onChange={(e) => {
+                            setQuoteForm({ ...quoteForm, name: e.target.value });
+                            if (quoteErrors.name) setQuoteErrors(prev => ({ ...prev, name: null }));
+                          }}
                           placeholder="Örn: Selin & Ahmet"
-                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-[#C5A059] focus:border-transparent outline-none"
+                          className={`w-full px-3.5 py-2.5 rounded-sm text-xs outline-none transition ${
+                            quoteErrors.name 
+                              ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                              : 'border border-slate-200 focus:ring-2 focus:ring-[#C5A059] focus:border-transparent'
+                          }`}
                         />
+                        {quoteErrors.name && (
+                          <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                            <span>⚠</span>
+                            <span>{quoteErrors.name}</span>
+                          </p>
+                        )}
                       </div>
+
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Telefon Numarası *</label>
+                        <label className={`block text-xs font-bold mb-1 ${quoteErrors.phone ? 'text-red-600' : 'text-slate-700'}`}>
+                          Telefon Numarası *
+                        </label>
                         <input
                           type="tel"
-                          required
                           value={quoteForm.phone}
-                          onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
+                          onChange={(e) => {
+                            const formatted = formatPhoneNumber(e.target.value);
+                            setQuoteForm({ ...quoteForm, phone: formatted });
+                            if (quoteErrors.phone) setQuoteErrors(prev => ({ ...prev, phone: null }));
+                          }}
                           placeholder="0 (5XX) XXX XX XX"
-                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-[#C5A059] focus:border-transparent outline-none"
+                          className={`w-full px-3.5 py-2.5 rounded-sm text-xs font-mono outline-none transition ${
+                            quoteErrors.phone 
+                              ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                              : 'border border-slate-200 focus:ring-2 focus:ring-[#C5A059] focus:border-transparent'
+                          }`}
                         />
+                        {quoteErrors.phone && (
+                          <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                            <span>⚠</span>
+                            <span>{quoteErrors.phone}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -3986,6 +4136,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                           <option value="Kurumsal">Kurumsal Etkinlik</option>
                         </select>
                       </div>
+
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-1">Tercih Edilen Salon</label>
                         <select
@@ -4000,23 +4151,55 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Tahmini Davetli Sayısı</label>
+                        <label className={`block text-xs font-bold mb-1 ${quoteErrors.guestCount ? 'text-red-600' : 'text-slate-700'}`}>
+                          Tahmini Davetli Sayısı *
+                        </label>
                         <input
                           type="number"
+                          min="1"
                           value={quoteForm.guestCount}
-                          onChange={(e) => setQuoteForm({ ...quoteForm, guestCount: e.target.value })}
+                          onChange={(e) => {
+                            setQuoteForm({ ...quoteForm, guestCount: e.target.value });
+                            if (quoteErrors.guestCount) setQuoteErrors(prev => ({ ...prev, guestCount: null }));
+                          }}
                           placeholder="Örn: 500"
-                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-[#C5A059] outline-none"
+                          className={`w-full px-3.5 py-2.5 rounded-sm text-xs outline-none transition ${
+                            quoteErrors.guestCount 
+                              ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                              : 'border border-slate-200 focus:ring-2 focus:ring-[#C5A059] outline-none'
+                          }`}
                         />
+                        {quoteErrors.guestCount && (
+                          <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                            <span>⚠</span>
+                            <span>{quoteErrors.guestCount}</span>
+                          </p>
+                        )}
                       </div>
+
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Planlanan Tarih</label>
+                        <label className={`block text-xs font-bold mb-1 ${quoteErrors.date ? 'text-red-600' : 'text-slate-700'}`}>
+                          Planlanan Tarih *
+                        </label>
                         <input
                           type="date"
                           value={quoteForm.date}
-                          onChange={(e) => setQuoteForm({ ...quoteForm, date: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-sm border border-slate-200 text-xs focus:ring-2 focus:ring-[#C5A059] outline-none"
+                          onChange={(e) => {
+                            setQuoteForm({ ...quoteForm, date: e.target.value });
+                            if (quoteErrors.date) setQuoteErrors(prev => ({ ...prev, date: null }));
+                          }}
+                          className={`w-full px-3.5 py-2.5 rounded-sm text-xs outline-none transition ${
+                            quoteErrors.date 
+                              ? 'border-2 border-red-500 bg-red-50/70 text-red-900 focus:ring-2 focus:ring-red-400' 
+                              : 'border border-slate-200 focus:ring-2 focus:ring-[#C5A059] outline-none'
+                          }`}
                         />
+                        {quoteErrors.date && (
+                          <p className="text-[11px] font-bold text-red-600 mt-1 flex items-center space-x-1">
+                            <span>⚠</span>
+                            <span>{quoteErrors.date}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -4034,9 +4217,9 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     <button
                       type="submit"
                       disabled={quoteLoading}
-                      className="w-full py-3.5 rounded-sm btn-luxe-gold font-extrabold text-xs uppercase tracking-wider shadow-xl flex items-center justify-center space-x-2"
+                      className="w-full py-3.5 rounded-sm btn-luxe-gold font-extrabold text-xs uppercase tracking-wider shadow-xl flex items-center justify-center space-x-2 cursor-pointer transition hover:scale-[1.01]"
                     >
-                      {quoteLoading ? <span>Gönderiliyor...</span> : <span>Teklifi Gönder & Fiyat Al ✓</span>}
+                      {quoteLoading ? <span>Kaydediliyor ve Gönderiliyor...</span> : <span>Teklifi Gönder & Fiyat Al ✓</span>}
                     </button>
                   </form>
                 )}
