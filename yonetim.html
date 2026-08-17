@@ -11783,15 +11783,52 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </div>
 
                 <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.vPrice)}</span></div>
-                  <div className="flex justify-between"><span>Seçilen Ek Hizmetler:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.servTotal)}</span></div>
-                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1.5"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.sub)}</span></div>
-                  {mobileReservationSummary.calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans / İndirim:</span><span className="font-bold">-{formatCurrency(mobileReservationSummary.calculations.disc)}</span></div>}
-                  {mobileReservationSummary.isInvoiced && <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(mobileReservationSummary.calculations.vat)}</span></div>}
+                  <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                    <span>Salon Bedeli:</span>
+                    <span className="font-bold font-mono text-slate-800 dark:text-gray-100">{formatCurrency(mobileReservationSummary.calculations.vPrice)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                    <span>Seçilen Ek Hizmetler:</span>
+                    <span className="font-bold font-mono text-slate-800 dark:text-gray-100">{formatCurrency(mobileReservationSummary.calculations.servTotal)}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1.5 font-bold text-slate-800 dark:text-gray-200">
+                    <span>Brüt Ara Toplam:</span>
+                    <span className="font-mono">{formatCurrency(mobileReservationSummary.calculations.sub)}</span>
+                  </div>
+
+                  {/* KAMPANYA İNDİRİMİ */}
+                  {mobileReservationSummary.calculations.campaignDisc > 0 && (
+                    <div className="flex justify-between items-center bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 p-2 rounded-xl border border-emerald-500/25 font-bold text-[11px]">
+                      <span>Kampanya İndirimi ({mobileReservationSummary.calculations.campaignCode || ''}):</span>
+                      <span className="font-mono font-extrabold text-xs">-{formatCurrency(mobileReservationSummary.calculations.campaignDisc)}</span>
+                    </div>
+                  )}
+
+                  {/* DİP İSKONTO */}
+                  {mobileReservationSummary.calculations.customDisc > 0 && (
+                    <div className="flex justify-between items-center bg-amber-500/10 text-amber-800 dark:text-gold-300 p-2 rounded-xl border border-amber-500/30 font-bold text-[11px]">
+                      <span>Dip İskonto {mobileReservationSummary.calculations.dipDiscountType === 'percent' ? `(%${mobileReservationSummary.calculations.customDiscountAmount})` : ''}:</span>
+                      <span className="font-mono font-extrabold text-xs">-{formatCurrency(mobileReservationSummary.calculations.customDisc)}</span>
+                    </div>
+                  )}
+
+                  {mobileReservationSummary.calculations.disc > 0 && (
+                    <div className="flex justify-between text-red-500 font-bold text-[11px] pt-0.5">
+                      <span>Toplam İndirim:</span>
+                      <span className="font-mono font-extrabold">-{formatCurrency(mobileReservationSummary.calculations.disc)}</span>
+                    </div>
+                  )}
+
+                  {mobileReservationSummary.isInvoiced && (
+                    <div className="flex justify-between text-slate-600 dark:text-gray-300">
+                      <span>Hesaplanan KDV (%20):</span>
+                      <span className="font-bold font-mono">+{formatCurrency(mobileReservationSummary.calculations.vat)}</span>
+                    </div>
+                  )}
                   
-                  <div className="flex justify-between text-sm font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-2">
+                  <div className="flex justify-between text-sm font-bold text-amber-700 dark:text-gold-400 border-t-2 border-dashed border-slate-200 dark:border-brand-border pt-2">
                     <span>Genel Toplam Tutar:</span>
-                    <span>{formatCurrency(mobileReservationSummary.calculations.grandTotal)}</span>
+                    <span className="font-mono">{formatCurrency(mobileReservationSummary.calculations.grandTotal)}</span>
                   </div>
 
                   {mobileReservationSummary.calculations.paidServicesList && mobileReservationSummary.calculations.paidServicesList.length > 0 && (
@@ -12965,23 +13002,23 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const vPriceClean = Math.max(0, vPrice);
         const servTotalClean = Math.max(0, servTotal);
         const sub = vPriceClean + servTotalClean;
-        let disc = 0;
+        let campaignDisc = 0;
         const activeCampaign = (campaigns || []).find(c =>
           (c.code || '').toUpperCase() === campaignCode.trim().toUpperCase() && c.status === 'Aktif'
         );
         if (activeCampaign) {
           if (activeCampaign.discountType === 'percent' || activeCampaign.discountRate || activeCampaign.discountPercent) {
             const rate = activeCampaign.discountRate || activeCampaign.discountPercent || 0;
-            disc = sub * (rate / 100);
+            campaignDisc = sub * (rate / 100);
           } else if (activeCampaign.discountAmount) {
-            disc = Number(activeCampaign.discountAmount);
+            campaignDisc = Number(activeCampaign.discountAmount);
           } else if (typeof activeCampaign.discount === 'number') {
-            disc = activeCampaign.discount;
+            campaignDisc = activeCampaign.discount;
           }
         } else if (campaignCode.trim().toUpperCase() === 'IREM2026') {
-          disc = sub * 0.10;
+          campaignDisc = sub * 0.10;
         } else if (campaignCode.trim().toUpperCase() === 'VIP5000') {
-          disc = 5000;
+          campaignDisc = 5000;
         }
 
         let customDisc = 0;
@@ -12991,8 +13028,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         } else {
           customDisc = rawVal;
         }
-        disc = disc + customDisc;
-        disc = Math.max(0, Math.min(sub, disc));
+        const disc = Math.max(0, Math.min(sub, campaignDisc + customDisc));
         const afterDisc = Math.max(0, sub - disc);
         const vat = isInvoiced ? afterDisc * 0.20 : 0;
         const grandTotal = afterDisc + vat;
@@ -13002,7 +13038,27 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const netDeductions = isFullyPaid ? grandTotal : (dep + paidServicesTotal);
         const remaining = isFullyPaid ? 0 : Math.max(0, grandTotal - netDeductions);
 
-        return { vPrice, servTotal, sub, disc, customDisc, vat, grandTotal, dep, paidServicesTotal, paidServicesList, netDeductions, remaining, isFullyPaid, mappedServices };
+        return { 
+          vPrice, 
+          servTotal, 
+          sub, 
+          disc, 
+          campaignDisc, 
+          activeCampaign, 
+          campaignCode, 
+          customDisc, 
+          customDiscountAmount, 
+          dipDiscountType, 
+          vat, 
+          grandTotal, 
+          dep, 
+          paidServicesTotal, 
+          paidServicesList, 
+          netDeductions, 
+          remaining, 
+          isFullyPaid, 
+          mappedServices 
+        };
       }, [customVenuePrice, selectedServices, campaignCode, customDiscountAmount, dipDiscountType, hasDeposit, depositPaid, paymentStatus, isInvoiced, services]);
 
       const handleAddFlowItem = () => {
@@ -14483,16 +14539,68 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   <span>Canlı Hesaplama & Sözleşme Kartı</span>
                 </h3>
 
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between"><span>Salon Bedeli:</span><span className="font-bold">{formatCurrency(calculations.vPrice)}</span></div>
-                  <div className="flex justify-between"><span>Seçilen Ek Hizmetler:</span><span className="font-bold">{formatCurrency(calculations.servTotal)}</span></div>
-                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1"><span>Ara Toplam:</span><span className="font-bold">{formatCurrency(calculations.sub)}</span></div>
-                  {calculations.disc > 0 && <div className="flex justify-between text-red-500"><span>Referans / İndirim:</span><span className="font-bold">-{formatCurrency(calculations.disc)}</span></div>}
-                  {isInvoiced && <div className="flex justify-between text-slate-600 dark:text-gray-300"><span>Hesaplanan KDV (%20):</span><span className="font-bold">{formatCurrency(calculations.vat)}</span></div>}
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                    <span>Salon Bedeli:</span>
+                    <span className="font-bold font-mono text-slate-800 dark:text-gray-100">{formatCurrency(calculations.vPrice)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                    <span>Seçilen Ek Hizmetler ({selectedServices.length}):</span>
+                    <span className="font-bold font-mono text-slate-800 dark:text-gray-100">{formatCurrency(calculations.servTotal)}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200 dark:border-brand-border pt-1.5 font-bold text-slate-800 dark:text-gray-200">
+                    <span>Brüt Ara Toplam:</span>
+                    <span className="font-mono">{formatCurrency(calculations.sub)}</span>
+                  </div>
+
+                  {/* KAMPANYA İNDİRİMİ DETAYLI SATIR */}
+                  {campaignCode && calculations.campaignDisc > 0 && (
+                    <div className="flex justify-between items-center bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 p-2 rounded-xl border border-emerald-500/25 font-bold text-[11px] animate-fade-in">
+                      <div className="flex items-center space-x-1.5">
+                        <ThemeIcon icon="gift" fallbackEmoji="" className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <div>
+                          <div>Kampanya İndirimi ({campaignCode})</div>
+                          {calculations.activeCampaign?.title && (
+                            <div className="text-[9px] text-emerald-600/80 font-normal">{calculations.activeCampaign.title}</div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="font-mono font-extrabold text-xs">-{formatCurrency(calculations.campaignDisc)}</span>
+                    </div>
+                  )}
+
+                  {/* DİP İSKONTO (SON İNDİRİM) DETAYLI SATIR */}
+                  {customDiscountAmount > 0 && calculations.customDisc > 0 && (
+                    <div className="flex justify-between items-center bg-amber-500/10 text-amber-800 dark:text-gold-300 p-2 rounded-xl border border-amber-500/30 font-bold text-[11px] animate-fade-in">
+                      <div className="flex items-center space-x-1.5">
+                        <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
+                        <div>
+                          <div>Dip İskonto {dipDiscountType === 'percent' ? `(%${customDiscountAmount})` : '(Nakit İndirim)'}</div>
+                          <div className="text-[9px] text-amber-700/80 dark:text-gold-400/80 font-normal">Pazarlık / Özel İskonto</div>
+                        </div>
+                      </div>
+                      <span className="font-mono font-extrabold text-xs">-{formatCurrency(calculations.customDisc)}</span>
+                    </div>
+                  )}
+
+                  {/* TOPLAM İNDİRİM ÖZETİ */}
+                  {calculations.disc > 0 && (
+                    <div className="flex justify-between text-red-500 font-bold text-[11px] pt-0.5">
+                      <span>Toplam İndirim & İskonto:</span>
+                      <span className="font-mono font-extrabold">-{formatCurrency(calculations.disc)}</span>
+                    </div>
+                  )}
+
+                  {isInvoiced && (
+                    <div className="flex justify-between text-slate-600 dark:text-gray-300">
+                      <span>Hesaplanan KDV (%20):</span>
+                      <span className="font-bold font-mono">+{formatCurrency(calculations.vat)}</span>
+                    </div>
+                  )}
                   
-                  <div className="flex justify-between text-base font-bold text-amber-700 dark:text-gold-400 border-t border-slate-200 dark:border-brand-border pt-2">
+                  <div className="flex justify-between text-base font-extrabold text-amber-700 dark:text-gold-400 border-t-2 border-dashed border-slate-200 dark:border-brand-border pt-2">
                     <span>Genel Toplam Tutar:</span>
-                    <span>{formatCurrency(calculations.grandTotal)}</span>
+                    <span className="font-mono">{formatCurrency(calculations.grandTotal)}</span>
                   </div>
 
                   {/* DÜŞÜLEN HİZMETLER SATIR SATIR */}
