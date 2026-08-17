@@ -8141,7 +8141,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
           {/* FILTERS & SEARCH BAR */}
           <div className="bg-white dark:bg-brand-card p-4 rounded-2xl border border-slate-200 dark:border-brand-border/30 shadow-xs space-y-3.5">
-            {/* ROW 1: STATUS FILTER PILLS (HORIZONTALLY SCROLLABLE ON MOBILE) */}
+            {/* ROW 1: STATUS FILTER PILLS (HORIZONTALLY SCROLLABLE ON MOBILE WITH HIGH CONTRAST) */}
             <div className="flex overflow-x-auto whitespace-nowrap no-scrollbar pb-1.5 gap-2 items-center w-full max-w-full">
               {[
                 { id: 'all', label: 'TÜM TALEPLER', count: countByStatus.all },
@@ -8155,16 +8155,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 return (
                   <button
                     key={f.id}
+                    type="button"
                     onClick={() => setFilterStatus(f.id)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-2 shrink-0 whitespace-nowrap ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer flex items-center space-x-2 shrink-0 whitespace-nowrap border ${
                       isActive
-                        ? 'bg-slate-900 text-white dark:bg-gold-500 dark:text-slate-950 shadow-sm font-extrabold'
-                        : 'bg-slate-100/90 dark:bg-slate-800/80 text-slate-600 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        ? 'bg-amber-500 border-amber-600 text-slate-950 font-black shadow-md ring-2 ring-amber-400/50'
+                        : 'bg-slate-100 dark:bg-slate-800/90 border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-200 hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                   >
                     <span>{f.label}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                      isActive ? 'bg-white/20 text-white dark:bg-slate-950/20 dark:text-slate-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-gray-300'
+                      isActive
+                        ? 'bg-slate-950 text-white'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-gray-200'
                     }`}>
                       {f.count || 0}
                     </span>
