@@ -9423,35 +9423,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         if (cachedUsers && Array.isArray(cachedUsers) && cachedUsers.length > 0) {
           return cachedUsers;
         }
-
-        const userMap = new Map();
-
-        // 1. Initial users (Mustafa Beyazyüz Admin + İrem Yılmaz + Canan + Murat)
-        INITIAL_USERS.forEach(u => {
-          const key = (u.email || u.id).toLowerCase();
-          userMap.set(key, u);
-        });
-
-        // 2. Customers from database/initial list
-        const activeCustomers = CacheService.get('customers', INITIAL_CUSTOMERS) || INITIAL_CUSTOMERS;
-        (activeCustomers || []).forEach(c => {
-          const cEmail = (c.email || c.customerEmail || '').toLowerCase();
-          const cKey = cEmail || (c.id ? `cust_${c.id}` : null);
-          if (cKey && !userMap.has(cKey)) {
-            userMap.set(cKey, {
-              id: c.id || `u_${Math.random().toString(36).substr(2, 6)}`,
-              name: c.name || c.customerName || 'Müşteri Kullanıcısı',
-              email: c.email || c.customerEmail || `${c.id || 'musteri'}@example.com`,
-              phone: c.phone || c.customerPhone || '',
-              role: 'musteri',
-              avatar: c.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-            });
-          }
-        });
-
-        const initialList = Array.from(userMap.values());
-        CacheService.set('users', initialList);
-        return initialList;
+        return [];
       });
 
       const lastSyncedVenuesRef = useRef('');
