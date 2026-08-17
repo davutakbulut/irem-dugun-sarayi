@@ -10324,11 +10324,22 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: uId, action: 'delete' })
               });
+              await fetchFn(`/api/users/${uId}`, {
+                method: 'DELETE'
+              }).catch(() => {});
             } catch(e) {}
 
             setUsers(prev => {
               const updated = (prev || []).filter(x => x.id !== uId);
               CacheService.set('users', updated);
+              try {
+                const fetchFn = window.fetchWithRetry || fetch;
+                fetchFn('/api/public-settings', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ users: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
+                }).catch(() => {});
+              } catch(e){}
               return updated;
             });
             showToast('Kullanıcı Veritabanından Silindi.');

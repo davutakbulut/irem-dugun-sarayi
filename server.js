@@ -1063,6 +1063,9 @@ app.get('/api/venues', async (req, res) => {
 
 app.post('/api/venues', async (req, res) => {
   try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteVenueHandler(req, res);
+    }
     const item = { id: req.body.id || ('v-' + Date.now()), ...req.body };
     const imgs = Array.isArray(item.images) && item.images.length > 0 ? item.images : (item.image ? [item.image] : []);
     const extImgs = Array.isArray(item.exteriorImages) && item.exteriorImages.length > 0 ? item.exteriorImages : [];
@@ -1170,6 +1173,9 @@ app.get('/api/services', async (req, res) => {
 
 app.post('/api/services', async (req, res) => {
   try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteServiceHandler(req, res);
+    }
     const item = { id: req.body.id || ('s-' + Date.now()), ...req.body };
     const price = Number(item.price || 0);
     const costPrice = item.costPrice !== undefined ? Number(item.costPrice) : (item.cost_price !== undefined ? Number(item.cost_price) : 0);
@@ -1206,9 +1212,9 @@ app.post('/api/services', async (req, res) => {
   }
 });
 
-app.delete('/api/services/:id', async (req, res) => {
+const deleteServiceHandler = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id || req.body.id || req.query.id;
     const activePool = await getPool();
     if (activePool) {
       await activePool.query('DELETE FROM services WHERE id = ?', [id]);
@@ -1220,7 +1226,9 @@ app.delete('/api/services/:id', async (req, res) => {
     console.error('MySQL DELETE /api/services error:', e.message);
     res.status(500).json({ error: 'Hizmet silinemedi', message: e.message });
   }
-});
+};
+app.delete('/api/services/:id', deleteServiceHandler);
+app.post(['/api/services/delete/:id', '/api/services/delete'], deleteServiceHandler);
 
 // -------------------------------------------------------------
 // 3. MÜŞTERİLER ENDPOINTS (/api/customers)
@@ -1294,6 +1302,9 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
+  if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+    return deleteUserHandler(req, res);
+  }
   const item = { id: req.body.id || ('u_' + Date.now()), ...req.body };
   if (pool) {
     try {
@@ -1316,14 +1327,16 @@ app.post('/api/users', async (req, res) => {
 });
 
 const deleteUserHandler = async (req, res) => {
-  const id = req.params.id || req.body.id;
+  const id = req.params.id || req.body.id || req.query.id;
   if (pool) {
     try {
       await pool.query('DELETE FROM users WHERE id = ?', [id]);
+      console.log(`🗑️ Kullanıcı [${id}] MariaDB Veritabanından Silindi.`);
     } catch(e) {
       console.error('MySQL DELETE /api/users error:', e.message);
     }
   }
+  memoryStore.users = (memoryStore.users || []).filter(u => u.id !== id);
   res.json({ success: true, id });
 };
 app.delete('/api/users/:id', deleteUserHandler);
