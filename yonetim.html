@@ -8467,11 +8467,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             <span className="text-xs font-bold text-slate-500 dark:text-gray-400 shrink-0">
                               Talep Durumu:
                             </span>
-                            <div className="relative">
+                            <div>
                               <select
                                 value={req.status}
                                 onChange={e => handleUpdateStatus(req.id, e.target.value)}
-                                className="bg-slate-100 dark:bg-brand-card border border-slate-300 dark:border-brand-border text-slate-900 dark:text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer pr-8"
+                                className="bg-slate-100 dark:bg-brand-card border border-slate-300 dark:border-brand-border text-slate-900 dark:text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer"
                               >
                                 <option value="beklemede">Beklemede</option>
                                 <option value="arandi">Görüşüldü</option>
@@ -8479,11 +8479,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                                 <option value="onaylandi">Onaylandı</option>
                                 <option value="iptal">İptal / Olumsuz</option>
                               </select>
-                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                  <polyline points="6 9 12 15 18 9" />
-                                </svg>
-                              </div>
                             </div>
                           </div>
 
