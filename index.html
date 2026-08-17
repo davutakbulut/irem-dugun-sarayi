@@ -804,43 +804,93 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
       }
     ];
 
+    // ==========================================
+    // ZERO-CONFIG SMART DYNAMIC PUBLIC ROUTER (SINGLE SOURCE OF TRUTH)
+    // ==========================================
+    const KNOWN_PUBLIC_TABS = new Set([
+      'home', 'virtual-tour', 'organizations', 'galleries', 'about', 'blog', 'contact'
+    ]);
+
     const TAB_ROUTES = {
       'home': '/',
-      'virtual-tour': '/sanal-tur',
+      'virtual-tour': '/salonlar',
       'organizations': '/organizasyonlar',
-      'galleries': '/galeri',
+      'galleries': '/videolar',
       'about': '/hakkimizda',
       'blog': '/blog',
       'contact': '/iletisim'
     };
 
-    const ROUTE_TO_TAB = {
+    const PUBLIC_ROUTE_ALIASES = {
       '/': 'home',
       '': 'home',
-      '/sanal-tur': 'virtual-tour',
+      '/anasayfa': 'home',
+      '/home': 'home',
+      
+      // Salonlar & 360 Tur
+      '/salonlar': 'virtual-tour',
+      '/salonlarimiz': 'virtual-tour',
+      '/360-tur': 'virtual-tour',
       '/360': 'virtual-tour',
+      '/sanal-tur': 'virtual-tour',
       '/sanal-gezinti': 'virtual-tour',
+      '/mekanlar': 'virtual-tour',
+      
+      // Organizasyonlar
       '/organizasyonlar': 'organizations',
       '/organizasyon': 'organizations',
+      '/organizasyon-paketleri': 'organizations',
       '/hizmetler': 'organizations',
+      '/dugun-paketleri': 'organizations',
+      
+      // Galeri & Videolar
+      '/videolar': 'galleries',
+      '/video-galeri': 'galleries',
       '/galeri': 'galleries',
       '/galeriler': 'galleries',
       '/fotograflar': 'galleries',
+      '/medya': 'galleries',
+      
+      // Hakkımızda
       '/hakkimizda': 'about',
+      '/kurumsal': 'about',
       '/vizyon': 'about',
       '/hikayemiz': 'about',
+      '/biz-kimiz': 'about',
+      
+      // Blog & Rehber
       '/blog': 'blog',
+      '/dugun-rehberi': 'blog',
       '/rehber': 'blog',
       '/yazilar': 'blog',
+      '/haberler': 'blog',
+      
+      // İletişim & Teklif
       '/iletisim': 'contact',
+      '/bize-ulasin': 'contact',
       '/konum': 'contact',
       '/ulasim': 'contact',
+      '/fiyat-teklifi': 'contact',
+      '/teklif-al': 'contact',
       '/rezervasyon': 'contact'
     };
 
+    const ROUTE_TO_TAB = new Proxy(PUBLIC_ROUTE_ALIASES, {
+      get(target, prop) {
+        if (typeof prop !== 'string') return undefined;
+        let clean = prop.replace(/^[#\/]+/, '').replace(/\/$/, '');
+        if (!clean || clean === '') return 'home';
+        const slashKey = '/' + clean;
+        if (slashKey in target) return target[slashKey];
+        if (clean in target) return target[clean];
+        if (KNOWN_PUBLIC_TABS.has(clean)) return clean;
+        return undefined;
+      }
+    });
+
     const PAGE_TITLES = {
       'home': 'İrem Düğün Sarayı | Arifiye Balo & Düğün Davet Tesisleri Sakarya',
-      'virtual-tour': '360° Sanal Tur & Salonlar | İrem Düğün Sarayı',
+      'virtual-tour': '360° Sanal Tur & Salonlarımız | İrem Düğün Sarayı',
       'organizations': 'Organizasyon Hizmetlerimiz | İrem Düğün Sarayı',
       'galleries': 'Fotoğraf & Video Galerisi | İrem Düğün Sarayı',
       'about': 'Hakkımızda & 15 Yıllık Vizyon | İrem Düğün Sarayı',
@@ -850,10 +900,10 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
     const getTabFromLocation = () => {
       if (typeof window === 'undefined') return 'home';
-      const path = window.location.pathname.replace(/\/$/, '') || '/';
-      const hash = window.location.hash.toLowerCase();
+      const path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+      const hash = (window.location.hash || '').toLowerCase();
       if (ROUTE_TO_TAB[path]) return ROUTE_TO_TAB[path];
-      if (ROUTE_TO_TAB[hash]) return ROUTE_TO_TAB[hash];
+      if (hash && ROUTE_TO_TAB[hash]) return ROUTE_TO_TAB[hash];
       return 'home';
     };
 
