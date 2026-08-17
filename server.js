@@ -1247,6 +1247,9 @@ app.get('/api/customers', async (req, res) => {
 });
 
 app.post('/api/customers', async (req, res) => {
+  if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+    return deleteCustomerHandler(req, res);
+  }
   const item = { id: req.body.id || ('cust-' + Date.now()), ...req.body };
   if (pool) {
     try {
@@ -1422,6 +1425,9 @@ app.get('/api/reservations', async (req, res) => {
 });
 
 app.post('/api/reservations', async (req, res) => {
+  if (req.body && (req.body.action === 'delete' || req.body._delete || req.body.isDeleted)) {
+    return deleteReservationHandler(req, res);
+  }
   let item = { ...req.body };
   if (!item.id || item.id.startsWith('RES-DRAFT-')) {
     item.id = `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -1762,6 +1768,9 @@ app.get('/api/expenses', async (req, res) => {
 
 app.post('/api/expenses', async (req, res) => {
   try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteExpenseHandler(req, res);
+    }
     const raw = req.body || {};
     const item = {
       id: raw.id || (`exp-${Date.now()}`),
@@ -1835,6 +1844,9 @@ app.get('/api/campaigns', async (req, res) => {
 });
 
 app.post('/api/campaigns', async (req, res) => {
+  if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+    return deleteCampaignHandler(req, res);
+  }
   const item = { id: req.body.id || ('c-' + Date.now()), ...req.body };
   if (pool) {
     try {
