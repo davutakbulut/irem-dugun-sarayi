@@ -10126,7 +10126,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           onConfirm: async () => {
             try {
               const fetchFn = window.fetchWithRetry || fetch;
-              await fetchFn(`/api/services/${sId}`, { method: 'DELETE' });
+              await fetchFn('/api/services', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: sId, action: 'delete', _delete: true })
+              });
             } catch(e) {}
 
             setServices(prev => {
@@ -19296,8 +19300,10 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           const updated = prev.filter(e => e.id !== expId);
           try {
             const fetchFn = window.fetchWithRetry || fetch;
-            fetchFn(`/api/expenses/${expId}`, {
-              method: 'DELETE'
+            fetchFn('/api/expenses', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: expId, action: 'delete', _delete: true })
             }).catch(() => {});
           } catch(err) {}
           return updated;
