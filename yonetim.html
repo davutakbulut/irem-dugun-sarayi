@@ -15718,59 +15718,80 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </div>
               </div>
 
-              {/* EVENT DETAILS & BALANCE CARDS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3">
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border">
-                    <ThemeIcon icon="venue" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Etkinlik & Salon Bilgileriniz</span>
-                  </h4>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Kiralanan Salon:</span>
-                      <span className="font-bold">Safir Balo Salonu (750 Kişi)</span>
-                    </div>
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Etkinlik Tarihi:</span>
-                      <span className="font-bold text-amber-700 dark:text-gold-400">15 Ağustos 2026</span>
-                    </div>
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Saat Dilimi:</span>
-                      <span className="font-bold">19:00 - 23:30 (Akşam Seansı)</span>
-                    </div>
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Dahil Hizmetler:</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">Orkestra, HD Video, VIP Süsleme</span>
-                    </div>
-                  </div>
-                </div>
+              {/* EVENT DETAILS & BALANCE CARDS (DYNAMICALLY MAPPED TO LATEST CREATED RESERVATION) */}
+              {(() => {
+                const activeUser = currentUser || sessionUser;
+                const myRes = (recentSortedReservations || []).find(r => 
+                  (activeUser?.id && String(r.customerId) === String(activeUser.id)) || 
+                  (activeUser?.email && String(r.customerEmail).toLowerCase() === String(activeUser.email).toLowerCase()) ||
+                  (activeUser?.phone && String(r.customerPhone) === String(activeUser.phone))
+                ) || recentSortedReservations[0];
 
-                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3">
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border">
-                    <ThemeIcon icon="money" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Ödeme & Bakiye Özeti</span>
-                  </h4>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Toplam Anlaşma Tutarı:</span>
-                      <span className="font-bold">75.000 ₺</span>
+                const vObj = (venues || []).find(v => v.id === myRes?.venueId);
+                const totalVal = myRes?.totalAmount || myRes?.subtotal || 0;
+                const depVal = myRes?.depositPaid || 0;
+                const remVal = myRes?.remainingBalance !== undefined ? myRes.remainingBalance : Math.max(0, totalVal - depVal);
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3">
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border">
+                        <ThemeIcon icon="venue" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Etkinlik & Salon Bilgileriniz</span>
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Rezervasyon Kodu:</span>
+                          <span className="font-bold font-mono text-amber-700 dark:text-gold-400">{myRes?.id || 'RES-2026-001'}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Kiralanan Salon:</span>
+                          <span className="font-bold">{vObj?.name || 'Kraliyet Balo Salonu'}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Etkinlik Tarihi:</span>
+                          <span className="font-bold text-amber-700 dark:text-gold-400">{formatDate(myRes?.eventDate || myRes?.date || '2026-08-15')}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Saat Dilimi:</span>
+                          <span className="font-bold">{myRes?.startTime || '18:00'} - {myRes?.endTime || '23:00'}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Misafir Sayısı:</span>
+                          <span className="font-bold">{myRes?.guestCount || 500} Kişi</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Ödenen Kapora:</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">25.000 ₺ (Ödendi ✓)</span>
-                    </div>
-                    <div className="flex justify-between text-slate-700 dark:text-gray-300">
-                      <span className="text-slate-400">Kalan Net Bakiye:</span>
-                      <span className="font-extrabold text-amber-700 dark:text-gold-400 text-sm">50.000 ₺</span>
-                    </div>
-                    <div className="pt-2">
-                      <button onClick={() => onTabChange && onTabChange('reservations')} className="w-full py-2 rounded-xl gold-button text-xs font-bold shadow hover:scale-102 transition cursor-pointer">
-                        <ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" /> Sözleşme & Fatura Özetini İndir (PDF)
-                      </button>
+
+                    <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-3">
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-gray-100 flex items-center space-x-2 border-b pb-2 border-slate-200 dark:border-brand-border">
+                        <ThemeIcon icon="money" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Ödeme & Bakiye Özeti</span>
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Toplam Anlaşma Tutarı:</span>
+                          <span className="font-bold font-mono">{formatCurrency(totalVal)}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Ödenen Kapora:</span>
+                          <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">{formatCurrency(depVal)} ({myRes?.paymentStatus === 'Ödendi' ? 'Ödendi ✓' : 'Tahsil Edildi'})</span>
+                        </div>
+                        <div className="flex justify-between text-slate-700 dark:text-gray-300">
+                          <span className="text-slate-400">Kalan Net Bakiye:</span>
+                          <span className="font-extrabold text-amber-700 dark:text-gold-400 text-sm font-mono">{formatCurrency(remVal)}</span>
+                        </div>
+                        <div className="pt-2">
+                          <button onClick={() => onTabChange && onTabChange('reservations')} className="w-full py-2.5 rounded-xl gold-button text-xs font-bold shadow hover:scale-102 transition cursor-pointer flex items-center justify-center space-x-2">
+                            <ThemeIcon icon="document" className="w-4 h-4 inline-block shrink-0" />
+                            <span>Sözleşme & Fatura Özetini Gör (PDF)</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           )}
 
