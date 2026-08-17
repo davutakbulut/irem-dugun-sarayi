@@ -18695,6 +18695,48 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           {/* TAB 1: SÖZLEŞME BAZLI KÂRLILIK VE DETAY DÖKÜMÜ */}
           {activeSubTab === 'profitability' && (
             <div className="space-y-4">
+              {/* 3 TOP KPI CARDS (SÖZLEŞME CİRO & REEL KÂRLILIK ÖZETİ) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1 shadow-sm">
+                  <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                    <span>Toplam Ciro (Sözleşmeler)</span>
+                    <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7V17" /></svg>
+                  </div>
+                  <div className="text-2xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {formatCurrency(totalGrossRevenue)}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-medium">
+                    {reservations.length} Adet Rezervasyon Sözleşmesi
+                  </div>
+                </div>
+
+                <div className="glass-panel p-5 rounded-3xl border border-red-500/30 bg-red-500/5 space-y-1 shadow-sm">
+                  <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                    <span>Toplam Maliyet (Etkinlikler)</span>
+                    <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7l10 10M17 17H7M17 17V7" /></svg>
+                  </div>
+                  <div className="text-2xl font-mono font-extrabold text-red-600 dark:text-red-400">
+                    {formatCurrency(totalCalculatedCosts)}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-medium">
+                    Salon Sabitleri + Menü/Hizmet + Özel Giderler
+                  </div>
+                </div>
+
+                <div className="glass-panel p-5 rounded-3xl border border-amber-500/40 bg-amber-500/5 space-y-1 shadow-sm">
+                  <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                    <span>Net Kâr (Kâr Marjı %{avgProfitMargin})</span>
+                    <ThemeIcon icon="star" className="w-5 h-5 text-amber-500 shrink-0" />
+                  </div>
+                  <div className={`text-2xl font-mono font-extrabold ${totalNetProfit >= 0 ? 'text-emerald-600 dark:text-gold-400' : 'text-red-600'}`}>
+                    {formatCurrency(totalNetProfit)}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-medium">
+                    Sözleşme Bazlı Net Kârlılık Hacmi
+                  </div>
+                </div>
+              </div>
+
               {/* ABSORPTION COSTING & MONTHLY BREAK-EVEN (BAŞA BAŞ) BANNER */}
               {(() => {
                 const turkishMonths = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
