@@ -3028,7 +3028,7 @@ function Pagination({
   };
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-2 border-t border-slate-200/80 dark:border-brand-border/60 ${className}`}>
+    <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 py-2.5 px-2 border-b border-slate-200/80 dark:border-brand-border/60 mb-2 ${className}`}>
       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-gray-300 font-bold">
         <span>
           Toplam <strong className="text-slate-900 dark:text-white font-extrabold">{totalItems}</strong> kayıttan{' '}
@@ -3507,6 +3507,16 @@ function ReservationsListComponent({
           {viewMode === 'table' ? (
             /* TABLE LIST VIEW WITH EDIT & DELETE BUTTONS */
             <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
+              {/* PAGINATION AT TOP OF RESERVATIONS TABLE */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredReservations.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[10, 20, 50, 100]}
+              />
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -3616,15 +3626,6 @@ function ReservationsListComponent({
                 </table>
               </div>
 
-              {/* PAGINATION FOR RESERVATIONS (10 PER PAGE) */}
-              <Pagination
-                currentPage={currentPage}
-                totalItems={filteredReservations.length}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-                pageSizeOptions={[10, 20, 50, 100]}
-              />
             </div>
           ) : (
             /* INTERACTIVE MONTHLY CALENDAR VIEW (FULL 31-DAY AUG 2026 GRID MATCHING USER SCREENSHOT) */
@@ -4675,6 +4676,16 @@ function UsersComponent({ users = [], onAddClick, onEditClick, onDeleteClick }) 
             </button>
           </div>
           <div className="space-y-4">
+            {/* PAGINATION AT TOP FOR USERS */}
+            <Pagination
+              currentPage={currentPage}
+              totalItems={users.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[8, 16, 32]}
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {users
                 .slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -4703,15 +4714,6 @@ function UsersComponent({ users = [], onAddClick, onEditClick, onDeleteClick }) 
               ))}
             </div>
 
-            {/* PAGINATION FOR USERS */}
-            <Pagination
-              currentPage={currentPage}
-              totalItems={users.length}
-              pageSize={pageSize}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={setPageSize}
-              pageSizeOptions={[8, 16, 32]}
-            />
           </div>
         </div>
       );
@@ -5958,6 +5960,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               </div>
             ) : (
               <div className="space-y-4">
+                {/* PAGINATION AT TOP FOR MEDIA GALLERY */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={mediaList.length}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                  pageSizeOptions={[12, 24, 48, 96]}
+                />
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {mediaList
                     .slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -6075,15 +6087,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 })}
                 </div>
 
-                {/* PAGINATION COMPONENT FOR MEDIA GALLERY */}
-                <Pagination
-                  currentPage={currentPage}
-                  totalItems={mediaList.length}
-                  pageSize={pageSize}
-                  onPageChange={setCurrentPage}
-                  onPageSizeChange={setPageSize}
-                  pageSizeOptions={[12, 24, 48, 96]}
-                />
               </div>
             )}
           </div>
@@ -8232,6 +8235,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             </div>
           </div>
 
+          {/* PAGINATION AT TOP OF LEADS */}
+          {filteredRequests.length > 0 && (
+            <div className="bg-white dark:bg-brand-card rounded-2xl border border-slate-200 dark:border-brand-border/30 px-4 py-1.5 shadow-xs">
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredRequests.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[5, 10, 20, 50]}
+              />
+            </div>
+          )}
+
           {/* CARD LIST */}
           <div className="space-y-3">
             {paginatedRequests.length > 0 ? (
@@ -8605,19 +8622,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             )}
           </div>
 
-          {/* PAGINATION */}
-          {filteredRequests.length > 0 && (
-            <div className="bg-white dark:bg-brand-card rounded-2xl border border-slate-200 dark:border-brand-border/30 px-4 py-2 shadow-xs">
-              <Pagination
-                currentPage={currentPage}
-                totalItems={filteredRequests.length}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-                pageSizeOptions={[5, 10, 20, 50]}
-              />
-            </div>
-          )}
         </div>
       );
     }
@@ -17125,6 +17129,16 @@ function VenuesComponent({ venues, services = [], onAddClick, onEditClick, onDel
             </div>
           ) : (
             <div className="space-y-4">
+              {/* PAGINATION AT TOP FOR VENUES */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredVenues.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[8, 16, 32]}
+              />
+
               {viewMode === 'grid' ? (
                 /* --- KART IZGARA GÖRÜNÜMÜ --- */
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -17255,15 +17269,6 @@ function VenuesComponent({ venues, services = [], onAddClick, onEditClick, onDel
                 </div>
               )}
 
-              {/* PAGINATION FOR VENUES */}
-              <Pagination
-                currentPage={currentPage}
-                totalItems={filteredVenues.length}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-                pageSizeOptions={[8, 16, 32]}
-              />
             </div>
           )}
         </div>
@@ -17470,6 +17475,16 @@ function ServicesComponent({ services = [], onAddClick, onEditClick, onDeleteCli
             </div>
           ) : (
             <div className="space-y-4">
+              {/* PAGINATION AT TOP FOR VENUES */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredVenues.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[8, 16, 32]}
+              />
+
               {viewMode === 'grid' ? (
                 /* --- KART IZGARA GÖRÜNÜMÜ (SÜRÜKLE - BIRAK DESTEKLİ) --- */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -17652,14 +17667,6 @@ function ServicesComponent({ services = [], onAddClick, onEditClick, onDeleteCli
                 </div>
               )}
 
-              {/* PAGINATION FOR SERVICES */}
-              <Pagination
-                currentPage={currentPage}
-                totalItems={filteredServices.length}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-              />
             </div>
           )}
         </div>
@@ -18910,7 +18917,16 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                 </div>
               </div>
 
-              <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm">
+              <div className="glass-panel p-4 rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm space-y-3">
+                {/* PAGINATION AT TOP OF PROFITABILITY TABLE */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={filteredProfitabilityRows.length}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                />
+
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
@@ -19172,13 +19188,6 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </table>
                 </div>
 
-                <Pagination
-                  currentPage={currentPage}
-                  totalItems={filteredProfitabilityRows.length}
-                  pageSize={pageSize}
-                  onPageChange={setCurrentPage}
-                  onPageSizeChange={setPageSize}
-                />
               </div>
             </div>
           )}
@@ -19237,7 +19246,16 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                 </div>
               </div>
 
-              <div className="glass-panel rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm">
+              <div className="glass-panel p-4 rounded-3xl border border-slate-200 dark:border-brand-border overflow-hidden shadow-sm space-y-3">
+                {/* PAGINATION AT TOP OF PROFITABILITY TABLE */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={filteredProfitabilityRows.length}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                />
+
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
@@ -19313,13 +19331,6 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </table>
                 </div>
 
-                <Pagination
-                  currentPage={currentPage}
-                  totalItems={filteredTransactions.length}
-                  pageSize={pageSize}
-                  onPageChange={setCurrentPage}
-                  onPageSizeChange={setPageSize}
-                />
               </div>
             </div>
           )}
@@ -20251,6 +20262,16 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
             </div>
           ) : (
             <div className="space-y-4">
+              {/* PAGINATION AT TOP FOR VENUES */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredVenues.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[8, 16, 32]}
+              />
+
               {viewMode === 'grid' ? (
                 /* --- KART IZGARA GÖRÜNÜMÜ --- */
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -20380,14 +20401,6 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
                 </div>
               )}
 
-              {/* PAGINATION FOR CUSTOMERS */}
-              <Pagination
-                currentPage={currentPage}
-                totalItems={filteredCustomers.length}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-              />
             </div>
           )}
         </div>
