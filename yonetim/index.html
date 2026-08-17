@@ -12586,6 +12586,73 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         }
       }, [editingResFromUrl, venues, customers]);
 
+      // EFFECT: LEAD / QUOTE REQUEST PRE-FILL INTEGRATION
+      const hasLoadedQuoteRef = useRef(null);
+      useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const searchParams = new URLSearchParams(window.location.search);
+        const stateParams = (window.history && window.history.state && window.history.state.queryParams) ? window.history.state.queryParams : {};
+
+        const qCustomerName = searchParams.get('customerName') || stateParams.customerName;
+        const qCustomerPhone = searchParams.get('customerPhone') || stateParams.customerPhone || searchParams.get('phone') || stateParams.phone;
+        const qCustomerEmail = searchParams.get('customerEmail') || stateParams.customerEmail || searchParams.get('email') || stateParams.email;
+        const qDate = searchParams.get('date') || stateParams.date || searchParams.get('eventDate') || stateParams.eventDate;
+        const qGuests = searchParams.get('guests') || stateParams.guests || searchParams.get('guestCount') || stateParams.guestCount;
+        const qVenue = searchParams.get('venue') || stateParams.venue || searchParams.get('preferredVenue') || stateParams.preferredVenue;
+        const qNotes = searchParams.get('notes') || stateParams.notes;
+        const qEventType = searchParams.get('eventType') || stateParams.eventType;
+        const qQuoteId = searchParams.get('quoteId') || stateParams.quoteId || searchParams.get('fromQuote');
+
+        if (qCustomerName || qCustomerPhone || qQuoteId) {
+          const quoteKey = qQuoteId || `${qCustomerName}_${qCustomerPhone}`;
+          if (hasLoadedQuoteRef.current === quoteKey) return;
+          hasLoadedQuoteRef.current = quoteKey;
+
+          setCustomerMode('new');
+          if (qCustomerName) setNewCustName(qCustomerName);
+          if (qCustomerPhone) setNewCustPhone(qCustomerPhone);
+          if (qCustomerEmail) setNewCustEmail(qCustomerEmail);
+
+          if (qDate) {
+            const formattedDate = typeof formatDateForInput === 'function' ? formatDateForInput(qDate) : (qDate.includes('T') ? qDate.split('T')[0] : qDate);
+            if (formattedDate) {
+              setStartDate(formattedDate);
+              setEndDate(formattedDate);
+            }
+          }
+
+          if (qGuests) {
+            const parsedGuests = Number(qGuests);
+            if (!isNaN(parsedGuests) && parsedGuests > 0) {
+              setGuestCount(parsedGuests);
+            }
+          }
+
+          if (qVenue && Array.isArray(venues) && venues.length > 0) {
+            const matchedVenue = venues.find(v => 
+              (v.id && v.id.toLowerCase() === qVenue.toLowerCase()) ||
+              (v.name && v.name.toLowerCase().includes(qVenue.toLowerCase())) ||
+              (qVenue.toLowerCase().includes(v.name.toLowerCase()))
+            );
+            if (matchedVenue) {
+              setVenueId(matchedVenue.id);
+              if (matchedVenue.price !== undefined) {
+                setCustomVenuePrice(matchedVenue.price);
+              }
+            }
+          }
+
+          if (qNotes) {
+            const leadPrefix = qEventType ? `[${qEventType} Talebi] ` : '';
+            setNotes(`${leadPrefix}${qNotes}`);
+          }
+
+          if (showToast) {
+            showToast(`📋 Teklif Talebi (${qCustomerName || 'Müşteri'}) başarıyla yeni rezervasyon formuna aktarıldı!`);
+          }
+        }
+      }, [venues, showToast]);
+
       // Load existing draft if present for activeRefKey
       useEffect(() => {
         if (!activeRefKey) return;
