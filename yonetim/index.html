@@ -13924,62 +13924,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                {/* KAMPANYA VE KAPORA ALANLARI */}
+                <div className={`grid grid-cols-1 ${hasDeposit ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-4 text-xs`}>
                   <div>
                     <label className="font-bold block mb-1">İndirim Kodu / Kampanya:</label>
                     <select value={campaignCode} onChange={e => setCampaignCode(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold">
                       <option value="">İndirim Kodu Yok</option>
                       {campaigns.map(c => <option key={c.id} value={c.code}>{c.code} - {c.title}</option>)}
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="font-bold block mb-1 flex items-center justify-between">
-                      <span className="text-amber-800 dark:text-gold-400 font-extrabold flex items-center space-x-1">
-                        <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0 mr-1" />
-                        <span>Dip İskonto (Son İndirim):</span>
-                      </span>
-                      <div className="inline-flex rounded-lg bg-slate-200 dark:bg-brand-dark p-0.5 border border-slate-300 dark:border-brand-border">
-                        <button
-                          type="button"
-                          onClick={() => setDipDiscountType('amount')}
-                          className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition cursor-pointer ${dipDiscountType === 'amount' ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400'}`}
-                        >
-                          Nakit (TL)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDipDiscountType('percent')}
-                          className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition cursor-pointer ${dipDiscountType === 'percent' ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400'}`}
-                        >
-                          Yüzde (%)
-                        </button>
-                      </div>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        max={dipDiscountType === 'percent' ? 100 : undefined}
-                        placeholder={dipDiscountType === 'percent' ? 'Örn: 10 (%10 İndirim)' : 'Örn: 5000 (5000 ₺ İndirim)'}
-                        value={customDiscountAmount}
-                        onChange={e => setCustomDiscountAmount(e.target.value)}
-                        className={`w-full border rounded-xl p-2.5 font-bold text-red-500 font-mono text-sm pr-10 ${
-                          customDiscountAmount !== '' && Number(customDiscountAmount) < 0
-                            ? 'border-2 border-red-500 bg-red-500/10'
-                            : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'
-                        }`}
-                      />
-                      <span className="absolute right-3 top-2.5 text-xs font-black text-amber-600 dark:text-gold-400">
-                        {dipDiscountType === 'percent' ? '%' : '₺'}
-                      </span>
-                    </div>
-                    {customDiscountAmount !== '' && Number(customDiscountAmount) < 0 && (
-                      <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
-                        <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span><ThemeIcon icon="warning" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> 0'dan büyük giriniz</span>
-                      </p>
-                    )}
                   </div>
 
                   <div>
@@ -14017,14 +13969,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             const rawVal = e.target.value;
                             setDepositPaid(rawVal);
                             const numVal = Number(rawVal);
-                            if (rawVal !== '' && numVal > 0) {
-                              setHasDeposit(true);
-                              if (paymentStatus === 'Bekliyor') setPaymentStatus('Kapora Alındı');
-                            } else if (rawVal === '' || numVal === 0) {
-                              if (paymentStatus === 'Kapora Alındı') {
-                                setHasDeposit(false);
-                                setPaymentStatus('Bekliyor');
-                              }
+                            if (rawVal !== '' && numVal > 0 && paymentStatus === 'Bekliyor') {
+                              setPaymentStatus('Kapora Alındı');
                             }
                           }}
                           className={`w-full border rounded-xl p-2.5 font-bold text-emerald-600 ${
@@ -14042,22 +13988,76 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       </div>
                     </div>
                   )}
+                </div>
+
+                {/* DİP İSKONTO (SON İNDİRİM) - TEK SATIR TAM GENİŞLİK BLOK */}
+                <div className="bg-slate-50 dark:bg-brand-dark/60 p-3.5 rounded-2xl border border-slate-200 dark:border-brand-border space-y-2 text-xs">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <label className="font-bold flex items-center space-x-1.5 text-amber-800 dark:text-gold-400">
+                      <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span className="font-extrabold text-sm">Dip İskonto (Son İndirim):</span>
+                      <span className="text-[10px] text-slate-400 font-normal hidden sm:inline">(Pazarlık / Özel İndirim)</span>
+                    </label>
+                    <div className="inline-flex rounded-lg bg-slate-200 dark:bg-slate-900 p-0.5 border border-slate-300 dark:border-brand-border">
+                      <button
+                        type="button"
+                        onClick={() => setDipDiscountType('amount')}
+                        className={`px-3 py-1 text-[11px] font-bold rounded-md transition cursor-pointer ${dipDiscountType === 'amount' ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400'}`}
+                      >
+                        Nakit (TL)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDipDiscountType('percent')}
+                        className={`px-3 py-1 text-[11px] font-bold rounded-md transition cursor-pointer ${dipDiscountType === 'percent' ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-gray-400'}`}
+                      >
+                        Yüzde (%)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full">
+                    <input
+                      type="number"
+                      min="0"
+                      max={dipDiscountType === 'percent' ? 100 : undefined}
+                      placeholder={dipDiscountType === 'percent' ? 'Örn: 10 (%10 Dip İskonto İndirimi)' : 'Örn: 5000 (5.000 ₺ Dip İskonto İndirimi)'}
+                      value={customDiscountAmount}
+                      onChange={e => setCustomDiscountAmount(e.target.value)}
+                      className={`w-full border rounded-xl p-2.5 font-bold text-red-500 font-mono text-sm pr-12 ${
+                        customDiscountAmount !== '' && Number(customDiscountAmount) < 0
+                          ? 'border-2 border-red-500 bg-red-500/10'
+                          : 'bg-white dark:bg-brand-card border-slate-200 dark:border-brand-border shadow-xs'
+                      }`}
+                    />
+                    <span className="absolute right-3.5 top-2.5 text-xs font-black text-amber-600 dark:text-gold-400">
+                      {dipDiscountType === 'percent' ? '%' : '₺'}
+                    </span>
+                  </div>
+
+                  {customDiscountAmount !== '' && Number(customDiscountAmount) < 0 && (
+                    <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                      <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <span><ThemeIcon icon="warning" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> 0'dan büyük giriniz</span>
+                    </p>
+                  )}
 
                   {customDiscountAmount > 0 && (
-                    <div className="sm:col-span-3 bg-amber-500/10 border border-amber-500/30 p-3 rounded-2xl flex items-center justify-between text-xs animate-fade-in">
+                    <div className="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl flex items-center justify-between text-xs animate-fade-in">
                       <div className="flex items-center space-x-2">
                         <ThemeIcon icon="sparkles" fallbackEmoji="" className="w-4 h-4 text-amber-600 dark:text-gold-400 shrink-0" />
                         <span className="font-bold text-amber-800 dark:text-gold-300">
-                          Dip İskonto Uygulandı: {dipDiscountType === 'percent' ? `%${customDiscountAmount} (${formatCurrency(calculations.customDisc)})` : `${formatCurrency(customDiscountAmount)}`}
+                          Uygulanan Dip İskonto: {dipDiscountType === 'percent' ? `%${customDiscountAmount} (${formatCurrency(calculations.customDisc)})` : `${formatCurrency(customDiscountAmount)}`}
                         </span>
                       </div>
-                      <span className="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/30">
+                      <span className="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                         Aktif İskonto
                       </span>
                     </div>
                   )}
                 </div>
 
+                {/* GENEL ÖDEME STATÜSÜ */}
                 <div className="text-xs">
                   <label className="font-bold block mb-1">Genel Ödeme Statüsü (Anlık Bakiye Hesabı):</label>
                   <select
