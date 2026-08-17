@@ -10187,75 +10187,85 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         showToast('↔️ Ek Hizmet Sıralaması Başarıyla Güncellendi!');
       };
 
-      const handleSaveCampaign = (cObj) => {
+      const handleSaveCampaign = async (cObj) => {
+        const finalCamp = {
+          ...cObj,
+          id: cObj.id || ('c_' + Date.now()),
+          code: (cObj.code || ('CAMP_' + Math.floor(Math.random() * 8999 + 1000))).toUpperCase().trim()
+        };
+
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          await fetchFn('/api/campaigns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalCamp)
+          });
+        } catch(e) {}
+
         setCampaigns(prev => {
           const list = prev || [];
-          const idx = list.findIndex(x => x.id === cObj.id);
+          const idx = list.findIndex(x => x.id === finalCamp.id);
           let updated;
           if (idx >= 0) {
             updated = [...list];
-            updated[idx] = { ...updated[idx], ...cObj };
+            updated[idx] = { ...updated[idx], ...finalCamp };
           } else {
-            updated = [...list, cObj];
+            updated = [...list, finalCamp];
           }
           CacheService.set('campaigns', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
+          try {
+            const fetchFn = window.fetchWithRetry || fetch;
+            fetchFn('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ campaigns: updated })
+              body: JSON.stringify({ campaigns: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
             }).catch(() => {});
-          }
+          } catch(e){}
           return updated;
         });
         setCampaignModalData(null);
-        showToast(`Kampanya (${cObj.code}) Veritabanına Başarıyla Kaydedildi!`);
+        showToast(`Kampanya (${finalCamp.code}) Veritabanına Başarıyla Kaydedildi!`);
       };
 
-      const handleConvertAiToCampaign = (rec) => {
+      const handleConvertAiToCampaign = async (rec) => {
         const newCamp = {
           id: 'c_' + Date.now(),
           code: rec.code || ('AI_' + Math.floor(Math.random() * 8999 + 1000)),
-          title: (rec.title || '').replace(/^[]\s*/, ''),
-          type: rec.type || 'percent',
-          value: rec.value || 15,
-          description: rec.description,
+          title: (rec.title || '').replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim(),
+          type: 'percentage',
+          value: Number(rec.value || 15),
+          description: rec.description || '',
           isAiGenerated: true,
           badge: 'AI Üretimi',
           active: true
         };
+
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          await fetchFn('/api/campaigns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCamp)
+          });
+        } catch(e) {}
+
         setCampaigns(prev => {
           const updated = [newCamp, ...(prev || [])];
           CacheService.set('campaigns', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
+          try {
+            const fetchFn = window.fetchWithRetry || fetch;
+            fetchFn('/api/public-settings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ campaigns: updated })
+              body: JSON.stringify({ campaigns: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
             }).catch(() => {});
-          }
+          } catch(e){}
           return updated;
         });
         showToast(`AI Önerisi Veritabanına Kaydedildi ve Kampanyalara Eklendi! Kod: ${newCamp.code}`);
         navigateTo('campaigns');
       };
-
-      const handleUpdateVenuePriceFromAI = (venueId, newPrice) => {
-        setVenues(prev => {
-          const updated = prev.map(v => v.id === venueId ? { ...v, price: newPrice } : v);
-          CacheService.set('venues', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ venues: updated })
-            }).catch(() => {});
-          }
-          return updated;
-        });
-        showToast(`Salon Fiyatı AI Tarafından Güncellendi: ${formatCurrency(newPrice)}`);
-      };
-
 
       const handleDeleteCampaign = (cIdOrObj) => {
         const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
@@ -10265,17 +10275,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           title: 'ÖZEL KAMPANYA SİLİNECEK',
           message: `"${cTitle}" kampanyasını sistemden kaldırmak istediğinize emin misiniz?`,
           confirmText: 'Evet, Kampanyayı Sil',
-          onConfirm: () => {
+          onConfirm: async () => {
+            try {
+              const fetchFn = window.fetchWithRetry || fetch;
+              await fetchFn('/api/campaigns', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: cId, action: 'delete' })
+              });
+              await fetchFn(`/api/campaigns/${cId}`, {
+                method: 'DELETE'
+              }).catch(() => {});
+            } catch(e) {}
+
             setCampaigns(prev => {
               const updated = (prev || []).filter(x => x.id !== cId);
               CacheService.set('campaigns', updated);
-              if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/public-settings', {
+              try {
+                const fetchFn = window.fetchWithRetry || fetch;
+                fetchFn('/api/public-settings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ campaigns: updated })
+                  body: JSON.stringify({ campaigns: updated, updatedAt: new Date().toISOString(), updatedBy: 'admin' })
                 }).catch(() => {});
-              }
+              } catch(e){}
               return updated;
             });
             showToast('Kampanya Veritabanından Silindi.');

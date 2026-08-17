@@ -1860,33 +1860,69 @@ app.get('/api/campaigns', async (req, res) => {
 });
 
 app.post('/api/campaigns', async (req, res) => {
-  if (req.body && (req.body.action === 'delete' || req.body._delete)) {
-    return deleteCampaignHandler(req, res);
-  }
-  const item = { id: req.body.id || ('c-' + Date.now()), ...req.body };
-  if (pool) {
-    try {
-      await pool.query(
-        'INSERT INTO campaigns (id, code, title, type, value, description, start_date, end_date, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE code=?, title=?, type=?, value=?, description=?, start_date=?, end_date=?, active=?',
-        [item.id, item.code || '', item.title || '', item.type || 'percentage', item.value || 0, item.description || '', item.startDate || item.start_date || '', item.endDate || item.end_date || '', item.active ? 1 : 0, item.code || '', item.title || '', item.type || 'percentage', item.value || 0, item.description || '', item.startDate || item.start_date || '', item.endDate || item.end_date || '', item.active ? 1 : 0]
-      );
-    } catch(e) {
-      console.error('MySQL POST /api/campaigns error:', e.message);
+  try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteCampaignHandler(req, res);
     }
+    const raw = req.body || {};
+    let typeVal = raw.type || 'percentage';
+    if (typeVal === 'percent') typeVal = 'percentage';
+
+    const sDate = raw.startDate || raw.start_date || null;
+    const eDate = raw.endDate || raw.end_date || null;
+    const cleanSDate = (sDate && typeof sDate === 'string' && sDate.trim().length >= 8) ? sDate.trim().split('T')[0] : null;
+    const cleanEDate = (eDate && typeof eDate === 'string' && eDate.trim().length >= 8) ? eDate.trim().split('T')[0] : null;
+
+    const item = {
+      id: raw.id || ('c-' + Date.now()),
+      code: (raw.code || ('CAMP_' + Math.floor(Math.random() * 8999 + 1000))).trim().toUpperCase(),
+      title: (raw.title || 'Özel Kampanya').trim(),
+      type: typeVal,
+      value: Number(raw.value || 0),
+      description: raw.description || '',
+      startDate: cleanSDate || '',
+      endDate: cleanEDate || '',
+      start_date: cleanSDate,
+      end_date: cleanEDate,
+      active: raw.active !== false && raw.active !== 0 && raw.active !== '0'
+    };
+
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query(
+        `INSERT INTO campaigns (id, code, title, type, value, description, start_date, end_date, active) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) 
+         ON DUPLICATE KEY UPDATE 
+           code=VALUES(code), title=VALUES(title), type=VALUES(type), value=VALUES(value), 
+           description=VALUES(description), start_date=VALUES(start_date), end_date=VALUES(end_date), active=VALUES(active)`,
+        [item.id, item.code, item.title, item.type, item.value, item.description, cleanSDate, cleanEDate, item.active ? 1 : 0]
+      );
+      console.log(`🎁 Kampanya [${item.id}] MariaDB Veritabanına Yazıldı: ${item.title} (Kod: ${item.code})`);
+    }
+
+    memoryStore.campaigns = [item, ...(memoryStore.campaigns || []).filter(c => c.id !== item.id)];
+    res.status(201).json({ success: true, item });
+  } catch(e) {
+    console.error('MySQL POST /api/campaigns error:', e.message);
+    res.status(500).json({ error: 'Kampanya kaydedilemedi', message: e.message });
   }
-  res.status(201).json({ success: true, item });
 });
 
 const deleteCampaignHandler = async (req, res) => {
-  const id = req.params.id || req.body.id;
-  if (pool) {
-    try {
-      await pool.query('DELETE FROM campaigns WHERE id = ?', [id]);
-    } catch(e) {
-      console.error('MySQL DELETE /api/campaigns error:', e.message);
+  try {
+    const id = req.params.id || req.body.id || req.query.id;
+    if (!id) return res.status(400).json({ error: 'Kampanya ID eksik' });
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query('DELETE FROM campaigns WHERE id = ?', [id]);
+      console.log(`🗑️ Kampanya [${id}] MariaDB Veritabanından Silindi.`);
     }
+    memoryStore.campaigns = (memoryStore.campaigns || []).filter(c => c.id !== id);
+    res.json({ success: true, id });
+  } catch(e) {
+    console.error('MySQL DELETE /api/campaigns error:', e.message);
+    res.status(500).json({ error: 'Kampanya silinemedi', message: e.message });
   }
-  res.json({ success: true, id });
 };
 app.delete('/api/campaigns/:id', deleteCampaignHandler);
 app.post(['/api/campaigns/delete/:id', '/api/campaigns/delete'], deleteCampaignHandler);
@@ -2262,11 +2298,18 @@ app.post(['/api/public-settings', '/api/system-settings'], async (req, res) => {
       if (activePool) {
         try {
           for (const cp of req.body.campaigns) {
+            let typeVal = cp.type || 'percentage';
+            if (typeVal === 'percent') typeVal = 'percentage';
+            const sDate = cp.startDate || cp.start_date || null;
+            const eDate = cp.endDate || cp.end_date || null;
+            const cleanSDate = (sDate && typeof sDate === 'string' && sDate.trim().length >= 8) ? sDate.trim().split('T')[0] : null;
+            const cleanEDate = (eDate && typeof eDate === 'string' && eDate.trim().length >= 8) ? eDate.trim().split('T')[0] : null;
+
             await activePool.query(
               `INSERT INTO campaigns (id, code, title, type, value, description, start_date, end_date, active)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                ON DUPLICATE KEY UPDATE code=VALUES(code), title=VALUES(title), type=VALUES(type), value=VALUES(value), description=VALUES(description), start_date=VALUES(start_date), end_date=VALUES(end_date), active=VALUES(active)`,
-              [cp.id, cp.code || '', cp.title || '', cp.type || 'percentage', cp.value || 0, cp.description || '', cp.startDate || cp.start_date || '', cp.endDate || cp.end_date || '', cp.active ? 1 : 0]
+              [cp.id, cp.code || ('CAMP_' + Math.floor(Math.random() * 8999 + 1000)), cp.title || '', typeVal, Number(cp.value || 0), cp.description || '', cleanSDate, cleanEDate, cp.active !== false ? 1 : 0]
             );
           }
         } catch(e) { console.error('MySQL bulk campaigns sync error:', e.message); }
