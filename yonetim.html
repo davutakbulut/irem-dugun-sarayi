@@ -18663,6 +18663,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                   <td className="p-3.5">
                                     <div className="font-bold text-slate-800 dark:text-gray-100">{r.customerName}</div>
                                     <div className="text-[10px] text-slate-400 font-mono">{r.id} • {rf.venueName}</div>
+                                    {(r.created_at || r.createdAt) && (
+                                      <div className="text-[9px] text-amber-600 dark:text-gold-400 font-sans mt-0.5">
+                                        Kayıt: {typeof formatDateTime === 'function' ? formatDateTime(r.created_at || r.createdAt) : formatDate(r.created_at || r.createdAt)}
+                                      </div>
+                                    )}
                                   </td>
                                   <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-300">
                                     {formatDate(r.date || r.eventDate)}
