@@ -188,41 +188,41 @@ syncPhysicalUploadsWithMemoryStore();
 
 // MySQL / MariaDB Bağlantı Havuzu
 let pool = null;
+let isConnectingPool = false;
 
 const getPool = async () => {
   if (pool) return pool;
-  const hostsToTry = [
-    '213.159.6.158',
-    process.env.DB_HOST,
-    process.env.MYSQL_HOST,
-    '127.0.0.1',
-    'localhost'
-  ].filter(Boolean);
-
-  for (const host of hostsToTry) {
-    try {
-      const mysql = require('mysql2/promise');
-      const testPool = mysql.createPool({
-        host: host,
-        port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
-        user: 'kullaniciadi_irem_dugun_db',
-        password: 'Akblt_157',
-        database: 'irem_dugun_db',
-        dateStrings: true,
-        waitForConnections: true,
-        connectionLimit: 5,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelay: 10000,
-        connectTimeout: 7000
-      });
-      await testPool.query('SELECT 1');
-      pool = testPool;
-      console.log(`✅ MariaDB Bağlantısı Başarılı! (Aktif Host: ${host})`);
-      break;
-    } catch(err) {
-      console.warn(`ℹ️ MariaDB Host [${host}] deneme uyarısı:`, err.message);
+  if (isConnectingPool) {
+    while (isConnectingPool) {
+      await new Promise(r => setTimeout(r, 100));
     }
+    if (pool) return pool;
+  }
+  isConnectingPool = true;
+  try {
+    const mysql = require('mysql2/promise');
+    const testPool = mysql.createPool({
+      host: '213.159.6.158',
+      port: (process.env.DB_PORT || process.env.MYSQL_PORT) ? Number(process.env.DB_PORT || process.env.MYSQL_PORT) : 3306,
+      user: 'kullaniciadi_irem_dugun_db',
+      password: 'Akblt_157',
+      database: 'irem_dugun_db',
+      dateStrings: true,
+      waitForConnections: true,
+      connectionLimit: 2, // Strict 2 connections max for shared hosting limit
+      maxIdle: 2,
+      idleTimeout: 30000,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 10000,
+      connectTimeout: 5000
+    });
+    await testPool.query('SELECT 1');
+    pool = testPool;
+    console.log(`✅ MariaDB Tekil Bağlantı Havuzu Başlatıldı!`);
+  } catch(err) {
+    console.warn(`ℹ️ MariaDB Havuz Bağlantı Uyarısı:`, err.message);
+  } finally {
+    isConnectingPool = false;
   }
   return pool;
 };
@@ -338,6 +338,24 @@ const initMysql = async () => {
         if (sysRows.length && sysRows[0].settings_json) {
           const parsed = typeof sysRows[0].settings_json === 'string' ? JSON.parse(sysRows[0].settings_json) : sysRows[0].settings_json;
           memoryStore.systemSettings = { ...memoryStore.systemSettings, ...parsed };
+        }
+
+        const [qRows] = await pool.query('SELECT * FROM quote_requests ORDER BY created_at DESC');
+        if (qRows && qRows.length) {
+          memoryStore.quoteRequests = qRows.map(q => ({
+            id: q.id,
+            customerName: q.customer_name || '',
+            customerPhone: q.customer_phone || '',
+            customerEmail: q.customer_email || '',
+            eventType: q.event_type || 'Düğün',
+            preferredVenue: q.preferred_venue || 'İrem Kraliyet Balo Salonu',
+            guestCount: Number(q.guest_count || 0),
+            eventDate: q.event_date ? (q.event_date instanceof Date ? q.event_date.toISOString().split('T')[0] : String(q.event_date).split('T')[0]) : '',
+            notes: q.notes || '',
+            status: q.status || 'beklemede',
+            createdAt: q.created_at || new Date().toISOString()
+          }));
+          console.log(`📋 [Boot] ${memoryStore.quoteRequests.length} Teklif Talebi MariaDB'den Belleğe Yüklendi.`);
         }
       } catch (e) {
         console.error('MySQL Memory Hydration Error:', e.message);
@@ -1336,22 +1354,22 @@ app.post(['/api/customers/delete/:id', '/api/customers/delete'], deleteCustomerH
 // -------------------------------------------------------------
 app.get(['/api/quote-requests', '/api/leads'], async (req, res) => {
   try {
-    const activePool = await getPool();
-    if (activePool) {
-      const [rows] = await activePool.query('SELECT * FROM quote_requests ORDER BY created_at DESC');
-      const formatted = (rows || []).map(q => ({
+    const [rows] = await queryDb('SELECT * FROM quote_requests ORDER BY created_at DESC');
+    if (rows && rows.length) {
+      const formatted = rows.map(q => ({
         id: q.id,
         customerName: q.customer_name || '',
         customerPhone: q.customer_phone || '',
         customerEmail: q.customer_email || '',
         eventType: q.event_type || 'Düğün',
-        preferredVenue: q.preferred_venue || '',
+        preferredVenue: q.preferred_venue || 'İrem Kraliyet Balo Salonu',
         guestCount: Number(q.guest_count || 0),
         eventDate: q.event_date ? (q.event_date instanceof Date ? q.event_date.toISOString().split('T')[0] : String(q.event_date).split('T')[0]) : '',
         notes: q.notes || '',
         status: q.status || 'beklemede',
         createdAt: q.created_at || new Date().toISOString()
       }));
+      memoryStore.quoteRequests = formatted;
       return res.json(formatted);
     }
   } catch(e) {
@@ -1413,12 +1431,17 @@ app.post(['/api/quote-requests', '/api/leads'], async (req, res) => {
            event_date=VALUES(event_date), notes=VALUES(notes), status=VALUES(status)`,
         [item.id, item.customerName, item.customerPhone, item.customerEmail, item.eventType, item.preferredVenue, item.guestCount, cleanEDate, item.notes, item.status]
       );
-      console.log(`📋 Teklif Talebi [${item.id}] MariaDB Veritabanına Yazıldı: ${item.customerName}`);
+      console.log(`📋 Teklif Talebi [${item.id}] MariaDB Veritabanına Yazıldı / Güncellendi: ${item.customerName} (${item.status})`);
     } catch (dbErr) {
       console.error('MySQL queryDb error on quote-requests:', dbErr.message);
     }
 
-    memoryStore.quoteRequests = [item, ...(memoryStore.quoteRequests || []).filter(q => q.id !== item.id)];
+    const existingIdx = (memoryStore.quoteRequests || []).findIndex(q => q.id === item.id);
+    if (existingIdx >= 0) {
+      memoryStore.quoteRequests[existingIdx] = { ...memoryStore.quoteRequests[existingIdx], ...item };
+    } else {
+      memoryStore.quoteRequests = [item, ...(memoryStore.quoteRequests || [])];
+    }
     res.status(201).json({ success: true, item });
   } catch(e) {
     console.error('MySQL POST /api/quote-requests error:', e.message);

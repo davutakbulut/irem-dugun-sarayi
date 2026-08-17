@@ -7985,18 +7985,21 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       const handleUpdateStatus = (reqId, newStatus) => {
+        const targetReq = (quoteRequests || []).find(r => r.id === reqId);
         setQuoteRequests(prev => {
           const updated = (prev || []).map(r => r.id === reqId ? { ...r, status: newStatus } : r);
           CacheService.set('quote_requests', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ quoteRequests: updated })
-            }).catch(() => {});
-          }
           return updated;
         });
+
+        if (targetReq) {
+          const payload = { ...targetReq, status: newStatus };
+          fetch('/api/quote-requests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(err => console.error('Status update sync error:', err));
+        }
         if (showToast) showToast('Talep durumu güncellendi.');
       };
 
@@ -8009,16 +8012,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             setQuoteRequests(prev => {
               const updated = (prev || []).filter(r => r.id !== reqId);
               CacheService.set('quote_requests', updated);
-              if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/public-settings', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ quoteRequests: updated })
-                }).catch(() => {});
-              }
               return updated;
             });
             setExpandedIds(prev => prev.filter(id => id !== reqId));
+
+            fetch(`/api/quote-requests/${reqId}`, {
+              method: 'DELETE'
+            }).catch(() => {
+              fetch('/api/quote-requests/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: reqId })
+              }).catch(err => console.error('Delete lead error:', err));
+            });
+
             if (showToast) showToast('Teklif Talebi Silindi.');
           }
         });
