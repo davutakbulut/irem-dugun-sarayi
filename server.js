@@ -1641,9 +1641,10 @@ app.post('/api/reservations/:id/payments', async (req, res) => {
   }
 });
 
-app.delete('/api/reservations/:id/payments/:paymentId', async (req, res) => {
+const deletePaymentHandler = async (req, res) => {
   try {
-    const { id, paymentId } = req.params;
+    const id = req.params.id || req.body.resId || req.body.id;
+    const paymentId = req.params.paymentId || req.body.paymentId || req.body.id;
     const activePool = await getPool();
     if (!activePool) return res.status(500).json({ error: 'Database connection not available' });
 
@@ -1684,7 +1685,7 @@ app.delete('/api/reservations/:id/payments/:paymentId', async (req, res) => {
     console.log(`🗑️ Rezervasyon [${id}] İçin Tahsilat Silindi: ${paymentId}`);
 
     // Memory Store update
-    const memIdx = memoryStore.reservations.findIndex(r => r.id === id);
+    const memIdx = (memoryStore.reservations || []).findIndex(r => r.id === id);
     if (memIdx >= 0) {
       memoryStore.reservations[memIdx] = {
         ...memoryStore.reservations[memIdx],
@@ -1707,7 +1708,9 @@ app.delete('/api/reservations/:id/payments/:paymentId', async (req, res) => {
     console.error('MySQL DELETE payment error:', e.message);
     return res.status(500).json({ error: 'Tahsilat silinemedi', message: e.message });
   }
-});
+};
+app.delete('/api/reservations/:id/payments/:paymentId', deletePaymentHandler);
+app.post(['/api/reservations/:id/payments/:paymentId/delete', '/api/reservations/:id/payments/delete', '/api/reservations/:id/payments/remove'], deletePaymentHandler);
 
 const deleteReservationHandler = async (req, res) => {
   const id = req.params.id || req.body.id || req.body.resId || req.query.id;

@@ -9662,7 +9662,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           onConfirm: async () => {
             try {
               const fetchFn = window.fetchWithRetry || fetch;
-              await fetchFn(`/api/venues/${vId}`, { method: 'DELETE' });
+              await fetchFn('/api/venues', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: vId, action: 'delete' })
+              });
             } catch(e) {}
 
             setVenues(prev => {
@@ -9874,20 +9878,22 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         const user = users.find(x => x.id === uId);
         const uName = user ? user.name : 'Kullanıcı';
         setRedAlertModalData({
-          title: 'KULLANICI HESABI SİLİNECEK',
-          message: `"${uName}" kullanıcısının yetkilerini iptal edip sistemden silmek istediğinize emin misiniz?`,
+          title: 'KULLANICI SİLİNECEK',
+          message: `"${uName}" kullanıcısını sistemden tamamen silmek istediğinize emin misiniz?`,
           confirmText: 'Evet, Kullanıcıyı Sil',
-          onConfirm: () => {
+          onConfirm: async () => {
+            try {
+              const fetchFn = window.fetchWithRetry || fetch;
+              await fetchFn('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: uId, action: 'delete' })
+              });
+            } catch(e) {}
+
             setUsers(prev => {
               const updated = (prev || []).filter(x => x.id !== uId);
               CacheService.set('users', updated);
-              if (window.fetchWithRetry) {
-                window.fetchWithRetry('/api/public-settings', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ users: updated })
-                }).catch(() => {});
-              }
               return updated;
             });
             showToast('Kullanıcı Veritabanından Silindi.');
@@ -9965,7 +9971,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           onConfirm: async () => {
             try {
               const fetchFn = window.fetchWithRetry || fetch;
-              await fetchFn(`/api/customers/${cId}`, { method: 'DELETE' });
+              await fetchFn('/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: cId, action: 'delete' })
+              });
             } catch(e) {
               console.error('Delete customer error:', e);
             }
@@ -10156,29 +10166,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const handleDeleteReservation = (resId) => {
         setReservations(prev => {
-          const updated = prev.filter(r => r.id !== resId);
+          const updated = (prev || []).filter(r => r.id !== resId);
+          CacheService.set('reservations', updated);
           try {
             const fetchFn = window.fetchWithRetry || fetch;
-            // Primary standard DELETE with automatic transparent fallback to POST /api/reservations { id, action: 'delete' } on 403
-            fetchFn(`/api/reservations/${resId}`, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' }
-            }).then(resp => {
-              if (!resp || !resp.ok) {
-                // Direct POST fallback with action: 'delete' (WAF & ModSecurity 100% compliant)
-                return fetch('/api/reservations', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ id: resId, action: 'delete' })
-                });
-              }
-            }).catch(() => {
-              fetch('/api/reservations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: resId, action: 'delete' })
-              }).catch(() => {});
-            });
+            fetchFn('/api/reservations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: resId, action: 'delete' })
+            }).catch(() => {});
           } catch(e) {}
           return updated;
         });
@@ -17809,7 +17805,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         const resId = customExpenseModalRes.id;
         try {
           const fetchFn = window.fetchWithRetry || fetch;
-          const resp = await fetchFn(`/api/reservations/${resId}/payments/${paymentId}`, { method: 'DELETE' });
+          const resp = await fetchFn(`/api/reservations/${resId}/payments/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: resId, paymentId: paymentId })
+          });
           const data = await resp.json();
           if (data && data.success) {
             setCustomExpenseModalRes(prev => prev ? ({
