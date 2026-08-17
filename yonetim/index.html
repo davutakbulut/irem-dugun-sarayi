@@ -10203,6 +10203,23 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         navigateTo('campaigns');
       };
 
+            const handleUpdateVenuePriceFromAI = (venueId, newPrice) => {
+        setVenues(prev => {
+          const updated = (prev || []).map(v => v.id === venueId ? { ...v, price: Number(newPrice) } : v);
+          CacheService.set('venues', updated);
+          try {
+            const fetchFn = window.fetchWithRetry || fetch;
+            fetchFn('/api/venues', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updated.find(v => v.id === venueId))
+            }).catch(() => {});
+          } catch(e){}
+          return updated;
+        });
+        showToast(`Salon Fiyatı AI Tarafından Güncellendi: ${formatCurrency(newPrice)}`);
+      };
+
       const handleDeleteCampaign = (cIdOrObj) => {
         const cId = typeof cIdOrObj === 'object' ? cIdOrObj.id : cIdOrObj;
         const campaign = campaigns.find(x => x.id === cId);
