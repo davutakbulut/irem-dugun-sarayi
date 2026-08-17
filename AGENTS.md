@@ -16,11 +16,13 @@
 - **Tasarım Sistemi**: GitHub'da en çok yıldız alan modern UI/UX tasarım depoları (`awesome-claude-design`, `awesome-web-prompts`) standartları uygulanır.
 - **Visuals**: Glassmorphic paneller (`backdrop-blur-md`), Lüks Altın & Safir HSL renk paleti, Playfair Display/Outfit şık tipografi ve akıcı mikro animasyonlar.
 
-### 4. 🛡️ Yeni Sayfa / Modül Geliştirme, Hata İzolasyonu & Rota Güvence Protokolü
-- **Çift Yönlü Router & Slug Senkronizasyonu:** Yeni veya güncellenen her sayfa/sekme için `activeTab` tanımlanırken; `SLUG_TO_TAB`, `TAB_TO_SLUG` ve `TAB_TO_PATH` haritaları eksiksiz doldurulmalıdır. Sayfa linki doğrudan tarayıcıdan F5 ile yenilendiğinde asla 404 hatasına düşmemelidir.
+### 4. 🛡️ Sıfır Yapılandırmalı Akıllı Dinamik Yönlendirici & Slug Protokolü (Zero-Config Routing)
+- **Proxy Tabanlı Dinamik Çözümleme:** 4-5 farklı statik sözlükte elle satır ekleme saçmalığı yasaktır. Rotalar JavaScript `Proxy` nesneleri üzerinden dinamik olarak çözülür. URL'e gelen herhangi bir slug (`/yonetim/{sayfa}` veya `/{ziyaretci-sayfasi}`) doğrudan hedef sekme ismi olarak kabul edilir ve otomatik açılır.
+- **Kalıcı F5 / Yenileme Güvencesi (Zero-404 Guarantee):** Sayfa doğrudan tarayıcıdan F5 ile yenilendiğinde asla 404 hatasına veya sessiz anasayfa yönlendirmesine düşmez.
+- **RBAC Yetkilendirme Varsayılan Açık İlkesi:** Yeni eklenen bir sayfa izin matrisinde unutulsa dahi giriş yapmış yetkili personel için kilitlenmez, varsayılan açık izinle çalışır.
 - **Modüler Hata İzolasyonu (Error Boundary):** Her sayfa bağımsız `BlockErrorBoundary` / `ErrorBoundary` ile sarılmalıdır. Bir sayfada runtime hatası oluşsa dahi diğer sayfalar, üst menü ve navigasyon barı kesintisiz çalışmaya devam edecektir.
 - **Pre-Push Sözdizimi & AST Doğrulaması:** Kod değişiklikleri tamamlandığında, push yapılmadan önce `@babel/parser` ile sözdizimi denetlenecek, tek bir syntax hatası olan kod bile repoya aktarılmayacaktır.
-- **Standartlara Uygun SVG Vektörleri:** SVG `<path d="...">` tanımlarında React DOM ve W3C standartlarına tam uyumlu, boşlukları düzgün vektör koordinatları kullanılacak, konsolda attribute uyarısı veren sıkıştırılmış malformed path'ler engellenecektir.
+- **Standartlara Uygun SVG Vektörleri:** SVG `<path d="...">` tanımlarında React DOM ve W3C standartlarına tam uyumlu, boşlukları düzgün vektör koordinatları kullanılacaktır.
 
 ---
 *Bu kural seti tüm geliştirme ve ajan oturumları için geçerlidir.*

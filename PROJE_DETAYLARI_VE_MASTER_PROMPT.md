@@ -15,11 +15,14 @@
 > 5. **HATA SAYFALARI İZOLASYONU VE MÜSTAKİL HTML DOSYALARI:** Hata ve uyarı sayfalarında (404, 301, 403, 500) bilgi sızıntısını (Information Disclosure) önlemek için Header, Sidebar ve Mobil Footer tamamen gizlenip tam ekran izolasyonu sağlanacaktır. Kök dizindeki bağımsız müstakil dosyalar (`404.html`, `301.html`, `403.html`, `500.html`) güncel tutulacaktır.
 > 6. **KİŞİSEL VERİ VE TARAYICI DOKUNULMAZLIĞI:** Kullanıcının kişisel bilgisayarına, Chrome profillerine veya kayıtlı verilerine asla müdahale edilmeyecektir.
 > 7. **MEVCUT SUBAGENT'I YENİDEN KULLANMA:** Her işlem için sıfırdan subagent açmak yerine mevcut aktif test ajanı (`send_message` ile) kullanılacaktır.
-> 8. **YENİ SAYFA / MODÜL GELİŞTİRME, İZOLASYON & ROTA GÜVENCE PROTOKOLÜ:**
->    - **a) Çift Yönlü Router Senkronizasyonu:** Yeni veya güncellenen her sayfa/sekme için `activeTab` tanımlanırken; `SLUG_TO_TAB`, `TAB_TO_SLUG` ve `TAB_TO_PATH` sözlükleri eksiksiz doldurulacaktır. Böylece kullanıcı sayfayı doğrudan tarayıcıdan yenilediğinde (F5/Reload) kesinlikle 404 hatasına düşmeyecektir.
->    - **b) Hata İzolasyonu (Fault Isolation):** Her sayfa ve modül bağımsız `BlockErrorBoundary` / `ErrorBoundary` ile sarılmalıdır. Bir sayfada runtime hatası oluşsa dahi diğer sayfalar, üst menü ve navigasyon barı kesintisiz çalışmaya devam edecektir.
->    - **c) Pre-Push Sözdizimi & AST Doğrulaması:** Her kod değişikliği sonrasında `@babel/parser` ile sözdizimi denetlenecek, tek bir syntax hatası olan kod bile repoya aktarılmayacaktır.
->    - **d) Standartlara Uygun SVG Vektörleri:** SVG `<path d="...">` tanımlarında React DOM ve W3C standartlarına tam uyumlu, boşlukları düzgün vektör koordinatları kullanılacak, konsolda attribute uyarısı veren sıkıştırılmış malformed path'ler engellenecektir.
+> 8. **SIFIR YAPILANDIRMALI AKILLI DİNAMİK YÖNLENDİRİCİ & SLUG GÜVENCE PROTOKOLÜ (ZERO-CONFIG DYNAMIC PROXY ROUTING):**
+>    - **a) Statik Çoklu Sözlük Kısıtlamasının Yasaklanması (Anti-Pattern Prevention):** Yeni bir sayfa/sekme eklendiğinde 4-5 ayrı statik sözlükte (`SLUG_TO_TAB`, `TAB_TO_SLUG`, `TAB_TO_PATH`, `TAB_PERMISSIONS`) elle kopyala-yapıştır yapma zorunluluğu KESİNLİKLE YASAKTIR.
+>    - **b) JavaScript Proxy Tabanlı Dinamik Çözümleme (Smart Dynamic Proxy):** `SLUG_TO_TAB`, `TAB_TO_SLUG` ve `TAB_TO_PATH` nesneleri dinamik `Proxy` olarak çalışır. URL'e gelen herhangi bir slug (`/yonetim/{sayfa-adi}` veya `/{ziyaretci-sayfasi}`) bilinen takma adlarda olmasa dahi doğrudan hedef sekme ismi olarak kabul edilir ve otomatik olarak açılır.
+>    - **c) Kalıcı F5 / Yenileme Dokunulmazlığı (Zero-404 Guarantee):** Hem Ziyaretçi Web Sitesinde (`index.html`) hem Yönetim Panelinde (`yonetim.html`) doğrudan URL ile girişlerde veya tarayıcı yenilemelerinde (F5/Reload) sayfanın 404'e veya sessizce anasayfaya düşmesi engellenmiştir.
+>    - **d) RBAC Yetkilendirme Varsayılan Açık İlkesi (Default-Allow for Authenticated Users):** Yeni bir sekme eklendiğinde izin matrisinde unutulsa dahi admin ve giriş yapmış yetkili personel için sayfa kilitlenmez, varsayılan açık izinle çalışır.
+>    - **e) Modüler Hata İzolasyonu (Fault Isolation):** Her sayfa bağımsız `BlockErrorBoundary` / `ErrorBoundary` ile sarılmalıdır. Bir sayfada runtime hatası olsa dahi menü, üst bar ve diğer sayfalar etkilenmeden çalışacaktır.
+>    - **f) Pre-Push Sözdizimi & AST Doğrulaması:** Kod güncellemeleri tamamlandığında, push yapılmadan önce `@babel/parser` ile sözdizimi denetlenecek, syntax hatası olan kod repoya aktarılmayacaktır.
+>    - **g) Standartlara Uygun SVG Vektörleri:** SVG `<path d="...">` tanımlarında React DOM ve W3C standartlarına tam uyumlu boşluklu koordinatlar kullanılacak, konsolda uyarı veren sıkıştırılmış malformed path'ler eklenmeyecektir.
 
 ---
 
