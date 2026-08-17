@@ -36,11 +36,19 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-HTTP-Method-Override', 'X-Method-Override', 'Accept', 'Origin']
+}));
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-HTTP-Method-Override, X-Method-Override, Accept, Origin');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
   next();
 });
 
@@ -1111,9 +1119,9 @@ app.post('/api/venues', async (req, res) => {
   }
 });
 
-app.delete('/api/venues/:id', async (req, res) => {
+const deleteVenueHandler = async (req, res) => {
+  const id = req.params.id || req.body.id;
   try {
-    const { id } = req.params;
     const activePool = await getPool();
     if (activePool) {
       await activePool.query('DELETE FROM venues WHERE id = ?', [id]);
@@ -1125,7 +1133,9 @@ app.delete('/api/venues/:id', async (req, res) => {
     console.error('MySQL DELETE /api/venues error:', e.message);
     res.status(500).json({ error: 'Salon silinemedi', message: e.message });
   }
-});
+};
+app.delete('/api/venues/:id', deleteVenueHandler);
+app.post(['/api/venues/delete/:id', '/api/venues/delete'], deleteVenueHandler);
 
 // -------------------------------------------------------------
 // 2. EK HİZMETLER ENDPOINTS (/api/services & /api/services/reorder)
@@ -1251,8 +1261,8 @@ app.post('/api/customers', async (req, res) => {
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/customers/:id', async (req, res) => {
-  const { id } = req.params;
+const deleteCustomerHandler = async (req, res) => {
+  const id = req.params.id || req.body.id;
   if (pool) {
     try {
       await pool.query('DELETE FROM customers WHERE id = ?', [id]);
@@ -1261,7 +1271,9 @@ app.delete('/api/customers/:id', async (req, res) => {
     }
   }
   res.json({ success: true, id });
-});
+};
+app.delete('/api/customers/:id', deleteCustomerHandler);
+app.post(['/api/customers/delete/:id', '/api/customers/delete'], deleteCustomerHandler);
 
 // -------------------------------------------------------------
 // 4. KULLANICILAR ENDPOINTS (/api/users)
@@ -1300,8 +1312,8 @@ app.post('/api/users', async (req, res) => {
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/users/:id', async (req, res) => {
-  const { id } = req.params;
+const deleteUserHandler = async (req, res) => {
+  const id = req.params.id || req.body.id;
   if (pool) {
     try {
       await pool.query('DELETE FROM users WHERE id = ?', [id]);
@@ -1310,7 +1322,9 @@ app.delete('/api/users/:id', async (req, res) => {
     }
   }
   res.json({ success: true, id });
-});
+};
+app.delete('/api/users/:id', deleteUserHandler);
+app.post(['/api/users/delete/:id', '/api/users/delete'], deleteUserHandler);
 
 // -------------------------------------------------------------
 // 5. REZERVASYONLAR ENDPOINTS (/api/reservations)
@@ -1689,8 +1703,11 @@ app.delete('/api/reservations/:id/payments/:paymentId', async (req, res) => {
   }
 });
 
-app.delete('/api/reservations/:id', async (req, res) => {
-  const { id } = req.params;
+const deleteReservationHandler = async (req, res) => {
+  const id = req.params.id || req.body.id || req.body.resId || req.query.id;
+  if (!id) {
+    return res.status(400).json({ error: 'Rezervasyon ID eksik' });
+  }
   const safeResId = String(id).replace(/[^a-zA-Z0-9_-]/g, '_');
   const resDir = path.join(uploadsDir, safeResId);
 
@@ -1710,9 +1727,16 @@ app.delete('/api/reservations/:id', async (req, res) => {
     }
   }
 
-  memoryStore.reservations = memoryStore.reservations.filter(r => r.id !== id);
+  memoryStore.reservations = (memoryStore.reservations || []).filter(r => r.id !== id);
   res.json({ success: true, id, message: 'Rezervasyon ve bağlı medyaları sunucudan fiziken silindi.' });
-});
+};
+
+app.delete('/api/reservations/:id', deleteReservationHandler);
+app.post('/api/reservations/:id/delete', deleteReservationHandler);
+app.post('/api/reservations/delete/:id', deleteReservationHandler);
+app.post('/api/reservations/delete', deleteReservationHandler);
+app.post('/api/reservations/remove', deleteReservationHandler);
+app.post('/api/reservations-delete', deleteReservationHandler);
 
 // -------------------------------------------------------------
 // 6. GİDERLER & HARİCİ GELİRLER ENDPOINTS (/api/expenses)
@@ -1825,8 +1849,8 @@ app.post('/api/campaigns', async (req, res) => {
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/campaigns/:id', async (req, res) => {
-  const { id } = req.params;
+const deleteCampaignHandler = async (req, res) => {
+  const id = req.params.id || req.body.id;
   if (pool) {
     try {
       await pool.query('DELETE FROM campaigns WHERE id = ?', [id]);
@@ -1835,7 +1859,9 @@ app.delete('/api/campaigns/:id', async (req, res) => {
     }
   }
   res.json({ success: true, id });
-});
+};
+app.delete('/api/campaigns/:id', deleteCampaignHandler);
+app.post(['/api/campaigns/delete/:id', '/api/campaigns/delete'], deleteCampaignHandler);
 
 // -------------------------------------------------------------
 // 8. MEDYA & GALERİ ENDPOINTS (/api/media)
@@ -1867,8 +1893,8 @@ app.post('/api/media', async (req, res) => {
   res.status(201).json({ success: true, item });
 });
 
-app.delete('/api/media/:id', async (req, res) => {
-  const { id } = req.params;
+const deleteMediaHandler = async (req, res) => {
+  const id = req.params.id || req.body.id;
   if (pool) {
     try {
       await pool.query('DELETE FROM media WHERE id = ?', [id]);
@@ -1877,7 +1903,9 @@ app.delete('/api/media/:id', async (req, res) => {
     }
   }
   res.json({ success: true, id });
-});
+};
+app.delete('/api/media/:id', deleteMediaHandler);
+app.post(['/api/media/delete/:id', '/api/media/delete'], deleteMediaHandler);
 
 // -------------------------------------------------------------
 // 9. ROLLER VE İZİNLER ENDPOINTS (/api/roles & /api/permissions)

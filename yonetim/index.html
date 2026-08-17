@@ -10159,9 +10159,26 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const updated = prev.filter(r => r.id !== resId);
           try {
             const fetchFn = window.fetchWithRetry || fetch;
+            // Try standard DELETE first, fetchWithRetry will transparently fallback to POST /api/reservations/delete on 403
             fetchFn(`/api/reservations/${resId}`, {
-              method: 'DELETE'
-            }).catch(() => {});
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
+            }).then(resp => {
+              if (!resp || !resp.ok) {
+                // Direct POST fallback if anything fails
+                return fetch('/api/reservations/delete', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ id: resId })
+                });
+              }
+            }).catch(() => {
+              fetch('/api/reservations/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: resId })
+              }).catch(() => {});
+            });
           } catch(e) {}
           return updated;
         });
