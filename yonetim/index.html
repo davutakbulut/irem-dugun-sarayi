@@ -13999,7 +13999,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         setHasDeposit(isYes);
                         if (isYes) {
                           if (paymentStatus === 'Bekliyor') setPaymentStatus('Kapora Alındı');
-                          if (!depositPaid || depositPaid === '' || Number(depositPaid) === 0) setDepositPaid(5000);
+                          const vObj = (venues || []).find(v => v.id === venueId);
+                          const venueMinDep = Number(vObj?.deposit || vObj?.minDeposit || vObj?.min_deposit || 0);
+                          const defaultDepVal = venueMinDep > 0 ? venueMinDep : (Math.round((calculations?.grandTotal || 50000) * 0.20) || 5000);
+                          if (!depositPaid || depositPaid === '' || Number(depositPaid) === 0) {
+                            setDepositPaid(defaultDepVal);
+                          }
                         } else {
                           if (paymentStatus === 'Kapora Alındı') setPaymentStatus('Bekliyor');
                           setDepositPaid('');
@@ -14014,34 +14019,49 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                   {hasDeposit && (
                     <div>
-                      <label className="font-bold block mb-1">Ödenen Kapora Tutarı (TL):</label>
-                      <div>
-                        <input
-                          type="number"
-                          id="deposit-paid-input"
-                          placeholder="Örn: 5000"
-                          value={depositPaid}
-                          onChange={e => {
-                            const rawVal = e.target.value;
-                            setDepositPaid(rawVal);
-                            const numVal = Number(rawVal);
-                            if (rawVal !== '' && numVal > 0 && paymentStatus === 'Bekliyor') {
-                              setPaymentStatus('Kapora Alındı');
-                            }
-                          }}
-                          className={`w-full border rounded-xl p-2.5 font-bold text-emerald-600 ${
-                            depositPaid !== '' && Number(depositPaid) < 0
-                              ? 'border-2 border-red-500 bg-red-500/10'
-                              : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'
-                          }`}
-                        />
-                        {depositPaid !== '' && Number(depositPaid) < 0 && (
-                          <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
-                            <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span><ThemeIcon icon="warning" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> 0'dan büyük giriniz</span>
-                          </p>
-                        )}
-                      </div>
+                      {(() => {
+                        const vObj = (venues || []).find(v => v.id === venueId);
+                        const venueMinDep = Number(vObj?.deposit || vObj?.minDeposit || vObj?.min_deposit || 0);
+                        return (
+                          <>
+                            <div className="flex justify-between items-center mb-1">
+                              <label className="font-bold block">Ödenen Kapora Tutarı (TL):</label>
+                              {venueMinDep > 0 && (
+                                <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                                  Asgari: {formatCurrency(venueMinDep)}
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <input
+                                type="number"
+                                id="deposit-paid-input"
+                                placeholder={venueMinDep > 0 ? `Asgari Kapora: ${formatCurrency(venueMinDep)}` : "Örn: 5000"}
+                                value={depositPaid}
+                                onChange={e => {
+                                  const rawVal = e.target.value;
+                                  setDepositPaid(rawVal);
+                                  const numVal = Number(rawVal);
+                                  if (rawVal !== '' && numVal > 0 && paymentStatus === 'Bekliyor') {
+                                    setPaymentStatus('Kapora Alındı');
+                                  }
+                                }}
+                                className={`w-full border rounded-xl p-2.5 font-bold text-emerald-600 font-mono ${
+                                  depositPaid !== '' && Number(depositPaid) < 0
+                                    ? 'border-2 border-red-500 bg-red-500/10'
+                                    : 'bg-slate-50 dark:bg-brand-dark border-slate-200 dark:border-brand-border'
+                                }`}
+                              />
+                              {depositPaid !== '' && Number(depositPaid) < 0 && (
+                                <p className="text-[11px] font-bold text-red-600 dark:text-red-400 mt-1 flex items-center space-x-1">
+                                  <svg className="w-3.5 h-3.5 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                  <span><ThemeIcon icon="warning" className="w-4 h-4 inline-block text-amber-500 shrink-0" /> 0'dan büyük giriniz</span>
+                                </p>
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
@@ -14123,7 +14143,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       setPaymentStatus(val);
                       if (val === 'Kapora Alındı') {
                         setHasDeposit(true);
-                        if (!depositPaid || depositPaid === '' || Number(depositPaid) === 0) setDepositPaid(5000);
+                        const vObj = (venues || []).find(v => v.id === venueId);
+                        const venueMinDep = Number(vObj?.deposit || vObj?.minDeposit || vObj?.min_deposit || 0);
+                        const defaultDepVal = venueMinDep > 0 ? venueMinDep : (Math.round((calculations?.grandTotal || 50000) * 0.20) || 5000);
+                        if (!depositPaid || depositPaid === '' || Number(depositPaid) === 0) setDepositPaid(defaultDepVal);
                       } else if (val === 'Ödendi' || val === 'Tamamlandı') {
                         setHasDeposit(true);
                         setDepositPaid(calculations?.grandTotal || 0);
