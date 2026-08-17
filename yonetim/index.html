@@ -17132,10 +17132,10 @@ function VenuesComponent({ venues, services = [], onAddClick, onEditClick, onDel
             </div>
           ) : (
             <div className="space-y-4">
-              {/* PAGINATION AT TOP FOR SERVICES */}
+              {/* PAGINATION AT TOP FOR VENUES */}
               <Pagination
                 currentPage={currentPage}
-                totalItems={filteredServices.length}
+                totalItems={filteredVenues.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
                 onPageSizeChange={setPageSize}
@@ -20779,10 +20779,10 @@ function CustomersComponent({ customers, onAddClick, onEditClick, onDeleteClick 
             </div>
           ) : (
             <div className="space-y-4">
-              {/* PAGINATION AT TOP FOR SERVICES */}
+              {/* PAGINATION AT TOP FOR CUSTOMERS */}
               <Pagination
                 currentPage={currentPage}
-                totalItems={filteredServices.length}
+                totalItems={filteredCustomers.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
                 onPageSizeChange={setPageSize}
