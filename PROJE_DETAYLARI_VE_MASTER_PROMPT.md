@@ -15,6 +15,11 @@
 > 5. **HATA SAYFALARI İZOLASYONU VE MÜSTAKİL HTML DOSYALARI:** Hata ve uyarı sayfalarında (404, 301, 403, 500) bilgi sızıntısını (Information Disclosure) önlemek için Header, Sidebar ve Mobil Footer tamamen gizlenip tam ekran izolasyonu sağlanacaktır. Kök dizindeki bağımsız müstakil dosyalar (`404.html`, `301.html`, `403.html`, `500.html`) güncel tutulacaktır.
 > 6. **KİŞİSEL VERİ VE TARAYICI DOKUNULMAZLIĞI:** Kullanıcının kişisel bilgisayarına, Chrome profillerine veya kayıtlı verilerine asla müdahale edilmeyecektir.
 > 7. **MEVCUT SUBAGENT'I YENİDEN KULLANMA:** Her işlem için sıfırdan subagent açmak yerine mevcut aktif test ajanı (`send_message` ile) kullanılacaktır.
+> 8. **YENİ SAYFA / MODÜL GELİŞTİRME, İZOLASYON & ROTA GÜVENCE PROTOKOLÜ:**
+>    - **a) Çift Yönlü Router Senkronizasyonu:** Yeni veya güncellenen her sayfa/sekme için `activeTab` tanımlanırken; `SLUG_TO_TAB`, `TAB_TO_SLUG` ve `TAB_TO_PATH` sözlükleri eksiksiz doldurulacaktır. Böylece kullanıcı sayfayı doğrudan tarayıcıdan yenilediğinde (F5/Reload) kesinlikle 404 hatasına düşmeyecektir.
+>    - **b) Hata İzolasyonu (Fault Isolation):** Her sayfa ve modül bağımsız `BlockErrorBoundary` / `ErrorBoundary` ile sarılmalıdır. Bir sayfada runtime hatası oluşsa dahi diğer sayfalar, üst menü ve navigasyon barı kesintisiz çalışmaya devam edecektir.
+>    - **c) Pre-Push Sözdizimi & AST Doğrulaması:** Her kod değişikliği sonrasında `@babel/parser` ile sözdizimi denetlenecek, tek bir syntax hatası olan kod bile repoya aktarılmayacaktır.
+>    - **d) Standartlara Uygun SVG Vektörleri:** SVG `<path d="...">` tanımlarında React DOM ve W3C standartlarına tam uyumlu, boşlukları düzgün vektör koordinatları kullanılacak, konsolda attribute uyarısı veren sıkıştırılmış malformed path'ler engellenecektir.
 
 ---
 
@@ -36,7 +41,7 @@
 
 ## 1. PROJE HAKKINDA & GENEL BİLGİLER
 - **Şirket Adı:** İrem Düğün Sarayı & Organizasyon Şirketi
-- **Lokasyon:** Sapanca Göl Kenarı, Sakarya
+- **Lokasyon:** Arifiye Merkez, Sakarya
 - **İletişim:** +90 532 111 2233 | admin@iremdugunsarayi.com
 - **Sektör:** Düğün Salonu Kiralama, Kır Düğünü, Kına Gecesi, Nişan ve Kurumsal Etkinlik Organizasyonu.
 
