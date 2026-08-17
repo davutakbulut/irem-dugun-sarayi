@@ -6753,93 +6753,44 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         setIsLoading(true);
 
         try {
-          // Fetch real-time active users from MySQL database
-          let dbUsers = users;
-          try {
-            const uRes = await fetch('/api/users');
-            const uData = await uRes.json();
-            if (Array.isArray(uData) && uData.length > 0) dbUsers = uData;
-          } catch(err) {}
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              emailOrPhone: activeValue,
+              email: loginMethod === 'email' ? activeValue : '',
+              phone: loginMethod === 'phone' ? activeValue : '',
+              password: passTrim,
+              loginMethod: loginMethod
+            })
+          });
 
-          let dbCustomers = customers;
-          try {
-            const cRes = await fetch('/api/customers');
-            const cData = await cRes.json();
-            if (Array.isArray(cData) && cData.length > 0) dbCustomers = cData;
-          } catch(err) {}
+          const data = await resp.json();
+          setIsLoading(false);
 
-          const valLower = (activeValue || '').toLowerCase().trim();
-          let digits = valLower.replace(/\D/g, '');
-          if (digits.startsWith('90')) digits = digits.slice(2);
-          if (digits.startsWith('0')) digits = digits.slice(1);
-
-          let matchedUser = null;
-          let matchedRole = 'admin';
-
-          // 1. Strict match in MySQL users
-          if (dbUsers && dbUsers.length > 0) {
-            matchedUser = dbUsers.find(u => {
-              const uEmail = (u.email || '').toLowerCase().trim();
-              let uPhone = (u.phone || '').replace(/\D/g, '');
-              if (uPhone.startsWith('90')) uPhone = uPhone.slice(2);
-              if (uPhone.startsWith('0')) uPhone = uPhone.slice(1);
-
-              return loginMethod === 'email' ? (uEmail === valLower) : (uPhone && digits && uPhone === digits);
-            });
-
-            if (matchedUser) {
-              matchedRole = matchedUser.role || 'admin';
-            }
-          }
-
-          // 2. Strict match in MySQL customers
-          if (!matchedUser && dbCustomers && dbCustomers.length > 0) {
-            const matchedCust = dbCustomers.find(c => {
-              const cEmail = (c.email || '').toLowerCase().trim();
-              let cPhone = (c.phone || '').replace(/\D/g, '');
-              if (cPhone.startsWith('90')) cPhone = cPhone.slice(2);
-              if (cPhone.startsWith('0')) cPhone = cPhone.slice(1);
-
-              return loginMethod === 'email' ? (cEmail === valLower) : (cPhone && digits && cPhone === digits);
-            });
-
-            if (matchedCust) {
-              matchedUser = {
-                id: matchedCust.id,
-                name: matchedCust.name,
-                email: matchedCust.email,
-                phone: matchedCust.phone,
-                role: 'musteri',
-                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-              };
-              matchedRole = 'musteri';
-            }
-          }
-
-          // STRICT REJECTION: BLOCK ALL RANDOM OR UNREGISTERED ACCOUNTS
-          if (!matchedUser) {
-            setIsLoading(false);
-            const errorText = `Girdiğiniz ${loginMethod === 'email' ? 'e-posta adresi' : 'telefon numarası'} veya şifre sistemde kayıtlı değildir.`;
-            setErrorMessage(errorText);
-            showToast('Hatalı e-posta/telefon veya şifre!', 'error');
+          if (!resp.ok || !data.success || !data.user) {
+            const errorMsg = data.error || 'Girdiğiniz kullanıcı bilgisi veya şifre hatalıdır!';
+            setErrorMessage(errorMsg);
+            showToast(errorMsg, 'error');
             return;
           }
 
-          setIsLoading(false);
-          onLoginSuccess({
-            id: matchedUser.id,
-            role: matchedRole,
-            name: matchedUser.name || 'Kullanıcı',
-            userName: matchedUser.name || 'Kullanıcı',
-            email: matchedUser.email || valLower,
-            userEmail: matchedUser.email || valLower,
-            phone: matchedUser.phone || '',
-            avatar: matchedUser.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
-          });
-          showToast(`Hoş geldiniz Sayın ${matchedUser.name}! (${matchedRole.toUpperCase()})`);
+          // SUCCESSFUL DATABASE AUTHENTICATION
+          setErrorMessage('');
+          if (typeof localStorage !== 'undefined') {
+            try {
+              localStorage.setItem('irem_session_user', JSON.stringify(data.user));
+              localStorage.setItem('session_user', JSON.stringify(data.user));
+            } catch(e){}
+          }
+
+          onLoginSuccess(data.user);
+          showToast(`Hoş geldiniz Sayın ${data.user.name}! (${(data.user.role || 'Admin').toUpperCase()})`);
 
         } catch(err) {
           setIsLoading(false);
+          setErrorMessage('Giriş doğrulanırken bir hata oluştu. Lütfen bağlantınızı kontrol ediniz.');
           showToast('Giriş işlemi gerçekleştirilemedi', 'error');
         }
       };
@@ -9392,6 +9343,28 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [draftReservations, setDraftReservations] = useState([]);
       const [expenses, setExpenses] = useState(() => CacheService.get('expenses', null) || []);
       const isInitialLoadDoneRef = useRef(false);
+
+      // Real-time Session Validation with MariaDB Database on Mount
+      useEffect(() => {
+        if (!sessionUser) return;
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          fetchFn('/api/users')
+            .then(r => r.json())
+            .then(dbUsers => {
+              if (Array.isArray(dbUsers) && dbUsers.length > 0) {
+                const sId = sessionUser.id;
+                const sEmail = (sessionUser.email || '').toLowerCase().trim();
+                const stillExists = dbUsers.some(u => u.id === sId || (u.email && sEmail && u.email.toLowerCase().trim() === sEmail));
+                if (!stillExists && sessionUser.role !== 'musteri') {
+                  console.warn('Aktif oturum açan kullanıcı veritabanında bulunamadı, oturum sonlandırılıyor.');
+                  handleLogout();
+                }
+              }
+            })
+            .catch(() => {});
+        } catch(e){}
+      }, []);
       const [users, setUsers] = useState(() => CacheService.get('users', null) || []);
 
       const lastSyncedVenuesRef = useRef('');

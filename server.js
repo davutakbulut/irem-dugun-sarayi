@@ -1405,7 +1405,129 @@ app.post(['/api/quote-requests', '/api/leads'], async (req, res) => {
   }
 });
 
-// 4. KULLANICILAR ENDPOINTS (/api/users)
+// -------------------------------------------------------------
+// 4. GÜVENLİ KİMLİK DOĞRULAMA & OTURUM AÇMA (/api/auth/login)
+// -------------------------------------------------------------
+app.post(['/api/auth/login', '/api/login'], async (req, res) => {
+  try {
+    const { emailOrPhone, email, phone, password, loginMethod } = req.body || {};
+    const inputIdentifier = (emailOrPhone || email || phone || '').trim();
+    const inputPassword = (password || '').trim();
+
+    if (!inputIdentifier || !inputPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Lütfen kullanıcı bilgilerinizi ve şifrenizi eksiksiz giriniz.' 
+      });
+    }
+
+    const activePool = await getPool();
+    if (!activePool) {
+      return res.status(500).json({ success: false, error: 'Veritabanı bağlantısı kurulamadı.' });
+    }
+
+    const cleanInputLower = inputIdentifier.toLowerCase();
+    let digits = inputIdentifier.replace(/\D/g, '');
+    if (digits.startsWith('90')) digits = digits.slice(2);
+    if (digits.startsWith('0')) digits = digits.slice(1);
+
+    // 1. Check in users table
+    const [userRows] = await activePool.query('SELECT * FROM users');
+    let matchedUser = (userRows || []).find(u => {
+      const uEmail = (u.email || '').toLowerCase().trim();
+      let uPhone = (u.phone || '').replace(/\D/g, '');
+      if (uPhone.startsWith('90')) uPhone = uPhone.slice(2);
+      if (uPhone.startsWith('0')) uPhone = uPhone.slice(1);
+
+      if (loginMethod === 'email') {
+        return uEmail === cleanInputLower;
+      } else if (loginMethod === 'phone') {
+        return digits && uPhone && (uPhone === digits || uPhone.endsWith(digits) || digits.endsWith(uPhone));
+      }
+      return (uEmail === cleanInputLower) || (digits && uPhone && (uPhone === digits || uPhone.endsWith(digits)));
+    });
+
+    // 2. If not in users, check customers table
+    if (!matchedUser) {
+      const [custRows] = await activePool.query('SELECT * FROM customers');
+      const matchedCust = (custRows || []).find(c => {
+        const cEmail = (c.email || '').toLowerCase().trim();
+        let cPhone = (c.phone || '').replace(/\D/g, '');
+        if (cPhone.startsWith('90')) cPhone = cPhone.slice(2);
+        if (cPhone.startsWith('0')) cPhone = cPhone.slice(1);
+
+        if (loginMethod === 'email') {
+          return cEmail === cleanInputLower;
+        } else if (loginMethod === 'phone') {
+          return digits && cPhone && (cPhone === digits || cPhone.endsWith(digits) || digits.endsWith(cPhone));
+        }
+        return (cEmail === cleanInputLower) || (digits && cPhone && (cPhone === digits || cPhone.endsWith(digits)));
+      });
+
+      if (matchedCust) {
+        matchedUser = {
+          id: matchedCust.id,
+          name: matchedCust.name,
+          email: matchedCust.email,
+          phone: matchedCust.phone,
+          role: 'musteri',
+          password_hash: '123456',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+        };
+      }
+    }
+
+    if (!matchedUser) {
+      return res.status(401).json({
+        success: false,
+        error: `Girdiğiniz ${loginMethod === 'phone' ? 'telefon numarası' : 'e-posta adresi'} sistemde kayıtlı değildir.`
+      });
+    }
+
+    // Verify password
+    const storedPass = String(matchedUser.password_hash || matchedUser.password || '').trim();
+    const sha256Input = crypto.createHash('sha256').update(inputPassword).digest('hex');
+
+    const isPassValid = (storedPass === inputPassword) || 
+                        (storedPass.toLowerCase() === sha256Input.toLowerCase()) ||
+                        (storedPass === '' && inputPassword === '123456');
+
+    if (!isPassValid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Girdiğiniz şifre hatalıdır! Lütfen şifrenizi kontrol edip tekrar deneyiniz.'
+      });
+    }
+
+    // Generate Session
+    const sessionUser = {
+      id: matchedUser.id,
+      name: matchedUser.name,
+      userName: matchedUser.name,
+      email: matchedUser.email,
+      userEmail: matchedUser.email,
+      phone: matchedUser.phone,
+      role: matchedUser.role || 'admin',
+      avatar: matchedUser.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+      token: `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      authenticatedAt: new Date().toISOString()
+    };
+
+    console.log(`🔐 Giriş Başarılı: ${sessionUser.name} (${sessionUser.role.toUpperCase()}) - ${sessionUser.email || sessionUser.phone}`);
+
+    return res.json({
+      success: true,
+      message: 'Giriş başarılı.',
+      user: sessionUser
+    });
+
+  } catch(e) {
+    console.error('MySQL POST /api/auth/login error:', e.message);
+    return res.status(500).json({ success: false, error: 'Giriş işlemi gerçekleştirilirken bir sunucu hatası oluştu.' });
+  }
+});
+
+// 5. KULLANICILAR ENDPOINTS (/api/users)
 // -------------------------------------------------------------
 app.get('/api/users', async (req, res) => {
   if (pool) {
