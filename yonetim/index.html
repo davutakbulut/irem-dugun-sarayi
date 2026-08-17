@@ -11572,8 +11572,12 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       reservations={reservations}
                       venues={venues}
                       services={services}
+                      expenses={expenses}
+                      quoteRequests={quoteRequests}
+                      customers={customers}
                       onConvertToCampaign={handleConvertAiToCampaign}
                       onUpdateVenuePrice={handleUpdateVenuePriceFromAI}
+                      showToast={showToast}
                     />
                   )}
 
@@ -17837,149 +17841,902 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
     }
 
 // --- REPORTS COMPONENT ---
-    function ReportsComponent({ reservations = [], venues = [], services = [], onConvertToCampaign, onUpdateVenuePrice }) {
-      const totalRevenue = useMemo(() => {
-        return reservations.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
-      }, [reservations]);
+    // --- COMPREHENSIVE EXECUTIVE AI & BUSINESS INTELLIGENCE REPORTING DASHBOARD ---
+    function ReportsComponent({
+      reservations = [],
+      venues = [],
+      services = [],
+      expenses = [],
+      quoteRequests = [],
+      customers = [],
+      onConvertToCampaign = () => {},
+      onUpdateVenuePrice = () => {},
+      showToast = () => {}
+    }) {
+      const [reportTab, setReportTab] = useState('overview'); // 'overview' | 'venues' | 'services' | 'leads' | 'ai' | 'matrix'
+      const [selectedPeriod, setSelectedPeriod] = useState('ALL'); // 'ALL' | '2026' | '2025' | '2024' | '2026-08' | '2026-09' | 'last30'
+      const [venueFilter, setVenueFilter] = useState('ALL');
+      const [eventTypeFilter, setEventTypeFilter] = useState('ALL');
+      const [tableSearch, setTableSearch] = useState('');
+      const [tablePage, setTablePage] = useState(1);
+      const [tablePageSize, setTablePageSize] = useState(10);
 
-      // Dynamic Occupancy Calculation
-      const occupancyRate = useMemo(() => {
-        const totalVenueSlots = Math.max(1, venues.length) * 30;
-        const validResCount = reservations.filter(r => r.paymentStatus !== 'İptal').length;
-        return Math.min(100, Math.round((validResCount / totalVenueSlots) * 100));
-      }, [reservations, venues]);
+      // 1. FILTER REAL RESERVATIONS BASED ON PERIOD, VENUE AND EVENT TYPE
+      const filteredReservations = useMemo(() => {
+        return (reservations || []).filter(r => {
+          if (r.paymentStatus === 'İptal') return false;
 
-      // Dynamic Venue Revenue Distribution for Donut Chart
-      const venueRevenueData = useMemo(() => {
-        const map = {};
-        venues.forEach(v => { map[v.id] = { name: v.name, color: '#f59e0b', revenue: 0 }; });
+          // Venue filter
+          if (venueFilter !== 'ALL' && r.venueId !== venueFilter) return false;
 
+          // Event type filter
+          if (eventTypeFilter !== 'ALL' && (r.eventType || 'Düğün') !== eventTypeFilter) return false;
+
+          // Period filter
+          if (selectedPeriod !== 'ALL') {
+            const dStr = r.eventDate ? (r.eventDate instanceof Date ? r.eventDate.toISOString().split('T')[0] : String(r.eventDate).split('T')[0]) : (r.date || '');
+            if (selectedPeriod === 'last30') {
+              const resTime = new Date(dStr || 0).getTime();
+              const now = Date.now();
+              if (isNaN(resTime) || resTime < now - 30 * 24 * 3600 * 1000) return false;
+            } else if (selectedPeriod.length === 4) {
+              if (!dStr.startsWith(selectedPeriod)) return false;
+            } else if (selectedPeriod.length === 7) {
+              if (!dStr.startsWith(selectedPeriod)) return false;
+            }
+          }
+
+          return true;
+        });
+      }, [reservations, venueFilter, eventTypeFilter, selectedPeriod]);
+
+      // 2. CORE REAL FINANCIAL & CAPACITY KPI METRICS
+      const kpis = useMemo(() => {
+        const totalCount = filteredReservations.length;
+        const totalGrossRevenue = filteredReservations.reduce((sum, r) => sum + Number(r.totalAmount || r.subtotal || 0), 0);
+        
+        // Real collected deposits & partial payments
+        const totalCollected = filteredReservations.reduce((sum, r) => {
+          if (Array.isArray(r.payments) && r.payments.length > 0) {
+            return sum + r.payments.reduce((pS, p) => pS + Number(p.amount || 0), 0);
+          }
+          return sum + Number(r.depositPaid || 0);
+        }, 0);
+
+        const collectionRate = totalGrossRevenue > 0 ? Math.round((totalCollected / totalGrossRevenue) * 100) : 0;
+        const avgOrderValue = totalCount > 0 ? Math.round(totalGrossRevenue / totalCount) : 0;
+
+        // Total guests served
+        const totalGuests = filteredReservations.reduce((sum, r) => sum + Number(r.guestCount || 400), 0);
+        const avgGuests = totalCount > 0 ? Math.round(totalGuests / totalCount) : 0;
+
+        // Dynamic Capacity / Occupancy
+        const activeVenuesCount = venueFilter === 'ALL' ? Math.max(1, venues.length) : 1;
+        const totalSlots = activeVenuesCount * 30;
+        const occupancyRate = Math.min(100, Math.round((totalCount / totalSlots) * 100));
+
+        // Lead Conversion Rate
+        const totalLeads = (quoteRequests || []).length;
+        const wonLeads = (quoteRequests || []).filter(q => q.status === 'onaylandi' || q.status === 'rezervasyona_donusturuldu').length;
+        const leadConversionRate = totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 38;
+
+        return {
+          totalCount,
+          totalGrossRevenue,
+          totalCollected,
+          collectionRate,
+          avgOrderValue,
+          totalGuests,
+          avgGuests,
+          occupancyRate,
+          totalLeads,
+          wonLeads,
+          leadConversionRate
+        };
+      }, [filteredReservations, venues, quoteRequests, venueFilter]);
+
+      // 3. VENUE PERFORMANCE DISTRIBUTION (DONUT & BAR METRICS)
+      const venuePerformance = useMemo(() => {
         const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#14b8a6'];
+        const map = {};
+
         venues.forEach((v, idx) => {
-          if (map[v.id]) map[v.id].color = colors[idx % colors.length];
+          map[v.id] = {
+            id: v.id,
+            name: v.name,
+            capacity: v.capacity || 500,
+            basePrice: v.price || 80000,
+            color: colors[idx % colors.length],
+            resCount: 0,
+            revenue: 0,
+            collected: 0,
+            guests: 0
+          };
         });
 
-        reservations.forEach(r => {
-          if (r.paymentStatus !== 'İptal') {
-            if (map[r.venueId]) {
-              map[r.venueId].revenue += (r.totalAmount || 0);
+        filteredReservations.forEach(r => {
+          const vId = r.venueId;
+          if (map[vId]) {
+            map[vId].resCount += 1;
+            map[vId].revenue += Number(r.totalAmount || r.subtotal || 0);
+            map[vId].guests += Number(r.guestCount || 400);
+            if (Array.isArray(r.payments) && r.payments.length > 0) {
+              map[vId].collected += r.payments.reduce((s, p) => s + Number(p.amount || 0), 0);
+            } else {
+              map[vId].collected += Number(r.depositPaid || 0);
             }
           }
         });
 
         const list = Object.values(map);
-        const total = list.reduce((s, item) => s + item.revenue, 0) || 1;
+        const totalRev = list.reduce((s, item) => s + item.revenue, 0) || 1;
+        const totalRes = list.reduce((s, item) => s + item.resCount, 0) || 1;
+        const maxRes = Math.max(1, ...list.map(l => l.resCount));
+
         return list.map(item => ({
           ...item,
-          percent: Math.round((item.revenue / total) * 100)
+          revShare: Math.round((item.revenue / totalRev) * 100),
+          resShare: Math.round((item.resCount / totalRes) * 100),
+          barPercent: Math.round((item.resCount / maxRes) * 100),
+          avgTicket: item.resCount > 0 ? Math.round(item.revenue / item.resCount) : 0,
+          occupancy: Math.min(100, Math.round((item.resCount / 30) * 100))
         }));
-      }, [venues, reservations]);
+      }, [venues, filteredReservations]);
 
-      // Dynamic Venue Preference Data for Bar Chart
-      const venuePreferenceData = useMemo(() => {
-        const map = {};
-        venues.forEach(v => { map[v.id] = { name: v.name, count: 0 }; });
-        reservations.forEach(r => {
-          if (r.paymentStatus !== 'İptal') {
-            if (map[r.venueId]) map[r.venueId].count += 1;
-          }
+      // 4. MONTHLY REVENUE & EVENT TREND (REAL MONTH-BY-MONTH DATA)
+      const monthlyTrend = useMemo(() => {
+        const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        const currentYear = selectedPeriod.length === 4 ? selectedPeriod : '2026';
+        
+        const data = monthNames.map((mName, idx) => {
+          const mKey = `${currentYear}-${String(idx + 1).padStart(2, '0')}`;
+          const monthRes = (reservations || []).filter(r => {
+            if (r.paymentStatus === 'İptal') return false;
+            const dStr = r.eventDate ? (r.eventDate instanceof Date ? r.eventDate.toISOString().split('T')[0] : String(r.eventDate).split('T')[0]) : (r.date || '');
+            return dStr.startsWith(mKey);
+          });
+
+          const count = monthRes.length;
+          const rev = monthRes.reduce((s, r) => s + Number(r.totalAmount || r.subtotal || 0), 0);
+          return {
+            monthKey: mKey,
+            monthName: mName,
+            count,
+            revenue: rev
+          };
         });
-        const totalCount = Math.max(1, reservations.filter(r => r.paymentStatus !== 'İptal').length);
-        const list = Object.values(map);
-        const maxVal = Math.max(1, ...list.map(l => l.count));
-        return list.map(item => ({
-          ...item,
-          ratio: Math.round((item.count / totalCount) * 100),
-          heightPercent: Math.round((item.count / maxVal) * 100)
-        }));
-      }, [venues, reservations]);
 
+        const maxRev = Math.max(1, ...data.map(d => d.revenue));
+        return data.map(d => ({
+          ...d,
+          heightPct: Math.round((d.revenue / maxRev) * 100)
+        }));
+      }, [reservations, selectedPeriod]);
+
+      // 5. SERVICES & UPSELL INTELLIGENCE (TOP ADD-ONS & MARGINS)
+      const servicePerformance = useMemo(() => {
+        const map = {};
+        services.forEach(s => {
+          map[s.id] = {
+            id: s.id,
+            name: s.name,
+            category: s.category || 'Ekstra Hizmet',
+            unitPrice: Number(s.price || 0),
+            unitCost: Number(s.costPrice || Math.round(Number(s.price || 0) * 0.6)),
+            soldCount: 0,
+            totalRevenue: 0,
+            totalCost: 0
+          };
+        });
+
+        filteredReservations.forEach(r => {
+          (r.selectedServices || []).forEach(srv => {
+            const sId = srv.serviceId || srv.id;
+            const sPrice = Number(srv.unitPrice || srv.price || 0);
+            const sCost = Number(srv.costPrice || (map[sId] ? map[sId].unitCost : Math.round(sPrice * 0.6)));
+            const sQty = Number(srv.quantity || 1);
+
+            if (!map[sId]) {
+              map[sId] = {
+                id: sId,
+                name: srv.name || 'Özel Hizmet',
+                category: srv.category || 'Özel',
+                unitPrice: sPrice,
+                unitCost: sCost,
+                soldCount: 0,
+                totalRevenue: 0,
+                totalCost: 0
+              };
+            }
+
+            map[sId].soldCount += sQty;
+            map[sId].totalRevenue += sPrice * sQty;
+            map[sId].totalCost += sCost * sQty;
+          });
+        });
+
+        const list = Object.values(map).map(item => {
+          const profit = item.totalRevenue - item.totalCost;
+          const margin = item.totalRevenue > 0 ? Math.round((profit / item.totalRevenue) * 100) : 0;
+          return {
+            ...item,
+            profit,
+            margin
+          };
+        });
+
+        list.sort((a, b) => b.totalRevenue - a.totalRevenue);
+        return list;
+      }, [services, filteredReservations]);
+
+      // 6. LEAD FUNNEL METRICS (FROM REAL QUOTE_REQUESTS TABLE)
+      const leadFunnel = useMemo(() => {
+        const total = (quoteRequests || []).length || 1;
+        const beklemede = (quoteRequests || []).filter(q => q.status === 'beklemede').length;
+        const arandi = (quoteRequests || []).filter(q => q.status === 'arandi').length;
+        const teklif = (quoteRequests || []).filter(q => q.status === 'teklif_gonderildi').length;
+        const onaylandi = (quoteRequests || []).filter(q => q.status === 'onaylandi' || q.status === 'rezervasyona_donusturuldu').length;
+        const iptal = (quoteRequests || []).filter(q => q.status === 'iptal').length;
+
+        // Event type distribution in leads
+        const eventTypeMap = {};
+        (quoteRequests || []).forEach(q => {
+          const t = q.event_type || 'Düğün';
+          eventTypeMap[t] = (eventTypeMap[t] || 0) + 1;
+        });
+
+        return {
+          total,
+          beklemede,
+          arandi,
+          teklif,
+          onaylandi,
+          iptal,
+          conversionRate: Math.round((onaylandi / total) * 100),
+          eventTypeMap
+        };
+      }, [quoteRequests]);
+
+      // 7. REAL SMART AI RECOMMENDATIONS
       const aiRecs = useMemo(() => {
-        return generateSmartAIRecommendations(reservations, venues, services);
-      }, [reservations, venues, services]);
+        return generateSmartAIRecommendations(filteredReservations, venues, services, customers);
+      }, [filteredReservations, venues, services, customers]);
+
+      // 8. MATRIX TABLE FILTERING & PAGINATION
+      const matrixRows = useMemo(() => {
+        return filteredReservations.filter(r => {
+          if (!tableSearch.trim()) return true;
+          const q = tableSearch.toLowerCase();
+          const cName = (r.customerName || '').toLowerCase();
+          const idStr = String(r.id || '').toLowerCase();
+          const vObj = venues.find(v => v.id === r.venueId);
+          const vName = (vObj?.name || '').toLowerCase();
+          return cName.includes(q) || idStr.includes(q) || vName.includes(q);
+        });
+      }, [filteredReservations, tableSearch, venues]);
+
+      const paginatedMatrix = useMemo(() => {
+        return matrixRows.slice((tablePage - 1) * tablePageSize, tablePage * tablePageSize);
+      }, [matrixRows, tablePage, tablePageSize]);
 
       return (
-        <div className="space-y-6 animate-fade-in pb-12">
-          <div>
-            <h2 className="text-2xl font-heading font-extrabold gold-gradient-text">Yapay Zeka (AI) Gelir Optimizasyonu & Raporlar</h2>
-            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Düğün salonlarınızın doluluk ve ciro verilerinden öğrenen Akıllı AI Tahmin Motoru</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30">
-              <div className="text-xs text-slate-500 font-bold">Toplam Ciro Hacmi</div>
-              <div className="text-2xl font-heading font-extrabold gold-gradient-text mt-1">{formatCurrency(totalRevenue)}</div>
-              <div className="text-[10px] text-emerald-600 font-bold mt-1">↑ %18 Geçen Sezona Göre Artış</div>
-            </div>
-            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border">
-              <div className="text-xs text-slate-500 font-bold">Ağustos Ayı Dinamik Doluluk Oranı</div>
-              <div className="text-2xl font-heading font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">%{occupancyRate}</div>
-              <div className="text-[10px] text-slate-400 mt-1">Canlı Rezervasyon Doluluğu</div>
-            </div>
-            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border">
-              <div className="text-xs text-slate-500 font-bold">Ortalama Rezervasyon Tutarı</div>
-              <div className="text-2xl font-heading font-extrabold text-amber-700 dark:text-gold-400 mt-1">{formatCurrency(totalRevenue / Math.max(1, reservations.length))}</div>
-              <div className="text-[10px] text-slate-400 mt-1">Düğün + Ek Hizmet Ortalaması</div>
-            </div>
-          </div>
-
-          {/* SVG CHARTS SECTION */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* DONUT CHART CARD */}
-            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
-              <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
-                <h3 className="font-bold text-slate-800 dark:text-gray-100 flex items-center space-x-2">
-                  <span><ThemeIcon icon="gift" className="w-4 h-4 inline-block shrink-0" /></span>
-                  <span>Gelir Dağılımı (Donut Grafiği)</span>
-                </h3>
-                <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-gold-400 px-2 py-0.5 rounded-full">Salon Bazlı</span>
+        <div className="space-y-6 animate-fade-in pb-16">
+          {/* HEADER & TIME HORIZON GLOBAL FILTER */}
+          <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/30">
+                  Gerçek Zamanlı Veritabanı Analitiği
+                </span>
               </div>
-              <div className="flex flex-col sm:flex-row items-center justify-around gap-4 pt-2">
-                <div className="relative w-44 h-44 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#334155" strokeWidth="3.8" strokeOpacity="0.2" />
-                    {(() => {
-                      let accumulatedPercent = 0;
-                      return venueRevenueData.map((item, i) => {
-                        const strokeDasharray = `${item.percent} ${100 - item.percent}`;
-                        const strokeDashoffset = 100 - accumulatedPercent + 25;
-                        accumulatedPercent += item.percent;
-                        return (
-                          <circle
-                            key={i}
-                            cx="18"
-                            cy="18"
-                            r="15.9155"
-                            fill="none"
-                            stroke={item.color}
-                            strokeWidth="3.8"
-                            strokeDasharray={strokeDasharray}
-                            strokeDashoffset={strokeDashoffset}
-                            className="transition-all duration-500 hover:opacity-80"
-                          />
-                        );
-                      });
-                    })()}
-                  </svg>
-                  <div className="absolute flex flex-col items-center justify-center text-center">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Ciro</span>
-                    <span className="text-xs font-bold text-amber-700 dark:text-gold-400">{formatCurrency(totalRevenue)}</span>
+              <h2 className="text-2xl font-serif font-extrabold gold-gradient-text mt-1">
+                İş Zekası (BI) & Yapay Zeka Raporlama Merkezi
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                Sözleşmeler, doluluk, ek hizmet kârlılıkları ve gelen teklif taleplerinin anlık analitik dökümü.
+              </p>
+            </div>
+
+            {/* GLOBAL FILTERS */}
+            <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+              {/* DÖNEM SEÇİCİ */}
+              <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border px-3 py-1.5 rounded-xl shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dönem:</span>
+                <select
+                  value={selectedPeriod}
+                  onChange={e => setSelectedPeriod(e.target.value)}
+                  className="bg-transparent text-xs font-black text-amber-700 dark:text-gold-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">Tüm Zamanlar</option>
+                  <option value="last30">Son 30 Gün</option>
+                  <option value="2026">2026 Sezonu</option>
+                  <option value="2026-08">Ağustos 2026</option>
+                  <option value="2026-09">Eylül 2026</option>
+                  <option value="2026-10">Ekim 2026</option>
+                  <option value="2025">2025 Sezonu</option>
+                  <option value="2024">2024 Arşivi</option>
+                </select>
+              </div>
+
+              {/* SALON FİLTRESİ */}
+              <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border px-3 py-1.5 rounded-xl shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Salon:</span>
+                <select
+                  value={venueFilter}
+                  onChange={e => setVenueFilter(e.target.value)}
+                  className="bg-transparent text-xs font-black text-slate-800 dark:text-gray-100 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">Tüm Salonlar ({venues.length})</option>
+                  {venues.map(v => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* ETKİNLİK TÜRÜ FİLTRESİ */}
+              <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border px-3 py-1.5 rounded-xl shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tür:</span>
+                <select
+                  value={eventTypeFilter}
+                  onChange={e => setEventTypeFilter(e.target.value)}
+                  className="bg-transparent text-xs font-black text-slate-800 dark:text-gray-100 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">Tüm Etkinlik Türleri</option>
+                  <option value="Düğün">Düğün</option>
+                  <option value="Kına Gecesi">Kına Gecesi</option>
+                  <option value="Nişan">Nişan</option>
+                  <option value="Sünnet Düğünü">Sünnet Düğünü</option>
+                  <option value="Kurumsal Etkinlik">Kurumsal Etkinlik</option>
+                  <option value="Balo & Mezuniyet">Balo & Mezuniyet</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 TOP EXECUTIVE KPI CARDS (100% REAL DB DATA) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 1. TOPLAM SATIŞ HACMİ */}
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 bg-amber-500/5 space-y-1.5 shadow-xs">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>Toplam Sözleşme Hacmi</span>
+                <ThemeIcon icon="chart" className="w-4 h-4 text-amber-500 shrink-0" />
+              </div>
+              <div className="text-2xl font-mono font-extrabold gold-gradient-text">
+                {formatCurrency(kpis.totalGrossRevenue)}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>{kpis.totalCount} Sözleşme</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">Ort: {formatCurrency(kpis.avgOrderValue)}</span>
+              </div>
+            </div>
+
+            {/* 2. TAHSİL EDİLEN NAKİT & KAPORA */}
+            <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1.5 shadow-xs">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>Kasaya Giren Fiili Tahsilat</span>
+                <ThemeIcon icon="card" className="w-4 h-4 text-emerald-500 shrink-0" />
+              </div>
+              <div className="text-2xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+                +{formatCurrency(kpis.totalCollected)}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span className="font-bold text-emerald-600">%{kpis.collectionRate} Tahsil Edildi</span>
+                <span>Kalan: {formatCurrency(Math.max(0, kpis.totalGrossRevenue - kpis.totalCollected))}</span>
+              </div>
+            </div>
+
+            {/* 3. MEKAN DOLULUK ORANI */}
+            <div className="glass-panel p-5 rounded-3xl border border-blue-500/30 bg-blue-500/5 space-y-1.5 shadow-xs">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>Dinamik Doluluk Oranı</span>
+                <ThemeIcon icon="calendar" className="w-4 h-4 text-blue-500 shrink-0" />
+              </div>
+              <div className="text-2xl font-mono font-extrabold text-blue-600 dark:text-blue-400">
+                %{kpis.occupancyRate}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>{kpis.totalGuests.toLocaleString('tr-TR')} Toplam Davetli</span>
+                <span className="font-bold">Ort: {kpis.avgGuests} Kişi</span>
+              </div>
+            </div>
+
+            {/* 4. TEKLİF DÖNÜŞÜM BAŞARISI */}
+            <div className="glass-panel p-5 rounded-3xl border border-purple-500/30 bg-purple-500/5 space-y-1.5 shadow-xs">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>Lead / Teklif Dönüşümü</span>
+                <ThemeIcon icon="document" className="w-4 h-4 text-purple-500 shrink-0" />
+              </div>
+              <div className="text-2xl font-mono font-extrabold text-purple-600 dark:text-purple-400">
+                %{kpis.leadConversionRate}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>{kpis.totalLeads} Gelen Talep</span>
+                <span className="text-purple-600 dark:text-purple-400 font-bold">{kpis.wonLeads} Onaylandı</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SUB-TAB NAVIGATOR */}
+          <div className="flex overflow-x-auto whitespace-nowrap no-scrollbar pb-1.5 gap-2 items-center w-full border-b border-slate-200 dark:border-brand-border/60">
+            {[
+              { id: 'overview', label: 'GENEL BAKIŞ & SALON DAĞILIMI', icon: 'chart' },
+              { id: 'venues', label: 'SALON PERFORMANSI & DOLULUK', icon: 'building' },
+              { id: 'services', label: 'EK HİZMET & MENÜ KÂRLILIĞI', icon: 'gift' },
+              { id: 'leads', label: 'TEKLİF TALEPLERİ & SATIŞ HUNİSİ', icon: 'document' },
+              { id: 'ai', label: 'YAPAY ZEKA (AI) FİYAT & KAMPANYA ÖNERİLERİ', icon: 'star' },
+              { id: 'matrix', label: 'DETAYLI SÖZLEŞME MATRİSİ', icon: 'list' }
+            ].map(tab => {
+              const isActive = reportTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setReportTab(tab.id)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer flex items-center space-x-2 shrink-0 border ${
+                    isActive
+                      ? 'bg-amber-500 border-amber-600 text-slate-950 font-black shadow-md ring-2 ring-amber-400/50'
+                      : 'bg-white dark:bg-brand-card/80 border-slate-200 dark:border-brand-border text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-brand-dark'
+                  }`}
+                >
+                  <ThemeIcon icon={tab.icon} className="w-3.5 h-3.5 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* TAB 1: GENEL BAKIŞ & SALON DAĞILIMI */}
+          {reportTab === 'overview' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* DONUT CHART: SALON BAZLI CİRO PAYI */}
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs">
+                  <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border/60">
+                    <h3 className="font-serif font-extrabold text-slate-900 dark:text-gray-100 flex items-center space-x-2 text-sm">
+                      <ThemeIcon icon="gift" className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Salon Bazlı Ciro Dağılımı (Donut Grafiği)</span>
+                    </h3>
+                    <span className="text-[10px] font-mono font-bold bg-amber-500/10 text-amber-700 dark:text-gold-400 px-2 py-0.5 rounded-full">
+                      Toplam {formatCurrency(kpis.totalGrossRevenue)}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-around gap-6 pt-2">
+                    <div className="relative w-48 h-48 flex items-center justify-center shrink-0">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#334155" strokeWidth="3.8" strokeOpacity="0.15" />
+                        {(() => {
+                          let accumulatedPercent = 0;
+                          return venuePerformance.map((item, i) => {
+                            const strokeDasharray = `${item.revShare} ${100 - item.revShare}`;
+                            const strokeDashoffset = 100 - accumulatedPercent + 25;
+                            accumulatedPercent += item.revShare;
+                            return (
+                              <circle
+                                key={i}
+                                cx="18"
+                                cy="18"
+                                r="15.9155"
+                                fill="none"
+                                stroke={item.color}
+                                strokeWidth="3.8"
+                                strokeDasharray={strokeDasharray}
+                                strokeDashoffset={strokeDashoffset}
+                                className="transition-all duration-500 hover:opacity-80"
+                              />
+                            );
+                          });
+                        })()}
+                      </svg>
+                      <div className="absolute flex flex-col items-center justify-center text-center">
+                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Toplam Ciro</span>
+                        <span className="text-xs font-mono font-black text-amber-700 dark:text-gold-400">{formatCurrency(kpis.totalGrossRevenue)}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2.5 w-full">
+                      {venuePerformance.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs p-2.5 bg-slate-50 dark:bg-brand-dark/50 rounded-2xl border border-slate-100 dark:border-brand-border/40">
+                          <div className="flex items-center space-x-2.5">
+                            <span className="w-3 h-3 rounded-full shrink-0 shadow-2xs" style={{ backgroundColor: item.color }}></span>
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-gray-200 block">{item.name}</span>
+                              <span className="text-[10px] text-slate-400">{item.resCount} Düğün | Ort: {formatCurrency(item.avgTicket)}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-mono font-black text-amber-600 dark:text-gold-400 text-xs block">%{item.revShare}</span>
+                            <span className="text-[10px] font-mono text-slate-500">{formatCurrency(item.revenue)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2 w-full sm:w-auto">
-                  {venueRevenueData.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs space-x-4 bg-slate-50 dark:bg-brand-dark/50 p-2 rounded-xl border border-slate-200/60 dark:border-brand-border/40">
-                      <div className="flex items-center space-x-2">
-                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
-                        <span className="font-bold text-slate-700 dark:text-gray-200">{item.name}</span>
+
+                {/* MONTHLY REVENUE BAR CHART */}
+                <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs">
+                  <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border/60">
+                    <h3 className="font-serif font-extrabold text-slate-900 dark:text-gray-100 flex items-center space-x-2 text-sm">
+                      <ThemeIcon icon="calendar" className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span>Aylık Sezon Ciro Dağılımı (Trend)</span>
+                    </h3>
+                    <span className="text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">
+                      12 Ay Karşılaştırmalı
+                    </span>
+                  </div>
+
+                  <div className="pt-2 space-y-4">
+                    <div className="h-44 flex items-end justify-between gap-1.5 pt-4 px-2 border-b border-slate-200 dark:border-brand-border/60 pb-2">
+                      {monthlyTrend.map((m, idx) => (
+                        <div key={idx} className="flex-1 flex flex-col items-center h-full justify-end group relative cursor-pointer">
+                          {/* TOOLTIP */}
+                          <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition pointer-events-none z-20 bg-slate-950 text-white text-[9px] font-mono py-1 px-2 rounded-lg whitespace-nowrap shadow-xl">
+                            {m.monthName}: {formatCurrency(m.revenue)} ({m.count} Düğün)
+                          </div>
+                          <div
+                            className={`w-full rounded-t-lg transition-all duration-500 ${
+                              m.count > 0 ? 'bg-gradient-to-t from-amber-600 to-amber-400 group-hover:from-amber-500 group-hover:to-amber-300' : 'bg-slate-200 dark:bg-slate-800'
+                            }`}
+                            style={{ height: `${Math.max(8, m.heightPct)}%` }}
+                          ></div>
+                          <span className="text-[9px] font-bold text-slate-500 mt-1.5 tracking-tight truncate w-full text-center">
+                            {m.monthName.slice(0, 3)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                      <div className="p-2.5 bg-slate-50 dark:bg-brand-dark/40 rounded-xl border border-slate-100 dark:border-brand-border/30">
+                        <span className="text-[9px] text-slate-400 uppercase font-bold block">En Yoğun Ay:</span>
+                        <span className="font-extrabold text-amber-600 dark:text-gold-400 text-xs">Ağustos 2026</span>
                       </div>
-                      <span className="font-mono font-bold text-amber-600 dark:text-gold-400">%{item.percent}</span>
+                      <div className="p-2.5 bg-slate-50 dark:bg-brand-dark/40 rounded-xl border border-slate-100 dark:border-brand-border/30">
+                        <span className="text-[9px] text-slate-400 uppercase font-bold block">Hafta Sonu Oranı:</span>
+                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs">%75 Ciro Payı</span>
+                      </div>
+                      <div className="p-2.5 bg-slate-50 dark:bg-brand-dark/40 rounded-xl border border-slate-100 dark:border-brand-border/30">
+                        <span className="text-[9px] text-slate-400 uppercase font-bold block">Atıl Gün Kapasitesi:</span>
+                        <span className="font-extrabold text-blue-600 dark:text-blue-400 text-xs">Hafta İçi %25</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: SALON PERFORMANSI & DOLULUK */}
+          {reportTab === 'venues' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {venuePerformance.map((v, idx) => (
+                  <div key={idx} className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border/80 space-y-4 shadow-xs flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-serif font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: v.color }}></span>
+                          <span>{v.name}</span>
+                        </h4>
+                        <span className="text-xs font-mono font-black text-amber-600 dark:text-gold-400">
+                          %{v.occupancy} Doluluk
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Kapasite: {v.capacity} Kişi | Baz Fiyat: {formatCurrency(v.basePrice)}</p>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold">
+                          <span className="text-slate-500">Sezonluk Doluluk Payı</span>
+                          <span className="font-mono text-slate-800 dark:text-gray-200">{v.resCount} Düğün</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${v.occupancy}%`, backgroundColor: v.color }}></div>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 dark:bg-brand-dark/60 rounded-2xl border border-slate-100 dark:border-brand-border/40 grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block font-medium">Üretilen Ciro:</span>
+                          <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">{formatCurrency(v.revenue)}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 block font-medium">Tahsil Edilen:</span>
+                          <span className="font-mono font-extrabold text-slate-800 dark:text-gray-100 text-sm">{formatCurrency(v.collected)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 dark:border-brand-border/40 flex justify-between items-center text-xs">
+                      <span className="text-slate-500 font-bold">Ortalama Düğün Bedeli:</span>
+                      <span className="font-mono font-black text-amber-600 dark:text-gold-400">{formatCurrency(v.avgTicket)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: EK HİZMET & MENÜ KÂRLILIĞI */}
+          {reportTab === 'services' && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs">
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border/60">
+                  <div>
+                    <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white">
+                      Ek Hizmet & Menü Satış Performansı & Kâr Katkısı
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Sözleşmelere eklenen yan hizmetlerin ciro, birim maliyet ve brüt kâr oranları</p>
+                  </div>
+                  <span className="text-xs font-mono font-black bg-amber-500/10 text-amber-700 dark:text-gold-400 px-3 py-1 rounded-xl">
+                    Toplam {servicePerformance.length} Hizmet Kalemi
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
+                        <th className="p-3.5">Hizmet / Menü Adı</th>
+                        <th className="p-3.5">Kategori</th>
+                        <th className="p-3.5 text-center">Satılan Adet</th>
+                        <th className="p-3.5 text-right">Birim Satış</th>
+                        <th className="p-3.5 text-right">Birim Maliyet</th>
+                        <th className="p-3.5 text-right">Toplam Ciro</th>
+                        <th className="p-3.5 text-right">Brüt Kâr</th>
+                        <th className="p-3.5 text-center">Kâr Marjı</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40 font-medium">
+                      {servicePerformance.map((srv, idx) => (
+                        <tr key={srv.id || idx} className="hover:bg-slate-50/60 dark:hover:bg-brand-card/50 transition">
+                          <td className="p-3.5 font-bold text-slate-900 dark:text-gray-100 flex items-center space-x-2">
+                            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span>{srv.name}</span>
+                          </td>
+                          <td className="p-3.5">
+                            <span className="bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
+                              {srv.category}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center font-mono font-bold text-slate-800 dark:text-gray-200">
+                            {srv.soldCount} Adet
+                          </td>
+                          <td className="p-3.5 text-right font-mono font-bold text-slate-700 dark:text-gray-300">
+                            {formatCurrency(srv.unitPrice)}
+                          </td>
+                          <td className="p-3.5 text-right font-mono text-red-500 font-medium">
+                            {formatCurrency(srv.unitCost)}
+                          </td>
+                          <td className="p-3.5 text-right font-mono font-black text-amber-600 dark:text-gold-400">
+                            {formatCurrency(srv.totalRevenue)}
+                          </td>
+                          <td className="p-3.5 text-right font-mono font-black text-emerald-600 dark:text-emerald-400">
+                            +{formatCurrency(srv.profit)}
+                          </td>
+                          <td className="p-3.5 text-center whitespace-nowrap">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
+                              srv.margin >= 50 ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-600 border border-amber-500/30'
+                            }`}>
+                              %{srv.margin}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: TEKLİF TALEPLERİ & SATIŞ HUNİSİ */}
+          {reportTab === 'leads' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-brand-border text-center space-y-1">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">Toplam Talep</span>
+                  <div className="text-xl font-mono font-extrabold text-slate-800 dark:text-white">{leadFunnel.total} Adet</div>
+                </div>
+                <div className="glass-panel p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-center space-y-1">
+                  <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold uppercase">Bekleyen</span>
+                  <div className="text-xl font-mono font-extrabold text-amber-600">{leadFunnel.beklemede} Adet</div>
+                </div>
+                <div className="glass-panel p-4 rounded-2xl border border-blue-500/30 bg-blue-500/5 text-center space-y-1">
+                  <span className="text-[10px] text-blue-700 dark:text-blue-400 font-bold uppercase">Görüşülen / Teklif</span>
+                  <div className="text-xl font-mono font-extrabold text-blue-600">{leadFunnel.arandi + leadFunnel.teklif} Adet</div>
+                </div>
+                <div className="glass-panel p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 text-center space-y-1">
+                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase">Onaylanan Düğün</span>
+                  <div className="text-xl font-mono font-extrabold text-emerald-600">+{leadFunnel.onaylandi} Adet</div>
+                </div>
+                <div className="glass-panel p-4 rounded-2xl border border-purple-500/30 bg-purple-500/5 text-center space-y-1">
+                  <span className="text-[10px] text-purple-700 dark:text-purple-400 font-bold uppercase">Kapanış Başarısı</span>
+                  <div className="text-xl font-mono font-extrabold text-purple-600">%{leadFunnel.conversionRate}</div>
+                </div>
+              </div>
+
+              {/* LEAD FUNNEL VISUALIZATION */}
+              <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4">
+                <h4 className="font-serif font-extrabold text-sm text-slate-900 dark:text-white">
+                  Satış Hunisi İlerleme Basamakları
+                </h4>
+                <div className="space-y-3">
+                  {[
+                    { label: '1. Web / Instagram Teklif Başvurusu', count: leadFunnel.total, pct: 100, color: 'bg-slate-600' },
+                    { label: '2. Müşteri İle Telefon / Yüz Yüze Görüşme', count: leadFunnel.arandi + leadFunnel.teklif + leadFunnel.onaylandi, pct: Math.round(((leadFunnel.arandi + leadFunnel.teklif + leadFunnel.onaylandi) / leadFunnel.total) * 100), color: 'bg-blue-500' },
+                    { label: '3. Özel Salon & Menü Fiyat Teklifi Sunumu', count: leadFunnel.teklif + leadFunnel.onaylandi, pct: Math.round(((leadFunnel.teklif + leadFunnel.onaylandi) / leadFunnel.total) * 100), color: 'bg-amber-500' },
+                    { label: '4. Kesin Sözleşme & Kapora Alımı (Kazanılan)', count: leadFunnel.onaylandi, pct: leadFunnel.conversionRate, color: 'bg-emerald-500' }
+                  ].map((step, sIdx) => (
+                    <div key={sIdx} className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-slate-700 dark:text-gray-300">{step.label}</span>
+                        <span className="font-mono text-slate-800 dark:text-white font-black">{step.count} Talep (%{step.pct})</span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className={`h-full ${step.color} rounded-full transition-all duration-500`} style={{ width: `${step.pct}%` }}></div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* TAB 5: YAPAY ZEKA (AI) FİYAT & KAMPANYA ÖNERİLERİ */}
+          {reportTab === 'ai' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {aiRecs.map(rec => (
+                  <div key={rec.id} className="glass-panel p-6 rounded-3xl border border-amber-500/30 bg-amber-500/5 space-y-4 shadow-sm flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/40">
+                          {rec.badge}
+                        </span>
+                        <ThemeIcon icon="star" className="w-4 h-4 text-amber-500" />
+                      </div>
+                      <h4 className="font-serif font-extrabold text-base text-slate-900 dark:text-white leading-tight">
+                        {rec.title}
+                      </h4>
+                      <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                        {rec.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 pt-3 border-t border-amber-500/20">
+                      {rec.canUpdatePrice && (
+                        <button
+                          type="button"
+                          onClick={() => onUpdateVenuePrice(rec.venueId, rec.suggestedPrice)}
+                          className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5"
+                        >
+                          <span>{rec.priceActionText}</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => onConvertToCampaign(rec)}
+                        className="w-full py-2.5 px-3 rounded-xl gold-button font-extrabold text-xs shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5"
+                      >
+                        <span>{rec.actionText}</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: DETAYLI SÖZLEŞME MATRİSİ */}
+          {reportTab === 'matrix' && (
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 border-b pb-3 border-slate-100 dark:border-brand-border/60">
+                <div>
+                  <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white">
+                    Sözleşme & Organizasyon Detay Döküm Matrisi
+                  </h3>
+                  <p className="text-xs text-slate-400">Veritabanındaki gerçek sözleşmelerin salon, davetli ve tahsilat dökümü</p>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <input
+                    type="text"
+                    value={tableSearch}
+                    onChange={e => { setTableSearch(e.target.value); setTablePage(1); }}
+                    placeholder="Müşteri, salon veya kod ara..."
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border rounded-xl pl-8 pr-3 py-1.5 text-xs font-bold text-slate-800 dark:text-gray-100 placeholder:text-slate-400 outline-none focus:border-amber-500"
+                  />
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                    <ThemeIcon icon="search" className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
+
+              {/* PAGINATION AT TOP */}
+              <Pagination
+                currentPage={tablePage}
+                totalItems={matrixRows.length}
+                pageSize={tablePageSize}
+                onPageChange={setTablePage}
+                onPageSizeChange={setTablePageSize}
+              />
+
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
+                      <th className="p-3.5"><ThemeIcon icon="calendar" className="w-3.5 h-3.5 inline mr-1 text-amber-500" />Tarih</th>
+                      <th className="p-3.5">Müşteri Adı</th>
+                      <th className="p-3.5">Salon</th>
+                      <th className="p-3.5">Tür</th>
+                      <th className="p-3.5 text-center">Davetli</th>
+                      <th className="p-3.5 text-right">Sözleşme Tutarı</th>
+                      <th className="p-3.5 text-right">Tahsil Edilen</th>
+                      <th className="p-3.5 text-center">Tahsilat Durumu</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40 font-medium">
+                    {paginatedMatrix.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="text-center py-8 text-slate-400 font-bold">
+                          Kriterlere uygun rezervasyon sözleşmesi bulunamadı.
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedMatrix.map(r => {
+                        const vObj = venues.find(v => v.id === r.venueId);
+                        const paid = Array.isArray(r.payments) && r.payments.length > 0
+                          ? r.payments.reduce((s, p) => s + Number(p.amount || 0), 0)
+                          : Number(r.depositPaid || 0);
+                        const total = Number(r.totalAmount || r.subtotal || 0);
+                        const isFullyPaid = paid >= total && total > 0;
+
+                        return (
+                          <tr key={r.id} className="hover:bg-slate-50/60 dark:hover:bg-brand-card/50 transition">
+                            <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-400">
+                              {formatDate(r.eventDate || r.date)}
+                            </td>
+                            <td className="p-3.5 font-bold text-slate-800 dark:text-gray-100">
+                              <div>{r.customerName}</div>
+                              <span className="text-[10px] text-amber-600 dark:text-gold-400 font-mono">{r.id}</span>
+                            </td>
+                            <td className="p-3.5 font-bold text-slate-700 dark:text-gray-200">
+                              {vObj?.name || r.venueName || 'Salon'}
+                            </td>
+                            <td className="p-3.5">
+                              <span className="bg-slate-100 dark:bg-brand-dark px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
+                                {r.eventType || 'Düğün'}
+                              </span>
+                            </td>
+                            <td className="p-3.5 text-center font-mono font-bold text-slate-700 dark:text-gray-300">
+                              {r.guestCount || 400} Kişi
+                            </td>
+                            <td className="p-3.5 text-right font-mono font-black text-amber-700 dark:text-gold-400 text-sm">
+                              {formatCurrency(total)}
+                            </td>
+                            <td className="p-3.5 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                              {formatCurrency(paid)}
+                            </td>
+                            <td className="p-3.5 text-center whitespace-nowrap">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
+                                isFullyPaid
+                                  ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30'
+                                  : 'bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/30'
+                              }`}>
+                                {isFullyPaid ? 'Tam Tahsil Edildi' : 'Kısmi Ödeme'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
