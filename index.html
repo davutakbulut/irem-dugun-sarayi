@@ -1541,21 +1541,56 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                 {/* ------------------------------------------------------------------- */}
                 <section className="relative w-full h-screen min-h-[640px] flex items-center justify-center overflow-hidden bg-slate-950 text-white">
                   
-                  {/* Background Video / Cinematic Overlay */}
-                  <div className="absolute inset-0 z-0">
+                  {/* Background Video / Cinematic Overlay with Bulletproof Mobile Autoplay */}
+                  <div className="absolute inset-0 z-0 bg-slate-950">
+                    {/* Fallback Static Luxury Poster (Instant render on mobile / low-power mode) */}
+                    <img
+                      src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80"
+                      alt="İrem Düğün Sarayı Balo Salonu"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      loading="eager"
+                      fetchpriority="high"
+                    />
+
                     <video
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
+                      ref={el => {
+                        if (el) {
+                          el.defaultMuted = true;
+                          el.muted = true;
+                          const p = el.play();
+                          if (p !== undefined) {
+                            p.catch(() => {
+                              // Autoplay blocked by iOS/Android Low Power Mode or initial policy.
+                              // Start playback automatically on first user touch/tap anywhere on screen.
+                              const startOnInteraction = () => {
+                                el.play().catch(() => {});
+                                window.removeEventListener('touchstart', startOnInteraction);
+                                window.removeEventListener('click', startOnInteraction);
+                                window.removeEventListener('scroll', startOnInteraction);
+                              };
+                              window.addEventListener('touchstart', startOnInteraction, { once: true, passive: true });
+                              window.addEventListener('click', startOnInteraction, { once: true });
+                              window.addEventListener('scroll', startOnInteraction, { once: true, passive: true });
+                            });
+                          }
+                        }
+                      }}
+                      autoPlay={true}
+                      loop={true}
+                      muted={true}
+                      defaultMuted={true}
+                      playsInline={true}
+                      preload="auto"
                       poster="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80"
-                      className="w-full h-full object-cover scale-105"
+                      className="absolute inset-0 w-full h-full object-cover scale-105"
                     >
+                      <source src="/uploads/hero_wedding_video.mp4" type="video/mp4" />
                       <source src="https://cdn.creafolks.com/svadba-davet/9e9fee9d-dc11-4bd5-bc7a-4614de2d7e2b.mp4" type="video/mp4" />
                     </video>
+
                     {/* Balanced Luxury Vignette Overlay */}
-                    <div className="absolute inset-0 bg-black/45 backdrop-brightness-95"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/50"></div>
+                    <div className="absolute inset-0 bg-black/45 backdrop-brightness-95 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/50 pointer-events-none"></div>
                   </div>
 
                   {/* Centered Grand Hero Content */}
