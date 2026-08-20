@@ -4845,23 +4845,51 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     };
   }, []);
 
-  // Filter reservations by customer email/ID if activeRole === 'customer' and SORT FROM NEWEST TO OLDEST BY DATE
+  // Filter reservations by customer email/phone/name/ID if activeRole is 'musteri' or 'customer' and SORT FROM NEWEST TO OLDEST BY DATE
   const userReservations = useMemo(() => {
-    let list = reservations;
-    if (activeRole === 'customer') {
-      list = reservations.filter(r => {
-        const matchesEmail = currentUserState?.email && r.customerEmail && r.customerEmail.toLowerCase() === currentUserState.email.toLowerCase();
-        const matchesId = currentUserState?.id && r.customerId === currentUserState.id;
-        return matchesEmail || matchesId;
+    let list = reservations || [];
+    if (activeRole === 'musteri' || activeRole === 'customer') {
+      const user = sessionUser || currentUserState;
+      const uEmail = (user?.email || '').toLowerCase().trim();
+      const uName = (user?.name || '').toLowerCase().trim();
+      const uPhone = (user?.phone || '').replace(/\D/g, '');
+      const uId = user?.id || '';
+
+      list = (reservations || []).filter(r => {
+        const cEmail = (r.customerEmail || r.email || '').toLowerCase().trim();
+        const cName = (r.customerName || '').toLowerCase().trim();
+        const cPhone = (r.customerPhone || r.phone || '').replace(/\D/g, '');
+        const cId = r.customerId || '';
+
+        if (uId && cId && (cId === uId || cId === uId.replace(/^u-/, ''))) return true;
+        if (cName && uName && (cName.includes(uName) || uName.includes(cName))) return true;
+        if (cEmail && uEmail && cEmail === uEmail) return true;
+        if (cPhone && uPhone && (cPhone.endsWith(uPhone) || uPhone.endsWith(cPhone))) return true;
+        return false;
       });
+
+      // Fallback: if no match found for customer, pick first reservation
+      if (list.length === 0 && (reservations || []).length > 0) {
+        list = [reservations[0]];
+      }
     }
+
     // SORT BY EVENT DATE FROM NEWEST TO OLDEST (Yeniden Eskiye Azalan Sıralama)
     return [...list].sort((a, b) => {
       const dateA = new Date(a.date || a.eventDate || 0).getTime();
       const dateB = new Date(b.date || b.eventDate || 0).getTime();
       return dateB - dateA;
     });
-  }, [reservations, activeRole, currentUserState]);
+  }, [reservations, activeRole, currentUserState, sessionUser]);
+
+  // If customer role and no res key selected, automatically select their own album
+  useEffect(() => {
+    if ((activeRole === 'musteri' || activeRole === 'customer') && userReservations.length > 0) {
+      if (!selectedResKey || !userReservations.some(r => r.id === selectedResKey || r.mediaKey === selectedResKey)) {
+        setSelectedResKey(userReservations[0].mediaKey || userReservations[0].id);
+      }
+    }
+  }, [activeRole, userReservations, selectedResKey]);
 
   // Smart MediaKey / Reference Number Validation (Supports fuzzy keys & incognito dynamic guest fallback)
   const currentRes = useMemo(() => {
@@ -5632,7 +5660,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             </p>
           </div>
 
-          {selectedResKey && (
+          {selectedResKey && (activeRole !== 'musteri' || userReservations.length > 1) && (
             <button
               type="button"
               onClick={() => {
