@@ -1301,7 +1301,30 @@
     .public-script-accent {
       font-family: 'Great Vibes', cursive !important;
     }
-</style>
+    /* EXPLICIT SOLID RED HEADER NOTIFICATION BADGE */
+    .header-notification-badge {
+      background-color: #dc2626 !important;
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.7) !important;
+      border: 2px solid #ffffff !important;
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      border-radius: 9999px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: absolute !important;
+      top: -7px !important;
+      right: -7px !important;
+      z-index: 99999 !important;
+      pointer-events: none !important;
+    }
+  </style>
 
 
 
@@ -12104,7 +12127,30 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               .grand-total { font-size: 18px; font-weight: bold; color: #b45309; }
               .signatures { display: flex; justify-content: space-between; margin-top: 50px; font-size: 13px; }
               .sig-box { border-top: 1px solid #94a3b8; width: 200px; text-align: center; padding-top: 8px; }
-            </style>
+                /* EXPLICIT SOLID RED HEADER NOTIFICATION BADGE */
+    .header-notification-badge {
+      background-color: #dc2626 !important;
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.7) !important;
+      border: 2px solid #ffffff !important;
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      border-radius: 9999px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: absolute !important;
+      top: -7px !important;
+      right: -7px !important;
+      z-index: 99999 !important;
+      pointer-events: none !important;
+    }
+  </style>
           
 
 
@@ -12451,25 +12497,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <span className="hidden md:inline text-xs font-extrabold">Bildirimler</span>
                       {unreadNotificationsCount > 0 && (
                         <span
+                          className="header-notification-badge"
                           style={{
                             backgroundColor: '#dc2626',
+                            background: '#dc2626',
                             color: '#ffffff',
-                            fontSize: '10px',
-                            fontWeight: '900',
-                            lineHeight: '1',
-                            boxShadow: '0 2px 8px rgba(220, 38, 38, 0.6)',
                             border: '2px solid #ffffff',
-                            width: '20px',
-                            height: '20px',
                             borderRadius: '9999px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            position: 'absolute',
-                            top: '-6px',
-                            right: '-6px',
-                            zIndex: 40,
-                            pointerEvents: 'none'
+                            fontWeight: 900
                           }}
                         >
                           {unreadNotificationsCount}
