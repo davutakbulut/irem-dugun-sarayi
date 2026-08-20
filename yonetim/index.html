@@ -20631,7 +20631,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           // DÖNEMSEL SABİT TESİS MALİYETİ (Absorption Costing)
           const mKey = getMonthKey(r.eventDate || r.startDate || r.date) || '2026-08';
           const monthStat = monthlyFixedExpenseStats[mKey] || { effectiveFixedTotal: 0, resCount: 0, costPerRes: 0 };
-          const allocatedFixedCost = monthStat.costPerRes || 15000;
+          const allocatedFixedCost = Number(monthStat?.costPerRes || 0);
 
           // REZERVASYONA ÖZEL SEÇİLİ HİZMETLER & MENÜ BİRİM MALİYETLERİ
           const servicesCost = (r.selectedServices || []).reduce((sum, s) => {
