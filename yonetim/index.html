@@ -22091,15 +22091,35 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500"
                     />
                   </div>
-                  <button
-                    onClick={() => {
-                      setTransType('gider');
-                      setIsModalOpen(true);
-                    }}
-                    className="px-4 py-2 gold-button font-extrabold text-xs rounded-xl shadow cursor-pointer flex items-center space-x-1.5 shrink-0 hover:scale-[1.02] transition"
-                  >
-                    <span>+ Kasa Hareketi Ekle</span>
-                  </button>
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTransType('gider');
+                        setExpenseScope('general_fixed');
+                        setNewCategory('Kira & Tesis Gideri');
+                        setIsModalOpen(true);
+                      }}
+                      className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs rounded-xl shadow cursor-pointer flex items-center space-x-1.5 hover:scale-[1.02] transition"
+                      title="Yeni Sabit veya Değişken İşletme Gideri Ekle"
+                    >
+                      <ThemeIcon icon="venue" className="w-3.5 h-3.5 inline shrink-0" />
+                      <span>- Gider Ekle</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTransType('gelir');
+                        setIncomeSource('reservation');
+                        setIsModalOpen(true);
+                      }}
+                      className="px-3.5 py-2 gold-button font-extrabold text-xs rounded-xl shadow cursor-pointer flex items-center space-x-1.5 hover:scale-[1.02] transition"
+                      title="Yeni Kasa Geliri / Tahsilat Ekle"
+                    >
+                      <ThemeIcon icon="money" className="w-3.5 h-3.5 inline shrink-0" />
+                      <span>+ Tahsilat / Gelir</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -22945,35 +22965,65 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                   </button>
                 </div>
 
-                {/* IF GIDER: SUB-TOGGLE FOR GENERAL FIXED OVERHEAD VS RESERVATION SPECIFIC EXPENSE */}
+                {/* IF GIDER: ULTRA-INTUITIVE FIXED VS VARIABLE EXPENSE SELECTOR */}
                 {transType === 'gider' && (
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2 p-1 bg-red-500/10 rounded-2xl border border-red-500/30">
+                  <div className="space-y-2 p-3.5 bg-red-500/10 rounded-2xl border border-red-500/30">
+                    <div className="flex items-center justify-between">
+                      <span className="font-extrabold text-xs text-red-950 dark:text-red-200 flex items-center space-x-1.5">
+                        <span>🏷️ GİDER TÜRÜNÜ SEÇİNİZ:</span>
+                      </span>
+                      <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-red-600 text-white tracking-wide shadow-xs">
+                        {expenseScope === 'general_fixed' ? '🏢 SABİT GİDER' : '🎯 DEĞİŞKEN GİDER'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => setExpenseScope('general_fixed')}
-                        className={`py-1.5 rounded-xl text-[11px] font-extrabold transition cursor-pointer flex items-center justify-center space-x-1 ${
-                          expenseScope === 'general_fixed' ? 'bg-red-600 text-white shadow-sm' : 'text-red-800 dark:text-red-300 hover:bg-red-500/20'
+                        onClick={() => {
+                          setExpenseScope('general_fixed');
+                          setNewCategory('Kira & Tesis Gideri');
+                        }}
+                        className={`p-3 rounded-xl text-left transition cursor-pointer border ${
+                          expenseScope === 'general_fixed'
+                            ? 'bg-red-600 text-white border-red-600 shadow-md ring-2 ring-red-400/50'
+                            : 'bg-white/80 dark:bg-brand-dark/80 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-red-400'
                         }`}
                       >
-                        <ThemeIcon icon="venue" className="w-3.5 h-3.5 inline mr-1" />
-                        <span>🏢 Genel Tesis (Ayın Tümüne Böl)</span>
+                        <div className="flex items-center space-x-1.5 font-black text-xs">
+                          <ThemeIcon icon="venue" className="w-4 h-4 shrink-0" />
+                          <span>1. Sabit İşletme Gideri</span>
+                        </div>
+                        <div className={`text-[10px] font-medium mt-1 leading-tight ${expenseScope === 'general_fixed' ? 'text-red-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                          Kira, Personel Maaşı, Elektrik, Su, Gaz vb. (Seçili ayın sabit havuzuna eklenir).
+                        </div>
                       </button>
+
                       <button
                         type="button"
-                        onClick={() => setExpenseScope('reservation_specific')}
-                        className={`py-1.5 rounded-xl text-[11px] font-extrabold transition cursor-pointer flex items-center justify-center space-x-1 ${
-                          expenseScope === 'reservation_specific' ? 'bg-red-600 text-white shadow-sm' : 'text-red-800 dark:text-red-300 hover:bg-red-500/20'
+                        onClick={() => {
+                          setExpenseScope('reservation_specific');
+                          setNewCategory('Sanatçı & Orkestra');
+                        }}
+                        className={`p-3 rounded-xl text-left transition cursor-pointer border ${
+                          expenseScope === 'reservation_specific'
+                            ? 'bg-red-600 text-white border-red-600 shadow-md ring-2 ring-red-400/50'
+                            : 'bg-white/80 dark:bg-brand-dark/80 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-red-400'
                         }`}
                       >
-                        <ThemeIcon icon="calendar" className="w-3.5 h-3.5 inline mr-1" />
-                        <span>🎯 Rezervasyona Özel Gider</span>
+                        <div className="flex items-center space-x-1.5 font-black text-xs">
+                          <ThemeIcon icon="calendar" className="w-4 h-4 shrink-0" />
+                          <span>2. Değişken / Düğüne Özel</span>
+                        </div>
+                        <div className={`text-[10px] font-medium mt-1 leading-tight ${expenseScope === 'reservation_specific' ? 'text-red-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                          Sanatçı, Garson, Çiçek vb. (Doğrudan seçilen sözleşmenin kârından düşülür).
+                        </div>
                       </button>
                     </div>
 
                     {expenseScope === 'reservation_specific' && (
-                      <div className="p-3 bg-slate-50 dark:bg-brand-dark rounded-2xl border border-slate-200 dark:border-brand-border space-y-1.5">
-                        <label className="font-bold text-[11px] block">Giderin Bağlanacağı Rezervasyon:</label>
+                      <div className="pt-2.5 border-t border-red-500/20 space-y-1">
+                        <label className="font-bold text-[11px] block text-slate-800 dark:text-gray-200">Giderin Bağlanacağı Düğün / Sözleşme:</label>
                         <select
                           value={expenseResId}
                           onChange={e => setExpenseResId(e.target.value)}
@@ -23169,17 +23219,24 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                               <option value="Ekipman & Hurda Satışı">Eski Ekipman / Hurda Satış Geliri</option>
                               <option value="Muhtelif Gelir">Diğer Muhtelif Kasa Geliri</option>
                             </>
+                          ) : expenseScope === 'general_fixed' ? (
+                            <>
+                              <option value="Kira & Tesis Gideri">🏢 Kira & Tesis Ana Gideri</option>
+                              <option value="Faturalar & Enerji">⚡ Faturalar & Enerji (Elektrik, Su, Doğalgaz, İnternet)</option>
+                              <option value="Sabit Personel Maaşları">👥 Sabit Personel Maaşları & SGK</option>
+                              <option value="Tesis Genel Bakım & Onarım">🛠️ Tesis Genel Bakım, Onarım & Güvenlik</option>
+                              <option value="Muhasebe, Vergi & Aidat">📑 Muhasebe, Vergi & Yasal Aidatlar</option>
+                              <option value="Diğer Sabit İşletme Gideri">📦 Diğer Sabit İşletme Gideri</option>
+                            </>
                           ) : (
                             <>
-                              <option value="Faturalar & Enerji">Faturalar & Enerji (Elektrik, Su, Doğalgaz, İnternet)</option>
-                              <option value="Yemek & Mutfak & İkram">Yemek & Mutfak & İkram Alımları</option>
-                              <option value="Keyfi & Temsil Ağırlama">Keyfi & Temsil Ağırlama (Kahve, Yemek vb.)</option>
-                              <option value="Personel & Yevmiye">Personel Maaş, Yevmiye & SGK</option>
-                              <option value="Dekorasyon & Çiçek">Dekorasyon, Çiçek & Sahne Süsleme</option>
-                              <option value="Ekipman & Bakım">Ekipman, Ses, Işık & Bakım Onarım</option>
-                              <option value="Ofis & Kırtasiye & Sarf">Ofis, Kırtasiye & Sarf Malzeme</option>
-                              <option value="Vergi & Muhasebe">Vergi, Harç & Muhasebe Ödemeleri</option>
-                              <option value="Genel Harcama">Diğer Genel İşletme Giderleri</option>
+                              <option value="Sanatçı & Orkestra">🎵 Sanatçı, Orkestra & DJ Yevmiyesi</option>
+                              <option value="Ekstra Garson & Servis">🍽️ Ekstra Garson, Karşılama & Servis Ekibi</option>
+                              <option value="Özel Yemek & Menü Tedariği">🥩 Özel Yemek & Menü Tedariği (Et, Tavuk vb.)</option>
+                              <option value="Masa Süsleme & Çiçek">🌸 Masa Süsleme, Canlı Çiçek & Özel Konsept</option>
+                              <option value="Foto & 4K Çekim Ekibi">📸 Fotoğraf, 4K Drone & Video Çekim Ekibi</option>
+                              <option value="Animasyon & Havai Fişek">🎆 Animasyon, Palyaço, Lazer & Havai Fişek</option>
+                              <option value="Diğer Düğüne Özel Harcama">🎯 Diğer Düğüne Özel Harcama</option>
                             </>
                           )}
                         </select>
