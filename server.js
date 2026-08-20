@@ -1952,8 +1952,9 @@ app.delete('/api/satisfaction-surveys/:id', async (req, res) => {
 });
 
 // Public Survey Route HTML Handler (/anket/:token)
-app.get('/anket/:token', (req, res) => {
-  res.sendFile(require('path').join(__dirname, 'yonetim.html'));
+app.get(['/anket/:token', '/anket', '/survey/:token'], (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile('yonetim.html', { root: __dirname });
 });
 
 const deleteEventTypeHandler = async (req, res) => {
@@ -3090,7 +3091,7 @@ app.post('/api/company-settings', async (req, res) => {
 
 
 // HTML Rota Yönlendirmeleri (Express 5 Uyumlu) - Yönetim & Davetli Medya Yükleme Rotaları
-app.get(/^\/(yonetim|giris|login|admin|medya|m|yonetim\.html)(\/.*)?$/, (req, res) => {
+app.get(/^\/(yonetim|giris|login|admin|medya|m|anket|survey|yonetim\.html)(\/.*)?$/, (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile('yonetim.html', { root: __dirname });
 });
