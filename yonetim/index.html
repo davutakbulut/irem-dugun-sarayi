@@ -14946,16 +14946,26 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const targetCustPhone = (editingResFromUrl.customerPhone || editingResFromUrl.customer_phone || '').replace(/[^0-9]/g, '');
           const targetCustName = (editingResFromUrl.customerName || editingResFromUrl.customer_name || '').toLowerCase().trim();
 
-          const matchedCust = (customers || []).find(c => {
-            if (targetCustId && c.id === targetCustId) return true;
-            if (targetCustPhone && c.phone && c.phone.replace(/[^0-9]/g, '') === targetCustPhone) return true;
-            if (targetCustName && c.name && c.name.toLowerCase().trim() === targetCustName) return true;
-            return false;
-          });
+          // Priority 1: Match by direct Customer ID
+          let matchedCust = (customers || []).find(c => targetCustId && c.id === targetCustId);
+
+          // Priority 2: Match by Phone number
+          if (!matchedCust && targetCustPhone) {
+            matchedCust = (customers || []).find(c => {
+              const cP = (c.phone || '').replace(/[^0-9]/g, '');
+              return cP && (cP === targetCustPhone || (cP.length >= 10 && targetCustPhone.includes(cP)) || (targetCustPhone.length >= 10 && cP.includes(targetCustPhone)));
+            });
+          }
+
+          // Priority 3: Match by Name
+          if (!matchedCust && targetCustName) {
+            matchedCust = (customers || []).find(c => (c.name || '').toLowerCase().trim() === targetCustName);
+          }
 
           if (matchedCust) {
             setCustomerMode('existing');
             setSelectedCustomerId(matchedCust.id);
+            setCustomerSearchQuery(matchedCust.name || '');
             setIsAutoSelectedFromPhone(true);
             setCustomerError(false);
           } else {
