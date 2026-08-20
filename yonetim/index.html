@@ -15947,128 +15947,128 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }, [venueId, startDate, startTime, endTime, reservations, isEditMode, editingResFromUrl, venues]);
 
       const hasLoadedEditResRef = useRef(null);
+      const appliedDbDataIdRef = useRef(null);
 
-      // Pre-fill form when editingResFromUrl is detected
-      useEffect(() => {
-        if (editingResFromUrl) {
-          const editKey = editingResFromUrl.id || editingResFromUrl.refKey;
-          const isInitialLoadForThisRes = hasLoadedEditResRef.current !== editKey;
-          
-          if (isInitialLoadForThisRes) {
-            hasLoadedEditResRef.current = editKey;
+      const applyReservationToForm = (resObj) => {
+        if (!resObj) return;
+        setVenueId(resObj.venueId || resObj.venue_id || venues[0]?.id || '');
+        setEventTypeId(resObj.eventTypeId || resObj.event_type_id || 'evt-dugun');
+        setCustomVenuePrice(
+          resObj.venuePrice !== undefined ? resObj.venuePrice :
+          (resObj.customVenuePrice !== undefined ? resObj.customVenuePrice :
+          (resObj.venue_price !== undefined ? resObj.venue_price :
+          (venues.find(v => v.id === (resObj.venueId || resObj.venue_id))?.price || 0)))
+        );
+        
+        const rawDate = resObj.startDate || resObj.eventDate || resObj.event_date || resObj.date;
+        setStartDate(formatDateForInput(rawDate) || '2026-08-25');
+        const rawEndDate = resObj.endDate || resObj.end_date || rawDate;
+        setEndDate(formatDateForInput(rawEndDate) || '2026-08-25');
 
-            setVenueId(editingResFromUrl.venueId || editingResFromUrl.venue_id || venues[0]?.id || '');
-            setEventTypeId(editingResFromUrl.eventTypeId || editingResFromUrl.event_type_id || 'evt-dugun');
-            setCustomVenuePrice(
-              editingResFromUrl.venuePrice !== undefined ? editingResFromUrl.venuePrice :
-              (editingResFromUrl.customVenuePrice !== undefined ? editingResFromUrl.customVenuePrice :
-              (editingResFromUrl.venue_price !== undefined ? editingResFromUrl.venue_price :
-              (venues.find(v => v.id === (editingResFromUrl.venueId || editingResFromUrl.venue_id))?.price || 0)))
-            );
-            
-            const rawDate = editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.event_date || editingResFromUrl.date;
-            setStartDate(formatDateForInput(rawDate) || '2026-08-25');
-            const rawEndDate = editingResFromUrl.endDate || editingResFromUrl.end_date || rawDate;
-            setEndDate(formatDateForInput(rawEndDate) || '2026-08-25');
+        const timeParts = (resObj.timeSlot || resObj.time_slot || '').split('-');
+        if (timeParts.length === 2) {
+          setStartTime(timeParts[0].trim() || '19:00');
+          setEndTime(timeParts[1].trim() || '23:00');
+        } else {
+          setStartTime(resObj.startTime || resObj.start_time || '19:00');
+          setEndTime(resObj.endTime || resObj.end_time || '23:00');
+        }
 
-            const timeParts = (editingResFromUrl.timeSlot || editingResFromUrl.time_slot || '').split('-');
-            if (timeParts.length === 2) {
-              setStartTime(timeParts[0].trim() || '19:00');
-              setEndTime(timeParts[1].trim() || '23:00');
-            } else {
-              setStartTime(editingResFromUrl.startTime || editingResFromUrl.start_time || '19:00');
-              setEndTime(editingResFromUrl.endTime || editingResFromUrl.end_time || '23:00');
-            }
+        setGuestCount(resObj.guestCount || resObj.guest_count || 500);
 
-            setGuestCount(editingResFromUrl.guestCount || editingResFromUrl.guest_count || 500);
+        // Services Pre-fill
+        let rawServices = resObj.selectedServices || resObj.selected_services;
+        if (typeof rawServices === 'string') {
+          try { rawServices = JSON.parse(rawServices); } catch(e){ rawServices = []; }
+        }
+        if (Array.isArray(rawServices)) {
+          const normalizedServices = rawServices.map(item => ({
+            ...item,
+            customUnitPrice: item.customUnitPrice !== undefined ? item.customUnitPrice : (item.unitPrice !== undefined ? item.unitPrice : undefined)
+          }));
+          setSelectedServices(normalizedServices);
+        }
 
-            // Services Pre-fill
-            let rawServices = editingResFromUrl.selectedServices || editingResFromUrl.selected_services;
-            if (typeof rawServices === 'string') {
-              try { rawServices = JSON.parse(rawServices); } catch(e){ rawServices = []; }
-            }
-            if (Array.isArray(rawServices)) {
-              const normalizedServices = rawServices.map(item => ({
-                ...item,
-                customUnitPrice: item.customUnitPrice !== undefined ? item.customUnitPrice : (item.unitPrice !== undefined ? item.unitPrice : undefined)
-              }));
-              setSelectedServices(normalizedServices);
-            }
+        setReferrerName(resObj.referrerName || resObj.referrer_name || '');
+        setCampaignCode(resObj.campaignCode || resObj.campaign_code || '');
+        if (resObj.dipDiscountType || resObj.dip_discount_type) {
+          setDipDiscountType(resObj.dipDiscountType || resObj.dip_discount_type);
+        }
+        setCustomDiscountAmount(
+          resObj.customDiscountAmount !== undefined ? resObj.customDiscountAmount :
+          (resObj.custom_discount_amount !== undefined ? resObj.custom_discount_amount :
+          (resObj.discountAmount !== undefined ? resObj.discountAmount :
+          (resObj.discount_amount || 0)))
+        );
+        
+        const depAmount = Number(resObj.depositPaid || resObj.deposit_paid || 0);
+        setHasDeposit(depAmount > 0);
+        setDepositPaid(depAmount);
+        setPaymentStatus(resObj.paymentStatus || resObj.payment_status || 'Bekliyor');
 
-            setReferrerName(editingResFromUrl.referrerName || editingResFromUrl.referrer_name || '');
-            setCampaignCode(editingResFromUrl.campaignCode || editingResFromUrl.campaign_code || '');
-            if (editingResFromUrl.dipDiscountType || editingResFromUrl.dip_discount_type) {
-              setDipDiscountType(editingResFromUrl.dipDiscountType || editingResFromUrl.dip_discount_type);
-            }
-            setCustomDiscountAmount(
-              editingResFromUrl.customDiscountAmount !== undefined ? editingResFromUrl.customDiscountAmount :
-              (editingResFromUrl.custom_discount_amount !== undefined ? editingResFromUrl.custom_discount_amount :
-              (editingResFromUrl.discountAmount !== undefined ? editingResFromUrl.discountAmount :
-              (editingResFromUrl.discount_amount || 0)))
-            );
-            
-            const depAmount = Number(editingResFromUrl.depositPaid || editingResFromUrl.deposit_paid || 0);
-            setHasDeposit(depAmount > 0);
-            setDepositPaid(depAmount);
-            setPaymentStatus(editingResFromUrl.paymentStatus || editingResFromUrl.payment_status || 'Bekliyor');
+        setIsInvoiced(Boolean(resObj.isInvoiced || resObj.is_invoiced));
+        setInvoiceType(resObj.invoiceType || resObj.invoice_type || 'individual');
+        if (resObj.tcNo || resObj.tc_no) setTcNo(resObj.tcNo || resObj.tc_no);
+        if (resObj.vknNo || resObj.vkn_no) setVknNo(resObj.vknNo || resObj.vkn_no);
+        if (resObj.taxOffice || resObj.tax_office) setTaxOffice(resObj.taxOffice || resObj.tax_office);
+        if (resObj.invoiceAddress || resObj.invoice_address) setInvoiceAddress(resObj.invoiceAddress || resObj.invoice_address);
 
-            setIsInvoiced(Boolean(editingResFromUrl.isInvoiced || editingResFromUrl.is_invoiced));
-            setInvoiceType(editingResFromUrl.invoiceType || editingResFromUrl.invoice_type || 'individual');
-            if (editingResFromUrl.tcNo || editingResFromUrl.tc_no) setTcNo(editingResFromUrl.tcNo || editingResFromUrl.tc_no);
-            if (editingResFromUrl.vknNo || editingResFromUrl.vkn_no) setVknNo(editingResFromUrl.vknNo || editingResFromUrl.vkn_no);
-            if (editingResFromUrl.taxOffice || editingResFromUrl.tax_office) setTaxOffice(editingResFromUrl.taxOffice || editingResFromUrl.tax_office);
-            if (editingResFromUrl.invoiceAddress || editingResFromUrl.invoice_address) setInvoiceAddress(editingResFromUrl.invoiceAddress || editingResFromUrl.invoice_address);
+        let rawFlow = resObj.flowPlan || resObj.flow_plan;
+        if (typeof rawFlow === 'string') {
+          try { rawFlow = JSON.parse(rawFlow); } catch(e){ rawFlow = []; }
+        }
+        if (Array.isArray(rawFlow) && rawFlow.length > 0) {
+          setFlowPlan(JSON.parse(JSON.stringify(rawFlow)));
+        }
+        if (resObj.notes !== undefined) {
+          setNotes(resObj.notes || '');
+        }
 
-            let rawFlow = editingResFromUrl.flowPlan || editingResFromUrl.flow_plan;
-            if (typeof rawFlow === 'string') {
-              try { rawFlow = JSON.parse(rawFlow); } catch(e){ rawFlow = []; }
-            }
-            if (Array.isArray(rawFlow) && rawFlow.length > 0) {
-              setFlowPlan(JSON.parse(JSON.stringify(rawFlow)));
-            }
-            if (editingResFromUrl.notes) {
-              setNotes(editingResFromUrl.notes);
-            }
-          }
+        // CUSTOMER SYNC
+        const targetCustId = resObj.customerId || resObj.customer_id;
+        const targetCustPhone = (resObj.customerPhone || resObj.customer_phone || '').replace(/[^0-9]/g, '');
+        const targetCustName = (resObj.customerName || resObj.customer_name || '').toLowerCase().trim();
 
-          // SMART CUSTOMER SYNCHRONIZATION (RUNS BOTH ON INITIAL LOAD AND WHEN CUSTOMERS LIST ARRIVES)
-          const targetCustId = editingResFromUrl.customerId || editingResFromUrl.customer_id;
-          const targetCustPhone = (editingResFromUrl.customerPhone || editingResFromUrl.customer_phone || '').replace(/[^0-9]/g, '');
-          const targetCustName = (editingResFromUrl.customerName || editingResFromUrl.customer_name || '').toLowerCase().trim();
+        let matchedCust = (customers || []).find(c => targetCustId && c.id === targetCustId);
+        if (!matchedCust && targetCustPhone) {
+          matchedCust = (customers || []).find(c => (c.phone || '').replace(/[^0-9]/g, '') === targetCustPhone);
+        }
+        if (!matchedCust && targetCustName) {
+          matchedCust = (customers || []).find(c => (c.name || '').toLowerCase().trim() === targetCustName);
+        }
 
-          // Priority 1: Match by direct Customer ID
-          let matchedCust = (customers || []).find(c => targetCustId && c.id === targetCustId);
-
-          // Priority 2: Match by Phone number
-          if (!matchedCust && targetCustPhone) {
-            matchedCust = (customers || []).find(c => {
-              const cP = (c.phone || '').replace(/[^0-9]/g, '');
-              return cP && (cP === targetCustPhone || (cP.length >= 10 && targetCustPhone.includes(cP)) || (targetCustPhone.length >= 10 && cP.includes(targetCustPhone)));
-            });
-          }
-
-          // Priority 3: Match by Name
-          if (!matchedCust && targetCustName) {
-            matchedCust = (customers || []).find(c => (c.name || '').toLowerCase().trim() === targetCustName);
-          }
-
-          if (matchedCust) {
-            setCustomerMode('existing');
-            setSelectedCustomerId(matchedCust.id);
-            setCustomerSearchQuery(matchedCust.name || '');
-            setIsAutoSelectedFromPhone(true);
-            setCustomerError(false);
+        if (matchedCust) {
+          setCustomerMode('existing');
+          setSelectedCustomerId(matchedCust.id);
+          setNewCustName('');
+          setNewCustPhone('');
+          setNewCustSecondaryPhone('');
+          setNewCustEmail('');
+        } else {
+          setCustomerMode('existing');
+          if (targetCustId) {
+            setSelectedCustomerId(targetCustId);
           } else {
-            if (isInitialLoadForThisRes) {
-              setCustomerMode('new');
-              setNewCustName(editingResFromUrl.customerName || editingResFromUrl.customer_name || '');
-              setNewCustPhone(editingResFromUrl.customerPhone || editingResFromUrl.customer_phone || '');
-              setNewCustSecondaryPhone(editingResFromUrl.customerSecondaryPhone || editingResFromUrl.secondaryPhone || editingResFromUrl.secondary_phone || '');
-              setNewCustEmail(editingResFromUrl.customerEmail || editingResFromUrl.customer_email || '');
-            }
+            setCustomerMode('new');
+            setNewCustName(resObj.customerName || resObj.customer_name || '');
+            setNewCustPhone(resObj.customerPhone || resObj.customer_phone || '');
+            setNewCustSecondaryPhone(resObj.customerSecondaryPhone || resObj.secondaryPhone || resObj.secondary_phone || '');
+            setNewCustEmail(resObj.customerEmail || resObj.customer_email || '');
           }
         }
-      }, [editingResFromUrl, venues, customers]);
+      };
+
+      // Pre-fill form when fresh DB data arrives or initial editingResFromUrl is detected
+      useEffect(() => {
+        if (freshEditingRes && appliedDbDataIdRef.current !== freshEditingRes.id) {
+          appliedDbDataIdRef.current = freshEditingRes.id;
+          hasLoadedEditResRef.current = freshEditingRes.id;
+          applyReservationToForm(freshEditingRes);
+        } else if (editingResFromUrl && hasLoadedEditResRef.current !== (editingResFromUrl.id || editingResFromUrl.refKey)) {
+          hasLoadedEditResRef.current = editingResFromUrl.id || editingResFromUrl.refKey;
+          applyReservationToForm(editingResFromUrl);
+        }
+      }, [freshEditingRes, editingResFromUrl, venues, customers]);
 
       // EFFECT: LEAD / QUOTE REQUEST PRE-FILL INTEGRATION
       const hasLoadedQuoteRef = useRef(null);

@@ -2207,7 +2207,7 @@ app.post('/api/reservations', async (req, res) => {
 
   const activePool = await getPool();
   
-  // SAFE DEEP-MERGE: Preserve existing payments, customExpenses, mediaFiles, notesHistory
+  // SAFE SERVER-SIDE MERGE: Preserve existing server collections if not provided
   if (activePool && item.id) {
     try {
       const [existingRows] = await activePool.query('SELECT details_json, media_json, selected_services_json, flow_plan_json FROM reservations WHERE id = ?', [item.id]);
@@ -2257,42 +2257,34 @@ app.post('/api/reservations', async (req, res) => {
       const evTypeId = item.eventTypeId || item.event_type_id || 'evt-dugun';
       const evTypeName = item.eventTypeName || item.event_type_name || item.eventType || 'Düğün Organizasyonu';
 
-      await activePool.query(
-        `INSERT INTO reservations (
-          id, venue_id, event_type_id, event_type_name, customer_id, customer_name, customer_email, customer_phone, secondary_phone,
-          event_date, end_date, start_time, end_time, time_slot, guest_count,
-          venue_price, custom_venue_price, subtotal, referrer_name, campaign_code,
-          discount_amount, dip_discount_type, vat_amount, total_amount, deposit_paid, remaining_balance,
-          payment_status, is_invoiced, invoice_type, tc_no, vkn_no, tax_office, invoice_address,
-          notes, flow_plan_json, selected_services_json, details_json, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED')
-        ON DUPLICATE KEY UPDATE
-          venue_id=VALUES(venue_id), event_type_id=VALUES(event_type_id), event_type_name=VALUES(event_type_name),
-          customer_id=VALUES(customer_id),
-          customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
-          customer_phone=VALUES(customer_phone), secondary_phone=VALUES(secondary_phone),
-          event_date=VALUES(event_date), end_date=VALUES(end_date), start_time=VALUES(start_time), end_time=VALUES(end_time),
-          time_slot=VALUES(time_slot), guest_count=VALUES(guest_count), venue_price=VALUES(venue_price),
-          custom_venue_price=VALUES(custom_venue_price), subtotal=VALUES(subtotal), referrer_name=VALUES(referrer_name),
-          campaign_code=VALUES(campaign_code), discount_amount=VALUES(discount_amount), dip_discount_type=VALUES(dip_discount_type),
-          vat_amount=VALUES(vat_amount), total_amount=VALUES(total_amount), deposit_paid=VALUES(deposit_paid),
-          remaining_balance=VALUES(remaining_balance), payment_status=VALUES(payment_status), is_invoiced=VALUES(is_invoiced),
-          invoice_type=VALUES(invoice_type), tc_no=VALUES(tc_no), vkn_no=VALUES(vkn_no), tax_office=VALUES(tax_office),
-          invoice_address=VALUES(invoice_address), notes=VALUES(notes), flow_plan_json=VALUES(flow_plan_json),
-          selected_services_json=VALUES(selected_services_json), details_json=VALUES(details_json), status='CONFIRMED'`,
-        [
-          item.id, item.venueId || 'v1', evTypeId, evTypeName, custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '', item.secondaryPhone || '',
-          eventDate, endDate, startTime, endTime, timeSlot, Number(item.guestCount || 0),
-          Number(item.venuePrice || 0), Number(item.customVenuePrice || item.venuePrice || 0), Number(item.subtotal || 0),
-          item.referrerName || '', item.campaignCode || '', Number(item.discountAmount || 0), item.dipDiscountType || 'amount',
-          Number(item.vatAmount || 0), Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
-          item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual',
-          item.tcNo || '', item.vknNo || '', item.taxOffice || '', item.invoiceAddress || '',
-          item.notes || '', flowPlanJsonStr, selectedServicesJsonStr, detailsJsonStr
-        ]
-      );
+      const cols = [
+        'id', 'venue_id', 'event_type_id', 'event_type_name', 'customer_id', 'customer_name', 'customer_email', 'customer_phone', 'secondary_phone',
+        'event_date', 'end_date', 'start_time', 'end_time', 'time_slot', 'guest_count',
+        'venue_price', 'custom_venue_price', 'subtotal', 'referrer_name', 'campaign_code',
+        'discount_amount', 'dip_discount_type', 'vat_amount', 'total_amount', 'deposit_paid', 'remaining_balance',
+        'payment_status', 'is_invoiced', 'invoice_type', 'tc_no', 'vkn_no', 'tax_office', 'invoice_address',
+        'notes', 'flow_plan_json', 'selected_services_json', 'details_json', 'status'
+      ];
+      const placeholders = cols.map(() => '?').join(', ');
+      const updates = cols.filter(c => c !== 'id').map(c => `${c}=VALUES(${c})`).join(', ');
+      const sql = `INSERT INTO reservations (${cols.join(', ')}) VALUES (${placeholders}) ON DUPLICATE KEY UPDATE ${updates}`;
+
+      const values = [
+        item.id, item.venueId || 'v1', evTypeId, evTypeName, custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '', item.secondaryPhone || '',
+        eventDate, endDate, startTime, endTime, timeSlot, Number(item.guestCount || 0),
+        Number(item.venuePrice || 0), Number(item.customVenuePrice || item.venuePrice || 0), Number(item.subtotal || 0),
+        item.referrerName || '', item.campaignCode || '', Number(item.discountAmount || 0), item.dipDiscountType || 'amount',
+        Number(item.vatAmount || 0), Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
+        item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual',
+        item.tcNo || '', item.vknNo || '', item.taxOffice || '', item.invoiceAddress || '',
+        item.notes || '', flowPlanJsonStr, selectedServicesJsonStr, detailsJsonStr, 'CONFIRMED'
+      ];
+
+      await activePool.query(sql, values);
+      console.log(`💾 Rezervasyon [${item.id}] MariaDB Veritabanına Başarıyla Yazıldı!`);
     } catch(e) {
-      console.error('MySQL POST /api/reservations error:', e.message);
+      console.error('CRITICAL MySQL POST /api/reservations error:', e.message);
+      return res.status(500).json({ error: 'Veritabanı kayıt hatası: ' + e.message });
     }
   }
 
