@@ -1746,6 +1746,216 @@ app.post('/api/event-types', async (req, res) => {
   }
 });
 
+
+// ==========================================
+// MÜŞTERİ MEMNUNİYET ANKETLERİ REST API
+// ==========================================
+app.get('/api/satisfaction-surveys', async (req, res) => {
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT * FROM satisfaction_surveys ORDER BY created_at DESC');
+      const formatted = (rows || []).map(r => ({
+        id: r.id,
+        token: r.token,
+        reservationId: r.reservation_id,
+        customerId: r.customer_id,
+        customerName: r.customer_name,
+        customerPhone: r.customer_phone,
+        customerEmail: r.customer_email,
+        venueId: r.venue_id,
+        venueName: r.venue_name,
+        eventDate: r.event_date,
+        eventTypeName: r.event_type_name,
+        status: r.status,
+        overallScore: Number(r.overall_score || 0),
+        venueScore: Number(r.venue_score || 0),
+        serviceScore: Number(r.service_score || 0),
+        cateringScore: Number(r.catering_score || 0),
+        musicScore: Number(r.music_score || 0),
+        recommend: Boolean(r.recommend),
+        comment: r.comment || '',
+        sentChannel: r.sent_channel || 'whatsapp',
+        completedAt: r.completed_at,
+        createdAt: r.created_at
+      }));
+      return res.json(formatted);
+    }
+    return res.json([]);
+  } catch(e) {
+    console.error('MySQL GET /api/satisfaction-surveys error:', e.message);
+    res.status(500).json({ error: 'Anketler alınamadı', message: e.message });
+  }
+});
+
+app.post('/api/satisfaction-surveys/invite', async (req, res) => {
+  try {
+    const { reservationId, customerName, customerPhone, customerEmail, venueId, venueName, eventDate, eventTypeName, channel = 'whatsapp' } = req.body || {};
+    if (!reservationId || !customerName) {
+      return res.status(400).json({ error: 'Rezervasyon ID ve Müşteri Adı zorunludur' });
+    }
+
+    const activePool = await getPool();
+    if (!activePool) {
+      return res.status(500).json({ error: 'Veritabanı bağlantısı yok' });
+    }
+
+    // Check if an existing survey exists for this reservation
+    const [existing] = await activePool.query('SELECT * FROM satisfaction_surveys WHERE reservation_id = ? LIMIT 1', [reservationId]);
+    let surveyRecord = existing && existing[0] ? existing[0] : null;
+
+    if (!surveyRecord) {
+      const id = `srv-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+      const token = `anket_${reservationId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}_${Date.now().toString(36)}`;
+      
+      await activePool.query(
+        `INSERT INTO satisfaction_surveys 
+        (id, token, reservation_id, customer_id, customer_name, customer_phone, customer_email, venue_id, venue_name, event_date, event_type_name, status, sent_channel)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'sent', ?)`,
+        [id, token, reservationId, req.body.customerId || '', customerName, customerPhone || '', customerEmail || '', venueId || '', venueName || '', eventDate || '', eventTypeName || 'Düğün Organizasyonu', channel]
+      );
+      
+      surveyRecord = {
+        id, token, reservation_id: reservationId, customer_id: req.body.customerId || '',
+        customer_name: customerName, customer_phone: customerPhone, customer_email: customerEmail,
+        venue_id: venueId, venue_name: venueName, event_date: eventDate, event_type_name: eventTypeName,
+        status: 'sent', sent_channel: channel, overall_score: 0, comment: '', created_at: new Date()
+      };
+      console.log(`✉️ Memnuniyet Anketi Daveti Oluşturuldu: [${reservationId}] -> Token: ${token}`);
+    } else {
+      // Update sent channel if changed
+      await activePool.query('UPDATE satisfaction_surveys SET sent_channel = ? WHERE id = ?', [channel, surveyRecord.id]);
+    }
+
+    // Base URL resolution
+    const origin = req.headers.origin || (req.headers.host ? `http://${req.headers.host}` : 'http://127.0.0.1:5001');
+    const surveyUrl = `${origin}/anket/${surveyRecord.token}`;
+
+    // Pre-formatted messages for WhatsApp, SMS and Email
+    const messageTemplate = `Değerli ${customerName},\n\nİrem Düğün Sarayı'nı tercih ettiğiniz için teşekkür ederiz. Organizasyonumuzun kusursuz geçmesi için geri bildirimleriniz bizim için çok kıymetlidir.\n\nLütfen 1 dakikanızı ayırarak memnuniyet anketimizi doldurur musunuz?\n\n🔗 Anket Bağlantısı:\n${surveyUrl}\n\nMutluluklar dileriz!\nİrem Düğün Sarayı Yönetimi`;
+
+    return res.json({
+      success: true,
+      survey: {
+        id: surveyRecord.id,
+        token: surveyRecord.token,
+        reservationId: surveyRecord.reservation_id,
+        customerName: surveyRecord.customer_name,
+        customerPhone: surveyRecord.customer_phone,
+        status: surveyRecord.status,
+        overallScore: surveyRecord.overall_score,
+        comment: surveyRecord.comment
+      },
+      surveyUrl,
+      whatsappText: encodeURIComponent(messageTemplate.replace(/\\n/g, '\n')),
+      smsText: messageTemplate.replace(/\\n/g, '\n'),
+      emailSubject: `İrem Düğün Sarayı - Organizasyon Memnuniyet Anketi (${surveyRecord.customer_name})`,
+      emailBody: messageTemplate.replace(/\\n/g, '\n')
+    });
+  } catch(e) {
+    console.error('POST /api/satisfaction-surveys/invite error:', e);
+    res.status(500).json({ error: 'Anket daveti oluşturulamadı', message: e.message });
+  }
+});
+
+// Public Survey Data Endpoint
+app.get('/api/public/survey/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    if (!token) return res.status(400).json({ error: 'Token gereklidir' });
+
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT * FROM satisfaction_surveys WHERE token = ? LIMIT 1', [token]);
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ error: 'Anket bulunamadı veya süresi dolmuş.' });
+      }
+      const r = rows[0];
+      return res.json({
+        id: r.id,
+        token: r.token,
+        reservationId: r.reservation_id,
+        customerName: r.customer_name,
+        venueName: r.venue_name || 'İrem Düğün Sarayı',
+        eventDate: r.event_date,
+        eventTypeName: r.event_type_name || 'Düğün Organizasyonu',
+        status: r.status,
+        overallScore: Number(r.overall_score || 0),
+        venueScore: Number(r.venue_score || 0),
+        serviceScore: Number(r.service_score || 0),
+        cateringScore: Number(r.catering_score || 0),
+        musicScore: Number(r.music_score || 0),
+        recommend: Boolean(r.recommend),
+        comment: r.comment || '',
+        completedAt: r.completed_at
+      });
+    }
+    return res.status(500).json({ error: 'Veritabanı bağlantısı yok' });
+  } catch(e) {
+    console.error('GET /api/public/survey error:', e.message);
+    res.status(500).json({ error: 'Anket bilgisi alınamadı' });
+  }
+});
+
+// Public Survey Submit Endpoint
+app.post('/api/public/survey/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { overallScore = 5, venueScore = 5, serviceScore = 5, cateringScore = 5, musicScore = 5, recommend = 1, comment = '' } = req.body || {};
+
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT id, reservation_id, customer_name FROM satisfaction_surveys WHERE token = ? LIMIT 1', [token]);
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ error: 'Anket bulunamadı' });
+      }
+      const srv = rows[0];
+
+      await activePool.query(
+        `UPDATE satisfaction_surveys 
+         SET status = 'completed', 
+             overall_score = ?, 
+             venue_score = ?, 
+             service_score = ?, 
+             catering_score = ?, 
+             music_score = ?, 
+             recommend = ?, 
+             comment = ?, 
+             completed_at = NOW() 
+         WHERE id = ?`,
+        [Number(overallScore), Number(venueScore), Number(serviceScore), Number(cateringScore), Number(musicScore), recommend ? 1 : 0, comment.trim(), srv.id]
+      );
+
+      console.log(`⭐ Anket Dolduruldu! [${srv.reservation_id}] ${srv.customer_name} -> Puan: ${overallScore}/5`);
+      return res.json({ success: true, message: 'Değerlendirmeniz başarıyla kaydedildi. Teşekkür ederiz!' });
+    }
+    return res.status(500).json({ error: 'Veritabanı bağlantısı yok' });
+  } catch(e) {
+    console.error('POST /api/public/survey submit error:', e.message);
+    res.status(500).json({ error: 'Anket kaydedilemedi' });
+  }
+});
+
+// Delete survey
+app.delete('/api/satisfaction-surveys/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query('DELETE FROM satisfaction_surveys WHERE id = ?', [id]);
+      return res.json({ success: true, id });
+    }
+    return res.status(500).json({ error: 'Veritabanı hatası' });
+  } catch(e) {
+    res.status(500).json({ error: 'Silinemedi' });
+  }
+});
+
+// Public Survey Route HTML Handler (/anket/:token)
+app.get('/anket/:token', (req, res) => {
+  res.sendFile(require('path').join(__dirname, 'yonetim.html'));
+});
+
 const deleteEventTypeHandler = async (req, res) => {
   const id = req.params.id || req.body.id || req.query.id;
   if (!id) return res.status(400).json({ error: 'ID gereklidir' });

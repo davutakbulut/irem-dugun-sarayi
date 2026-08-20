@@ -1747,7 +1747,7 @@
     // ZERO-CONFIG SMART DYNAMIC SPA ROUTER (SINGLE SOURCE OF TRUTH)
     // ==========================================
     const KNOWN_ADMIN_TABS = new Set([
-      'dashboard', 'create-reservation', 'event-types', 'venues', 'services', 'reservations',
+      'dashboard', 'create-reservation', 'event-types', 'satisfaction-surveys', 'venues', 'services', 'reservations',
       'calendar', 'campaigns', 'finance', 'customers', 'quote-requests',
       'reports', 'media', 'profile', 'mind-map', 'roles', 'users',
       'company-settings', 'settings', 'settings-appearance', 'settings-performance',
@@ -1759,6 +1759,7 @@
       'dashboard': 'anasayfa',
       'create-reservation': 'yeni-rezervasyon',
       'event-types': 'etkinlik-turleri',
+      'satisfaction-surveys': 'memnuniyet-anketleri',
       'venues': 'dugun-salonlari',
       'services': 'ek-hizmetler',
       'reservations': 'rezervasyonlar',
@@ -1809,6 +1810,10 @@
       'medya-yukle': 'media',
       'yeni-rezervasyon': 'create-reservation',
       'etkinlik-turleri': 'event-types',
+      'memnuniyet-anketleri': 'satisfaction-surveys',
+      'memnuniyet-degerlendirmesi': 'satisfaction-surveys',
+      'memnuniyet': 'satisfaction-surveys',
+      'anketler': 'satisfaction-surveys',
       'etkinlikler': 'event-types',
       'etkinlik-tipleri': 'event-types',
       'rezervasyon-olustur': 'create-reservation',
@@ -3285,12 +3290,51 @@ function ReservationsListComponent({
       }, [searchQuery, venueFilter, statusFilter, eventTypeFilter, startDateFilter, endDateFilter]);
 
       const [selectedResForPreview, setSelectedResForPreview] = useState(null);
+      const [surveyInviteRes, setSurveyInviteRes] = useState(null);
+      const [surveyInviteData, setSurveyInviteData] = useState(null);
+      const [isGeneratingSurvey, setIsGeneratingSurvey] = useState(false);
       const [selectedDayInspector, setSelectedDayInspector] = useState(null);
       const [editingRes, setEditingRes] = useState(null);
       const [deletingRes, setDeletingRes] = useState(null);
 
       const [editForm, setEditForm] = useState(null);
       const [editError, setEditError] = useState(false);
+
+      const handleOpenSurveyInvite = async (res) => {
+        setSurveyInviteRes(res);
+        setSurveyInviteData(null);
+        setIsGeneratingSurvey(true);
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const vObj = (venues || []).find(v => v.id === res.venueId) || {};
+          const resp = await fetchFn('/api/satisfaction-surveys/invite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              reservationId: res.id,
+              customerId: res.customerId || '',
+              customerName: res.customerName || 'Misafir',
+              customerPhone: res.customerPhone || '',
+              customerEmail: res.customerEmail || '',
+              venueId: res.venueId || '',
+              venueName: vObj.name || res.venueName || 'Salon',
+              eventDate: res.date || res.eventDate || '',
+              eventTypeName: res.eventTypeName || res.eventType || 'Düğün Organizasyonu'
+            })
+          });
+          const data = await resp.json();
+          if (data && data.success) {
+            setSurveyInviteData(data);
+          } else {
+            showToast(data.error || 'Anket daveti oluşturulamadı', 'error');
+          }
+        } catch(err) {
+          console.error('Survey invite error:', err);
+          showToast('Bağlantı hatası', 'error');
+        } finally {
+          setIsGeneratingSurvey(false);
+        }
+      };
 
       const handleOpenEdit = (res) => {
         setSelectedResForPreview(null);
@@ -3851,6 +3895,17 @@ function ReservationsListComponent({
                               </td>
                               <td className="py-3.5 px-3 text-right">
                                 <div className="flex items-center justify-end space-x-1">
+                                  {reservationViewTab === 'completed' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenSurveyInvite(res)}
+                                      className="w-8 h-8 rounded-xl bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-600 dark:text-gold-400 flex items-center justify-center transition border border-amber-500/40 cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+                                      title="Memnuniyet Anketi Gönder (WhatsApp / SMS / Mail)"
+                                      aria-label="Anket Gönder"
+                                    >
+                                      <ThemeIcon icon="star" fallbackEmoji="⭐" className="w-4 h-4 shrink-0" />
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
                                     onClick={() => setSelectedResForPreview(res)}
@@ -4206,6 +4261,157 @@ function ReservationsListComponent({
                   </button>
                   <button onClick={() => setSelectedDayInspector(null)} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl">Kapat</button>
                 </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+                    {/* SURVEY INVITE & SHARE MODAL */}
+          {surveyInviteRes && createPortal(
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={() => setSurveyInviteRes(null)}>
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl my-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="p-2 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-gold-400 border border-amber-500/30">
+                      <ThemeIcon icon="star" className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                        Memnuniyet Anketi Gönder
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        {surveyInviteRes.customerName} ({surveyInviteRes.id})
+                      </p>
+                    </div>
+                  </div>
+                  <button onClick={() => setSurveyInviteRes(null)} className="text-slate-400 hover:text-white font-bold cursor-pointer p-1"><ThemeIcon icon="close" className="w-4 h-4" /></button>
+                </div>
+
+                {isGeneratingSurvey ? (
+                  <div className="py-12 flex flex-col items-center justify-center space-y-3">
+                    <div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-xs text-slate-400 font-bold">Kişiye özel anket bağlantısı oluşturuluyor...</span>
+                  </div>
+                ) : surveyInviteData ? (
+                  <div className="space-y-4 text-xs">
+                    {/* CUSTOMER & EVENT INFO SUMMARY */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-brand-dark/70 border border-slate-200 dark:border-brand-border/60 space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Müşteri / Çift:</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{surveyInviteRes.customerName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Telefon:</span>
+                        <span className="font-mono font-bold text-slate-900 dark:text-white">{surveyInviteRes.customerPhone || 'Girilmemiş'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Tarih & Salon:</span>
+                        <span className="font-bold text-amber-600 dark:text-gold-400">{formatDate(surveyInviteRes.date || surveyInviteRes.eventDate)} - {surveyInviteRes.venueName || 'Salon'}</span>
+                      </div>
+                    </div>
+
+                    {/* SURVEY LINK BOX */}
+                    <div className="space-y-1">
+                      <label className="font-extrabold text-[11px] text-slate-400 uppercase tracking-wider block">Özel Anket Bağlantısı:</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={surveyInviteData.surveyUrl}
+                          className="flex-1 bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-700 dark:text-gold-400"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (navigator.clipboard) {
+                              navigator.clipboard.writeText(surveyInviteData.surveyUrl);
+                              showToast('Anket bağlantısı panoya kopyalandı!', 'success');
+                            }
+                          }}
+                          className="px-3 py-2 bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-gray-200 font-bold rounded-xl border border-slate-200 dark:border-brand-border transition cursor-pointer"
+                        >
+                          📋 Kopyala
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* SHARING CHANNELS */}
+                    <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-brand-border/60">
+                      <label className="font-extrabold text-[11px] text-slate-400 uppercase tracking-wider block">Paylaşım Kanalları:</label>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {/* WHATSAPP */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const rawPhone = (surveyInviteRes.customerPhone || '').replace(/[^0-9]/g, '');
+                            let p = rawPhone;
+                            if (p.startsWith('0')) p = '9' + p;
+                            else if (!p.startsWith('90') && p.length === 10) p = '90' + p;
+                            const url = `https://wa.me/${p}?text=${surveyInviteData.whatsappText}`;
+                            window.open(url, '_blank');
+                            showToast('WhatsApp sohbeti açılıyor...', 'success');
+                          }}
+                          className="p-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black flex flex-col items-center justify-center space-y-1 shadow-md transition cursor-pointer hover:scale-[1.02] active:scale-95"
+                        >
+                          <span className="text-xl">🟢</span>
+                          <span className="text-xs">WhatsApp</span>
+                        </button>
+
+                        {/* SMS */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const rawPhone = (surveyInviteRes.customerPhone || '').replace(/[^0-9]/g, '');
+                            const url = `sms:${rawPhone}?body=${encodeURIComponent(surveyInviteData.smsText)}`;
+                            window.open(url, '_self');
+                          }}
+                          className="p-3 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-black flex flex-col items-center justify-center space-y-1 shadow-md transition cursor-pointer hover:scale-[1.02] active:scale-95"
+                        >
+                          <span className="text-xl">💬</span>
+                          <span className="text-xs">SMS Gönder</span>
+                        </button>
+
+                        {/* E-MAIL */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const email = surveyInviteRes.customerEmail || '';
+                            const url = `mailto:${email}?subject=${encodeURIComponent(surveyInviteData.emailSubject)}&body=${encodeURIComponent(surveyInviteData.emailBody)}`;
+                            window.open(url, '_blank');
+                          }}
+                          className="p-3 rounded-2xl bg-purple-500 hover:bg-purple-600 text-white font-black flex flex-col items-center justify-center space-y-1 shadow-md transition cursor-pointer hover:scale-[1.02] active:scale-95"
+                        >
+                          <span className="text-xl">✉️</span>
+                          <span className="text-xs">E-Posta</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* DIRECT OPEN IN NEW TAB */}
+                    <div className="pt-2 flex justify-between items-center text-xs">
+                      <a
+                        href={surveyInviteData.surveyUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-amber-600 hover:underline font-bold flex items-center space-x-1"
+                      >
+                        <span>Anket Sayfasını Aç & Önizle ↗</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setSurveyInviteRes(null)}
+                        className="px-4 py-1.5 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl font-bold"
+                      >
+                        Kapat
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-red-500 font-bold">
+                    Davet bağlantısı oluşturulamadı.
+                  </div>
+                )}
               </div>
             </div>,
             document.body
@@ -11407,6 +11613,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       // STRICT PUBLIC GUEST ROUTE DETECTOR:
       // Public guest mode is enforced for standalone guest URLs (/medya/:key or /m/:key or ?mode=guest or unauthenticated guest).
+      const publicSurveyToken = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        const pathname = window.location.pathname || '';
+        const hash = window.location.hash || '';
+        const pathMatch = pathname.match(/^\/anket\/([A-Za-z0-9_-]+)/);
+        if (pathMatch) return pathMatch[1];
+        const hashMatch = hash.match(/^#\/anket\/([A-Za-z0-9_-]+)/);
+        return hashMatch ? hashMatch[1] : null;
+      }, [activeTab]);
+
       const isPublicGuestRoute = useMemo(() => {
         if (typeof window === 'undefined') return false;
         const pathname = window.location.pathname || '';
@@ -12765,7 +12981,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       items: [
                         { id: 'finance', label: 'Finans Kasa & Gider', icon: 'money', fallbackEmoji: '', badge: 'CANLI' },
                         { id: 'venues', label: 'Etkinlik Mekanları', icon: 'venue', fallbackEmoji: '' },
-                        { id: 'event-types', label: 'Etkinlik Türleri', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' },
+                        { id: 'event-types', label: 'Etkinlik Türleri', icon: 'sparkles', fallbackEmoji: '✨' },
+                        { id: 'satisfaction-surveys', label: 'Memnuniyet Değerlendirmesi', icon: 'star', fallbackEmoji: '⭐', badge: 'YENİ' },
                         { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '' },
                         { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '' }
                       ]
@@ -13005,7 +13222,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     />
                   )}
 
-                                    {activeTab === 'event-types' && (
+                                                      {activeTab === 'satisfaction-surveys' && (
+                    <SatisfactionSurveysComponent
+                      reservations={reservations}
+                      venues={venues}
+                      showToast={showToast}
+                      navigateTo={navigateTo}
+                    />
+                  )}
+
+                  {activeTab === 'event-types' && (
                     <EventTypesComponent
                       eventTypes={eventTypes}
                       setEventTypes={setEventTypes}
@@ -13681,7 +13907,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         items: [
                           { id: 'finance', label: 'Finans Kasa & Gider', icon: 'money', fallbackEmoji: '', badge: 'CANLI' },
                           { id: 'venues', label: 'Etkinlik Mekanları', icon: 'venue', fallbackEmoji: '' },
-                        { id: 'event-types', label: 'Etkinlik Türleri', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' },
+                        { id: 'event-types', label: 'Etkinlik Türleri', icon: 'sparkles', fallbackEmoji: '✨' },
+                        { id: 'satisfaction-surveys', label: 'Memnuniyet Değerlendirmesi', icon: 'star', fallbackEmoji: '⭐', badge: 'YENİ' },
                           { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '' },
                           { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '' }
                         ]
@@ -14259,6 +14486,651 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     // ==========================================
     // ETKİNLİK TÜRLERİ YÖNETİM BİLEŞENİ (CRUD)
     // ==========================================
+    
+    // ==========================================
+    // 🌟 MÜŞTERİ MEMNUNİYET ANKETİ FORMU (PUBLIC VIEW)
+    // ==========================================
+    function PublicSurveyPageComponent({ token, showToast = () => {} }) {
+      const [surveyData, setSurveyData] = useState(null);
+      const [isLoading, setIsLoading] = useState(true);
+      const [isSubmitted, setIsSubmitted] = useState(false);
+      const [isSubmitting, setIsSubmitting] = useState(false);
+
+      // Form State
+      const [overallScore, setOverallScore] = useState(5);
+      const [venueScore, setVenueScore] = useState(5);
+      const [serviceScore, setServiceScore] = useState(5);
+      const [cateringScore, setCateringScore] = useState(5);
+      const [musicScore, setMusicScore] = useState(5);
+      const [recommend, setRecommend] = useState(1);
+      const [comment, setComment] = useState('');
+
+      useEffect(() => {
+        if (!token) return;
+        setIsLoading(true);
+        const fetchFn = window.fetchWithRetry || fetch;
+        fetchFn(`/api/public/survey/${token}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data && !data.error) {
+              setSurveyData(data);
+              if (data.status === 'completed') {
+                setIsSubmitted(true);
+                setOverallScore(data.overallScore || 5);
+                setVenueScore(data.venueScore || 5);
+                setServiceScore(data.serviceScore || 5);
+                setCateringScore(data.cateringScore || 5);
+                setMusicScore(data.musicScore || 5);
+                setRecommend(data.recommend ? 1 : 0);
+                setComment(data.comment || '');
+              }
+            } else {
+              setSurveyData(null);
+            }
+          })
+          .catch(() => setSurveyData(null))
+          .finally(() => setIsLoading(false));
+      }, [token]);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn(`/api/public/survey/${token}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              overallScore,
+              venueScore,
+              serviceScore,
+              cateringScore,
+              musicScore,
+              recommend,
+              comment
+            })
+          });
+          const resData = await resp.json();
+          if (resData && resData.success) {
+            setIsSubmitted(true);
+            showToast('Değerlendirmeniz başarıyla kaydedildi!', 'success');
+          } else {
+            showToast(resData.error || 'Kaydedilemedi', 'error');
+          }
+        } catch(err) {
+          showToast('Bağlantı hatası oluştu', 'error');
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+
+      const StarRating = ({ value, onChange, label, disabled = false }) => {
+        const [hover, setHover] = useState(0);
+        return (
+          <div className="bg-slate-50 dark:bg-brand-dark/60 p-4 rounded-2xl border border-slate-200 dark:border-brand-border/60 space-y-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-extrabold text-slate-800 dark:text-gray-100">{label}</span>
+              <span className="font-mono font-black text-amber-600 dark:text-gold-400 text-xs">
+                {(hover || value)} / 5 Yıldız
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => onChange(star)}
+                  onMouseEnter={() => !disabled && setHover(star)}
+                  onMouseLeave={() => !disabled && setHover(0)}
+                  className={`p-1.5 transition transform cursor-pointer text-2xl ${
+                    star <= (hover || value)
+                      ? 'text-amber-400 scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                      : 'text-slate-300 dark:text-slate-700'
+                  }`}
+                  aria-label={`${star} Yıldız`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      };
+
+      if (isLoading) {
+        return (
+          <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-white space-y-3">
+            <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs font-bold text-slate-400">Anket formu yükleniyor...</p>
+          </div>
+        );
+      }
+
+      if (!surveyData) {
+        return (
+          <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center">
+            <div className="glass-panel p-8 rounded-3xl border border-red-500/30 max-w-md w-full space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto text-2xl font-bold">✕</div>
+              <h2 className="text-xl font-heading font-black text-white">Anket Bulunamadı</h2>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Bu anket bağlantısı geçersiz veya süresi dolmuş olabilir. Lütfen yetkili ile iletişime geçiniz.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-slate-950 via-brand-dark to-slate-950 text-slate-100 p-4 sm:p-6 flex flex-col items-center justify-center animate-fade-in font-sans">
+          <div className="max-w-xl w-full space-y-6 my-auto">
+            {/* BRAND HEADER */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center p-3 rounded-3xl bg-amber-500/10 border border-amber-500/30 shadow-lg mb-1">
+                <ThemeIcon icon="sparkles" className="w-8 h-8 text-amber-500" />
+              </div>
+              <h1 className="font-heading font-black text-2xl sm:text-3xl gold-gradient-text tracking-wide">
+                İREM DÜĞÜN SARAYI
+              </h1>
+              <p className="text-xs font-medium text-slate-400">
+                Müşteri Memnuniyeti & Hizmet Değerlendirme Anketi
+              </p>
+            </div>
+
+            {/* EVENT INFO CARD */}
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 bg-white/5 space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-mono text-[11px] text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                  {surveyData.reservationId}
+                </span>
+                <span className="text-slate-400">{formatDate(surveyData.eventDate)}</span>
+              </div>
+              <h3 className="text-base font-extrabold text-white">
+                Sayın {surveyData.customerName},
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                <b>{surveyData.venueName}</b> salonumuzda gerçekleşen <b>{surveyData.eventTypeName}</b> organizasyonunuzun ardından, sizlere daha mükemmel hizmet sunabilmemiz için deneyiminizi puanlamanızı rica ederiz.
+              </p>
+            </div>
+
+            {isSubmitted ? (
+              /* SUCCESS CONFIRMATION SCREEN */
+              <div className="glass-panel p-8 rounded-3xl border border-emerald-500/40 bg-emerald-500/10 text-center space-y-4 animate-scale-up">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-500 text-slate-950 flex items-center justify-center mx-auto text-3xl font-black shadow-lg">
+                  ✓
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-heading font-black text-xl text-white">Değerlendirmeniz Alındı!</h3>
+                  <p className="text-xs text-emerald-300 leading-relaxed">
+                    Bizimle paylaştığınız değerli görüşleriniz için tüm İrem Düğün Sarayı ailesi adına teşekkür eder, ömür boyu mutluluklar dileriz.
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-black/40 border border-white/10 text-left space-y-2 text-xs">
+                  <div className="flex justify-between text-slate-300">
+                    <span>Verilen Genel Puan:</span>
+                    <span className="font-mono font-black text-amber-400">⭐ {overallScore} / 5 Yıldız</span>
+                  </div>
+                  {comment && (
+                    <div className="pt-2 border-t border-white/10 text-slate-300 italic text-[11px]">
+                      "{comment}"
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* SURVEY FORM */
+              <form onSubmit={handleSubmit} className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-5 bg-white/80 dark:bg-brand-card/90 shadow-xl">
+                <div className="space-y-3">
+                  <StarRating label="1. Genel Memnuniyet Derecesi" value={overallScore} onChange={setOverallScore} />
+                  <StarRating label="2. Salon & Dekorasyon Kalitesi" value={venueScore} onChange={setVenueScore} />
+                  <StarRating label="3. Personel İlgi & Servis Kalitesi" value={serviceScore} onChange={setServiceScore} />
+                  <StarRating label="4. İkramlar & Yemek / Menü Kalitesi" value={cateringScore} onChange={setCateringScore} />
+                  <StarRating label="5. Müzik, Ses & Işık Atmosferi" value={musicScore} onChange={setMusicScore} />
+                </div>
+
+                {/* RECOMMENDATION QUESTION */}
+                <div className="bg-slate-50 dark:bg-brand-dark/60 p-4 rounded-2xl border border-slate-200 dark:border-brand-border/60 space-y-2">
+                  <label className="font-extrabold text-xs text-slate-800 dark:text-gray-100 block">
+                    6. İrem Düğün Sarayı'nı yakınlarınıza tavsiye eder misiniz?
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRecommend(1)}
+                      className={`p-2.5 rounded-xl border font-bold text-xs transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                        recommend === 1
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-500 font-extrabold shadow-md'
+                          : 'bg-white dark:bg-brand-card text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border'
+                      }`}
+                    >
+                      <span>👍 Kesinlikle Evet</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRecommend(0)}
+                      className={`p-2.5 rounded-xl border font-bold text-xs transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                        recommend === 0
+                          ? 'bg-red-500 text-white border-red-500 font-extrabold shadow-md'
+                          : 'bg-white dark:bg-brand-card text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border'
+                      }`}
+                    >
+                      <span>👎 Geliştirilmeli</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* COMMENTS TEXTAREA */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-xs text-slate-800 dark:text-gray-100 block">
+                    7. Görüş, Teşekkür veya Önerileriniz:
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    placeholder="Organizasyonumuzda en çok beğendiğiniz detayları veya geliştirilmesini istediğiniz noktaları yazabilirsiniz..."
+                    rows={3}
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-3 text-xs font-medium text-slate-800 dark:text-gray-100 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 gold-button text-slate-950 font-black rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition text-sm cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
+                >
+                  <ThemeIcon icon="sparkles" className="w-4 h-4" />
+                  <span>{isSubmitting ? 'Kaydediliyor...' : 'Değerlendirmeyi Gönder ✓'}</span>
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 🌟 MEMNUNİYET DEĞERLENDİRMELERİ YÖNETİM SAYFASI
+    // ==========================================
+    function SatisfactionSurveysComponent({
+      reservations = [],
+      venues = [],
+      showToast = () => {},
+      navigateTo = () => {}
+    }) {
+      const [surveys, setSurveys] = useState([]);
+      const [isLoading, setIsLoading] = useState(true);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'completed' | 'sent'
+      const [venueFilter, setVenueFilter] = useState('ALL');
+      const [selectedSurveyDetail, setSelectedSurveyDetail] = useState(null);
+
+      const fetchSurveys = async () => {
+        setIsLoading(true);
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/satisfaction-surveys');
+          const data = await resp.json();
+          if (Array.isArray(data)) {
+            setSurveys(data);
+          }
+        } catch(err) {
+          console.warn('Fetch surveys error:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      useEffect(() => {
+        fetchSurveys();
+      }, []);
+
+      // KPI Calculations
+      const stats = useMemo(() => {
+        const completed = surveys.filter(s => s.status === 'completed');
+        const totalCount = surveys.length;
+        const completedCount = completed.length;
+        const responseRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+        
+        const avgOverall = completedCount > 0 ? (completed.reduce((sum, s) => sum + (s.overallScore || 5), 0) / completedCount).toFixed(1) : '5.0';
+        const avgVenue = completedCount > 0 ? (completed.reduce((sum, s) => sum + (s.venueScore || 5), 0) / completedCount).toFixed(1) : '5.0';
+        const avgService = completedCount > 0 ? (completed.reduce((sum, s) => sum + (s.serviceScore || 5), 0) / completedCount).toFixed(1) : '5.0';
+        const avgCatering = completedCount > 0 ? (completed.reduce((sum, s) => sum + (s.cateringScore || 5), 0) / completedCount).toFixed(1) : '5.0';
+        const avgMusic = completedCount > 0 ? (completed.reduce((sum, s) => sum + (s.musicScore || 5), 0) / completedCount).toFixed(1) : '5.0';
+        
+        const recommendCount = completed.filter(s => s.recommend !== false).length;
+        const recommendRate = completedCount > 0 ? Math.round((recommendCount / completedCount) * 100) : 100;
+
+        return {
+          totalCount,
+          completedCount,
+          responseRate,
+          avgOverall,
+          avgVenue,
+          avgService,
+          avgCatering,
+          avgMusic,
+          recommendRate
+        };
+      }, [surveys]);
+
+      const filteredSurveys = useMemo(() => {
+        return surveys.filter(s => {
+          if (statusFilter === 'completed' && s.status !== 'completed') return false;
+          if (statusFilter === 'sent' && s.status !== 'sent') return false;
+          if (venueFilter !== 'ALL' && s.venueId !== venueFilter) return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            return (s.customerName || '').toLowerCase().includes(q) ||
+                   (s.reservationId || '').toLowerCase().includes(q) ||
+                   (s.customerPhone || '').includes(q) ||
+                   (s.comment || '').toLowerCase().includes(q);
+          }
+          return true;
+        });
+      }, [surveys, statusFilter, venueFilter, searchQuery]);
+
+      const copySurveyLink = (s) => {
+        const origin = window.location.origin || 'http://127.0.0.1:5001';
+        const link = `${origin}/anket/${s.token}`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(link);
+          showToast('Anket bağlantısı panoya kopyalandı!', 'success');
+        } else {
+          prompt('Anket Bağlantısı:', link);
+        }
+      };
+
+      return (
+        <div className="space-y-6 animate-fade-in">
+          {/* HEADER BAR */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/70 dark:bg-brand-card/70 backdrop-blur-md p-5 rounded-3xl border border-amber-500/20 shadow-xs">
+            <div>
+              <div className="flex items-center space-x-2.5">
+                <span className="p-2 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-gold-400 border border-amber-500/30">
+                  <ThemeIcon icon="star" className="w-5 h-5" />
+                </span>
+                <div>
+                  <h2 className="font-heading font-black text-xl text-slate-900 dark:text-white">
+                    Müşteri Memnuniyet Değerlendirmeleri
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                    Tamamlanan organizasyonlar için gönderilen anketler, 5 yıldızlı müşteri puanları ve geri bildirimler.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={fetchSurveys}
+                className="px-3.5 py-2 rounded-2xl bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 font-bold text-xs border border-slate-200 dark:border-brand-border hover:bg-amber-500 hover:text-slate-950 transition cursor-pointer"
+              >
+                <span>Yenile ↺</span>
+              </button>
+            </div>
+          </div>
+
+          {/* KPI METRIC CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/40 bg-amber-500/10 space-y-1 shadow-sm">
+              <span className="text-[11px] font-extrabold text-amber-800 dark:text-gold-400 uppercase tracking-wider block">Genel Memnuniyet Puanı</span>
+              <div className="text-3xl font-heading font-black text-amber-600 dark:text-gold-400 flex items-center space-x-1.5">
+                <span>⭐ {stats.avgOverall}</span>
+                <span className="text-xs font-bold text-slate-400">/ 5.0</span>
+              </div>
+              <div className="text-[10px] text-amber-700/80">Tamamlanan {stats.completedCount} anketin ağırlıklı ortalaması</div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1 shadow-sm">
+              <span className="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Tavsiye Edilme Oranı</span>
+              <div className="text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
+                %{stats.recommendRate}
+              </div>
+              <div className="text-[10px] text-emerald-600/80">İrem Düğün Sarayı'nı yakınlarına tavsiye eden çiftler</div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-purple-500/30 bg-purple-500/5 space-y-1 shadow-sm">
+              <span className="text-[11px] font-extrabold text-purple-700 dark:text-purple-400 uppercase tracking-wider block">Anket Yanıtlanma Oranı</span>
+              <div className="text-3xl font-mono font-black text-purple-600 dark:text-purple-400">
+                %{stats.responseRate}
+              </div>
+              <div className="text-[10px] text-purple-600/80">{stats.totalCount} davetten {stats.completedCount} tanesi dolduruldu</div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border/60 bg-white/60 dark:bg-brand-card/60 space-y-1.5 shadow-sm text-xs">
+              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">Kategori Ortalamaları</span>
+              <div className="grid grid-cols-2 gap-1 font-mono text-[11px]">
+                <div>Salon: <b className="text-amber-500">{stats.avgVenue}</b></div>
+                <div>Servis: <b className="text-emerald-500">{stats.avgService}</b></div>
+                <div>Yemek: <b className="text-blue-500">{stats.avgCatering}</b></div>
+                <div>Müzik: <b className="text-purple-500">{stats.avgMusic}</b></div>
+              </div>
+            </div>
+          </div>
+
+          {/* SEARCH & FILTER BAR */}
+          <div className="glass-panel p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-3 border border-slate-200 dark:border-brand-border">
+            <div className="relative w-full sm:w-80">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                <ThemeIcon icon="search" className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Müşteri adı, sözleşme no veya yorum ara..."
+                className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-2xl pl-10 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <select
+                value={venueFilter}
+                onChange={e => setVenueFilter(e.target.value)}
+                className="bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-gray-100"
+              >
+                <option value="ALL">Tüm Salonlar</option>
+                {venues.map(v => (
+                  <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+              </select>
+
+              {['ALL', 'completed', 'sent'].map(st => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                    statusFilter === st
+                      ? 'bg-amber-500 text-slate-950 shadow-sm'
+                      : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 hover:text-slate-900'
+                  }`}
+                >
+                  {st === 'ALL' ? 'Tümü' : st === 'completed' ? 'Doldurulanlar' : 'Bekleyenler'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* SURVEYS LIST TABLE */}
+          <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border shadow-sm space-y-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-brand-border text-slate-500 dark:text-gray-400 font-bold">
+                    <th className="py-3 px-3">Sözleşme No</th>
+                    <th className="py-3 px-3">Müşteri / Çift</th>
+                    <th className="py-3 px-3">Salon & Tarih</th>
+                    <th className="py-3 px-3 text-center">Kanal</th>
+                    <th className="py-3 px-3 text-center">Durum</th>
+                    <th className="py-3 px-3 text-center">Puan</th>
+                    <th className="py-3 px-3">Müşteri Yorumu</th>
+                    <th className="py-3 px-3 text-right">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
+                  {filteredSurveys.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="py-8 text-center text-slate-400 font-bold">
+                        Kayıtlı memnuniyet anketi bulunamadı.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredSurveys.map(s => {
+                      const isCompleted = s.status === 'completed';
+                      return (
+                        <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
+                          <td className="py-3.5 px-3 font-mono font-bold text-amber-700 dark:text-gold-400">
+                            {s.reservationId}
+                          </td>
+                          <td className="py-3.5 px-3">
+                            <div className="font-bold">{s.customerName}</div>
+                            <div className="text-[10px] text-slate-400">{s.customerPhone}</div>
+                          </td>
+                          <td className="py-3.5 px-3">
+                            <div className="font-bold">{s.venueName || 'Salon'}</div>
+                            <div className="text-[10px] text-slate-400">{formatDate(s.eventDate)}</div>
+                          </td>
+                          <td className="py-3.5 px-3 text-center">
+                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-brand-dark border border-slate-200 dark:border-brand-border">
+                              {s.sentChannel === 'whatsapp' ? '🟢 WhatsApp' : s.sentChannel === 'sms' ? '💬 SMS' : '✉️ E-Posta'}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-center">
+                            {isCompleted ? (
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                ✓ Dolduruldu
+                              </span>
+                            ) : (
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-gold-400 border border-amber-500/30">
+                                ⏳ Bekliyor
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3 text-center font-mono">
+                            {isCompleted ? (
+                              <span className="font-black text-amber-600 dark:text-gold-400 text-xs">
+                                ⭐ {s.overallScore} / 5
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-[11px]">-</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3 max-w-xs">
+                            <p className="text-[11px] text-slate-600 dark:text-gray-300 line-clamp-2 italic">
+                              {s.comment ? `"${s.comment}"` : isCompleted ? 'Yorum yazılmadı.' : 'Yanıt bekleniyor...'}
+                            </p>
+                          </td>
+                          <td className="py-3.5 px-3 text-right">
+                            <div className="flex items-center justify-end space-x-1">
+                              {isCompleted && (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedSurveyDetail(s)}
+                                  className="w-8 h-8 rounded-xl bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-700 dark:text-gold-400 flex items-center justify-center transition border border-amber-500/30 cursor-pointer shadow-2xs hover:scale-105"
+                                  title="Anket Detaylarını Görüntüle"
+                                >
+                                  <ThemeIcon icon="eye" className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => copySurveyLink(s)}
+                                className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-gray-200 flex items-center justify-center transition border border-slate-200 dark:border-brand-border cursor-pointer shadow-2xs hover:scale-105"
+                                title="Anket Bağlantısını Kopyala"
+                              >
+                                <ThemeIcon icon="copy" fallbackEmoji="📋" className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* SURVEY DETAIL POPUP MODAL */}
+          {selectedSurveyDetail && typeof document !== 'undefined' && ReactDOM.createPortal(
+            <div className="fixed inset-0 z-[999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={() => setSelectedSurveyDetail(null)}>
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl my-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+                      <ThemeIcon icon="star" className="w-5 h-5 text-amber-500" />
+                      <span>{selectedSurveyDetail.customerName} - Anket Sonucu</span>
+                    </h3>
+                    <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                      {selectedSurveyDetail.reservationId} | {selectedSurveyDetail.venueName}
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedSurveyDetail(null)} className="text-slate-400 hover:text-white font-bold cursor-pointer"><ThemeIcon icon="close" className="w-4 h-4" /></button>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center">
+                      <span className="text-[10px] font-bold text-slate-400 block">Genel Memnuniyet</span>
+                      <div className="text-xl font-heading font-black text-amber-600 dark:text-gold-400">⭐ {selectedSurveyDetail.overallScore} / 5</div>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center">
+                      <span className="text-[10px] font-bold text-slate-400 block">Tavsiye Durumu</span>
+                      <div className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+                        {selectedSurveyDetail.recommend ? '👍 Kesinlikle Evet' : '👎 Geliştirilmeli'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-brand-dark border border-slate-100 dark:border-brand-border">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Salon & Dekorasyon:</span>
+                      <span className="font-mono font-bold text-amber-500">⭐ {selectedSurveyDetail.venueScore} / 5</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Personel & Servis:</span>
+                      <span className="font-mono font-bold text-emerald-500">⭐ {selectedSurveyDetail.serviceScore} / 5</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">İkramlar & Yemek:</span>
+                      <span className="font-mono font-bold text-blue-500">⭐ {selectedSurveyDetail.cateringScore} / 5</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Müzik & Işık Atmosferi:</span>
+                      <span className="font-mono font-bold text-purple-500">⭐ {selectedSurveyDetail.musicScore} / 5</span>
+                    </div>
+                  </div>
+
+                  {selectedSurveyDetail.comment && (
+                    <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-brand-dark/80 border border-slate-200 dark:border-brand-border/60 space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 block">Müşteri Yorumu & Geri Bildirimi:</span>
+                      <p className="text-xs text-slate-800 dark:text-gray-200 italic leading-relaxed">
+                        "{selectedSurveyDetail.comment}"
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center text-[10px] text-slate-400 pt-2 border-t border-slate-100 dark:border-brand-border">
+                    <span>Doldurulma: {formatDateTime(selectedSurveyDetail.completedAt || selectedSurveyDetail.createdAt)}</span>
+                    <button
+                      type="button"
+                      onClick={() => copySurveyLink(selectedSurveyDetail)}
+                      className="text-amber-600 hover:underline font-bold"
+                    >
+                      Anket Linkini Kopyala 📋
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+        </div>
+      );
+    }
+
     function EventTypesComponent({
       eventTypes = [],
       setEventTypes = () => {},
@@ -17574,6 +18446,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal, isPublicGuestRoute, systemVersion }) {
       const activeCampaign = campaigns.length > 0 ? campaigns[0] : { title: 'Erken Rezervasyon Fırsatı', code: 'IREM2026', discount: '%20 İndirim' };
       const currentYear = new Date().getFullYear();
+
+      if (publicSurveyToken) {
+        return <PublicSurveyPageComponent token={publicSurveyToken} showToast={showToast} />;
+      }
 
       if (isPublicGuestRoute) {
         return (
