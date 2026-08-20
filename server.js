@@ -1695,6 +1695,19 @@ app.post('/api/event-types', async (req, res) => {
     if (req.body && (req.body.action === 'delete' || req.body._delete)) {
       return deleteEventTypeHandler(req, res);
     }
+    // Batch reorder support
+    if (Array.isArray(req.body) || Array.isArray(req.body?.eventTypes)) {
+      const list = Array.isArray(req.body) ? req.body : req.body.eventTypes;
+      const activePool = await getPool();
+      if (activePool) {
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i];
+          const sOrder = Number(item.sortOrder !== undefined ? item.sortOrder : (item.sort_order !== undefined ? item.sort_order : (i + 1)));
+          await activePool.query('UPDATE event_types SET sort_order = ? WHERE id = ?', [sOrder, item.id]);
+        }
+      }
+      return res.json({ success: true, message: 'Etkinlik türleri sıralaması güncellendi' });
+    }
     const raw = req.body || {};
     const name = (raw.name || '').trim();
     if (!name) {
