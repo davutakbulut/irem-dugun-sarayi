@@ -9382,7 +9382,239 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return null;
     }
 
-    function App() {
+    // --- DEDICATED CUSTOMER WEDDING PORTAL COMPONENT ---
+    function CustomerPortalComponent({ sessionUser, reservations = [], venues = [], services = [], showToast = () => {}, onTabChange = () => {} }) {
+      const myReservation = useMemo(() => {
+        if (!sessionUser) return null;
+        const uEmail = (sessionUser.email || '').toLowerCase().trim();
+        const uName = (sessionUser.name || '').toLowerCase().trim();
+        const uPhone = (sessionUser.phone || '').replace(/\D/g, '');
+
+        const found = (reservations || []).find(r => {
+          const cName = (r.customerName || '').toLowerCase().trim();
+          const cEmail = (r.customerEmail || r.email || '').toLowerCase().trim();
+          const cPhone = (r.customerPhone || r.phone || '').replace(/\D/g, '');
+
+          if (cEmail && uEmail && cEmail === uEmail) return true;
+          if (cPhone && uPhone && (cPhone.endsWith(uPhone) || uPhone.endsWith(cPhone))) return true;
+          if (cName && uName && (cName.includes(uName) || uName.includes(cName))) return true;
+          return false;
+        });
+
+        return found || reservations[0] || null;
+      }, [sessionUser, reservations]);
+
+      const venueObj = useMemo(() => {
+        if (!myReservation) return null;
+        return venues.find(v => v.id === myReservation.venueId) || { name: myReservation.venueName || 'Balo Salonu' };
+      }, [myReservation, venues]);
+
+      // Days countdown calculation
+      const countdownDays = useMemo(() => {
+        if (!myReservation?.eventDate && !myReservation?.date) return 0;
+        const dStr = myReservation.eventDate ? (myReservation.eventDate instanceof Date ? myReservation.eventDate.toISOString().split('T')[0] : String(myReservation.eventDate).split('T')[0]) : myReservation.date;
+        const targetTime = new Date(dStr).getTime();
+        const now = Date.now();
+        const diff = Math.ceil((targetTime - now) / (1000 * 60 * 60 * 24));
+        return diff;
+      }, [myReservation]);
+
+      const totalPaid = useMemo(() => {
+        if (!myReservation) return 0;
+        if (Array.isArray(myReservation.payments) && myReservation.payments.length > 0) {
+          return myReservation.payments.reduce((s, p) => s + Number(p.amount || 0), 0);
+        }
+        return Number(myReservation.depositPaid || 0);
+      }, [myReservation]);
+
+      const totalAmount = Number(myReservation?.totalAmount || myReservation?.subtotal || 0);
+      const remainingBalance = Math.max(0, totalAmount - totalPaid);
+      const isFullyPaid = totalPaid >= totalAmount && totalAmount > 0;
+
+      return (
+        <div className="space-y-6 animate-fade-in pb-16">
+          {/* 1. HERO GREETING CARD */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 text-white p-6 sm:p-8 border border-amber-500/30 shadow-xl">
+            <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="space-y-2">
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-[11px] border border-amber-500/40">
+                  <ThemeIcon icon="crown" className="w-3.5 h-3.5 text-amber-400" />
+                  <span>ÖZEL DÜĞÜN & ORGANİZASYON TAKİP PORTALI</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-serif font-black gold-gradient-text">
+                  Hoş Geldiniz, {sessionUser?.name || myReservation?.customerName || 'Değerli Çiftimiz'}!
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                  {venueObj?.name} salonumuzdaki unutulmaz düğün organizasyonunuzun tüm detaylarını, menü seçimlerini ve ödeme planını buradan anlık takip edebilirsiniz.
+                </p>
+              </div>
+
+              {/* COUNTDOWN BADGE */}
+              <div className="bg-black/50 backdrop-blur-md p-5 rounded-2xl border border-amber-500/40 text-center shrink-0 w-full md:w-auto shadow-2xl">
+                <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Büyük Güne Kalan</div>
+                <div className="text-3xl sm:text-4xl font-mono font-black text-white mt-0.5">
+                  {countdownDays > 0 ? `${countdownDays} Gün` : (countdownDays === 0 ? 'Bugün!' : 'Tamamlandı')}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                  {formatDate(myReservation?.eventDate || myReservation?.date)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. 4-GRID STATUS CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-1 shadow-xs">
+              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>Tutulan Salon</span>
+                <ThemeIcon icon="building" className="w-4 h-4 text-amber-500" />
+              </div>
+              <div className="text-lg font-serif font-black text-slate-900 dark:text-white">
+                {venueObj?.name || 'Salon'}
+              </div>
+              <div className="text-[11px] text-slate-400 font-medium">
+                {myReservation?.guestCount || 400} Kişilik Kapasite
+              </div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-1 shadow-xs">
+              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>Toplam Sözleşme</span>
+                <ThemeIcon icon="document" className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="text-xl font-mono font-black text-slate-900 dark:text-white">
+                {formatCurrency(totalAmount)}
+              </div>
+              <div className="text-[11px] text-slate-400 font-medium">
+                Sözleşme No: {myReservation?.id || 'İREM-2026'}
+              </div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1 shadow-xs">
+              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>Ödenen Tutar</span>
+                <ThemeIcon icon="card" className="w-4 h-4 text-emerald-500" />
+              </div>
+              <div className="text-xl font-mono font-black text-emerald-600 dark:text-emerald-400">
+                +{formatCurrency(totalPaid)}
+              </div>
+              <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
+                %{totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0} Tahsil Edildi
+              </div>
+            </div>
+
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 bg-amber-500/5 space-y-1 shadow-xs">
+              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
+                <span>Kalan Bakiye</span>
+                <ThemeIcon icon="money" className="w-4 h-4 text-amber-500" />
+              </div>
+              <div className="text-xl font-mono font-black text-amber-700 dark:text-gold-400">
+                {formatCurrency(remainingBalance)}
+              </div>
+              <div className="text-[11px] font-bold">
+                <span className={`px-2 py-0.5 rounded-full text-[9px] ${
+                  isFullyPaid ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-700 dark:text-gold-400'
+                }`}>
+                  {isFullyPaid ? 'Tamamen Ödendi ✓' : 'Kısmi Ödeme Yapıldı'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. TWO-COLUMN: SELECTED SERVICES & GUEST MEDIA QR LINK */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* SERVICES & MENU DETAILS */}
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs">
+              <div className="flex justify-between items-center border-b pb-3 border-slate-100 dark:border-brand-border/60">
+                <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                  <ThemeIcon icon="gift" className="w-4 h-4 text-amber-500" />
+                  <span>Düğün Paketi & Ek Hizmetler</span>
+                </h3>
+                <span className="text-xs font-bold text-amber-700 dark:text-gold-400">
+                  {(myReservation?.selectedServices || []).length} Kalem
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {(myReservation?.selectedServices || []).length === 0 ? (
+                  <p className="text-xs text-slate-400 italic py-4 text-center">
+                    Standart salon paketi ve ikramlar dahildir.
+                  </p>
+                ) : (
+                  (myReservation.selectedServices || []).map((srv, idx) => (
+                    <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-brand-dark/50 rounded-2xl border border-slate-100 dark:border-brand-border/40 text-xs">
+                      <div className="flex items-center space-x-2.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                        <div>
+                          <span className="font-bold text-slate-800 dark:text-gray-200 block">{srv.name}</span>
+                          <span className="text-[10px] text-slate-400">{srv.category || 'Hizmet'}</span>
+                        </div>
+                      </div>
+                      <span className="font-mono font-bold text-amber-600 dark:text-gold-400">
+                        {formatCurrency(srv.price || srv.unitPrice)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* LIVE MEDIA & GUEST PHOTO UPLOAD CARD */}
+            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center border-b pb-3 border-slate-100 dark:border-brand-border/60">
+                  <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                    <ThemeIcon icon="camera" className="w-4 h-4 text-amber-500" />
+                    <span>Davetli Fotoğraf & Anı Yükleme Alanı</span>
+                  </h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
+                    Canlı QR Aktif
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-gray-300 leading-relaxed">
+                  Düğün gününüzde masalara koyacağınız QR kod veya doğrudan paylaşım linki ile davetlileriniz çektikleri tüm fotoğraf ve videoları anında sizin özel albümünüze yükleyebilir!
+                </p>
+              </div>
+
+              <div className="p-4 bg-amber-50 dark:bg-amber-500/10 rounded-2xl border border-amber-500/30 space-y-3">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-amber-800 dark:text-gold-400">Özel Medya Yükleme Bağlantınız:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const link = `https://irem.portegu.com/medya?key=${myReservation?.id || '2026'}`;
+                      navigator.clipboard.writeText(link);
+                      showToast('Fotoğraf Yükleme Bağlantısı Kopyalandı! Davetlilerinizle paylaşabilirsiniz.');
+                    }}
+                    className="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-[11px] hover:bg-amber-400 transition cursor-pointer"
+                  >
+                    Linki Kopyala 📋
+                  </button>
+                </div>
+                <div className="text-[11px] font-mono text-slate-600 dark:text-gray-300 truncate bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-brand-border">
+                  {`https://irem.portegu.com/medya?key=${myReservation?.id || '2026'}`}
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={() => onTabChange('media')}
+                  className="w-full py-2.5 rounded-xl gold-button font-bold flex items-center justify-center space-x-2"
+                >
+                  <ThemeIcon icon="camera" className="w-4 h-4" />
+                  <span>Düğün Medya Galerisini Aç & Fotoğrafları İndir</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+        function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
       const [venues, setVenues] = useState(() => CacheService.get('venues', null) || []);
       const [services, setServices] = useState(() => CacheService.get('services', null) || []);
