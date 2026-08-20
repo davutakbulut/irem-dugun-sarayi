@@ -3193,6 +3193,75 @@ function ReservationsListComponent({
       onPrintInvoice,
       onShowEmail
     }) {
+      // EVENT TYPE COLOR & BADGE MAPPER (DISTINCT COLOR PER EVENT TYPE)
+      const getEventTypeBadge = (typeIdOrName) => {
+        const str = (typeIdOrName || '').toLowerCase().trim();
+        const found = (eventTypes || []).find(e => 
+          (e.id && e.id.toLowerCase() === str) || 
+          (e.name && e.name.toLowerCase() === str) ||
+          (e.slug && e.slug.toLowerCase() === str)
+        );
+
+        const name = found?.name || typeIdOrName || 'Düğün Organizasyonu';
+        const icon = found?.icon || 'heart';
+
+        // Specific Color Assignment
+        if (str.includes('kina') || str.includes('kına')) {
+          return {
+            name,
+            icon: 'sparkles',
+            bg: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/40 shadow-xs',
+            dot: 'bg-rose-500'
+          };
+        }
+        if (str.includes('nisan') || str.includes('nişan') || str.includes('soz') || str.includes('söz')) {
+          return {
+            name,
+            icon: 'crown',
+            bg: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/40 shadow-xs',
+            dot: 'bg-emerald-500'
+          };
+        }
+        if (str.includes('sunnet') || str.includes('sünnet')) {
+          return {
+            name,
+            icon: 'gift',
+            bg: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/40 shadow-xs',
+            dot: 'bg-blue-500'
+          };
+        }
+        if (str.includes('mezuniyet')) {
+          return {
+            name,
+            icon: 'award',
+            bg: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/40 shadow-xs',
+            dot: 'bg-purple-500'
+          };
+        }
+        if (str.includes('kurumsal') || str.includes('gala') || str.includes('toplanti')) {
+          return {
+            name,
+            icon: 'users',
+            bg: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/40 shadow-xs',
+            dot: 'bg-indigo-500'
+          };
+        }
+        if (str.includes('dogum') || str.includes('doğum') || str.includes('parti') || str.includes('cake')) {
+          return {
+            name,
+            icon: 'cake',
+            bg: 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/40 shadow-xs',
+            dot: 'bg-teal-500'
+          };
+        }
+        // Default: Düğün / Altın Sarısı
+        return {
+          name,
+          icon: 'heart',
+          bg: 'bg-amber-500/15 text-amber-700 dark:text-gold-400 border-amber-500/40 shadow-xs',
+          dot: 'bg-amber-500'
+        };
+      };
       const [viewMode, setViewMode] = useState('table');
       const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -3671,6 +3740,7 @@ function ReservationsListComponent({
                       <th className="py-3 px-3 w-12 text-center">#</th>
                       <th className="py-3 px-3">Sözleşme Kodu</th>
                       <th className="py-3 px-3">Müşteri / Çift</th>
+                      <th className="py-3 px-3">Etkinlik Türü</th>
                       <th className="py-3 px-3">Düğün Salonu</th>
                       <th className="py-3 px-3">Tarih & Saat</th>
                       <th className="py-3 px-3">Davetli</th>
@@ -3684,7 +3754,7 @@ function ReservationsListComponent({
                   <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
                     {filteredReservations.length === 0 ? (
                       <tr>
-                        <td colSpan="11" className="py-8 text-center text-slate-400 font-bold">
+                        <td colSpan="12" className="py-8 text-center text-slate-400 font-bold">
                           Kriterlere uygun kayıtlı rezervasyon bulunamadı.
                         </td>
                       </tr>
@@ -3710,6 +3780,17 @@ function ReservationsListComponent({
                               <td className="py-3.5 px-3">
                                 <div className="font-bold">{res.customerName}</div>
                                 <div className="text-[10px] text-slate-400">{res.customerPhone}</div>
+                              </td>
+                              <td className="py-3.5 px-3">
+                                {(() => {
+                                  const etBadge = getEventTypeBadge(res.eventTypeId || res.event_type_id || res.eventTypeName || res.event_type_name || res.eventType);
+                                  return (
+                                    <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-xs font-black border ${etBadge.bg}`}>
+                                      <ThemeIcon icon={etBadge.icon} className="w-3.5 h-3.5 shrink-0" />
+                                      <span className="whitespace-nowrap">{etBadge.name}</span>
+                                    </span>
+                                  );
+                                })()}
                               </td>
                               <td className="py-3.5 px-3 font-bold">{vObj?.name || res.venueId}</td>
                               <td className="py-3.5 px-3 font-mono">
