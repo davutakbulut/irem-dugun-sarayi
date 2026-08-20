@@ -3535,16 +3535,17 @@ function ReservationsListComponent({
                       <th className="py-3 px-3">Düğün Salonu</th>
                       <th className="py-3 px-3">Tarih & Saat</th>
                       <th className="py-3 px-3">Davetli</th>
-                      <th className="py-3 px-3">Toplam Tutar</th>
-                      <th className="py-3 px-3">Kalan Bakiye</th>
-                      <th className="py-3 px-3">Ödeme Durumu</th>
+                      <th className="py-3 px-3 text-right">Kiralama Bedeli</th>
+                      <th className="py-3 px-3 text-right">Toplam Tutar</th>
+                      <th className="py-3 px-3 text-right">Kalan Bakiye</th>
+                      <th className="py-3 px-3 text-center">Ödeme Durumu</th>
                       <th className="py-3 px-3 text-right">İşlemler</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
                     {filteredReservations.length === 0 ? (
                       <tr>
-                        <td colSpan="10" className="py-8 text-center text-slate-400 font-bold">
+                        <td colSpan="11" className="py-8 text-center text-slate-400 font-bold">
                           Kriterlere uygun kayıtlı rezervasyon bulunamadı.
                         </td>
                       </tr>
@@ -3554,6 +3555,8 @@ function ReservationsListComponent({
                         .map((res, index) => {
                           const vObj = (venues || []).find(v => v.id === res.venueId);
                           const sequenceNo = (currentPage - 1) * pageSize + index + 1;
+                          const customVenuePriceVal = res.customVenuePrice !== undefined && Number(res.customVenuePrice) > 0 ? Number(res.customVenuePrice) : (res.venuePrice !== undefined && Number(res.venuePrice) > 0 ? Number(res.venuePrice) : (vObj?.price || 0));
+                          const totalAmountVal = res.totalAmount !== undefined && Number(res.totalAmount) > 0 ? Number(res.totalAmount) : (res.subtotal || customVenuePriceVal);
                           return (
                             <tr key={res.id} className="hover:bg-slate-50 dark:hover:bg-brand-dark/50 font-medium text-slate-800 dark:text-gray-200 transition">
                               <td className="py-3.5 px-3 text-center font-mono font-bold text-slate-400 dark:text-slate-500">{sequenceNo}</td>
@@ -3575,9 +3578,10 @@ function ReservationsListComponent({
                                 <div className="text-[10px] text-slate-500">{res.startTime || '18:00'} - {res.endTime || '23:00'}</div>
                               </td>
                               <td className="py-3.5 px-3 font-bold">{res.guestCount} Kişi</td>
-                              <td className="py-3.5 px-3 font-mono font-bold">{formatCurrency(res.totalAmount)}</td>
-                              <td className="py-3.5 px-3 font-mono font-bold text-red-600 dark:text-red-400">
-                                {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance)}
+                              <td className="py-3.5 px-3 font-mono font-extrabold text-right text-slate-700 dark:text-gray-200">{formatCurrency(customVenuePriceVal)}</td>
+                              <td className="py-3.5 px-3 font-mono font-extrabold text-right text-amber-700 dark:text-gold-400">{formatCurrency(totalAmountVal)}</td>
+                              <td className="py-3.5 px-3 font-mono font-bold text-right text-red-600 dark:text-red-400">
+                                {res.remainingBalance === 0 ? '0 ₺ (Ödendi)' : formatCurrency(res.remainingBalance !== undefined ? res.remainingBalance : Math.max(0, totalAmountVal - (res.depositPaid || 0)))}
                               </td>
                               <td className="py-3.5 px-3">
                                 {res.paymentStatus === 'Tamamlandı' || res.paymentStatus === 'Ödendi' ? (
@@ -11112,9 +11116,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       const financialStats = useMemo(() => {
-        const totalRev = reservations.reduce((acc, r) => acc + r.totalAmount, 0);
-        const totalDeposit = reservations.reduce((acc, r) => acc + r.depositPaid, 0);
-        const totalPending = reservations.reduce((acc, r) => acc + r.remainingBalance, 0);
+        const totalRev = (reservations || []).reduce((acc, r) => acc + Number(r.totalAmount || r.subtotal || r.customVenuePrice || r.venuePrice || 0), 0);
+        const totalDeposit = (reservations || []).reduce((acc, r) => acc + Number(r.depositPaid || 0), 0);
+        const totalPending = (reservations || []).reduce((acc, r) => acc + Number(r.remainingBalance !== undefined ? r.remainingBalance : Math.max(0, Number(r.totalAmount || r.subtotal || r.customVenuePrice || r.venuePrice || 0) - Number(r.depositPaid || 0))), 0);
         return { totalRev, totalDeposit, totalPending };
       }, [reservations]);
 
@@ -19406,20 +19410,80 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         }
       }, [transType]);
 
-      // 1. RESERVATION ITEMIZED FINANCIAL & PROFITABILITY CALCULATION
+      // 1. MONTHLY FIXED OVERHEAD POOL & ALLOCATION HELPER (Absorption Costing)
+      const getMonthKey = (dateVal) => {
+        if (!dateVal) return '';
+        if (typeof dateVal === 'string') {
+          if (dateVal.includes('T')) dateVal = dateVal.split('T')[0];
+          const parts = dateVal.split('-');
+          if (parts.length >= 2) return `${parts[0]}-${parts[1]}`;
+        }
+        try {
+          const d = new Date(dateVal);
+          if (!isNaN(d.getTime())) {
+            const yr = d.getFullYear();
+            const mo = String(d.getMonth() + 1).padStart(2, '0');
+            return `${yr}-${mo}`;
+          }
+        } catch(e){}
+        return '';
+      };
+
+      const monthlyFixedExpenseStats = useMemo(() => {
+        const stats = {};
+
+        // 1. Group all general fixed overhead expenses by month
+        (expenses || []).forEach(e => {
+          if (e.type === 'gider' && e.expenseScope !== 'reservation_specific' && !e.reservationId && !e.reservation_id) {
+            const mKey = getMonthKey(e.date);
+            if (mKey) {
+              if (!stats[mKey]) stats[mKey] = { fixedTotal: 0, count: 0, items: [] };
+              stats[mKey].fixedTotal += Number(e.amount || 0);
+              stats[mKey].count += 1;
+              stats[mKey].items.push(e);
+            }
+          }
+        });
+
+        // 2. Count reservations per month
+        const resCountPerMonth = {};
+        (reservations || []).forEach(r => {
+          const mKey = getMonthKey(r.eventDate || r.startDate || r.date);
+          if (mKey) {
+            resCountPerMonth[mKey] = (resCountPerMonth[mKey] || 0) + 1;
+          }
+        });
+
+        // 3. Compute costPerRes for all known months
+        const allMonths = new Set([...Object.keys(stats), ...Object.keys(resCountPerMonth)]);
+        allMonths.forEach(mKey => {
+          if (!stats[mKey]) stats[mKey] = { fixedTotal: 0, count: 0, items: [] };
+          const effectiveFixedTotal = stats[mKey].fixedTotal > 0 ? stats[mKey].fixedTotal : 150000;
+          const rCount = resCountPerMonth[mKey] || 0;
+          const costPerRes = rCount > 0 ? Math.round(effectiveFixedTotal / rCount) : effectiveFixedTotal;
+          stats[mKey].effectiveFixedTotal = effectiveFixedTotal;
+          stats[mKey].resCount = rCount;
+          stats[mKey].costPerRes = costPerRes;
+        });
+
+        return stats;
+      }, [expenses, reservations]);
+
+      // 2. RESERVATION ITEMIZED FINANCIAL & PROFITABILITY CALCULATION
       const reservationFinancials = useMemo(() => {
         return (reservations || []).map(r => {
           const vObj = (venues || []).find(v => v.id === r.venueId);
-          // 1. ÖNCELİK: Mekan Kartına Tanımlı Gerçek Maliyet Bedeli
-          const venueCost = (vObj && vObj.costPrice !== undefined && Number(vObj.costPrice) > 0)
-            ? Number(vObj.costPrice)
-            : (r.venueCost !== undefined && Number(r.venueCost) > 0
-                ? Number(r.venueCost)
-                : Math.round(Number(r.venuePrice || r.customVenuePrice || 60000) * 0.55));
+          const soldVenuePrice = Number(r.customVenuePrice !== undefined && Number(r.customVenuePrice) > 0 ? r.customVenuePrice : (r.venuePrice !== undefined && Number(r.venuePrice) > 0 ? r.venuePrice : (vObj?.price || 100000)));
+          const grossIncome = Number(r.totalAmount !== undefined && Number(r.totalAmount) > 0 ? r.totalAmount : (r.subtotal || soldVenuePrice));
 
-          // 1. ÖNCELİK: Ek Hizmet Kartına Tanımlı Gerçek Birim Maliyeti
+          // DÖNEMSEL SABİT TESİS MALİYETİ (Absorption Costing)
+          const mKey = getMonthKey(r.eventDate || r.startDate || r.date) || '2026-08';
+          const monthStat = monthlyFixedExpenseStats[mKey] || { effectiveFixedTotal: 150000, resCount: 1, costPerRes: 15000 };
+          const allocatedFixedCost = monthStat.costPerRes || 15000;
+
+          // REZERVASYONA ÖZEL SEÇİLİ HİZMETLER & MENÜ BİRİM MALİYETLERİ
           const servicesCost = (r.selectedServices || []).reduce((sum, s) => {
-            const sObj = (services || []).find(srv => srv.id === s.serviceId);
+            const sObj = (services || []).find(srv => srv.id === s.serviceId || srv.id === s.id);
             const uCost = (sObj && sObj.costPrice !== undefined && Number(sObj.costPrice) > 0)
               ? Number(sObj.costPrice)
               : (s.costPrice !== undefined && Number(s.costPrice) > 0
@@ -19428,11 +19492,27 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             return sum + (uCost * Number(s.quantity || 1));
           }, 0);
 
-          const customExpensesList = r.customExpenses || [];
-          const customExpensesTotal = customExpensesList.reduce((sum, exp) => sum + Number(exp.amount || 0), 0);
+          // REZERVASYONA ÖZEL EK HARCAMALAR (Davulcu, Özel Çiçek, Dış Çekim vb.)
+          const customExpensesFromRes = r.customExpenses || [];
+          const customExpensesFromGlobal = (expenses || []).filter(e => (e.reservationId === r.id || e.reservation_id === r.id) && e.type === 'gider');
+          
+          const mergedCustomExpenses = [...customExpensesFromRes];
+          customExpensesFromGlobal.forEach(gExp => {
+            if (!mergedCustomExpenses.some(e => e.id === gExp.id)) {
+              mergedCustomExpenses.push({
+                id: gExp.id,
+                title: gExp.title,
+                amount: Number(gExp.amount || 0),
+                category: gExp.category,
+                date: gExp.date,
+                paid: true
+              });
+            }
+          });
+          const customExpensesTotal = mergedCustomExpenses.reduce((sum, exp) => sum + Number(exp.amount || 0), 0);
 
-          const grossIncome = Number(r.totalAmount || 0);
-          const totalCost = Math.round(venueCost + servicesCost + customExpensesTotal);
+          // TOPLAM REEL MALİYET = DÖNEMSEL SABİT TESİS PAYI + MENÜ/HİZMET MALİYETİ + DİREKT ÖZEL GİDERLER
+          const totalCost = Math.round(allocatedFixedCost + servicesCost + customExpensesTotal);
           const netProfit = Math.round(grossIncome - totalCost);
           const profitMargin = grossIncome > 0 ? ((netProfit / grossIncome) * 100).toFixed(1) : '0.0';
 
@@ -19440,18 +19520,23 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             reservation: r,
             created_at: r.created_at || r.createdAt || '',
             createdAt: r.createdAt || r.created_at || '',
-            venueName: vObj?.name || r.venueName || r.venueId,
+            venueName: vObj?.name || r.venueName || 'Kraliyet Balo Salonu',
+            monthKey: mKey,
+            monthFixedTotal: monthStat.effectiveFixedTotal,
+            monthResCount: monthStat.resCount,
+            allocatedFixedCost,
+            soldVenuePrice,
             grossIncome,
-            venueCost,
+            venueCost: allocatedFixedCost,
             servicesCost,
-            customExpensesList,
+            customExpensesList: mergedCustomExpenses,
             customExpensesTotal,
             totalCost,
             netProfit,
             profitMargin: Number(profitMargin)
           };
         });
-      }, [reservations, venues, services]);
+      }, [reservations, venues, services, expenses, monthlyFixedExpenseStats]);
 
       // Global Summary Totals for Contracts
       const totalGrossRevenue = useMemo(() => {
@@ -20374,9 +20459,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       <tr className="bg-slate-100/80 dark:bg-brand-card/80 border-b border-slate-200 dark:border-brand-border text-slate-600 dark:text-gray-300 font-bold uppercase tracking-wider">
                         <th className="p-3.5">Sözleşme & Müşteri</th>
                         <th className="p-3.5">Etkinlik Tarihi</th>
-                        <th className="p-3.5 text-right">Ciro (Gelir)</th>
-                        <th className="p-3.5 text-right">Maliyet</th>
+                        <th className="p-3.5 text-right">Toplam Ciro</th>
+                        <th className="p-3.5 text-right">Sabit Tesis Payı</th>
+                        <th className="p-3.5 text-right">Hizmet/Menü</th>
                         <th className="p-3.5 text-right">Özel Gider</th>
+                        <th className="p-3.5 text-right">Toplam Maliyet</th>
                         <th className="p-3.5 text-right">Net Kâr</th>
                         <th className="p-3.5 text-center">Kâr %</th>
                         <th className="p-3.5 text-center">İşlem</th>
@@ -20385,7 +20472,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                     <tbody className="divide-y divide-slate-100 dark:divide-brand-border/40 font-medium">
                       {filteredProfitabilityRows.length === 0 ? (
                         <tr>
-                          <td colSpan="8" className="text-center py-8 text-slate-400 font-bold">
+                          <td colSpan="9" className="text-center py-8 text-slate-400 font-bold">
                             Kayıtlı rezervasyon finansmanı bulunamadı.
                           </td>
                         </tr>
@@ -20410,11 +20497,17 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                                   <td className="p-3.5 whitespace-nowrap font-mono text-slate-600 dark:text-gray-300">
                                     {formatDate(r.date || r.eventDate)}
                                   </td>
-                                  <td className="p-3.5 text-right font-mono font-bold text-slate-800 dark:text-gray-100">
+                                  <td className="p-3.5 text-right font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
                                     {formatCurrency(rf.grossIncome)}
                                   </td>
-                                  <td className="p-3.5 text-right font-mono text-red-500 dark:text-red-400 font-bold">
-                                    {formatCurrency(rf.venueCost + rf.servicesCost)}
+                                  <td className="p-3.5 text-right font-mono font-bold text-amber-600 dark:text-gold-400">
+                                    <div className="flex flex-col items-end">
+                                      <span>{formatCurrency(rf.allocatedFixedCost)}</span>
+                                      <span className="text-[9px] text-slate-400">({rf.monthResCount} Rez. Payı)</span>
+                                    </div>
+                                  </td>
+                                  <td className="p-3.5 text-right font-mono text-slate-600 dark:text-gray-300 font-bold">
+                                    {formatCurrency(rf.servicesCost)}
                                   </td>
                                   <td className="p-3.5 text-right font-mono font-bold">
                                     {rf.customExpensesTotal > 0 ? (
