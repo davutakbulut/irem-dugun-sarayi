@@ -1528,11 +1528,12 @@ app.post(['/api/auth/login', '/api/login'], async (req, res) => {
       });
     }
 
-    // Verify password
+    // Verify password (exact match, case-insensitive match, sha256 hash or empty fallback)
     const storedPass = String(matchedUser.password_hash || matchedUser.password || '').trim();
     const sha256Input = crypto.createHash('sha256').update(inputPassword).digest('hex');
 
     const isPassValid = (storedPass === inputPassword) || 
+                        (storedPass.toLowerCase() === inputPassword.toLowerCase()) ||
                         (storedPass.toLowerCase() === sha256Input.toLowerCase()) ||
                         (storedPass === '' && inputPassword === '123456');
 
