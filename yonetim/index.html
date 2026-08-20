@@ -10297,29 +10297,44 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         });
       };
 
-      const handleSaveUser = (uObj) => {
-        setUsers(prev => {
-          const list = prev || [];
-          const idx = list.findIndex(x => x.id === uObj.id || (x.email && x.email.toLowerCase().trim() === (uObj.email || '').toLowerCase().trim()));
-          let updated;
-          if (idx >= 0) {
-            updated = [...list];
-            updated[idx] = { ...updated[idx], ...uObj };
-          } else {
-            updated = [...list, uObj];
-          }
-          CacheService.set('users', updated);
-          if (window.fetchWithRetry) {
-            window.fetchWithRetry('/api/public-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ users: updated })
-            }).catch(() => {});
-          }
-          return updated;
-        });
-        setUserModalData(null);
-        showToast(`Kullanıcı (${uObj.name}) Bilgileri Veritabanına Başarıyla Kaydedildi!`);
+      const handleSaveUser = async (uObj) => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(uObj)
+          });
+          const data = await resp.json();
+          const savedItem = (data && data.item) ? data.item : uObj;
+
+          setUsers(prev => {
+            const list = prev || [];
+            const idx = list.findIndex(x => String(x.id) === String(savedItem.id) || (x.email && x.email.toLowerCase().trim() === (savedItem.email || '').toLowerCase().trim()));
+            let updated;
+            if (idx >= 0) {
+              updated = [...list];
+              updated[idx] = { ...updated[idx], ...savedItem };
+            } else {
+              updated = [savedItem, ...list];
+            }
+            CacheService.set('users', updated);
+            try {
+              fetchFn('/api/public-settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ users: updated, updatedAt: new Date().toISOString() })
+              }).catch(() => {});
+            } catch(e){}
+            return updated;
+          });
+
+          setUserModalData(null);
+          showToast(`Kullanıcı (${uObj.name}) Bilgileri Veritabanına Başarıyla Kaydedildi!`);
+        } catch(err) {
+          console.error('Save user error:', err);
+          showToast('Kullanıcı bilgileri kaydedilirken hata oluştu!', 'error');
+        }
       };
 
       const handleDeleteUser = (uIdOrObj) => {
@@ -16815,23 +16830,28 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       );
     }
 
-    // --- USER MODAL COMPONENT ---
+    // --- USER MODAL COMPONENT (ENHANCED LIVE PERSISTENCE & PHONE SUPPORT) ---
     function UserModalComponent({ user, onClose, onSave, roles }) {
+      const isEditing = Boolean(user && user.id);
       const [name, setName] = useState(user?.name || '');
       const [email, setEmail] = useState(user?.email || '');
+      const [phone, setPhone] = useState(user?.phone || '');
       const [role, setRole] = useState(user?.role || 'satisci');
       const [avatar, setAvatar] = useState(user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80');
-      const [password, setPassword] = useState(user?.password || '');
+      const [password, setPassword] = useState('');
 
       const handleSubmit = (e) => {
         e.preventDefault();
         onSave({
           id: user?.id || `u-${Date.now()}`,
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
           role,
           avatar,
-          password
+          password: password.trim(),
+          notifyWhatsapp: user?.notifyWhatsapp !== undefined ? user.notifyWhatsapp : true,
+          notifyEmail: user?.notifyEmail !== undefined ? user.notifyEmail : true
         });
       };
 
@@ -16839,22 +16859,80 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
           <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar my-auto">
             <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100">{user ? 'Kullanıcıyı Düzenle' : 'Yeni Kullanıcı Ekle'}</h3>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">✕</button>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-              <div><label className="font-bold block mb-1">Adı Soyadı:</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
-              <div><label className="font-bold block mb-1">E-posta Adresi:</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
-              <div><label className="font-bold block mb-1">Giriş Şifresi:</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Şifre giriniz..." required className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold" /></div>
               <div>
-                <label className="font-bold block mb-1">Sistem Rolü & Yetki Seviyesi:</label>
-                <select value={role} onChange={e => setRole(e.target.value)} className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-200">
-                  <option value="admin">Admin (Tam Yetkili)</option>
-                  <option value="satisci">Satış Müdürü (Rezervasyon & Satış)</option>
-                  <option value="sosyal_medyaci">Sosyal Medya Sorumlusu (Foto/Medya)</option>
-                  <option value="musteri">Müşteri (Özel Takip Portalı)</option>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-gray-100 font-serif">
+                  {isEditing ? 'Kullanıcı Bilgilerini Düzenle' : 'Yeni Personel / Kullanıcı Ekle'}
+                </h3>
+                <p className="text-[11px] text-slate-400">Veritabanına anında senkronize edilir</p>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-black">✕</button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Adı Soyadı:</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Örn: Ahmet Yılmaz"
+                  required
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100 outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">E-posta Adresi:</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="ornek@iremdugun.com"
+                    required
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100 outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Telefon Numarası:</label>
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="0545 258 34 61"
+                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100 outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">
+                  Giriş Şifresi: {isEditing && <span className="text-slate-400 font-normal text-[10px]">(Mevcut şifreyi korumak için boş bırakınız)</span>}
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder={isEditing ? "Değiştirmek istemiyorsanız boş bırakın..." : "Giriş şifresi giriniz..."}
+                  required={!isEditing}
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100 outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700 dark:text-gray-200">Sistem Rolü & Yetki Seviyesi:</label>
+                <select
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100 outline-none focus:border-amber-500 cursor-pointer"
+                >
+                  <option value="admin">Admin (Tam Yetkili Süper Yönetici)</option>
+                  <option value="satisci">Satış Sorumlusu (Rezervasyon & Müşteri)</option>
+                  <option value="muhasebe">Muhasebe & Finans (Kasa & Sözleşmeler)</option>
+                  <option value="sosyal_medyaci">Sosyal Medya Sorumlusu (Fotoğraf & Galeri)</option>
+                  <option value="musteri">Müşteri (Özel Düğün Takip Portalı)</option>
                 </select>
               </div>
+
               <ImageDropzoneUploader
                 label="Kullanıcı Profil Fotoğrafı Yükle"
                 value={avatar}
@@ -16862,9 +16940,21 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 aspectGuide="400x400 px (1:1 Kare)"
                 placeholderIcon=""
               />
-              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-brand-border">
-                <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 rounded-xl font-bold">İptal</button>
-                <button type="submit" className="gold-button font-bold px-5 py-2 rounded-xl">Kullanıcıyı Kaydet ✓</button>
+
+              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-brand-border">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2.5 bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 rounded-xl font-bold hover:bg-slate-200 transition"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="gold-button font-black px-6 py-2.5 rounded-xl shadow-md transition hover:scale-105"
+                >
+                  Kullanıcıyı Kaydet ✓
+                </button>
               </div>
             </form>
           </div>

@@ -1587,28 +1587,61 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
-  if (req.body && (req.body.action === 'delete' || req.body._delete)) {
-    return deleteUserHandler(req, res);
-  }
-  const item = { id: req.body.id || ('u_' + Date.now()), ...req.body };
-  if (pool) {
-    try {
-      await pool.query(
-        `INSERT INTO users (id, name, email, phone, password_hash, role, avatar, notify_whatsapp, notify_email, notify_sms) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-         ON DUPLICATE KEY UPDATE name=?, email=?, phone=?, role=?, avatar=?, notify_whatsapp=?, notify_email=?, notify_sms=?`,
-        [
-          item.id, item.name, item.email || '', item.phone || '', item.password || '123456', item.role || 'admin', item.avatar || '',
-          item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0,
-          item.name, item.email || '', item.phone || '', item.role || 'admin', item.avatar || '',
-          item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0
-        ]
-      );
-    } catch(e) {
-      console.error('MySQL POST /api/users error:', e.message);
+  try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteUserHandler(req, res);
     }
+    const raw = req.body || {};
+    const item = {
+      id: raw.id || ('u_' + Date.now()),
+      name: (raw.name || '').trim(),
+      email: (raw.email || '').toLowerCase().trim(),
+      phone: (raw.phone || '').trim(),
+      role: raw.role || 'admin',
+      avatar: raw.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      notifyWhatsapp: raw.notifyWhatsapp !== undefined ? Boolean(raw.notifyWhatsapp) : true,
+      notifyEmail: raw.notifyEmail !== undefined ? Boolean(raw.notifyEmail) : true,
+      notifySms: raw.notifySms !== undefined ? Boolean(raw.notifySms) : false,
+      created_at: raw.created_at || new Date().toISOString()
+    };
+    const newPass = (raw.password || raw.password_hash || '').trim();
+
+    const activePool = await getPool();
+    if (activePool) {
+      if (newPass) {
+        await activePool.query(
+          `INSERT INTO users (id, name, email, phone, password_hash, role, avatar, notify_whatsapp, notify_email, notify_sms) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+           ON DUPLICATE KEY UPDATE name=?, email=?, phone=?, password_hash=?, role=?, avatar=?, notify_whatsapp=?, notify_email=?, notify_sms=?`,
+          [
+            item.id, item.name, item.email, item.phone, newPass, item.role, item.avatar,
+            item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0,
+            item.name, item.email, item.phone, newPass, item.role, item.avatar,
+            item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0
+          ]
+        );
+      } else {
+        await activePool.query(
+          `INSERT INTO users (id, name, email, phone, password_hash, role, avatar, notify_whatsapp, notify_email, notify_sms) 
+           VALUES (?, ?, ?, ?, '123456', ?, ?, ?, ?, ?) 
+           ON DUPLICATE KEY UPDATE name=?, email=?, phone=?, role=?, avatar=?, notify_whatsapp=?, notify_email=?, notify_sms=?`,
+          [
+            item.id, item.name, item.email, item.phone, item.role, item.avatar,
+            item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0,
+            item.name, item.email, item.phone, item.role, item.avatar,
+            item.notifyWhatsapp ? 1 : 0, item.notifyEmail ? 1 : 0, item.notifySms ? 1 : 0
+          ]
+        );
+      }
+      console.log(`💾 Kullanıcı [${item.id}] MariaDB Veritabanına Yazıldı: ${item.name} (${item.role}) - ${item.email || item.phone}`);
+    }
+
+    memoryStore.users = [item, ...(memoryStore.users || []).filter(u => u.id !== item.id)];
+    res.status(201).json({ success: true, item });
+  } catch(e) {
+    console.error('MySQL POST /api/users error:', e.message);
+    res.status(500).json({ error: 'Kullanıcı kaydedilemedi', message: e.message });
   }
-  res.status(201).json({ success: true, item });
 });
 
 const deleteUserHandler = async (req, res) => {
