@@ -3348,6 +3348,38 @@ const campaignSuggestionsHandler = async (req, res) => {
     let reservations = [];
     let existingCampaigns = [];
 
+    const isForceRefresh = req.method === 'POST' || req.query.force === 'true';
+
+    // 1. If not force refresh, check if we already have saved suggestions in MariaDB
+    if (!isForceRefresh && activePool) {
+      try {
+        const [dbRows] = await activePool.query('SELECT * FROM ai_campaign_suggestions ORDER BY created_at DESC LIMIT 6');
+        if (dbRows && dbRows.length > 0) {
+          const formatted = dbRows.map(r => ({
+            id: r.id,
+            code: r.code,
+            title: r.title,
+            type: r.type,
+            value: Number(r.value || 0),
+            badge: r.badge,
+            description: r.description,
+            suggestedVenueId: r.suggested_venue_id,
+            discountPercent: Number(r.discount_percent || 0),
+            isApplied: Boolean(r.is_applied),
+            createdAt: r.created_at
+          }));
+          return res.json({
+            success: true,
+            source: 'mariadb_cache',
+            count: formatted.length,
+            suggestions: formatted
+          });
+        }
+      } catch (e) {
+        console.error('ai_campaign_suggestions read error:', e.message);
+      }
+    }
+
     if (activePool) {
       const [vRows] = await activePool.query('SELECT id, name, price, capacity FROM venues');
       const [sRows] = await activePool.query('SELECT id, name, price, category FROM services');
@@ -3387,7 +3419,7 @@ Kesinlikle sadece geçerli bir JSON ARRAY döndür. Markdown veya ekstra açıkl
 ]
 Kurallar:
 - "type" değeri sadece "percent", "amount" veya "free_service" olabilir.
-- "code" değeri kısa, büyük harfli ve Türkçe karakter içermeyen akılda kalıcı kupon kodu olmalıdır (Örn: HAFTAICI25, GOLDVIP, ERKENREZ).
+- "code" değeri kısa, büyük harfli ve Türkçe karakter içermeyen akılda kalıcı kupon kodu olmalıdır.
 - Öneriler salonların kiralama fiyatları ve ek hizmetleriyle doğrudan tutarlı olmalıdır.`;
 
     const userPrompt = `İşte güncel işletme verileri:\n${JSON.stringify(context, null, 2)}\n\nLütfen en karlı 3 kampanya önerisini JSON array formatında üret.`;
@@ -3411,7 +3443,7 @@ Kurallar:
       const topVenue = venues[0] || { id: 'v1', name: 'Ana Salon', price: 85000 };
       suggestions = [
         {
-          id: 'ai-fb-1',
+          id: `ai-fb-${Date.now()}-1`,
           code: 'HAFTAICI20',
           title: 'Hafta İçi Düğün & Nişan Kampanyası (%20 İndirim)',
           type: 'percent',
@@ -3422,7 +3454,7 @@ Kurallar:
           discountPercent: 20
         },
         {
-          id: 'ai-fb-2',
+          id: `ai-fb-${Date.now()}-2`,
           code: 'ERKENKAYIT15',
           title: '2026-2027 Erken Rezervasyon Avantajı (%15 İndirim)',
           type: 'percent',
@@ -3433,7 +3465,7 @@ Kurallar:
           discountPercent: 15
         },
         {
-          id: 'ai-fb-3',
+          id: `ai-fb-${Date.now()}-3`,
           code: 'VIPORCHESTRA',
           title: 'Gold VIP Orkestra & Fotoğraf Hediye Paketi',
           type: 'free_service',
@@ -3444,6 +3476,24 @@ Kurallar:
           discountPercent: 0
         }
       ];
+    }
+
+    // 2. Persist suggestions into MariaDB ai_campaign_suggestions table
+    if (activePool && suggestions.length > 0) {
+      try {
+        for (const s of suggestions) {
+          const sId = s.id || `ai-camp-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+          await activePool.query(
+            `INSERT INTO ai_campaign_suggestions (id, code, title, type, value, badge, description, suggested_venue_id, discount_percent, is_applied)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+             ON DUPLICATE KEY UPDATE title=VALUES(title), description=VALUES(description), badge=VALUES(badge)`,
+            [sId, s.code, s.title, s.type, s.value || 0, s.badge || 'AI Teklifi', s.description, s.suggestedVenueId || null, s.discountPercent || 0]
+          );
+        }
+        console.log(`💾 ${suggestions.length} AI kampanya önerisi MariaDB ai_campaign_suggestions tablosuna kaydedildi.`);
+      } catch (dbErr) {
+        console.error('ai_campaign_suggestions save error:', dbErr.message);
+      }
     }
 
     res.json({
