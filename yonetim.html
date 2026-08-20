@@ -11028,16 +11028,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
 
     function App() {
-      // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
-      const [venues, setVenues] = useState(() => CacheService.get('venues', null) || []);
-      const [services, setServices] = useState(() => CacheService.get('services', null) || []);
-      const [campaigns, setCampaigns] = useState(() => CacheService.get('campaigns', null) || []);
-      const [customers, setCustomers] = useState(() => CacheService.get('customers', null) || []);
-      const [quoteRequests, setQuoteRequests] = useState(() => CacheService.get('quote_requests', null) || []);
-      const [reservations, setReservations] = useState(() => CacheService.get('reservations', null) || []);
+      // CORE ARCHITECTURE: 100% REALTIME MARIADB DATABASE-FIRST (NO STALE LOCALSTORAGE DATA)
+      const [venues, setVenues] = useState([]);
+      const [services, setServices] = useState([]);
+      const [campaigns, setCampaigns] = useState([]);
+      const [customers, setCustomers] = useState([]);
+      const [quoteRequests, setQuoteRequests] = useState([]);
+      const [reservations, setReservations] = useState([]);
       const [draftReservations, setDraftReservations] = useState([]);
-      const [expenses, setExpenses] = useState(() => CacheService.get('expenses', null) || []);
-      const [eventTypes, setEventTypes] = useState(() => CacheService.get('event_types', null) || []);
+      const [expenses, setExpenses] = useState([]);
+      const [eventTypes, setEventTypes] = useState([]);
       const isInitialLoadDoneRef = useRef(false);
 
       // Real-time Session Validation with MariaDB Database on Mount
@@ -13316,32 +13316,32 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                           }
                         }
 
-                        // DIRECT REALTIME MYSQL PERSISTENCE FOR RESERVATION
-                        if (window.fetchWithRetry) {
-                          window.fetchWithRetry('/api/reservations', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(finalizedRes)
-                          }).catch(err => console.error('Reservation MySQL save error:', err));
-                        }
-
-                        setReservations(prev => {
-                          const list = prev || [];
-                          const cleanRef = refKeyToRemove || newRes.refKey;
-                          const existingIdx = list.findIndex(r => r.id === finalizedRes.id || r.id === newRes.id || (cleanRef && r.refKey === cleanRef));
-                          let updated;
-                          if (existingIdx >= 0) {
-                            updated = [...list];
-                            updated[existingIdx] = finalizedRes;
-                          } else {
-                            updated = [finalizedRes, ...list.filter(r => r.id !== finalizedRes.id && r.id !== newRes.id && (!cleanRef || r.refKey !== cleanRef))];
+                        // DIRECT REALTIME MYSQL PERSISTENCE & DATABASE-FIRST REFRESH
+                        (async () => {
+                          try {
+                            const fetchFn = window.fetchWithRetry || fetch;
+                            const saveResp = await fetchFn('/api/reservations', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify(finalizedRes)
+                            });
+                            const saveResult = await saveResp.json();
+                            
+                            // Immediately fetch 100% fresh data from MariaDB
+                            const refreshResp = await fetchFn('/api/reservations');
+                            const freshList = await refreshResp.json();
+                            if (Array.isArray(freshList)) {
+                              setReservations(freshList);
+                            }
+                            showToast(isEdit ? 'Rezervasyon ve Sözleşme Veritabanına Başarıyla Güncellendi!' : 'Yeni Rezervasyon Veritabanına Başarıyla Kaydedildi!', 'success');
+                          } catch(err) {
+                            console.error('Reservation save error:', err);
+                            showToast('Veritabanı kaydı sırasında bağlantı hatası oluştu', 'error');
+                          } finally {
+                            setPrefilledCreateDate(null);
+                            navigateTo('reservations');
                           }
-                          return updated;
-                        });
-
-                        showToast(isEdit ? 'Rezervasyon ve Sözleşme Bilgileri Veritabanına Kaydedildi!' : 'Yeni Rezervasyon ve Sözleşme Veritabanına Başarıyla Kaydedildi!');
-                        setPrefilledCreateDate(null);
-                        navigateTo('reservations');
+                        })();
                       }}
                       onCancel={() => {
                         setPrefilledCreateDate(null);
@@ -15870,11 +15870,33 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [endDate, setEndDate] = useState(prefilledDate || todayDateStr);
       const [endTime, setEndTime] = useState('23:00');
 
-      const editingResFromUrl = useMemo(() => {
+      const [freshEditingRes, setFreshEditingRes] = useState(null);
+      const targetEditId = useMemo(() => {
         if (typeof window === 'undefined') return null;
         const hashData = parseHashRoute();
         const searchParams = new URLSearchParams(window.location.search);
-        const targetEditId = hashData.editId || searchParams.get('editId') || searchParams.get('edit') || hashData.refKey || searchParams.get('ref') || searchParams.get('refKey');
+        return hashData.editId || searchParams.get('editId') || searchParams.get('edit') || hashData.refKey || searchParams.get('ref') || searchParams.get('refKey') || null;
+      }, [typeof window !== 'undefined' ? window.location.href : null]);
+
+      useEffect(() => {
+        if (!targetEditId) return;
+        const fetchFreshDbRes = async () => {
+          try {
+            const fetchFn = window.fetchWithRetry || fetch;
+            const resp = await fetchFn(`/api/reservations/${targetEditId}`);
+            const data = await resp.json();
+            if (data && !data.error && data.id) {
+              setFreshEditingRes(data);
+            }
+          } catch(err) {
+            console.warn('Could not fetch fresh DB reservation:', err);
+          }
+        };
+        fetchFreshDbRes();
+      }, [targetEditId]);
+
+      const editingResFromUrl = useMemo(() => {
+        if (freshEditingRes) return freshEditingRes;
         if (!targetEditId) return null;
         return (reservations || []).find(r => 
           r.id === targetEditId || 
@@ -15882,7 +15904,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           r.mediaKey === targetEditId ||
           (r.refKey && r.refKey === targetEditId)
         ) || null;
-      }, [reservations, typeof window !== 'undefined' ? window.location.href : null]);
+      }, [freshEditingRes, reservations, targetEditId]);
 
       const isEditMode = !!editingResFromUrl;
 

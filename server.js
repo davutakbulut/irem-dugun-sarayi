@@ -2088,6 +2088,111 @@ app.get('/api/reservations', async (req, res) => {
   }
 });
 
+
+// GET SINGLE RESERVATION (100% REALTIME MARIADB)
+app.get('/api/reservations/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!id) return res.status(400).json({ error: 'ID gereklidir' });
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query("SELECT * FROM reservations WHERE id = ? LIMIT 1", [id]);
+      if (rows && rows.length > 0) {
+        const r = rows[0];
+        let detailsObj = {};
+        if (r.details_json) {
+          try { detailsObj = JSON.parse(r.details_json); } catch(e){}
+        }
+        let selectedServicesArr = [];
+        if (r.selected_services_json) {
+          try { selectedServicesArr = JSON.parse(r.selected_services_json); } catch(e){}
+        }
+        let flowPlanArr = [];
+        if (r.flow_plan_json) {
+          try { flowPlanArr = JSON.parse(r.flow_plan_json); } catch(e){}
+        }
+        let parsedMedia = [];
+        if (r.media_json) {
+          try { parsedMedia = JSON.parse(r.media_json); } catch(e){}
+        }
+
+        const formatMySqlDate = (d) => {
+          if (!d) return '';
+          if (typeof d === 'string') return d.split('T')[0];
+          if (d instanceof Date) {
+            const yr = d.getFullYear();
+            const mo = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${yr}-${mo}-${day}`;
+          }
+          return String(d).split('T')[0];
+        };
+        const rawDate = formatMySqlDate(r.event_date);
+        const rawEndDate = formatMySqlDate(r.end_date) || rawDate;
+
+        return res.json({
+          ...detailsObj,
+          id: r.id,
+          venueId: r.venue_id || detailsObj.venueId || 'v1',
+          eventTypeId: r.event_type_id || detailsObj.eventTypeId || 'evt-dugun',
+          eventTypeName: r.event_type_name || detailsObj.eventTypeName || 'Düğün Organizasyonu',
+          eventType: r.event_type_name || detailsObj.eventType || detailsObj.eventTypeName || 'Düğün Organizasyonu',
+          customerId: r.customer_id || detailsObj.customerId || '',
+          customerName: r.customer_name || detailsObj.customerName || 'Misafir',
+          customerEmail: r.customer_email || detailsObj.customerEmail || '',
+          customerPhone: r.customer_phone || detailsObj.customerPhone || '',
+          secondaryPhone: r.secondary_phone || detailsObj.secondaryPhone || '',
+          date: rawDate,
+          eventDate: rawDate,
+          startDate: rawDate,
+          endDate: rawEndDate,
+          startTime: r.start_time || detailsObj.startTime || '18:00',
+          endTime: r.end_time || detailsObj.endTime || '23:00',
+          timeSlot: r.time_slot || detailsObj.timeSlot || '18:00 - 23:00',
+          guestCount: String(r.guest_count || detailsObj.guestCount || 0),
+          selectedServices: selectedServicesArr.length > 0 ? selectedServicesArr : (detailsObj.selectedServices || []),
+          venuePrice: Number(r.venue_price !== undefined ? r.venue_price : (detailsObj.venuePrice || 0)),
+          customVenuePrice: Number(r.custom_venue_price !== undefined ? r.custom_venue_price : (detailsObj.customVenuePrice || r.venue_price || 0)),
+          customDiscountAmount: detailsObj.customDiscountAmount || String(r.discount_amount || 0),
+          dipDiscountType: r.dip_discount_type || detailsObj.dipDiscountType || 'amount',
+          subtotal: Number(r.subtotal !== undefined ? r.subtotal : (detailsObj.subtotal || 0)),
+          campaignCode: r.campaign_code || detailsObj.campaignCode || '',
+          discountAmount: Number(r.discount_amount !== undefined ? r.discount_amount : (detailsObj.discountAmount || 0)),
+          vatAmount: Number(r.vat_amount !== undefined ? r.vat_amount : (detailsObj.vatAmount || 0)),
+          totalAmount: Number(r.total_amount !== undefined ? r.total_amount : (detailsObj.totalAmount || 0)),
+          depositPaid: Number(r.deposit_paid !== undefined ? r.deposit_paid : (detailsObj.depositPaid || 0)),
+          remainingBalance: Number(r.remaining_balance !== undefined ? r.remaining_balance : (detailsObj.remainingBalance || 0)),
+          paymentStatus: r.payment_status || detailsObj.paymentStatus || 'Bekliyor',
+          isInvoiced: Boolean(r.is_invoiced !== undefined ? r.is_invoiced : detailsObj.isInvoiced),
+          invoiceType: r.invoice_type || detailsObj.invoiceType || 'individual',
+          tcNo: r.tc_no || detailsObj.tcNo || '',
+          vknNo: r.vkn_no || detailsObj.vknNo || '',
+          taxOffice: r.tax_office || detailsObj.taxOffice || '',
+          invoiceAddress: r.invoice_address || detailsObj.invoiceAddress || '',
+          notes: r.notes || detailsObj.notes || '',
+          flowPlan: flowPlanArr.length > 0 ? flowPlanArr : (detailsObj.flowPlan || []),
+          mediaGallery: detailsObj.mediaGallery || [],
+          status: r.status || 'CONFIRMED',
+          isDraft: false,
+          customExpenses: detailsObj.customExpenses || [],
+          payments: detailsObj.payments || [],
+          mediaFiles: parsedMedia.length > 0 ? parsedMedia : (detailsObj.mediaFiles || []),
+          notesHistory: detailsObj.notesHistory || [],
+          referrerName: r.referrer_name || detailsObj.referrerName || '',
+          created_at: r.created_at,
+          createdAt: r.created_at
+        });
+      }
+    }
+    const mem = memoryStore.reservations.find(r => r.id === id);
+    if (mem) return res.json(mem);
+    return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
+  } catch(e) {
+    console.error('GET /api/reservations/:id error:', e.message);
+    res.status(500).json({ error: 'Veritabanı hatası' });
+  }
+});
+
 app.post('/api/reservations', async (req, res) => {
   if (req.body && (req.body.action === 'delete' || req.body._delete || req.body.isDeleted)) {
     return deleteReservationHandler(req, res);
@@ -2163,6 +2268,7 @@ app.post('/api/reservations', async (req, res) => {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED')
         ON DUPLICATE KEY UPDATE
           venue_id=VALUES(venue_id), event_type_id=VALUES(event_type_id), event_type_name=VALUES(event_type_name),
+          customer_id=VALUES(customer_id),
           customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
           customer_phone=VALUES(customer_phone), secondary_phone=VALUES(secondary_phone),
           event_date=VALUES(event_date), end_date=VALUES(end_date), start_time=VALUES(start_time), end_time=VALUES(end_time),
