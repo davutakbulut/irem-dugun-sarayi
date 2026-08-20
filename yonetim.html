@@ -1772,6 +1772,9 @@
     });
 
     const SLUG_ALIASES = {
+      'bildirimler': 'notifications',
+      'notifications': 'notifications',
+      'ai-bildirimler': 'notifications',
       '': 'dashboard',
       'dashboard': 'dashboard',
       'anasayfa': 'dashboard',
@@ -1882,6 +1885,7 @@
     });
 
     const TAB_TO_PATH_MAP = {
+      'notifications': '/yonetim/bildirimler',
       'home': '/',
       'home-gateway': '/',
       'dashboard': '/yonetim',
@@ -2660,6 +2664,7 @@
     };
 
     const TAB_LABELS = {
+      'notifications': 'Bildirim & AI Danışman Merkezi',
       'dashboard': 'Anasayfa / İstatistikler',
       'create-reservation': 'Yeni Rezervasyon Oluştur',
       'venues': 'Etkinlik Mekanları',
@@ -2691,6 +2696,7 @@
     };
 
     const TAB_PERMISSIONS = {
+      'notifications': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
       'musteri-portali': ['admin', 'musteri', 'satisci'],
       'quote-requests': ['admin', 'satisci'],
       'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
@@ -10154,15 +10160,425 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           </div>
 
           {/* FOOTER */}
-          <div className="pt-2 border-t border-slate-200 dark:border-brand-border/40 text-center">
+          <div className="pt-2 border-t border-slate-200 dark:border-brand-border/40 flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (navigateTo) navigateTo('notifications');
+                if (onClose) onClose();
+              }}
+              className="flex-1 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-gold-400 font-extrabold text-xs transition border border-amber-500/30 cursor-pointer"
+            >
+              Tüm Bildirimler Sayfası ↗
+            </button>
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-1.5 rounded-xl bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 hover:bg-slate-200 font-bold text-xs cursor-pointer"
+              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 hover:bg-slate-200 font-bold text-xs cursor-pointer"
             >
               Kapat
             </button>
           </div>
+
+        </div>
+      );
+    }
+
+
+        // --- FULL NOTIFICATIONS PAGE COMPONENT ---
+    function NotificationsPageComponent({
+      notifications = [],
+      unreadCount = 0,
+      onMarkRead,
+      onMarkAllRead,
+      onGenerateAi,
+      isGenerating = false,
+      navigateTo,
+      showToast
+    }) {
+      const [activeTab, setActiveTab] = useState('all'); // 'all' | 'unread' | 'read' | 'danger' | 'warning' | 'advice'
+      const [searchTerm, setSearchTerm] = useState('');
+      const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'payment' | 'lead' | 'finance' | 'advice'
+      const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'danger' | 'warning' | 'info' | 'success'
+      const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
+      const [currentPage, setCurrentPage] = useState(1);
+      const [pageSize, setPageSize] = useState(10);
+
+      // Tab Counts
+      const readCount = useMemo(() => notifications.filter(n => n.is_read).length, [notifications]);
+      const dangerCount = useMemo(() => notifications.filter(n => n.severity === 'danger').length, [notifications]);
+      const warningCount = useMemo(() => notifications.filter(n => n.severity === 'warning').length, [notifications]);
+      const adviceCount = useMemo(() => notifications.filter(n => n.type === 'advice' || n.type === 'finance' || n.severity === 'info').length, [notifications]);
+
+      // Filtered & Sorted notifications
+      const filteredNotifications = useMemo(() => {
+        return (notifications || []).filter(n => {
+          // Tab filter
+          if (activeTab === 'unread' && n.is_read) return false;
+          if (activeTab === 'read' && !n.is_read) return false;
+          if (activeTab === 'danger' && n.severity !== 'danger') return false;
+          if (activeTab === 'warning' && n.severity !== 'warning') return false;
+          if (activeTab === 'advice' && (n.type !== 'advice' && n.type !== 'finance' && n.severity !== 'info')) return false;
+
+          // Severity dropdown filter
+          if (severityFilter !== 'all' && n.severity !== severityFilter) return false;
+
+          // Type dropdown filter
+          if (typeFilter !== 'all' && n.type !== typeFilter) return false;
+
+          // Search filter
+          if (searchTerm.trim()) {
+            const query = searchTerm.toLowerCase();
+            const titleMatch = (n.title || '').toLowerCase().includes(query);
+            const msgMatch = (n.message || '').toLowerCase().includes(query);
+            if (!titleMatch && !msgMatch) return false;
+          }
+
+          return true;
+        }).sort((a, b) => {
+          const timeA = new Date(a.created_at || 0).getTime();
+          const timeB = new Date(b.created_at || 0).getTime();
+          return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
+        });
+      }, [notifications, activeTab, severityFilter, typeFilter, searchTerm, sortOrder]);
+
+      const totalPages = Math.ceil(filteredNotifications.length / pageSize) || 1;
+      const paginatedItems = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return filteredNotifications.slice(start, start + pageSize);
+      }, [filteredNotifications, currentPage, pageSize]);
+
+      const getSeverityConfig = (sev) => {
+        switch (sev) {
+          case 'danger':
+            return {
+              border: 'border-red-500/40 hover:border-red-500',
+              bg: 'bg-red-500/5 dark:bg-red-950/20',
+              badgeBg: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
+              icon: '🚨',
+              label: 'Acil Tahsilat / Risk'
+            };
+          case 'warning':
+            return {
+              border: 'border-amber-500/40 hover:border-amber-500',
+              bg: 'bg-amber-500/5 dark:bg-amber-950/20',
+              badgeBg: 'bg-amber-500/15 text-amber-700 dark:text-gold-400 border-amber-500/30',
+              icon: '⚡',
+              label: 'Önemli Bildirim'
+            };
+          case 'success':
+            return {
+              border: 'border-emerald-500/40 hover:border-emerald-500',
+              bg: 'bg-emerald-500/5 dark:bg-emerald-950/20',
+              badgeBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+              icon: '✓',
+              label: 'Başarılı İşlem'
+            };
+          default:
+            return {
+              border: 'border-blue-500/40 hover:border-blue-500',
+              bg: 'bg-blue-500/5 dark:bg-blue-950/20',
+              badgeBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+              icon: '💡',
+              label: 'AI Tavsiyesi'
+            };
+        }
+      };
+
+      const getTypeLabel = (type) => {
+        switch (type) {
+          case 'payment': return '💳 Bakiye & Tahsilat';
+          case 'lead': return '🎯 Teklif Talebi';
+          case 'finance': return '📊 Kasa & Kârlılık';
+          case 'advice': return '🧠 Gelir Stratejisi';
+          case 'booking': return '📅 Rezervasyon';
+          default: return '📢 Genel Bildirim';
+        }
+      };
+
+      const handleInspect = (n) => {
+        if (!n.is_read && onMarkRead) {
+          onMarkRead(n.id);
+        }
+        if (n.link) {
+          const cleanLink = (n.link || '').trim();
+          const cleanTab = cleanLink.replace(/^\/?(yonetim\/)?/, '').replace(/\/$/, '');
+          const targetTab = SLUG_TO_TAB[cleanTab] || cleanTab || 'dashboard';
+          if (navigateTo) {
+            navigateTo(targetTab);
+          }
+        }
+      };
+
+      return (
+        <div className="space-y-6 animate-fade-in pb-16">
+          
+          {/* 1. TOP HEADER & ACTIONS */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center space-x-2">
+                <h2 className="text-2xl sm:text-3xl font-heading font-extrabold gold-gradient-text">
+                  Bildirim & AI Danışman Merkezi
+                </h2>
+                <span className="text-[11px] font-black text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/40 shadow-xs">
+                  ⚡ Google Gemini 3.5 Flash
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                Veritabanındaki tahsilat borçları, yaklaşan düğünler, yeni teklif talepleri ve canlı AI işletme tavsiyeleri
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={onMarkAllRead}
+                  className="px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border text-slate-700 dark:text-gray-200 border border-slate-300 dark:border-brand-border font-bold text-xs transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
+                >
+                  <ThemeIcon icon="sparkles" className="w-4 h-4 text-emerald-500" />
+                  <span>Tümünü Okundu Say ({unreadCount})</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={onGenerateAi}
+                disabled={isGenerating}
+                className="gold-button font-extrabold text-xs py-2.5 px-4 rounded-2xl shadow-lg flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                title="Google Gemini AI ile Canlı Veritabanı Analizi Yap"
+              >
+                {isGenerating ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Gemini Analiz Ediyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>⚡</span>
+                    <span>Gemini ile Yeni Analiz Yap</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* 2. STATS & CATEGORY TABS */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1 custom-scrollbar">
+            {[
+              { id: 'all', label: 'Tümü', count: notifications.length, icon: '📋' },
+              { id: 'unread', label: 'Okunmayanlar', count: unreadCount, icon: '🔔', highlight: unreadCount > 0 },
+              { id: 'read', label: 'Okunanlar', count: readCount, icon: '👁️' },
+              { id: 'danger', label: 'Acil / Tahsilat', count: dangerCount, icon: '🚨' },
+              { id: 'warning', label: 'Önemli Uyarılar', count: warningCount, icon: '⚡' },
+              { id: 'advice', label: 'AI Tavsiyeleri', count: adviceCount, icon: '💡' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
+                className={`px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center space-x-2 transition whitespace-nowrap border shrink-0 cursor-pointer ${
+                  activeTab === tab.id
+                    ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md font-extrabold'
+                    : 'bg-white/80 dark:bg-brand-card/80 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border/60 hover:bg-amber-500/10 hover:text-amber-700'
+                }`}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                  activeTab === tab.id
+                    ? 'bg-slate-950 text-amber-400'
+                    : tab.highlight
+                    ? 'bg-red-500 text-white animate-pulse'
+                    : 'bg-slate-200 dark:bg-brand-dark text-slate-700 dark:text-gray-300'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* 3. DETAILED FILTER TOOLBAR */}
+          <div className="glass-panel p-4 rounded-3xl border border-amber-500/30 space-y-3 bg-white/60 dark:bg-brand-card/60 shadow-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+              
+              {/* SEARCH INPUT */}
+              <div className="lg:col-span-4 relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Başlık, açıklama veya müşteri ara..."
+                  value={searchTerm}
+                  onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-hidden focus:border-amber-500 transition"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* SEVERITY DROPDOWN */}
+              <div className="lg:col-span-3">
+                <select
+                  value={severityFilter}
+                  onChange={e => { setSeverityFilter(e.target.value); setCurrentPage(1); }}
+                  className="w-full px-3.5 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
+                >
+                  <option value="all">Tüm Önem Dereceleri</option>
+                  <option value="danger">🚨 Acil / Riskli (Danger)</option>
+                  <option value="warning">⚡ Önemli (Warning)</option>
+                  <option value="info">💡 Bilgi & Tavsiye (Info)</option>
+                  <option value="success">✓ Başarı (Success)</option>
+                </select>
+              </div>
+
+              {/* TYPE DROPDOWN */}
+              <div className="lg:col-span-3">
+                <select
+                  value={typeFilter}
+                  onChange={e => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+                  className="w-full px-3.5 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
+                >
+                  <option value="all">Tüm Bildirim Türleri</option>
+                  <option value="payment">💳 Bakiye & Tahsilat</option>
+                  <option value="lead">🎯 Teklif Talepleri (Leads)</option>
+                  <option value="finance">📊 Kasa & Kârlılık</option>
+                  <option value="advice">🧠 Gelir Stratejisi</option>
+                  <option value="booking">📅 Rezervasyon</option>
+                </select>
+              </div>
+
+              {/* SORT ORDER */}
+              <div className="lg:col-span-2">
+                <select
+                  value={sortOrder}
+                  onChange={e => setSortOrder(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
+                >
+                  <option value="newest">En Yeni Önce</option>
+                  <option value="oldest">En Eski Önce</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 4. NOTIFICATIONS FEED LIST */}
+          <div className="space-y-3">
+            {paginatedItems.length === 0 ? (
+              <div className="glass-panel p-12 rounded-3xl text-center border border-amber-500/20 space-y-3">
+                <div className="text-4xl">🎉</div>
+                <h4 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100">
+                  Filtreye Uygun Bildirim Bulunamadı
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-gray-400 max-w-md mx-auto">
+                  Arama kriterlerinizi sıfırlayabilir veya Gemini AI üzerinden yeni bir veritabanı analizi başlatabilirsiniz.
+                </p>
+                {(searchTerm || severityFilter !== 'all' || typeFilter !== 'all' || activeTab !== 'all') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSeverityFilter('all');
+                      setTypeFilter('all');
+                      setActiveTab('all');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs transition hover:bg-amber-400 shadow-xs cursor-pointer"
+                  >
+                    Filtreleri Temizle
+                  </button>
+                )}
+              </div>
+            ) : (
+              paginatedItems.map(n => {
+                const conf = getSeverityConfig(n.severity);
+                return (
+                  <div
+                    key={n.id}
+                    className={`glass-panel p-5 rounded-3xl border transition shadow-sm hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 ${conf.border} ${conf.bg} ${
+                      n.is_read ? 'opacity-85' : 'border-amber-500 ring-1 ring-amber-500/20'
+                    }`}
+                  >
+                    <div className="space-y-2 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border flex items-center space-x-1 ${conf.badgeBg}`}>
+                          <span>{conf.icon}</span>
+                          <span>{conf.label}</span>
+                        </span>
+
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
+                          {getTypeLabel(n.type)}
+                        </span>
+
+                        {!n.is_read && (
+                          <span className="flex items-center space-x-1 text-[10px] font-black text-amber-600 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                            <span>Okunmadı</span>
+                          </span>
+                        )}
+
+                        <span className="text-[11px] text-slate-400 font-medium ml-auto md:ml-0">
+                          🕒 {n.created_at ? new Date(n.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Az önce'}
+                        </span>
+                      </div>
+
+                      <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white leading-snug">
+                        {n.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed max-w-4xl">
+                        {n.message}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center space-x-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-brand-border/40">
+                      <button
+                        type="button"
+                        onClick={() => handleInspect(n)}
+                        className="px-4 py-2 rounded-2xl bg-amber-500 text-slate-950 font-extrabold text-xs hover:bg-amber-400 transition shadow-xs flex items-center space-x-1.5 cursor-pointer"
+                      >
+                        <span>İncele & Git</span>
+                        <span>↗</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onMarkRead && onMarkRead(n.id)}
+                        className={`p-2 rounded-2xl border transition cursor-pointer ${
+                          n.is_read
+                            ? 'bg-slate-100 dark:bg-brand-dark text-slate-400 border-slate-200 dark:border-brand-border hover:text-slate-700'
+                            : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25'
+                        }`}
+                        title={n.is_read ? 'Okundu olarak işaretlendi' : 'Okundu yap'}
+                      >
+                        <ThemeIcon icon="check" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* 5. PAGINATION */}
+          {totalPages > 1 && (
+            <div className="pt-2">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalItems={filteredNotifications.length}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+              />
+            </div>
+          )}
 
         </div>
       );
@@ -12298,6 +12714,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       onUpdateVenuePrice={handleUpdateVenuePriceFromAI}
                     />
                   ) : null}
+
+                  {activeTab === 'notifications' && (
+                    <NotificationsPageComponent
+                      notifications={notificationsState}
+                      unreadCount={unreadNotificationsCount}
+                      onMarkRead={handleMarkNotificationRead}
+                      onMarkAllRead={handleMarkAllNotificationsRead}
+                      onGenerateAi={handleGenerateAiNotifications}
+                      isGenerating={isGeneratingAiNotifs}
+                      navigateTo={navigateTo}
+                      showToast={showToast}
+                    />
+                  )}
 
                   {activeTab === 'create-reservation' && (
                     <CreateReservationPageComponent
@@ -23901,6 +24330,7 @@ const E2E_WORKFLOWS = [
           showcaseImg: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=600&q=80',
           items: [
             { id: 'dashboard', label: 'Anasayfa / İstatistikler', desc: 'Genel ciro, doluluk ve AI önerileri', icon: 'chart', fallbackEmoji: '' },
+            { id: 'notifications', label: 'Bildirim & AI Danışman Merkezi', desc: 'Canlı veritabanı analizleri ve acil uyarılar', icon: 'bell', fallbackEmoji: '', badge: 'AI CANLI' },
             { id: 'create-reservation', label: 'Yeni Rezervasyon Oluştur', desc: 'Hızlı salon kiralama ve sözleşme girişi', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' }
           ]
         },
