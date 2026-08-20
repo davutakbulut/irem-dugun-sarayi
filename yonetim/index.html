@@ -15531,36 +15531,58 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             {/* LEFT COLUMN: FORM SECTIONS (8 Cols) */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* 🌟 1. ADIM: ETKİNLİK & ORGANİZASYON TÜRÜ SEÇİMİ (EN BAŞTA) */}
-              <div className="glass-panel p-4 sm:p-6 rounded-3xl space-y-4 shadow-sm border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-brand-dark/20 to-amber-500/5">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-3 border-slate-200 dark:border-brand-border/60">
-                  <div className="flex items-center space-x-2.5">
-                    <span className="w-7 h-7 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xs shadow-md">
+              {/* 🌟 1. ADIM: ETKİNLİK TÜRÜ SEÇİMİ (KOMPAKT & İNCE LİSTE / SELECT DÜZENİ) */}
+              <div className="glass-panel p-3.5 sm:p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-brand-dark/20 to-amber-500/5 shadow-xs space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center space-x-2.5 shrink-0">
+                    <span className="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xs shadow-xs">
                       1
                     </span>
-                    <div>
-                      <h3 className="font-heading font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>Etkinlik & Organizasyon Türünü Seçiniz</span>
-                      </h3>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-400 font-medium">
-                        Düzenlenecek organizasyon tipini belirleyin (Düğün, Kına, Nişan, Sünnet vb.)
-                      </p>
-                    </div>
+                    <label className="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-1.5 whitespace-nowrap">
+                      <span>Etkinlik Türü:</span>
+                    </label>
                   </div>
-                  <div className="text-xs font-bold px-3 py-1 rounded-xl bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-500/30">
-                    Seçili: <b>{((eventTypes || []).find(e => e.id === eventTypeId)?.name) || 'Düğün Organizasyonu'}</b>
+
+                  <div className="flex-1 max-w-xl flex items-center gap-2">
+                    <div className="relative w-full">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-600 dark:text-gold-400">
+                        <ThemeIcon icon={((eventTypes || []).find(e => e.id === eventTypeId)?.icon) || 'heart'} className="w-4 h-4" />
+                      </span>
+                      <select
+                        value={eventTypeId}
+                        onChange={e => setEventTypeId(e.target.value)}
+                        className="w-full bg-white dark:bg-brand-card border border-amber-500/40 rounded-xl pl-9 pr-8 py-2 text-xs font-black text-slate-800 dark:text-gray-100 shadow-xs focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer appearance-none"
+                      >
+                        {((eventTypes && eventTypes.length > 0) ? eventTypes : [
+                          { id: 'evt-dugun', name: 'Düğün Organizasyonu' },
+                          { id: 'evt-kina', name: 'Kına Gecesi' },
+                          { id: 'evt-nisan', name: 'Nişan & Söz Töreni' },
+                          { id: 'evt-sunnet', name: 'Sünnet Düğünü' },
+                          { id: 'evt-mezuniyet', name: 'Mezuniyet Balosu' },
+                          { id: 'evt-kurumsal', name: 'Kurumsal Etkinlik & Gala' },
+                          { id: 'evt-dogumgunu', name: 'Doğum Günü & Özel Parti' }
+                        ]).filter(e => e.isActive !== false).map(et => (
+                          <option key={et.id} value={et.id} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-bold">
+                            {et.name}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]">▼</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 pt-1">
+                {/* COMPACT HORIZONTAL QUICK-SELECT PILLS ROW */}
+                <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap no-scrollbar pt-2 border-t border-amber-500/20">
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 hidden sm:inline">Hızlı Seçim:</span>
                   {((eventTypes && eventTypes.length > 0) ? eventTypes : [
-                    { id: 'evt-dugun', name: 'Düğün Organizasyonu', icon: 'heart', description: 'Görkemli düğün ve nikah davetleri' },
-                    { id: 'evt-kina', name: 'Kına Gecesi', icon: 'sparkles', description: 'Kına tahtı ve dans gösterileri' },
-                    { id: 'evt-nisan', name: 'Nişan & Söz Töreni', icon: 'crown', description: 'Nişan tagı ve söz merasimleri' },
-                    { id: 'evt-sunnet', name: 'Sünnet Düğünü', icon: 'gift', description: 'Sünnet tahtı ve mehteran' },
-                    { id: 'evt-mezuniyet', name: 'Mezuniyet Balosu', icon: 'award', description: 'Kep atma ve balo geceleri' },
-                    { id: 'evt-kurumsal', name: 'Kurumsal Gala', icon: 'users', description: 'Şirket yemekleri ve lansmanlar' },
-                    { id: 'evt-dogumgunu', name: 'Doğum Günü / Parti', icon: 'cake', description: 'Özel kutlamalar ve partiler' }
+                    { id: 'evt-dugun', name: 'Düğün', icon: 'heart' },
+                    { id: 'evt-kina', name: 'Kına', icon: 'sparkles' },
+                    { id: 'evt-nisan', name: 'Nişan', icon: 'crown' },
+                    { id: 'evt-sunnet', name: 'Sünnet', icon: 'gift' },
+                    { id: 'evt-mezuniyet', name: 'Mezuniyet', icon: 'award' },
+                    { id: 'evt-kurumsal', name: 'Kurumsal', icon: 'users' },
+                    { id: 'evt-dogumgunu', name: 'Parti', icon: 'cake' }
                   ]).filter(e => e.isActive !== false).map(et => {
                     const isSelected = eventTypeId === et.id;
                     return (
@@ -15568,33 +15590,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         key={et.id}
                         type="button"
                         onClick={() => setEventTypeId(et.id)}
-                        className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between space-y-2 relative group ${
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition cursor-pointer flex items-center space-x-1 shrink-0 ${
                           isSelected
-                            ? 'bg-amber-500 text-slate-950 border-amber-500 font-extrabold shadow-lg ring-2 ring-amber-400/50 scale-[1.02]'
-                            : 'bg-white dark:bg-brand-card text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-400 font-medium hover:bg-amber-500/5'
+                            ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400/50 scale-105'
+                            : 'bg-white/80 dark:bg-brand-dark/80 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-brand-border hover:border-amber-400'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black ${
-                            isSelected ? 'bg-slate-950 text-amber-400 shadow-sm' : 'bg-amber-500/10 text-amber-600 dark:text-gold-400'
-                          }`}>
-                            <ThemeIcon icon={et.icon || 'heart'} className="w-4 h-4" />
-                          </div>
-                          {isSelected && (
-                            <span className="w-5 h-5 rounded-full bg-slate-950 text-amber-400 flex items-center justify-center text-[10px] font-black">
-                              ✓
-                            </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <div className="font-heading font-black text-xs leading-snug line-clamp-1">
-                            {et.name}
-                          </div>
-                          <div className={`text-[10px] mt-0.5 line-clamp-1 ${isSelected ? 'text-slate-900 font-bold opacity-90' : 'text-slate-400'}`}>
-                            {et.description || 'Özel organizasyon paketi'}
-                          </div>
-                        </div>
+                        <ThemeIcon icon={et.icon || 'heart'} className="w-3.5 h-3.5" />
+                        <span>{et.name.split(' ')[0]}</span>
                       </button>
                     );
                   })}
