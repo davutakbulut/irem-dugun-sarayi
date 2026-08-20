@@ -18777,13 +18777,38 @@ function ServicesComponent({ services = [], onAddClick, onEditClick, onDeleteCli
 
 // --- CAMPAIGNS COMPONENT ---
 
-function CampaignsComponent({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice }) {
+function CampaignsComponent({ campaigns = [], venues = [], services = [], reservations = [], onAddClick, onEditClick, onDeleteClick, onConvertToCampaign, onUpdateVenuePrice, showToast }) {
       const [currentPage, setCurrentPage] = useState(1);
       const [pageSize, setPageSize] = useState(6);
-
-      const aiRecs = React.useMemo(() => {
+      const [aiSuggestions, setAiSuggestions] = useState(() => {
         return generateSmartAIRecommendations(reservations, venues, services);
-      }, [reservations, venues, services]);
+      });
+      const [isLoadingGemini, setIsLoadingGemini] = useState(false);
+
+      const fetchGeminiCampaigns = useCallback(async (isManual = false) => {
+        try {
+          setIsLoadingGemini(true);
+          const fetchFn = window.fetchWithRetry || fetch;
+          const res = await fetchFn('/api/ai/campaign-suggestions');
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+            setAiSuggestions(data.suggestions);
+            if (isManual && showToast) {
+              showToast('Google Gemini AI güncel pazar ve doluluk verilerine göre yeni kampanya önerileri üretti!', 'success');
+            }
+          }
+        } catch(e) {
+          if (isManual && showToast) {
+            showToast('Gemini AI bağlantısı sırasında hata oluştu.', 'error');
+          }
+        } finally {
+          setIsLoadingGemini(false);
+        }
+      }, [showToast]);
+
+      useEffect(() => {
+        fetchGeminiCampaigns(false);
+      }, [fetchGeminiCampaigns]);
 
       return (
         <div className="space-y-6 animate-fade-in pb-12">
@@ -18801,25 +18826,47 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
             </button>
           </div>
 
-          {/* AI RECOMMENDATIONS FEED */}
+          {/* AI RECOMMENDATIONS FEED (POWERED BY GOOGLE GEMINI) */}
           <div className="glass-panel p-5 rounded-3xl space-y-4 border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent shadow-md">
-            <div className="flex items-center justify-between border-b border-amber-500/20 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-gold-400 font-bold flex items-center justify-center text-lg shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-gold-400 font-bold flex items-center justify-center text-lg shrink-0 shadow-inner">
                   <ThemeIcon icon="brain" fallbackEmoji="" className="w-5 h-5 shrink-0" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-bold text-sm text-slate-800 dark:text-gray-100">AI Akıllı Öneri Akışı – Canlı Kampanya Önerileri</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-gray-400">Tek tıkla önerileri canlı kampanya listesine dahil edin</p>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="font-heading font-bold text-sm text-slate-800 dark:text-gray-100">AI Akıllı Öneri Akışı – Canlı Kampanya Önerileri</h3>
+                    <span className="text-[10px] font-black text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/40">
+                      ⚡ Google Gemini 3.5 Flash
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-gray-400">Veritabanındaki salon doluluk ve fiyat verilerini Gemini AI analiz ederek karlı kampanyalar önerir</p>
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-amber-700 dark:text-gold-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30">
-                Canlı AI Algoritması
-              </span>
+
+              <button
+                type="button"
+                onClick={() => fetchGeminiCampaigns(true)}
+                disabled={isLoadingGemini}
+                className="px-3.5 py-2 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-gold-400 font-extrabold text-xs transition flex items-center justify-center space-x-1.5 border border-amber-500/40 cursor-pointer shadow-xs disabled:opacity-50"
+                title="Gemini AI ile Yeni Kampanya Önerileri Üret"
+              >
+                {isLoadingGemini ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Gemini Analiz Ediyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <ThemeIcon icon="sparkles" className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Gemini ile Yenile ⚡</span>
+                  </>
+                )}
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {aiRecs.map(ai => (
+              {aiSuggestions.map(ai => (
                 <div key={ai.id} className="bg-white dark:bg-brand-card p-4 rounded-2xl border border-amber-500/30 flex flex-col justify-between space-y-3 shadow hover:shadow-lg transition">
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center">

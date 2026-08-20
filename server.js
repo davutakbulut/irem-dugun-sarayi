@@ -3336,6 +3336,134 @@ app.post(['/api/notifications/generate-ai', '/api/ai/generate-insights'], async 
   }
 });
 
+
+// -------------------------------------------------------------
+// GEMINI AI CAMPAIGN SUGGESTIONS API
+// -------------------------------------------------------------
+const campaignSuggestionsHandler = async (req, res) => {
+  try {
+    const activePool = await getPool();
+    let venues = [];
+    let services = [];
+    let reservations = [];
+    let existingCampaigns = [];
+
+    if (activePool) {
+      const [vRows] = await activePool.query('SELECT id, name, price, capacity FROM venues');
+      const [sRows] = await activePool.query('SELECT id, name, price, category FROM services');
+      const [rRows] = await activePool.query('SELECT id, venue_id, event_date, total_amount, payment_status FROM reservations WHERE status != "DRAFT"');
+      const [cRows] = await activePool.query('SELECT code, title FROM campaigns');
+      venues = vRows || [];
+      services = sRows || [];
+      reservations = rRows || [];
+      existingCampaigns = cRows || [];
+    }
+
+    const context = {
+      business: 'İrem Düğün Sarayı & Balo Salonları (Arifiye)',
+      venues: venues.map(v => ({ id: v.id, name: v.name, price: Number(v.price), capacity: v.capacity })),
+      popularServices: services.slice(0, 8).map(s => ({ id: s.id, name: s.name, price: Number(s.price) })),
+      totalActiveBookings: reservations.length,
+      existingCampaignCodes: existingCampaigns.map(c => c.code)
+    };
+
+    const systemPrompt = `Sen İrem Düğün Sarayı'nın Baş Gelir Yönetimi ve Kampanya Stratejisi Uzmanısın (Gemini AI).
+GÖREV: Düğün salonlarının kapasitelerini, hizmet paketlerini ve mevcut rezervasyon hacmini inceleyerek işletmeye en yüksek kâr ve doluluk kazandıracak 3 adet benzersiz, yaratıcı ve cazip KAMPANYA ÖNERİSİ üret.
+
+ÇIKTI FORMATI:
+Kesinlikle sadece geçerli bir JSON ARRAY döndür. Markdown veya ekstra açıklama yazma. JSON formatı şöyle olmalıdır:
+[
+  {
+    "id": "ai-gemini-1",
+    "code": "HAFTAICI25",
+    "title": "Hafta İçi Rüya Düğün Kampanyası (%25 İndirim)",
+    "type": "percent",
+    "value": 25,
+    "badge": "Gemini Doluluk Önerisi",
+    "description": "Hafta içi boş günlerin doluluk oranını artırmak amacıyla planlanmıştır.",
+    "suggestedVenueId": "v1",
+    "discountPercent": 25
+  }
+]
+Kurallar:
+- "type" değeri sadece "percent", "amount" veya "free_service" olabilir.
+- "code" değeri kısa, büyük harfli ve Türkçe karakter içermeyen akılda kalıcı kupon kodu olmalıdır (Örn: HAFTAICI25, GOLDVIP, ERKENREZ).
+- Öneriler salonların kiralama fiyatları ve ek hizmetleriyle doğrudan tutarlı olmalıdır.`;
+
+    const userPrompt = `İşte güncel işletme verileri:\n${JSON.stringify(context, null, 2)}\n\nLütfen en karlı 3 kampanya önerisini JSON array formatında üret.`;
+
+    let suggestions = [];
+
+    try {
+      console.log('🤖 Kampanyalar için Gemini AI çağrısı yapılıyor...');
+      const rawOutput = await GeminiProvider.generateContent(userPrompt, systemPrompt);
+      const cleanJson = rawOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanJson);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        suggestions = parsed;
+        console.log(`✓ Gemini AI başarıyla ${suggestions.length} kampanya önerisi üretti.`);
+      }
+    } catch (aiErr) {
+      console.warn('⚠️ Gemini AI kampanya üretim hatası, akıllı kural motoruna geçiliyor:', aiErr.message);
+    }
+
+    if (suggestions.length === 0) {
+      const topVenue = venues[0] || { id: 'v1', name: 'Ana Salon', price: 85000 };
+      suggestions = [
+        {
+          id: 'ai-fb-1',
+          code: 'HAFTAICI20',
+          title: 'Hafta İçi Düğün & Nişan Kampanyası (%20 İndirim)',
+          type: 'percent',
+          value: 20,
+          badge: 'Atıl Gün Doluluk Fırsatı',
+          description: 'Hafta içi günlerin doluluğunu yükseltmek ve ciro kazandırmak için %20 fırsat indirimi.',
+          suggestedVenueId: topVenue.id,
+          discountPercent: 20
+        },
+        {
+          id: 'ai-fb-2',
+          code: 'ERKENKAYIT15',
+          title: '2026-2027 Erken Rezervasyon Avantajı (%15 İndirim)',
+          type: 'percent',
+          value: 15,
+          badge: 'Nakit Akışı Hızlandırıcı',
+          description: 'Gelecek sezon sözleşmelerini erkenden kapatıp kapora girdisini maksimize etmek için erken rezervasyon avantajı.',
+          suggestedVenueId: topVenue.id,
+          discountPercent: 15
+        },
+        {
+          id: 'ai-fb-3',
+          code: 'VIPORCHESTRA',
+          title: 'Gold VIP Orkestra & Fotoğraf Hediye Paketi',
+          type: 'free_service',
+          value: 0,
+          badge: 'Çapraz Satış Paketi',
+          description: 'Salon kiralama görüşmelerinde orkestra ve çekim paketini hediye sunarak sözleşme kapanış oranını %40 artırın.',
+          suggestedVenueId: topVenue.id,
+          discountPercent: 0
+        }
+      ];
+    }
+
+    res.json({
+      success: true,
+      source: 'gemini-3.5-flash',
+      count: suggestions.length,
+      suggestions
+    });
+  } catch (e) {
+    console.error('Campaign suggestions error:', e.message);
+    res.status(500).json({ error: 'Kampanya önerileri üretilemedi', message: e.message });
+  }
+};
+
+app.get('/api/ai/campaign-suggestions', campaignSuggestionsHandler);
+app.post('/api/ai/campaign-suggestions', campaignSuggestionsHandler);
+app.get('/api/campaigns/ai-suggestions', campaignSuggestionsHandler);
+app.post('/api/campaigns/ai-suggestions', campaignSuggestionsHandler);
+
+
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API Uç Noktası Bulunamadı' });
@@ -3345,5 +3473,5 @@ app.use((req, res) => {
 
 const serverPort = process.env.PORT || 5001;
 app.listen(serverPort, () => {
-  console.log(`🚀 İrem Düğün Sarayı Sunucusu Aktif! Port: ${PORT}`);
+  console.log(`🚀 İrem Düğün Sarayı Sunucusu Aktif! Port: ${serverPort}`);
 });
