@@ -1555,26 +1555,44 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     <video
                       ref={el => {
                         if (el) {
-                          el.defaultMuted = true;
                           el.muted = true;
-                          const p = el.play();
-                          if (p !== undefined) {
-                            p.catch(() => {
-                              // Autoplay blocked by iOS/Android Low Power Mode or initial policy.
-                              // Start playback automatically on first user touch/tap anywhere on screen.
-                              const startOnInteraction = () => {
-                                el.play().catch(() => {});
-                                window.removeEventListener('touchstart', startOnInteraction);
-                                window.removeEventListener('click', startOnInteraction);
-                                window.removeEventListener('scroll', startOnInteraction);
-                              };
-                              window.addEventListener('touchstart', startOnInteraction, { once: true, passive: true });
-                              window.addEventListener('click', startOnInteraction, { once: true });
-                              window.addEventListener('scroll', startOnInteraction, { once: true, passive: true });
-                            });
+                          el.defaultMuted = true;
+                          el.setAttribute('playsinline', '');
+                          el.setAttribute('webkit-playsinline', '');
+                          el.setAttribute('x5-playsinline', '');
+                          el.setAttribute('muted', '');
+                          el.setAttribute('autoplay', '');
+                          el.setAttribute('loop', '');
+                          
+                          const attemptPlay = () => {
+                            const p = el.play();
+                            if (p !== undefined) {
+                              p.catch(() => {
+                                const unlockPlayback = () => {
+                                  el.play().catch(() => {});
+                                  window.removeEventListener('touchstart', unlockPlayback);
+                                  window.removeEventListener('touchend', unlockPlayback);
+                                  window.removeEventListener('click', unlockPlayback);
+                                  window.removeEventListener('scroll', unlockPlayback);
+                                };
+                                window.addEventListener('touchstart', unlockPlayback, { once: true, passive: true });
+                                window.addEventListener('touchend', unlockPlayback, { once: true, passive: true });
+                                window.addEventListener('click', unlockPlayback, { once: true });
+                                window.addEventListener('scroll', unlockPlayback, { once: true, passive: true });
+                              });
+                            }
+                          };
+
+                          if (el.readyState >= 2) {
+                            attemptPlay();
+                          } else {
+                            el.addEventListener('loadeddata', attemptPlay, { once: true });
+                            el.addEventListener('canplay', attemptPlay, { once: true });
                           }
+                          attemptPlay();
                         }
                       }}
+                      src="/uploads/hero_wedding_video.mp4"
                       autoPlay={true}
                       loop={true}
                       muted={true}
@@ -1582,10 +1600,9 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                       playsInline={true}
                       preload="auto"
                       poster="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80"
-                      className="absolute inset-0 w-full h-full object-cover scale-105"
+                      className="absolute inset-0 w-full h-full object-cover scale-105 pointer-events-none"
                     >
                       <source src="/uploads/hero_wedding_video.mp4" type="video/mp4" />
-                      <source src="https://cdn.creafolks.com/svadba-davet/9e9fee9d-dc11-4bd5-bc7a-4614de2d7e2b.mp4" type="video/mp4" />
                     </video>
 
                     {/* Balanced Luxury Vignette Overlay */}
