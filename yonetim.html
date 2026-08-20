@@ -1747,7 +1747,7 @@
     // ZERO-CONFIG SMART DYNAMIC SPA ROUTER (SINGLE SOURCE OF TRUTH)
     // ==========================================
     const KNOWN_ADMIN_TABS = new Set([
-      'dashboard', 'create-reservation', 'venues', 'services', 'reservations',
+      'dashboard', 'create-reservation', 'event-types', 'venues', 'services', 'reservations',
       'calendar', 'campaigns', 'finance', 'customers', 'quote-requests',
       'reports', 'media', 'profile', 'mind-map', 'roles', 'users',
       'company-settings', 'settings', 'settings-appearance', 'settings-performance',
@@ -1758,6 +1758,7 @@
     const TAB_TO_SLUG_MAP = {
       'dashboard': 'anasayfa',
       'create-reservation': 'yeni-rezervasyon',
+      'event-types': 'etkinlik-turleri',
       'venues': 'dugun-salonlari',
       'services': 'ek-hizmetler',
       'reservations': 'rezervasyonlar',
@@ -1807,6 +1808,9 @@
       'foto-yukle': 'media',
       'medya-yukle': 'media',
       'yeni-rezervasyon': 'create-reservation',
+      'etkinlik-turleri': 'event-types',
+      'etkinlikler': 'event-types',
+      'etkinlik-tipleri': 'event-types',
       'rezervasyon-olustur': 'create-reservation',
       'dugun-salonlari': 'venues',
       'salonlar': 'venues',
@@ -3181,6 +3185,7 @@ function ReservationsListComponent({
       services = [],
       customers = [],
       campaigns = [],
+      eventTypes = [],
       navigateTo,
       onNewResClick,
       onUpdateReservation,
@@ -3207,7 +3212,7 @@ function ReservationsListComponent({
         setIsListLoading(true);
         const timer = setTimeout(() => setIsListLoading(false), 200);
         return () => clearTimeout(timer);
-      }, [searchQuery, venueFilter, statusFilter, startDateFilter, endDateFilter]);
+      }, [searchQuery, venueFilter, statusFilter, eventTypeFilter, startDateFilter, endDateFilter]);
 
       const [selectedResForPreview, setSelectedResForPreview] = useState(null);
       const [selectedDayInspector, setSelectedDayInspector] = useState(null);
@@ -3303,6 +3308,7 @@ function ReservationsListComponent({
             (r.customerPhone || '').includes(q);
 
           const matchesVenue = venueFilter === 'ALL' || r.venueId === venueFilter;
+          const matchesEventType = eventTypeFilter === 'ALL' || r.eventTypeId === eventTypeFilter || r.event_type_id === eventTypeFilter || r.eventTypeName === eventTypeFilter || r.eventType === eventTypeFilter;
           const matchesStatus = statusFilter === 'ALL' || r.paymentStatus === statusFilter;
 
           let matchesDate = true;
@@ -3310,7 +3316,7 @@ function ReservationsListComponent({
           if (startDateFilter && rDate < startDateFilter) matchesDate = false;
           if (endDateFilter && rDate > endDateFilter) matchesDate = false;
 
-          return matchesSearch && matchesVenue && matchesStatus && matchesDate;
+          return matchesSearch && matchesVenue && matchesEventType && matchesStatus && matchesDate;
         }).sort((a, b) => {
           if (reservationViewTab === 'completed') {
             // Tamamlananlarda en son tamamlanandan eskiye (DESC)
@@ -12673,6 +12679,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       items: [
                         { id: 'finance', label: 'Finans Kasa & Gider', icon: 'money', fallbackEmoji: '', badge: 'CANLI' },
                         { id: 'venues', label: 'Etkinlik Mekanları', icon: 'venue', fallbackEmoji: '' },
+                        { id: 'event-types', label: 'Etkinlik Türleri', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' },
                         { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '' },
                         { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '' }
                       ]
@@ -12912,9 +12919,20 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     />
                   )}
 
+                                    {activeTab === 'event-types' && (
+                    <EventTypesComponent
+                      eventTypes={eventTypes}
+                      setEventTypes={setEventTypes}
+                      reservations={reservations}
+                      showToast={showToast}
+                      navigateTo={navigateTo}
+                    />
+                  )}
+
                   {activeTab === 'create-reservation' && (
                     <CreateReservationPageComponent
                       venues={venues}
+                      eventTypes={eventTypes}
                       services={services}
                       customers={customers}
                       campaigns={campaigns}
@@ -13026,6 +13044,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   {activeTab === 'reservations' && (
                     <ReservationsListComponent
                       reservations={reservations}
+                      eventTypes={eventTypes}
                       draftReservations={draftReservations}
                       setDraftReservations={setDraftReservations}
                       setReservations={setReservations}
@@ -13134,6 +13153,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                     <ReportsComponent
                       reservations={reservations}
                       venues={venues}
+                      eventTypes={eventTypes}
                       services={services}
                       expenses={expenses}
                       quoteRequests={quoteRequests}
@@ -13575,6 +13595,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                         items: [
                           { id: 'finance', label: 'Finans Kasa & Gider', icon: 'money', fallbackEmoji: '', badge: 'CANLI' },
                           { id: 'venues', label: 'Etkinlik Mekanları', icon: 'venue', fallbackEmoji: '' },
+                        { id: 'event-types', label: 'Etkinlik Türleri', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' },
                           { id: 'services', label: 'Ek Hizmetler', icon: 'gift', fallbackEmoji: '' },
                           { id: 'campaigns', label: 'Kampanyalar & AI', icon: 'campaign', fallbackEmoji: '' }
                         ]
@@ -14148,7 +14169,527 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     }
 
     // --- FULL PAGE DEDICATED RESERVATION WORKSPACE COMPONENT ---
-    function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations = [], setReservations, draftReservations = [], setDraftReservations, currentUser, prefilledDate, onSaveReservation, onCancel, showToast, navigateTo, handlePrintInvoice }) {
+    
+    // ==========================================
+    // ETKİNLİK TÜRLERİ YÖNETİM BİLEŞENİ (CRUD)
+    // ==========================================
+    function EventTypesComponent({
+      eventTypes = [],
+      setEventTypes = () => {},
+      reservations = [],
+      showToast = () => {},
+      navigateTo = () => {}
+    }) {
+      const [searchQuery, setSearchQuery] = useState('');
+      const [filterStatus, setFilterStatus] = useState('ALL'); // 'ALL' | 'active' | 'passive'
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [editingType, setEditingType] = useState(null);
+      const [deletingType, setDeletingType] = useState(null);
+
+      // Form State
+      const [formName, setFormName] = useState('');
+      const [formSlug, setFormSlug] = useState('');
+      const [formIcon, setFormIcon] = useState('heart');
+      const [formColor, setFormColor] = useState('amber');
+      const [formDescription, setFormDescription] = useState('');
+      const [formIsActive, setFormIsActive] = useState(true);
+      const [formSortOrder, setFormSortOrder] = useState(1);
+      const [isSaving, setIsSaving] = useState(false);
+
+      // Icon & Color Options
+      const availableIcons = [
+        { id: 'heart', label: 'Kalp (Düğün/Aşk)' },
+        { id: 'sparkles', label: 'Işıltı (Kına/Gala)' },
+        { id: 'crown', label: 'Taç (Nişan/Sünnet)' },
+        { id: 'gift', label: 'Hediye (Parti/Özel)' },
+        { id: 'award', label: 'Ödül (Mezuniyet)' },
+        { id: 'users', label: 'Topluluk (Kurumsal)' },
+        { id: 'cake', label: 'Pasta (Doğum Günü)' },
+        { id: 'music', label: 'Müzik & Konser' },
+        { id: 'calendar', label: 'Genel Etkinlik' }
+      ];
+
+      const availableColors = [
+        { id: 'amber', name: 'Altın & Amber', bg: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400', border: 'border-amber-500' },
+        { id: 'rose', name: 'Gül Kurusu & Pembe', bg: 'bg-rose-500', text: 'text-rose-600 dark:text-rose-400', border: 'border-rose-500' },
+        { id: 'emerald', name: 'Zümrüt Yeşili', bg: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-500' },
+        { id: 'blue', name: 'Kraliyet Mavisi', bg: 'bg-blue-500', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-500' },
+        { id: 'purple', name: 'Asil Mor', bg: 'bg-purple-500', text: 'text-purple-600 dark:text-purple-400', border: 'border-purple-500' },
+        { id: 'indigo', name: 'İndigo & Gece', bg: 'bg-indigo-500', text: 'text-indigo-600 dark:text-indigo-400', border: 'border-indigo-500' },
+        { id: 'teal', name: 'Turkuaz & Deniz', bg: 'bg-teal-500', text: 'text-teal-600 dark:text-teal-400', border: 'border-teal-500' }
+      ];
+
+      // Direct MariaDB sync
+      const fetchEventTypes = async () => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/event-types');
+          const data = await resp.json();
+          if (Array.isArray(data)) {
+            setEventTypes(data);
+          }
+        } catch(err) {
+          console.warn('Failed to fetch event types:', err.message);
+        }
+      };
+
+      useEffect(() => {
+        fetchEventTypes();
+      }, []);
+
+      // Calculate usage count for each event type
+      const eventTypeStats = useMemo(() => {
+        const counts = {};
+        const revenues = {};
+        (reservations || []).forEach(r => {
+          const tid = r.eventTypeId || r.event_type_id || 'evt-dugun';
+          const tname = r.eventTypeName || r.event_type_name || r.eventType || 'Düğün Organizasyonu';
+          counts[tid] = (counts[tid] || 0) + 1;
+          counts[tname] = (counts[tname] || 0) + 1;
+          revenues[tid] = (revenues[tid] || 0) + Number(r.totalAmount || r.subtotal || 0);
+        });
+        return { counts, revenues };
+      }, [reservations]);
+
+      // Filtered Event Types
+      const filteredTypes = useMemo(() => {
+        return (eventTypes || []).filter(et => {
+          if (filterStatus === 'active' && !et.isActive) return false;
+          if (filterStatus === 'passive' && et.isActive) return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            return (et.name || '').toLowerCase().includes(q) ||
+                   (et.description || '').toLowerCase().includes(q) ||
+                   (et.slug || '').toLowerCase().includes(q);
+          }
+          return true;
+        }).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+      }, [eventTypes, filterStatus, searchQuery]);
+
+      const openAddModal = () => {
+        setEditingType(null);
+        setFormName('');
+        setFormSlug('');
+        setFormIcon('heart');
+        setFormColor('amber');
+        setFormDescription('');
+        setFormIsActive(true);
+        setFormSortOrder((eventTypes.length || 0) + 1);
+        setIsModalOpen(true);
+      };
+
+      const openEditModal = (et) => {
+        setEditingType(et);
+        setFormName(et.name || '');
+        setFormSlug(et.slug || '');
+        setFormIcon(et.icon || 'heart');
+        setFormColor(et.color || 'amber');
+        setFormDescription(et.description || '');
+        setFormIsActive(et.isActive !== false);
+        setFormSortOrder(et.sortOrder !== undefined ? et.sortOrder : 1);
+        setIsModalOpen(true);
+      };
+
+      const handleSave = async (e) => {
+        e.preventDefault();
+        if (!formName.trim()) {
+          showToast('Lütfen etkinlik türü adını giriniz.', 'error');
+          return;
+        }
+        setIsSaving(true);
+        const slugVal = formSlug.trim() || formName.toLowerCase().replace(/[^a-z0-9ğüşıöç]/gi, '-').replace(/-+/g, '-');
+        const payload = {
+          id: editingType ? editingType.id : (`evt-` + slugVal.replace(/[^a-z0-9]/gi, '') + '-' + Date.now().toString(36)),
+          name: formName.trim(),
+          slug: slugVal,
+          icon: formIcon,
+          color: formColor,
+          description: formDescription.trim(),
+          isActive: formIsActive,
+          sortOrder: Number(formSortOrder || 1)
+        };
+
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn('/api/event-types', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await resp.json();
+          if (data && (data.success || data.item)) {
+            const savedItem = data.item || payload;
+            setEventTypes(prev => {
+              const existingIdx = (prev || []).findIndex(x => x.id === savedItem.id);
+              if (existingIdx >= 0) {
+                const copy = [...prev];
+                copy[existingIdx] = savedItem;
+                return copy;
+              }
+              return [...prev, savedItem];
+            });
+            showToast(editingType ? 'Etkinlik türü başarıyla güncellendi!' : 'Yeni etkinlik türü başarıyla oluşturuldu!', 'success');
+            setIsModalOpen(false);
+          } else {
+            showToast(data.error || 'Kaydedilirken hata oluştu', 'error');
+          }
+        } catch(err) {
+          console.error('Save event type error:', err);
+          showToast('Bağlantı hatası: Etkinlik türü kaydedilemedi', 'error');
+        } finally {
+          setIsSaving(false);
+        }
+      };
+
+      const handleDelete = async (et) => {
+        if (!confirm(`"${et.name}" etkinlik türünü silmek istediğinize emin misiniz?`)) return;
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const resp = await fetchFn(`/api/event-types/${et.id}`, {
+            method: 'DELETE'
+          });
+          const data = await resp.json();
+          if (data && data.success) {
+            if (data.isDeactivated) {
+              showToast('Etkinlik türüne bağlı rezervasyonlar bulunduğu için pasife alındı.', 'warning');
+              setEventTypes(prev => prev.map(x => x.id === et.id ? { ...x, isActive: false, is_active: false } : x));
+            } else {
+              showToast('Etkinlik türü başarıyla silindi!', 'success');
+              setEventTypes(prev => prev.filter(x => x.id !== et.id));
+            }
+          } else {
+            showToast(data.error || 'Silme işlemi başarısız', 'error');
+          }
+        } catch(err) {
+          console.error('Delete event type error:', err);
+          showToast('Sunucu hatası: Etkinlik türü silinemedi', 'error');
+        }
+      };
+
+      const toggleStatus = async (et) => {
+        const newStatus = !et.isActive;
+        const payload = { ...et, isActive: newStatus, is_active: newStatus };
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          await fetchFn('/api/event-types', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          setEventTypes(prev => prev.map(x => x.id === et.id ? payload : x));
+          showToast(`"${et.name}" ${newStatus ? 'aktif' : 'pasif'} duruma getirildi.`, 'info');
+        } catch(err) {
+          console.error('Toggle status error:', err);
+        }
+      };
+
+      return (
+        <div className="space-y-6 animate-fade-in">
+          {/* TOP HEADER BAR */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/70 dark:bg-brand-card/70 backdrop-blur-md p-5 rounded-3xl border border-amber-500/20 shadow-xs">
+            <div>
+              <div className="flex items-center space-x-2.5">
+                <span className="p-2 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-gold-400 border border-amber-500/30">
+                  <ThemeIcon icon="sparkles" className="w-5 h-5" />
+                </span>
+                <div>
+                  <h2 className="font-heading font-black text-xl text-slate-900 dark:text-white">
+                    Etkinlik Türleri Yönetimi
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                    Tesislerinizde düzenlenen organizasyon türlerini tanımlayın, yeni rezervasyon ve raporlara bağlayın.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2.5 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={openAddModal}
+                className="w-full sm:w-auto px-4 py-2.5 gold-button font-extrabold text-xs rounded-2xl shadow-md hover:scale-[1.02] active:scale-95 transition flex items-center justify-center space-x-2 cursor-pointer"
+              >
+                <span>+ Yeni Etkinlik Türü Ekle</span>
+              </button>
+            </div>
+          </div>
+
+          {/* KPI STATS CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-brand-border/60 bg-white/60 dark:bg-brand-card/60 space-y-1">
+              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">Toplam Etkinlik Türü</span>
+              <div className="text-2xl font-mono font-black text-slate-800 dark:text-white">{eventTypes.length} Tür</div>
+              <div className="text-[10px] text-slate-400">Veritabanında kayıtlı tüm organizasyon modelleri</div>
+            </div>
+
+            <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
+              <span className="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Aktif Seçilebilir Türler</span>
+              <div className="text-2xl font-mono font-black text-emerald-600 dark:text-emerald-400">
+                {eventTypes.filter(x => x.isActive).length} Aktif
+              </div>
+              <div className="text-[10px] text-emerald-600/80">Yeni rezervasyon ekranında müşteriye sunulan türler</div>
+            </div>
+
+            <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-amber-500/30 bg-amber-500/5 space-y-1">
+              <span className="text-[11px] font-extrabold text-amber-700 dark:text-gold-400 uppercase tracking-wider block">En Çok Tercih Edilen</span>
+              <div className="text-2xl font-heading font-black text-amber-600 dark:text-gold-400 truncate">
+                {(() => {
+                  let maxCount = -1;
+                  let maxName = 'Düğün Organizasyonu';
+                  (eventTypes || []).forEach(et => {
+                    const c = eventTypeStats.counts[et.id] || eventTypeStats.counts[et.name] || 0;
+                    if (c > maxCount) {
+                      maxCount = c;
+                      maxName = et.name;
+                    }
+                  });
+                  return maxName;
+                })()}
+              </div>
+              <div className="text-[10px] text-amber-600/80">Rezervasyon kayıtlarında en yüksek adede sahip tür</div>
+            </div>
+          </div>
+
+          {/* SEARCH & FILTER BAR */}
+          <div className="glass-panel p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-3 border border-slate-200 dark:border-brand-border">
+            <div className="relative w-full sm:w-80">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                <ThemeIcon icon="search" className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Etkinlik türü adı veya açıklama ara..."
+                className="w-full bg-white dark:bg-brand-card border border-slate-200 dark:border-brand-border rounded-2xl pl-10 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              {['ALL', 'active', 'passive'].map(st => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setFilterStatus(st)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                    filterStatus === st
+                      ? 'bg-amber-500 text-slate-950 shadow-sm'
+                      : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 hover:text-slate-900'
+                  }`}
+                >
+                  {st === 'ALL' ? 'Tümü' : st === 'active' ? 'Aktifler' : 'Pasifler'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* EVENT TYPES GRID CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTypes.map(et => {
+              const resCount = eventTypeStats.counts[et.id] || eventTypeStats.counts[et.name] || 0;
+              const totalRev = eventTypeStats.revenues[et.id] || 0;
+              return (
+                <div
+                  key={et.id}
+                  className={`glass-panel p-5 rounded-3xl border transition space-y-4 shadow-sm relative group ${
+                    et.isActive
+                      ? 'border-slate-200/80 dark:border-brand-border/60 hover:border-amber-500/50 bg-white/80 dark:bg-brand-card/80'
+                      : 'border-dashed border-slate-300 dark:border-slate-700 opacity-60 bg-slate-50 dark:bg-slate-900/40'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-amber-500 font-extrabold`}>
+                        <ThemeIcon icon={et.icon || 'heart'} className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-heading font-black text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>{et.name}</span>
+                          {!et.isActive && (
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                              Pasif
+                            </span>
+                          )}
+                        </h3>
+                        <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                          Kod: <span className="font-bold">{et.slug || et.id}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(et)}
+                        className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-amber-500 hover:text-slate-950 flex items-center justify-center text-slate-600 dark:text-gray-300 transition cursor-pointer text-xs font-bold"
+                        title="Düzenle"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(et)}
+                        className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-brand-dark hover:bg-red-600 hover:text-white flex items-center justify-center text-red-500 transition cursor-pointer text-xs font-bold"
+                        title="Sil"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed min-h-[36px] line-clamp-2">
+                    {et.description || 'Bu etkinlik türü için özel açıklama girilmemiş.'}
+                  </p>
+
+                  <div className="pt-3 border-t border-slate-100 dark:border-brand-border/40 flex justify-between items-center text-xs">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase">Bağlı Rezervasyon</span>
+                      <span className="font-mono font-black text-amber-600 dark:text-gold-400 text-sm">
+                        {resCount} Adet {totalRev > 0 ? `(${formatCurrency(totalRev)})` : ''}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleStatus(et)}
+                      className={`px-3 py-1 rounded-xl text-[10px] font-extrabold transition cursor-pointer ${
+                        et.isActive
+                          ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-gray-400 hover:bg-slate-300'
+                      }`}
+                    >
+                      {et.isActive ? '✓ Aktif Durumda' : '✕ Pasife Alındı'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ADD / EDIT EVENT TYPE MODAL */}
+          {isModalOpen && typeof document !== 'undefined' && ReactDOM.createPortal(
+            <div className="fixed inset-0 z-[999999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={() => setIsModalOpen(false)}>
+              <div className="bg-white dark:bg-brand-card border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl my-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-brand-border">
+                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span><ThemeIcon icon="sparkles" className="w-5 h-5 text-amber-500" /></span>
+                    <span>{editingType ? 'Etkinlik Türünü Düzenle' : 'Yeni Etkinlik Türü Oluştur'}</span>
+                  </h3>
+                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white font-bold cursor-pointer">✕</button>
+                </div>
+
+                <form onSubmit={handleSave} className="space-y-3.5 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Etkinlik Türü Adı (*):</label>
+                    <input
+                      type="text"
+                      value={formName}
+                      onChange={e => {
+                        setFormName(e.target.value);
+                        if (!editingType) {
+                          setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9ğüşıöç]/gi, '-').replace(/-+/g, '-'));
+                        }
+                      }}
+                      placeholder="Örn: Kına Gecesi, Düğün, Mezuniyet"
+                      required
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1">URL / Sistem Kodu (Slug):</label>
+                    <input
+                      type="text"
+                      value={formSlug}
+                      onChange={e => setFormSlug(e.target.value)}
+                      placeholder="Örn: kina-gecesi"
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-mono text-xs font-bold text-slate-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  {/* ICON SELECTOR */}
+                  <div>
+                    <label className="font-bold block mb-1">İkon Seçimi:</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableIcons.map(ic => (
+                        <button
+                          key={ic.id}
+                          type="button"
+                          onClick={() => setFormIcon(ic.id)}
+                          className={`p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center space-y-1 ${
+                            formIcon === ic.id
+                              ? 'bg-amber-500 text-slate-950 border-amber-500 font-black shadow-xs ring-2 ring-amber-400/50'
+                              : 'bg-slate-50 dark:bg-brand-dark text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border hover:border-amber-400'
+                          }`}
+                        >
+                          <ThemeIcon icon={ic.id} className="w-4 h-4" />
+                          <span className="text-[10px] truncate max-w-full">{ic.label.split(' ')[0]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1">Açıklama / Detay:</label>
+                    <textarea
+                      value={formDescription}
+                      onChange={e => setFormDescription(e.target.value)}
+                      placeholder="Organizasyon kapsamı, salon hazırlığı vb."
+                      rows={3}
+                      className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-medium text-slate-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold block mb-1">Görüntüleme Sırası:</label>
+                      <input
+                        type="number"
+                        value={formSortOrder}
+                        onChange={e => setFormSortOrder(e.target.value)}
+                        min={1}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold font-mono text-slate-800 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1">Durum:</label>
+                      <select
+                        value={formIsActive ? 'active' : 'passive'}
+                        onChange={e => setFormIsActive(e.target.value === 'active')}
+                        className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-100"
+                      >
+                        <option value="active">✓ Aktif (Seçilebilir)</option>
+                        <option value="passive">✕ Pasif (Gizli)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200 dark:border-brand-border flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-4 py-2 bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 rounded-xl font-bold cursor-pointer"
+                    >
+                      İptal
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="px-5 py-2 gold-button text-slate-950 font-black rounded-xl shadow cursor-pointer disabled:opacity-50"
+                    >
+                      {isSaving ? 'Kaydediliyor...' : editingType ? 'Güncellemeyi Kaydet' : '+ Etkinlik Türü Oluştur'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>,
+            document.body
+          )}
+        </div>
+      );
+    }
+
+    function CreateReservationPageComponent({ venues, services, customers, campaigns, reservations = [], setReservations, draftReservations = [], setDraftReservations, currentUser, prefilledDate, onSaveReservation, onCancel, showToast, navigateTo, handlePrintInvoice, eventTypes = [] }) {
       const todayDateStr = useMemo(() => {
         const now = new Date();
         const y = now.getFullYear();
@@ -14168,6 +14709,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
 
       const [venueId, setVenueId] = useState(venues[0]?.id || '');
+      const [eventTypeId, setEventTypeId] = useState('evt-dugun');
       const [customVenuePrice, setCustomVenuePrice] = useState(venues[0]?.price !== undefined ? venues[0].price : '');
       const [startDate, setStartDate] = useState(prefilledDate || todayDateStr);
       const [startTime, setStartTime] = useState('19:00');
@@ -14238,6 +14780,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           hasLoadedEditResRef.current = editKey;
 
           setVenueId(editingResFromUrl.venueId || venues[0]?.id || '');
+          setEventTypeId(editingResFromUrl.eventTypeId || editingResFromUrl.event_type_id || 'evt-dugun');
           setCustomVenuePrice(editingResFromUrl.venuePrice !== undefined ? editingResFromUrl.venuePrice : (editingResFromUrl.customVenuePrice !== undefined ? editingResFromUrl.customVenuePrice : (venues.find(v => v.id === editingResFromUrl.venueId)?.price || 0)));
           setStartDate(formatDateForInput(editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.date) || '2026-08-25');
           setEndDate(formatDateForInput(editingResFromUrl.endDate || editingResFromUrl.eventDate || editingResFromUrl.date) || '2026-08-25');
@@ -14824,9 +15367,15 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           };
         }
 
+        const selectedEtObj = (eventTypes || []).find(e => e.id === eventTypeId);
+        const evName = selectedEtObj?.name || 'Düğün Organizasyonu';
+
         const newRes = {
           id: editingResFromUrl?.id || `RES-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
           venueId,
+          eventTypeId: eventTypeId || 'evt-dugun',
+          eventTypeName: evName,
+          eventType: evName,
           customerId: custId,
           customerName: custName,
           customerEmail: custEmail,
@@ -24599,6 +25148,7 @@ const E2E_WORKFLOWS = [
           items: [
             { id: 'finance', label: 'Finans Kasa & Gider Yönetimi', desc: 'Anlık kasa durumu, alacaklar ve harcamalar', icon: 'money', fallbackEmoji: '', badge: 'CANLI' },
             { id: 'venues', label: 'Etkinlik Mekanları', desc: 'Mekan kapasiteleri, özel imkanları ve paket fiyatları', icon: 'venue', fallbackEmoji: '' },
+            { id: 'event-types', label: 'Etkinlik Türleri', desc: 'Düğün, Kına, Nişan, Sünnet, Mezuniyet ve Kurumsal türler', icon: 'sparkles', fallbackEmoji: '✨', badge: 'YENİ' },
             { id: 'services', label: 'Ek Hizmetler & Paketler', desc: 'Orkestra, fotoğrafçı, menü ve süsleme paketleri', icon: 'gift', fallbackEmoji: '' },
             { id: 'campaigns', label: 'Kampanyalar & AI Fiyatlama', desc: 'Sezonluk indirimler ve dinamik fiyat motoru', icon: 'campaign', fallbackEmoji: '' }
           ]

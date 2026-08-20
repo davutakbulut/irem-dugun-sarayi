@@ -1659,6 +1659,106 @@ app.delete('/api/users/:id', deleteUserHandler);
 app.post(['/api/users/delete/:id', '/api/users/delete'], deleteUserHandler);
 
 // -------------------------------------------------------------
+
+// -------------------------------------------------------------
+// 4.5 ETKİNLİK TÜRLERİ ENDPOINTS (/api/event-types)
+// -------------------------------------------------------------
+app.get('/api/event-types', async (req, res) => {
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT * FROM event_types ORDER BY sort_order ASC, name ASC');
+      const formatted = (rows || []).map(r => ({
+        id: r.id,
+        name: r.name,
+        slug: r.slug,
+        icon: r.icon || 'heart',
+        color: r.color || 'amber',
+        description: r.description || '',
+        isActive: Boolean(r.is_active),
+        is_active: Boolean(r.is_active),
+        sortOrder: Number(r.sort_order || 0),
+        sort_order: Number(r.sort_order || 0),
+        createdAt: r.created_at
+      }));
+      return res.json(formatted);
+    }
+    return res.json(memoryStore.eventTypes || []);
+  } catch(e) {
+    console.error('MySQL GET /api/event-types error:', e.message);
+    res.status(500).json({ error: 'Etkinlik türleri alınamadı', message: e.message });
+  }
+});
+
+app.post('/api/event-types', async (req, res) => {
+  try {
+    if (req.body && (req.body.action === 'delete' || req.body._delete)) {
+      return deleteEventTypeHandler(req, res);
+    }
+    const raw = req.body || {};
+    const name = (raw.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ error: 'Etkinlik türü adı zorunludur' });
+    }
+    const slug = (raw.slug || name.toLowerCase().replace(/[^a-z0-9ğüşıöç]/gi, '-').replace(/-+/g, '-')).trim();
+    const id = raw.id || (`evt-` + slug.replace(/[^a-z0-9]/gi, '') + '-' + Date.now().toString(36));
+    const icon = raw.icon || 'heart';
+    const color = raw.color || 'amber';
+    const description = raw.description || '';
+    const isActive = raw.isActive !== undefined ? (raw.isActive ? 1 : 0) : (raw.is_active !== undefined ? (raw.is_active ? 1 : 0) : 1);
+    const sortOrder = Number(raw.sortOrder !== undefined ? raw.sortOrder : (raw.sort_order || 0));
+
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query(
+        `INSERT INTO event_types (id, name, slug, icon, color, description, is_active, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), icon=VALUES(icon), color=VALUES(color),
+                                 description=VALUES(description), is_active=VALUES(is_active), sort_order=VALUES(sort_order)`,
+        [id, name, slug, icon, color, description, isActive, sortOrder]
+      );
+      console.log(`💾 Etkinlik Türü [${id}] MariaDB Veritabanına Yazıldı: ${name}`);
+    }
+
+    const item = {
+      id, name, slug, icon, color, description,
+      isActive: Boolean(isActive),
+      is_active: Boolean(isActive),
+      sortOrder, sort_order: sortOrder
+    };
+    return res.status(201).json({ success: true, item });
+  } catch(e) {
+    console.error('MySQL POST /api/event-types error:', e.message);
+    res.status(500).json({ error: 'Etkinlik türü kaydedilemedi', message: e.message });
+  }
+});
+
+const deleteEventTypeHandler = async (req, res) => {
+  const id = req.params.id || req.body.id || req.query.id;
+  if (!id) return res.status(400).json({ error: 'ID gereklidir' });
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      // Check if any reservation uses this event type
+      const [resCount] = await activePool.query('SELECT COUNT(*) as cnt FROM reservations WHERE event_type_id = ?', [id]);
+      if (resCount && resCount[0] && resCount[0].cnt > 0) {
+        // Soft delete / deactivate instead of hard delete
+        await activePool.query('UPDATE event_types SET is_active = 0 WHERE id = ?', [id]);
+        return res.json({ success: true, message: 'Etkinlik türü kullanımda olduğu için pasife alındı.', isDeactivated: true });
+      }
+      await activePool.query('DELETE FROM event_types WHERE id = ?', [id]);
+      console.log(`🗑️ Etkinlik Türü [${id}] MariaDB Veritabanından Silindi.`);
+    }
+    return res.json({ success: true, id });
+  } catch(e) {
+    console.error('MySQL DELETE /api/event-types error:', e.message);
+    return res.status(500).json({ error: 'Etkinlik türü silinemedi', message: e.message });
+  }
+};
+
+app.delete('/api/event-types/:id', deleteEventTypeHandler);
+app.post(['/api/event-types/:id/delete', '/api/event-types/delete', '/api/event-types/remove'], deleteEventTypeHandler);
+
 // 5. REZERVASYONLAR ENDPOINTS (/api/reservations)
 // -------------------------------------------------------------
 app.get('/api/reservations', async (req, res) => {
@@ -1702,6 +1802,9 @@ app.get('/api/reservations', async (req, res) => {
           ...detailsObj,
           id: r.id,
           venueId: r.venue_id || detailsObj.venueId || 'v1',
+          eventTypeId: r.event_type_id || detailsObj.eventTypeId || 'evt-dugun',
+          eventTypeName: r.event_type_name || detailsObj.eventTypeName || 'Düğün Organizasyonu',
+          eventType: r.event_type_name || detailsObj.eventType || detailsObj.eventTypeName || 'Düğün Organizasyonu',
           customerId: r.customer_id || detailsObj.customerId || '',
           customerName: r.customer_name || detailsObj.customerName || 'Misafir',
           customerEmail: r.customer_email || detailsObj.customerEmail || '',
@@ -1814,17 +1917,21 @@ app.post('/api/reservations', async (req, res) => {
       const endTime = item.endTime || '23:00';
       const timeSlot = item.timeSlot || `${startTime} - ${endTime}`;
 
+      const evTypeId = item.eventTypeId || item.event_type_id || 'evt-dugun';
+      const evTypeName = item.eventTypeName || item.event_type_name || item.eventType || 'Düğün Organizasyonu';
+
       await activePool.query(
         `INSERT INTO reservations (
-          id, venue_id, customer_id, customer_name, customer_email, customer_phone, secondary_phone,
+          id, venue_id, event_type_id, event_type_name, customer_id, customer_name, customer_email, customer_phone, secondary_phone,
           event_date, end_date, start_time, end_time, time_slot, guest_count,
           venue_price, custom_venue_price, subtotal, referrer_name, campaign_code,
           discount_amount, dip_discount_type, vat_amount, total_amount, deposit_paid, remaining_balance,
           payment_status, is_invoiced, invoice_type, tc_no, vkn_no, tax_office, invoice_address,
           notes, flow_plan_json, selected_services_json, details_json, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED')
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED')
         ON DUPLICATE KEY UPDATE
-          venue_id=VALUES(venue_id), customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
+          venue_id=VALUES(venue_id), event_type_id=VALUES(event_type_id), event_type_name=VALUES(event_type_name),
+          customer_name=VALUES(customer_name), customer_email=VALUES(customer_email),
           customer_phone=VALUES(customer_phone), secondary_phone=VALUES(secondary_phone),
           event_date=VALUES(event_date), end_date=VALUES(end_date), start_time=VALUES(start_time), end_time=VALUES(end_time),
           time_slot=VALUES(time_slot), guest_count=VALUES(guest_count), venue_price=VALUES(venue_price),
@@ -1836,7 +1943,7 @@ app.post('/api/reservations', async (req, res) => {
           invoice_address=VALUES(invoice_address), notes=VALUES(notes), flow_plan_json=VALUES(flow_plan_json),
           selected_services_json=VALUES(selected_services_json), details_json=VALUES(details_json), status='CONFIRMED'`,
         [
-          item.id, item.venueId || 'v1', custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '', item.secondaryPhone || '',
+          item.id, item.venueId || 'v1', evTypeId, evTypeName, custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '', item.secondaryPhone || '',
           eventDate, endDate, startTime, endTime, timeSlot, Number(item.guestCount || 0),
           Number(item.venuePrice || 0), Number(item.customVenuePrice || item.venuePrice || 0), Number(item.subtotal || 0),
           item.referrerName || '', item.campaignCode || '', Number(item.discountAmount || 0), item.dipDiscountType || 'amount',
