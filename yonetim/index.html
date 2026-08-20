@@ -20547,9 +20547,11 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
       const monthlyFixedExpenseStats = useMemo(() => {
         const stats = {};
 
-        // 1. Group all general fixed overhead expenses by month
+        // 1. Group only explicitly entered general fixed overhead expenses by month
         (expenses || []).forEach(e => {
-          if (e.type === 'gider' && e.expenseScope !== 'reservation_specific' && !e.reservationId && !e.reservation_id) {
+          const scope = e.expenseScope || e.expense_scope || 'general_fixed';
+          const isFixed = scope === 'general_fixed' || scope === 'fixed_overhead' || scope === 'fixed' || (e.type === 'gider' && !e.reservationId && !e.reservation_id && scope !== 'reservation_specific');
+          if (e.type === 'gider' && isFixed && !e.reservationId && !e.reservation_id) {
             const mKey = getMonthKey(e.date);
             if (mKey) {
               if (!stats[mKey]) stats[mKey] = { fixedTotal: 0, count: 0, items: [] };
@@ -20569,13 +20571,13 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           }
         });
 
-        // 3. Compute costPerRes for all known months
+        // 3. Compute costPerRes for all known months (Strictly based on REAL entered expenses, NO hardcoded fallbacks)
         const allMonths = new Set([...Object.keys(stats), ...Object.keys(resCountPerMonth)]);
         allMonths.forEach(mKey => {
           if (!stats[mKey]) stats[mKey] = { fixedTotal: 0, count: 0, items: [] };
-          const effectiveFixedTotal = stats[mKey].fixedTotal > 0 ? stats[mKey].fixedTotal : 150000;
+          const effectiveFixedTotal = stats[mKey].fixedTotal || 0;
           const rCount = resCountPerMonth[mKey] || 0;
-          const costPerRes = rCount > 0 ? Math.round(effectiveFixedTotal / rCount) : effectiveFixedTotal;
+          const costPerRes = (rCount > 0 && effectiveFixedTotal > 0) ? Math.round(effectiveFixedTotal / rCount) : 0;
           stats[mKey].effectiveFixedTotal = effectiveFixedTotal;
           stats[mKey].resCount = rCount;
           stats[mKey].costPerRes = costPerRes;
@@ -20593,7 +20595,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
 
           // DÖNEMSEL SABİT TESİS MALİYETİ (Absorption Costing)
           const mKey = getMonthKey(r.eventDate || r.startDate || r.date) || '2026-08';
-          const monthStat = monthlyFixedExpenseStats[mKey] || { effectiveFixedTotal: 150000, resCount: 1, costPerRes: 15000 };
+          const monthStat = monthlyFixedExpenseStats[mKey] || { effectiveFixedTotal: 0, resCount: 0, costPerRes: 0 };
           const allocatedFixedCost = monthStat.costPerRes || 15000;
 
           // REZERVASYONA ÖZEL SEÇİLİ HİZMETLER & MENÜ BİRİM MALİYETLERİ
@@ -21378,7 +21380,6 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                     totalFixedPool += Number(st.effectiveFixedTotal || 0);
                     totalResCount += Number(st.resCount || 0);
                   });
-                  if (totalFixedPool === 0) totalFixedPool = 150000 * 3;
                 } else if (selectedProfitMonth.length === 4) {
                   Object.entries(monthlyFixedExpenseStats).forEach(([mKey, st]) => {
                     if (mKey.startsWith(selectedProfitMonth)) {
@@ -21386,11 +21387,10 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       totalResCount += Number(st.resCount || 0);
                     }
                   });
-                  if (totalFixedPool === 0) totalFixedPool = 150000 * 12;
                 } else {
-                  const st = monthlyFixedExpenseStats[selectedProfitMonth] || { effectiveFixedTotal: 150000, resCount: 0, costPerRes: 15000 };
-                  totalFixedPool = st.effectiveFixedTotal;
-                  totalResCount = st.resCount;
+                  const st = monthlyFixedExpenseStats[selectedProfitMonth] || { effectiveFixedTotal: 0, resCount: 0, costPerRes: 0 };
+                  totalFixedPool = st.effectiveFixedTotal || 0;
+                  totalResCount = st.resCount || 0;
                 }
 
                 const costPerResCalc = totalResCount > 0 ? Math.round(totalFixedPool / totalResCount) : totalFixedPool;
@@ -21523,7 +21523,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
                       <div className="p-3 bg-white/70 dark:bg-brand-card/70 rounded-2xl border border-slate-200/80 dark:border-brand-border/60">
                         <span className="text-[10px] text-slate-400 font-bold block uppercase">Sabit Gider Havuzu:</span>
                         <span className="font-mono font-extrabold text-red-500 dark:text-red-400 text-base">{formatCurrency(mStat.effectiveFixedTotal)}</span>
-                        <span className="text-[9px] text-slate-400 block mt-0.5">Kira + Elektrik + Sabit Faturalar</span>
+                        <span className="text-[9px] text-slate-400 block mt-0.5">Ay içinde eklenen gerçek sabit giderler</span>
                       </div>
                       <div className="p-3 bg-white/70 dark:bg-brand-card/70 rounded-2xl border border-slate-200/80 dark:border-brand-border/60">
                         <span className="text-[10px] text-slate-400 font-bold block uppercase">Dönem Rezervasyonları:</span>
