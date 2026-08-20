@@ -10733,6 +10733,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [reservations, setReservations] = useState(() => CacheService.get('reservations', null) || []);
       const [draftReservations, setDraftReservations] = useState([]);
       const [expenses, setExpenses] = useState(() => CacheService.get('expenses', null) || []);
+      const [eventTypes, setEventTypes] = useState(() => CacheService.get('event_types', null) || []);
       const isInitialLoadDoneRef = useRef(false);
 
       // Real-time Session Validation with MariaDB Database on Mount
