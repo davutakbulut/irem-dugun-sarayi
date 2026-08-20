@@ -1757,6 +1757,7 @@
       'settings-indexing': 'ayarlar/seo-indeksleme',
       'settings-errors': 'ayarlar/hata-simulasyonu',
       'email-templates': 'eposta-sablonlari',
+      'musteri-portali': 'musteri-portali',
       'simulasyon-404': 'simulasyon-404',
       'simulasyon-301': 'simulasyon-301',
       'simulasyon-403': 'simulasyon-403',
@@ -1844,6 +1845,7 @@
       'hata-simulasyonu': 'settings-errors',
       'eposta-sablonlari': 'email-templates',
       'eposta-otomasyon': 'email-templates',
+      'musteri-portali': 'musteri-portali',
       'simulasyon-404': 'simulasyon-404',
       'simulasyon-301': 'simulasyon-301',
       'simulasyon-403': 'simulasyon-403',
@@ -1855,7 +1857,11 @@
       'giris': 'login',
       'login': 'login',
       'yonetim/giris': 'login',
-      'yonetim/login': 'login'
+      'yonetim/login': 'login',
+      'musteri-portali': 'musteri-portali',
+      'musteri': 'musteri-portali',
+      'cift-portali': 'musteri-portali',
+      'portal': 'musteri-portali'
     };
 
     const SLUG_TO_TAB = new Proxy(SLUG_ALIASES, {
@@ -2677,6 +2683,7 @@
       'settings-indexing': 'Arama Motoru & İndeksleme Güvenliği',
       'settings-errors': 'Hata & Yönlendirme Simülasyonu',
       'email-templates': 'E-Posta Şablonları & Otomasyon',
+      'musteri-portali': 'Müşteri & Düğün Takip Portalı',
       'simulasyon-404': 'HTTP 404 - Sayfa Bulunamadı Simülasyonu',
       'simulasyon-301': 'HTTP 301 - Kalıcı Yönlendirme Simülasyonu',
       'simulasyon-403': 'HTTP 403 - Yetkisiz Erişim Uyarısı Simülasyonu',
@@ -2684,6 +2691,7 @@
     };
 
     const TAB_PERMISSIONS = {
+      'musteri-portali': ['admin', 'musteri', 'satisci'],
       'quote-requests': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
       'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
       'create-reservation': ['admin', 'satisci'],
@@ -11130,15 +11138,28 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
               <aside aria-label="Ana Gezinti Menüsü" className="w-64 bg-white/95 dark:bg-brand-card/95 p-4 hidden lg:flex flex-col justify-between border-r border-t-0 border-slate-200 dark:border-brand-border/40 shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-hidden">
                 <nav className="space-y-3 custom-scrollbar overflow-y-auto flex-1 min-h-0 pr-1">
                   {[
-                    {
-                      title: 'ANA PANOLAR',
-                      icon: 'chart',
-                      fallbackEmoji: '',
-                      items: [
-                        { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '' },
-                        { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' }
-                      ]
-                    },
+                    ...(activeRole === 'musteri' ? [
+                      {
+                        title: 'MÜŞTERİ PANELİ',
+                        icon: 'crown',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'musteri-portali', label: 'Düğün Takip Portalım', icon: 'crown', fallbackEmoji: '', badge: 'ÇİFT' },
+                          { id: 'media', label: 'Düğün Foto & Medya Galerisi', icon: 'camera', fallbackEmoji: '' },
+                          { id: 'profile', label: 'Profilim & İletişim', icon: 'user', fallbackEmoji: '' }
+                        ]
+                      }
+                    ] : [
+                      {
+                        title: 'ANA PANOLAR',
+                        icon: 'chart',
+                        fallbackEmoji: '',
+                        items: [
+                          { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '' },
+                          { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' }
+                        ]
+                      }
+                    ]),
                     {
                       title: 'REZERVASYON & TAKVİM',
                       icon: 'calendar',
@@ -11356,7 +11377,16 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 />
               ) : (
                 <ErrorBoundary key={activeTab} fallbackTitle={`"${TAB_LABELS[activeTab] || 'Sayfa'}" Yüklenirken Bir İşlem Uyarısı Oluştu`}>
-                  {activeTab === 'dashboard' && (
+                  {(activeTab === 'musteri-portali' || (activeTab === 'dashboard' && activeRole === 'musteri')) ? (
+                    <CustomerPortalComponent
+                      sessionUser={sessionUser}
+                      reservations={reservations}
+                      venues={venues}
+                      services={services}
+                      showToast={showToast}
+                      onTabChange={navigateTo}
+                    />
+                  ) : activeTab === 'dashboard' ? (
                     <DashboardComponent
                       activeRole={activeRole}
                       currentUser={currentUserState}
@@ -11370,7 +11400,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       onConvertToCampaign={handleConvertAiToCampaign}
                       onUpdateVenuePrice={handleUpdateVenuePriceFromAI}
                     />
-                  )}
+                  ) : null}
 
                   {activeTab === 'create-reservation' && (
                     <CreateReservationPageComponent
@@ -11997,15 +12027,28 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
                   <nav className="space-y-3 pt-1">
                     {[
-                      {
-                        title: 'ANA PANOLAR',
-                        icon: 'chart',
-                        fallbackEmoji: '',
-                        items: [
-                          { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '' },
-                          { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' }
-                        ]
-                      },
+                      ...(activeRole === 'musteri' ? [
+                        {
+                          title: 'MÜŞTERİ PANELİ',
+                          icon: 'crown',
+                          fallbackEmoji: '',
+                          items: [
+                            { id: 'musteri-portali', label: 'Düğün Takip Portalım', icon: 'crown', fallbackEmoji: '', badge: 'ÇİFT' },
+                            { id: 'media', label: 'Düğün Foto & Medya Galerisi', icon: 'camera', fallbackEmoji: '' },
+                            { id: 'profile', label: 'Profilim & İletişim', icon: 'user', fallbackEmoji: '' }
+                          ]
+                        }
+                      ] : [
+                        {
+                          title: 'ANA PANOLAR',
+                          icon: 'chart',
+                          fallbackEmoji: '',
+                          items: [
+                            { id: 'dashboard', label: 'Anasayfa / İstatistikler', icon: 'chart', fallbackEmoji: '' },
+                            { id: 'create-reservation', label: 'Yeni Rezervasyon', icon: 'sparkles', fallbackEmoji: '', badge: 'YENİ' }
+                          ]
+                        }
+                      ]),
                       {
                         title: 'REZERVASYON & TAKVİM',
                         icon: 'calendar',
