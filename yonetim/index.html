@@ -14583,15 +14583,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const StarRating = ({ value, onChange, label, disabled = false }) => {
         const [hover, setHover] = useState(0);
+        const currentVal = hover || value;
+        const scoreLabels = { 5: 'Mükemmel', 4: 'Çok İyi', 3: 'İyi', 2: 'Orta', 1: 'Zayıf' };
+
         return (
-          <div className="bg-slate-50 dark:bg-brand-dark/60 p-4 rounded-2xl border border-slate-200 dark:border-brand-border/60 space-y-2">
+          <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 space-y-2.5 transition hover:border-amber-400/60">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-extrabold text-slate-800 dark:text-gray-100">{label}</span>
-              <span className="font-mono font-black text-amber-600 dark:text-gold-400 text-xs">
-                {(hover || value)} / 5 Yıldız
+              <span className="font-extrabold text-slate-800">{label}</span>
+              <span className="font-mono font-bold text-amber-800 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20 text-[11px]">
+                {currentVal} / 5 Yıldız ({scoreLabels[currentVal] || 'Mükemmel'})
               </span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -14600,10 +14603,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   onClick={() => onChange(star)}
                   onMouseEnter={() => !disabled && setHover(star)}
                   onMouseLeave={() => !disabled && setHover(0)}
-                  className={`p-1.5 transition transform cursor-pointer text-2xl ${
-                    star <= (hover || value)
-                      ? 'text-amber-400 scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]'
-                      : 'text-slate-300 dark:text-slate-700'
+                  className={`p-1 transition-all transform cursor-pointer text-3xl select-none ${
+                    star <= currentVal
+                      ? 'text-amber-400 scale-110 drop-shadow-[0_2px_4px_rgba(245,158,11,0.3)]'
+                      : 'text-slate-200 hover:text-amber-300'
                   }`}
                   aria-label={`${star} Yıldız`}
                 >
@@ -14617,21 +14620,23 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       if (isLoading) {
         return (
-          <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-white space-y-3">
-            <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-xs font-bold text-slate-400">Anket formu yükleniyor...</p>
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 text-slate-800 space-y-3">
+            <div className="w-10 h-10 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs font-bold text-slate-500">Memnuniyet anketi yükleniyor...</p>
           </div>
         );
       }
 
       if (!surveyData) {
         return (
-          <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center">
-            <div className="glass-panel p-8 rounded-3xl border border-red-500/30 max-w-md w-full space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto text-2xl font-bold">✕</div>
-              <h2 className="text-xl font-heading font-black text-white">Anket Bulunamadı</h2>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Bu anket bağlantısı geçersiz veya süresi dolmuş olabilir. Lütfen yetkili ile iletişime geçiniz.
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 text-center">
+            <div className="bg-white p-8 rounded-2xl border border-red-200 max-w-md w-full space-y-4 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mx-auto text-xl font-bold border border-red-100">
+                <ThemeIcon icon="close" className="w-6 h-6" />
+              </div>
+              <h2 className="text-lg font-heading font-black text-slate-900">Anket Bağlantısı Geçersiz</h2>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Bu anket bağlantısı geçersiz veya süresi dolmuş olabilir. Lütfen salon yetkilisi ile iletişime geçiniz.
               </p>
             </div>
           </div>
@@ -14639,64 +14644,73 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       }
 
       return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 via-brand-dark to-slate-950 text-slate-100 p-4 sm:p-6 flex flex-col items-center justify-center animate-fade-in font-sans">
-          <div className="max-w-xl w-full space-y-6 my-auto">
-            {/* BRAND HEADER */}
+        <div className="min-h-screen bg-[#f8fafc] text-slate-800 p-4 sm:p-8 flex flex-col items-center justify-center animate-fade-in font-sans antialiased">
+          <div className="max-w-xl w-full space-y-5 my-auto">
+            
+            {/* NORDIC BRAND HEADER */}
             <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center p-3 rounded-3xl bg-amber-500/10 border border-amber-500/30 shadow-lg mb-1">
-                <ThemeIcon icon="sparkles" className="w-8 h-8 text-amber-500" />
+              <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-white border border-amber-500/30 shadow-sm mb-1">
+                <ThemeIcon icon="crown" className="w-8 h-8 text-amber-600" />
               </div>
-              <h1 className="font-heading font-black text-2xl sm:text-3xl gold-gradient-text tracking-wide">
+              <h1 className="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-wide uppercase">
                 İREM DÜĞÜN SARAYI
               </h1>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-semibold text-slate-500">
                 Müşteri Memnuniyeti & Hizmet Değerlendirme Anketi
               </p>
             </div>
 
-            {/* EVENT INFO CARD */}
-            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 bg-white/5 space-y-2">
+            {/* EVENT INFO SUMMARY CARD */}
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-mono text-[11px] text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-                  {surveyData.reservationId}
+                <span className="font-mono text-[11px] text-amber-800 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/20">
+                  Sözleşme No: {surveyData.reservationId}
                 </span>
-                <span className="text-slate-400">{formatDate(surveyData.eventDate)}</span>
+                <span className="text-slate-400 font-medium">{formatDate(surveyData.eventDate)}</span>
               </div>
-              <h3 className="text-base font-extrabold text-white">
+              <h3 className="text-base font-extrabold text-slate-900">
                 Sayın {surveyData.customerName},
               </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                <b>{surveyData.venueName}</b> salonumuzda gerçekleşen <b>{surveyData.eventTypeName}</b> organizasyonunuzun ardından, sizlere daha mükemmel hizmet sunabilmemiz için deneyiminizi puanlamanızı rica ederiz.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                <b>{surveyData.venueName}</b> salonumuzda gerçekleşen <b>{surveyData.eventTypeName}</b> organizasyonunuzun ardından, sizlere daima en kusursuz deneyimi sunabilmemiz için 1 dakikanızı ayırarak hizmetlerimizi puanlamanızı rica ederiz.
               </p>
             </div>
 
             {isSubmitted ? (
-              /* SUCCESS CONFIRMATION SCREEN */
-              <div className="glass-panel p-8 rounded-3xl border border-emerald-500/40 bg-emerald-500/10 text-center space-y-4 animate-scale-up">
-                <div className="w-16 h-16 rounded-3xl bg-emerald-500 text-slate-950 flex items-center justify-center mx-auto text-3xl font-black shadow-lg">
-                  ✓
+              /* SUCCESS CONFIRMATION SCREEN (NORDIC LIGHT) */
+              <div className="bg-white p-8 rounded-2xl border border-emerald-500/30 shadow-md text-center space-y-5 animate-scale-up">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200/80 shadow-xs">
+                  <ThemeIcon icon="check-circle" className="w-8 h-8 text-emerald-600" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="font-heading font-black text-xl text-white">Değerlendirmeniz Alındı!</h3>
-                  <p className="text-xs text-emerald-300 leading-relaxed">
-                    Bizimle paylaştığınız değerli görüşleriniz için tüm İrem Düğün Sarayı ailesi adına teşekkür eder, ömür boyu mutluluklar dileriz.
+                
+                <div className="space-y-1.5">
+                  <h3 className="font-heading font-black text-xl text-slate-900">Değerlendirmeniz Alındı!</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+                    Bizimle paylaştığınız kıymetli görüşleriniz için tüm İrem Düğün Sarayı ekibi adına teşekkür eder, bir ömür boyu mutluluklar dileriz.
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-black/40 border border-white/10 text-left space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-300">
-                    <span>Verilen Genel Puan:</span>
-                    <span className="font-mono font-black text-amber-400">⭐ {overallScore} / 5 Yıldız</span>
+
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-left space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-slate-700">
+                    <span className="font-medium">Genel Değerlendirme:</span>
+                    <span className="font-mono font-black text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                      ★ {overallScore} / 5 Yıldız
+                    </span>
                   </div>
                   {comment && (
-                    <div className="pt-2 border-t border-white/10 text-slate-300 italic text-[11px]">
+                    <div className="pt-2 border-t border-slate-200/60 text-slate-700 italic text-[11px] leading-relaxed">
                       "{comment}"
                     </div>
                   )}
                 </div>
+
+                <div className="pt-2 text-[11px] text-slate-400 font-medium">
+                  İrem Düğün Sarayı & Davet Tesisleri • Sapanca / Sakarya
+                </div>
               </div>
             ) : (
-              /* SURVEY FORM */
-              <form onSubmit={handleSubmit} className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-5 bg-white/80 dark:bg-brand-card/90 shadow-xl">
+              /* SURVEY FORM (NORDIC LIGHT) */
+              <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                 <div className="space-y-3">
                   <StarRating label="1. Genel Memnuniyet Derecesi" value={overallScore} onChange={setOverallScore} />
                   <StarRating label="2. Salon & Dekorasyon Kalitesi" value={venueScore} onChange={setVenueScore} />
@@ -14706,21 +14720,21 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 </div>
 
                 {/* RECOMMENDATION QUESTION */}
-                <div className="bg-slate-50 dark:bg-brand-dark/60 p-4 rounded-2xl border border-slate-200 dark:border-brand-border/60 space-y-2">
-                  <label className="font-extrabold text-xs text-slate-800 dark:text-gray-100 block">
-                    6. İrem Düğün Sarayı'nı yakınlarınıza tavsiye eder misiniz?
+                <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 space-y-2.5">
+                  <label className="font-extrabold text-xs text-slate-800 block">
+                    6. İrem Düğün Sarayı'nı yakınlarınıza ve diğer çiftlere tavsiye eder misiniz?
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2.5">
                     <button
                       type="button"
                       onClick={() => setRecommend(1)}
                       className={`p-2.5 rounded-xl border font-bold text-xs transition cursor-pointer flex items-center justify-center space-x-1.5 ${
                         recommend === 1
-                          ? 'bg-emerald-500 text-slate-950 border-emerald-500 font-extrabold shadow-md'
-                          : 'bg-white dark:bg-brand-card text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border'
+                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300'
                       }`}
                     >
-                      <ThemeIcon icon="check-circle" className="w-4 h-4 text-emerald-950" />
+                      <ThemeIcon icon="check-circle" className={`w-4 h-4 ${recommend === 1 ? 'text-white' : 'text-emerald-600'}`} />
                       <span>Kesinlikle Evet</span>
                     </button>
                     <button
@@ -14728,48 +14742,49 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       onClick={() => setRecommend(0)}
                       className={`p-2.5 rounded-xl border font-bold text-xs transition cursor-pointer flex items-center justify-center space-x-1.5 ${
                         recommend === 0
-                          ? 'bg-red-500 text-white border-red-500 font-extrabold shadow-md'
-                          : 'bg-white dark:bg-brand-card text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border'
+                          ? 'bg-slate-800 text-white border-slate-800 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
                       }`}
                     >
-                      <ThemeIcon icon="close" className="w-4 h-4 text-white" />
+                      <ThemeIcon icon="close" className={`w-4 h-4 ${recommend === 0 ? 'text-white' : 'text-slate-400'}`} />
                       <span>Geliştirilmeli</span>
                     </button>
                   </div>
                 </div>
 
                 {/* COMMENTS TEXTAREA */}
-                <div className="space-y-1">
-                  <label className="font-extrabold text-xs text-slate-800 dark:text-gray-100 block">
+                <div className="space-y-1.5">
+                  <label className="font-extrabold text-xs text-slate-800 block">
                     7. Görüş, Teşekkür veya Önerileriniz:
                   </label>
                   <textarea
                     value={comment}
                     onChange={e => setComment(e.target.value)}
-                    placeholder="Organizasyonumuzda en çok beğendiğiniz detayları veya geliştirilmesini istediğiniz noktaları yazabilirsiniz..."
+                    placeholder="Organizasyonumuzda en çok beğendiğiniz detayları veya geliştirilmesini istediğiniz noktaları belirtebilirsiniz..."
                     rows={3}
-                    className="w-full bg-slate-50 dark:bg-brand-dark border border-slate-200 dark:border-brand-border rounded-xl p-3 text-xs font-medium text-slate-800 dark:text-gray-100 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-amber-500 focus:bg-white transition"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 gold-button text-slate-950 font-black rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition text-sm cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 gold-button text-slate-950 font-black rounded-xl shadow-md hover:scale-[1.01] active:scale-95 transition text-sm cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
                 >
                   <ThemeIcon icon="sparkles" className="w-4 h-4" />
                   <span>{isSubmitting ? 'Kaydediliyor...' : 'Değerlendirmeyi Gönder ✓'}</span>
                 </button>
               </form>
             )}
+
+            <div className="text-center text-[11px] text-slate-400 font-medium">
+              © {new Date().getFullYear()} İrem Düğün Sarayı • Tüm Hakları Saklıdır.
+            </div>
           </div>
         </div>
       );
     }
 
-    // ==========================================
-    // 🌟 MEMNUNİYET DEĞERLENDİRMELERİ YÖNETİM SAYFASI
-    // ==========================================
     function SatisfactionSurveysComponent({
       reservations = [],
       venues = [],
