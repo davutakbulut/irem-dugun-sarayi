@@ -12676,6 +12676,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         );
       }
 
+      if (publicSurveyToken) {
+        return <PublicSurveyPageComponent token={publicSurveyToken} showToast={showToast} />;
+      }
+
       return (
         <div className="admin-viewport min-h-screen flex flex-col font-sans transition-colors duration-300 relative w-full max-w-full" data-admin-theme={themeColor || 'gold'} data-admin-font={adminFont || 'jakarta'}>
           
@@ -18446,10 +18450,6 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
     function GlobalFooterComponent({ onNavigate, activeRole, campaigns = [], showToast, onOpenVersionModal, isPublicGuestRoute, systemVersion }) {
       const activeCampaign = campaigns.length > 0 ? campaigns[0] : { title: 'Erken Rezervasyon Fırsatı', code: 'IREM2026', discount: '%20 İndirim' };
       const currentYear = new Date().getFullYear();
-
-      if (publicSurveyToken) {
-        return <PublicSurveyPageComponent token={publicSurveyToken} showToast={showToast} />;
-      }
 
       if (isPublicGuestRoute) {
         return (
