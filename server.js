@@ -1475,20 +1475,22 @@ app.post(['/api/auth/login', '/api/login'], async (req, res) => {
     if (digits.startsWith('90')) digits = digits.slice(2);
     if (digits.startsWith('0')) digits = digits.slice(1);
 
-    // 1. Check in users table
+    // 1. Check in users table (flexible email, phone, or username match)
     const [userRows] = await activePool.query('SELECT * FROM users');
     let matchedUser = (userRows || []).find(u => {
       const uEmail = (u.email || '').toLowerCase().trim();
+      const uName = (u.name || '').toLowerCase().trim();
       let uPhone = (u.phone || '').replace(/\D/g, '');
       if (uPhone.startsWith('90')) uPhone = uPhone.slice(2);
       if (uPhone.startsWith('0')) uPhone = uPhone.slice(1);
 
-      if (loginMethod === 'email') {
-        return uEmail === cleanInputLower;
-      } else if (loginMethod === 'phone') {
-        return digits && uPhone && (uPhone === digits || uPhone.endsWith(digits) || digits.endsWith(uPhone));
+      if (cleanInputLower === 'admin' || cleanInputLower === 'yonetici') {
+        return (u.role === 'admin' || u.role === 'yonetici');
       }
-      return (uEmail === cleanInputLower) || (digits && uPhone && (uPhone === digits || uPhone.endsWith(digits)));
+
+      if (uEmail === cleanInputLower || uName === cleanInputLower) return true;
+      if (digits && uPhone && (uPhone === digits || uPhone.endsWith(digits) || digits.endsWith(uPhone))) return true;
+      return false;
     });
 
     // 2. If not in users, check customers table
@@ -1496,16 +1498,14 @@ app.post(['/api/auth/login', '/api/login'], async (req, res) => {
       const [custRows] = await activePool.query('SELECT * FROM customers');
       const matchedCust = (custRows || []).find(c => {
         const cEmail = (c.email || '').toLowerCase().trim();
+        const cName = (c.name || '').toLowerCase().trim();
         let cPhone = (c.phone || '').replace(/\D/g, '');
         if (cPhone.startsWith('90')) cPhone = cPhone.slice(2);
         if (cPhone.startsWith('0')) cPhone = cPhone.slice(1);
 
-        if (loginMethod === 'email') {
-          return cEmail === cleanInputLower;
-        } else if (loginMethod === 'phone') {
-          return digits && cPhone && (cPhone === digits || cPhone.endsWith(digits) || digits.endsWith(cPhone));
-        }
-        return (cEmail === cleanInputLower) || (digits && cPhone && (cPhone === digits || cPhone.endsWith(digits)));
+        if (cEmail === cleanInputLower || cName === cleanInputLower) return true;
+        if (digits && cPhone && (cPhone === digits || cPhone.endsWith(digits) || digits.endsWith(cPhone))) return true;
+        return false;
       });
 
       if (matchedCust) {
@@ -1524,7 +1524,7 @@ app.post(['/api/auth/login', '/api/login'], async (req, res) => {
     if (!matchedUser) {
       return res.status(401).json({
         success: false,
-        error: `Girdiğiniz ${loginMethod === 'phone' ? 'telefon numarası' : 'e-posta adresi'} sistemde kayıtlı değildir.`
+        error: `Girdiğiniz kullanıcı bilgisi (${inputIdentifier}) sistemde kayıtlı değildir. Lütfen e-posta veya telefonunuzu kontrol ediniz.`
       });
     }
 
