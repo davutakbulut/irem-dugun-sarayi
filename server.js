@@ -2107,6 +2107,28 @@ app.get('/api/expenses', async (req, res) => {
   res.json(memoryStore.expenses || []);
 });
 
+const deleteExpenseHandler = async (req, res) => {
+  try {
+    const id = req.params.id || req.body.id || req.body.expId || req.query.id;
+    if (!id) {
+      return res.status(400).json({ error: 'Gider ID eksik' });
+    }
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query('DELETE FROM expenses WHERE id = ?', [id]);
+      console.log(`🗑️ Gider / Kasa Hareketi [${id}] MariaDB Veritabanından Silindi.`);
+    }
+    memoryStore.expenses = (memoryStore.expenses || []).filter(e => e.id !== id);
+    res.json({ success: true, id, message: 'Gider başarıyla silindi.' });
+  } catch(e) {
+    console.error('MySQL DELETE /api/expenses error:', e.message);
+    res.status(500).json({ error: 'Gider silinemedi', message: e.message });
+  }
+};
+
+app.delete('/api/expenses/:id', deleteExpenseHandler);
+app.post(['/api/expenses/delete/:id', '/api/expenses/delete', '/api/expenses-delete', '/api/expenses/:id/delete'], deleteExpenseHandler);
+
 app.post('/api/expenses', async (req, res) => {
   try {
     if (req.body && (req.body.action === 'delete' || req.body._delete)) {
@@ -2151,22 +2173,6 @@ app.post('/api/expenses', async (req, res) => {
   } catch(e) {
     console.error('MySQL POST /api/expenses error:', e.message);
     res.status(500).json({ error: 'Kasa hareketi kaydedilemedi', message: e.message });
-  }
-});
-
-app.delete('/api/expenses/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const activePool = await getPool();
-    if (activePool) {
-      await activePool.query('DELETE FROM expenses WHERE id = ?', [id]);
-      console.log(`🗑️ Gider [${id}] MariaDB Veritabanından Silindi.`);
-    }
-    memoryStore.expenses = (memoryStore.expenses || []).filter(e => e.id !== id);
-    res.json({ success: true, id });
-  } catch(e) {
-    console.error('MySQL DELETE /api/expenses error:', e.message);
-    res.status(500).json({ error: 'Gider silinemedi', message: e.message });
   }
 });
 

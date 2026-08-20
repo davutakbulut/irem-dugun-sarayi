@@ -19473,6 +19473,7 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
         if (!confirm('Bu kasa hareketini silmek istediğinize emin misiniz?')) return;
         setExpenses(prev => {
           const updated = prev.filter(e => e.id !== expId);
+          CacheService.set('expenses', updated);
           try {
             const fetchFn = window.fetchWithRetry || fetch;
             fetchFn('/api/expenses', {
@@ -19483,6 +19484,9 @@ function CampaignsComponent({ campaigns = [], venues = [], services = [], reserv
           } catch(err) {}
           return updated;
         });
+        if (typeof showToast === 'function') {
+          showToast('Kasa hareketi veritabanından kalıcı olarak silindi.');
+        }
       };
 
       // Add Custom Expense to Reservation
