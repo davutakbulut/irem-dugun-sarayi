@@ -9963,6 +9963,208 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       );
     }
 
+    
+    // --- GEMINI AI NOTIFICATIONS PANEL COMPONENT ---
+    function NotificationsPanelComponent({
+      notifications = [],
+      unreadCount = 0,
+      onClose,
+      onMarkRead,
+      onMarkAllRead,
+      onGenerateAi,
+      isGenerating = false,
+      navigateTo
+    }) {
+      const [filter, setFilter] = useState('all'); // 'all' | 'unread' | 'payment' | 'advice'
+
+      const filteredList = useMemo(() => {
+        return (notifications || []).filter(n => {
+          if (filter === 'unread') return !n.is_read;
+          if (filter === 'payment') return n.type === 'payment' || n.severity === 'danger';
+          if (filter === 'advice') return n.type === 'advice' || n.type === 'finance' || n.type === 'lead';
+          return true;
+        });
+      }, [notifications, filter]);
+
+      const getSeverityBadge = (sev) => {
+        switch (sev) {
+          case 'danger':
+            return { bg: 'bg-red-500/15 border-red-500/30 text-red-600 dark:text-red-400', icon: '⚠️', label: 'Acil / Risk' };
+          case 'warning':
+            return { bg: 'bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-gold-400', icon: '⚡', label: 'Önemli' };
+          case 'success':
+            return { bg: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400', icon: '✓', label: 'Başarı' };
+          default:
+            return { bg: 'bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400', icon: '💡', label: 'Tavsiye' };
+        }
+      };
+
+      const handleItemClick = (n) => {
+        if (!n.is_read && onMarkRead) {
+          onMarkRead(n.id);
+        }
+        if (n.link) {
+          const cleanTab = n.link.replace('/yonetim/', '').replace('/', '');
+          if (navigateTo) {
+            navigateTo(cleanTab || 'dashboard');
+          }
+        }
+        if (onClose) onClose();
+      };
+
+      return (
+        <div className="absolute right-0 mt-2 w-[92vw] sm:w-96 max-w-sm bg-white dark:bg-brand-card rounded-3xl p-4 shadow-2xl border-2 border-amber-500/50 z-[9999999] animate-fade-in text-xs space-y-3">
+          
+          {/* HEADER */}
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-brand-border/60 pb-3">
+            <div className="flex items-center space-x-2">
+              <div className="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-600 dark:text-gold-400 flex items-center justify-center font-bold">
+                🔔
+              </div>
+              <div>
+                <h4 className="font-heading font-extrabold text-sm text-slate-900 dark:text-white">
+                  Yapay Zeka Bildirimleri
+                </h4>
+                <div className="text-[10px] text-slate-500 dark:text-gray-400">
+                  Gemini 3.5 Flash Canlı Analiz
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onGenerateAi}
+              disabled={isGenerating}
+              className="px-2.5 py-1 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-gold-400 font-extrabold text-[11px] transition flex items-center space-x-1 border border-amber-500/30 cursor-pointer disabled:opacity-50"
+              title="Yapay Zekayı Çalıştır & Tavsiyeleri Yenile"
+            >
+              {isGenerating ? (
+                <>
+                  <span className="w-2.5 h-2.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></span>
+                  <span>Analiz Ediliyor...</span>
+                </>
+              ) : (
+                <>
+                  <span>⚡</span>
+                  <span>AI Yenile</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* FILTER PILLS & MARK ALL READ */}
+          <div className="flex items-center justify-between gap-1.5 text-[11px]">
+            <div className="flex items-center space-x-1">
+              <button
+                type="button"
+                onClick={() => setFilter('all')}
+                className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+                  filter === 'all'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 hover:bg-slate-200'
+                }`}
+              >
+                Tümü ({notifications.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilter('unread')}
+                className={`px-2 py-1 rounded-lg font-bold transition cursor-pointer ${
+                  filter === 'unread'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 hover:bg-slate-200'
+                }`}
+              >
+                Okunmamış ({unreadCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilter('payment')}
+                className={`px-2 py-1 rounded-lg font-bold transition cursor-pointer ${
+                  filter === 'payment'
+                    ? 'bg-red-500 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-400 hover:bg-slate-200'
+                }`}
+              >
+                Ödemeler
+              </button>
+            </div>
+
+            {unreadCount > 0 && (
+              <button
+                type="button"
+                onClick={onMarkAllRead}
+                className="text-[10px] text-amber-700 dark:text-gold-400 hover:underline font-bold whitespace-nowrap cursor-pointer"
+              >
+                Tümünü Oku ✓
+              </button>
+            )}
+          </div>
+
+          {/* NOTIFICATION ITEMS SCROLL LIST */}
+          <div className="max-h-80 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+            {filteredList.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 text-xs">
+                <div className="text-2xl mb-1">🎉</div>
+                <div>Harika! Bekleyen veya okunmamış bildirim bulunmuyor.</div>
+              </div>
+            ) : (
+              filteredList.map(n => {
+                const s = getSeverityBadge(n.severity);
+                return (
+                  <div
+                    key={n.id}
+                    onClick={() => handleItemClick(n)}
+                    className={`p-3 rounded-2xl border transition cursor-pointer space-y-1.5 ${
+                      n.is_read
+                        ? 'bg-slate-50/50 dark:bg-brand-dark/40 border-slate-200/60 dark:border-brand-border/40 opacity-75 hover:opacity-100'
+                        : 'bg-amber-500/5 dark:bg-brand-dark border-amber-500/30 shadow-xs hover:border-amber-500'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border shrink-0 flex items-center space-x-1 ${s.bg}`}>
+                        <span>{s.icon}</span>
+                        <span>{s.label}</span>
+                      </span>
+                      {!n.is_read && (
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0 mt-1 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                      )}
+                    </div>
+
+                    <div className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                      {n.title}
+                    </div>
+
+                    <p className="text-[11px] text-slate-600 dark:text-gray-300 leading-relaxed line-clamp-3">
+                      {n.message}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-1 text-[10px] text-slate-400 font-medium">
+                      <span>{n.created_at ? new Date(n.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Az önce'}</span>
+                      <span className="text-amber-700 dark:text-gold-400 font-bold hover:underline">İncele →</span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* FOOTER */}
+          <div className="pt-2 border-t border-slate-200 dark:border-brand-border/40 text-center">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-1.5 rounded-xl bg-slate-100 dark:bg-brand-dark text-slate-600 dark:text-gray-300 hover:bg-slate-200 font-bold text-xs cursor-pointer"
+            >
+              Kapat
+            </button>
+          </div>
+
+        </div>
+      );
+    }
+
+
     function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
       const [venues, setVenues] = useState(() => CacheService.get('venues', null) || []);
@@ -10577,6 +10779,68 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return isPathHome || isPublicTab || isPathGuest || isSearchGuest || isHashGuest || isUnauthenticatedMedia;
       }, [activeTab, sessionUser]);
       const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+      const [notificationsState, setNotificationsState] = useState([]);
+      const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+      const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+      const [isGeneratingAiNotifs, setIsGeneratingAiNotifs] = useState(false);
+
+      const fetchNotifications = useCallback(async () => {
+        try {
+          const fetchFn = window.fetchWithRetry || fetch;
+          const res = await fetchFn('/api/notifications');
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.notifications)) {
+            setNotificationsState(data.notifications);
+            setUnreadNotificationsCount(data.unreadCount || 0);
+          }
+        } catch (e) {}
+      }, []);
+
+      useEffect(() => {
+        fetchNotifications();
+        const timer = setInterval(fetchNotifications, 60000);
+        return () => clearInterval(timer);
+      }, [fetchNotifications]);
+
+      const handleMarkNotificationRead = async (notifId) => {
+        try {
+          setNotificationsState(prev => prev.map(n => n.id === notifId ? { ...n, is_read: true } : n));
+          setUnreadNotificationsCount(prev => Math.max(0, prev - 1));
+          const fetchFn = window.fetchWithRetry || fetch;
+          await fetchFn('/api/notifications/read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: notifId })
+          });
+        } catch(e) {}
+      };
+
+      const handleMarkAllNotificationsRead = async () => {
+        try {
+          setNotificationsState(prev => prev.map(n => ({ ...n, is_read: true })));
+          setUnreadNotificationsCount(0);
+          const fetchFn = window.fetchWithRetry || fetch;
+          await fetchFn('/api/notifications/read-all', { method: 'POST' });
+        } catch(e) {}
+      };
+
+      const handleGenerateAiNotifications = async () => {
+        try {
+          setIsGeneratingAiNotifs(true);
+          const fetchFn = window.fetchWithRetry || fetch;
+          const res = await fetchFn('/api/notifications/generate-ai', { method: 'POST' });
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.notifications)) {
+            setNotificationsState(data.notifications);
+            setUnreadNotificationsCount(data.unreadCount || 0);
+            if (showToast) showToast('Yapay Zeka yeni önerileri ve bildirimleri başarıyla üretti!', 'success');
+          }
+        } catch(e) {
+          if (showToast) showToast('AI analizi sırasında bağlantı hatası oluştu.', 'error');
+        } finally {
+          setIsGeneratingAiNotifs(false);
+        }
+      };
       const [menuLayout, setMenuLayout] = useState(() => {
         const domMenu = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-menu-layout') : null;
         try {
@@ -11618,40 +11882,82 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   </div>
                 </div>
 
-                {/* RIGHT: QUICK ACTION & CLICKABLE PROFILE AVATAR */}
-                <div className="flex items-center space-x-3">
+                {/* RIGHT: QUICK ACTION, NOTIFICATIONS BELL & DESKTOP PROFILE */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  
+                  {/* 1. SITEYI GOR BUTTON */}
                   <a
                     href="/"
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/40 text-amber-900 dark:text-amber-300 font-extrabold text-xs hover:bg-amber-100 dark:hover:bg-amber-500/20 shadow-xs hover:scale-105 transition flex items-center space-x-1.5 cursor-pointer"
+                    className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/40 text-amber-900 dark:text-amber-300 font-extrabold text-xs hover:bg-amber-100 dark:hover:bg-amber-500/20 shadow-xs hover:scale-105 transition flex items-center space-x-1.5 cursor-pointer"
                     title="Ön Yüz Web Sitesini Yeni Sekmede Aç"
                   >
                     <ThemeIcon icon="globe" className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span className="hidden sm:inline font-black tracking-wide">Siteyi Gör ↗</span>
                   </a>
 
-                  {/* PROFILE AVATAR DROPDOWN */}
+                  {/* 2. GEMINI AI NOTIFICATIONS BELL BUTTON */}
                   <div className="relative shrink-0">
                     <button
                       type="button"
-                      onClick={() => setIsProfileDropdownOpen(prev => !prev)}
+                      onClick={() => {
+                        setIsNotificationsOpen(prev => !prev);
+                        setIsProfileDropdownOpen(false);
+                      }}
+                      className="relative p-2 sm:px-3 sm:py-2 rounded-xl border border-amber-500/30 bg-white/50 dark:bg-brand-card/50 hover:bg-amber-500/15 text-slate-800 dark:text-gray-200 transition cursor-pointer flex items-center space-x-1.5 shadow-xs"
+                      title="Yapay Zeka Bildirimleri & Tavsiyeleri"
+                    >
+                      <svg className="w-4 h-4 sm:w-4 sm:h-4 text-amber-600 dark:text-gold-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                      </svg>
+                      <span className="hidden md:inline text-xs font-extrabold">Bildirimler</span>
+                      {unreadNotificationsCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white ring-2 ring-white dark:ring-brand-dark animate-pulse shadow-sm">
+                          {unreadNotificationsCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* NOTIFICATIONS DROPDOWN PANEL */}
+                    {isNotificationsOpen && (
+                      <NotificationsPanelComponent
+                        notifications={notificationsState}
+                        unreadCount={unreadNotificationsCount}
+                        onClose={() => setIsNotificationsOpen(false)}
+                        onMarkRead={handleMarkNotificationRead}
+                        onMarkAllRead={handleMarkAllNotificationsRead}
+                        onGenerateAi={handleGenerateAiNotifications}
+                        isGenerating={isGeneratingAiNotifs}
+                        navigateTo={navigateTo}
+                      />
+                    )}
+                  </div>
+
+                  {/* 3. PROFILE AVATAR DROPDOWN (HIDDEN ON MOBILE TO GAIN MAX SCREEN SPACE) */}
+                  <div className="relative shrink-0 hidden sm:block">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileDropdownOpen(prev => !prev);
+                        setIsNotificationsOpen(false);
+                      }}
                       className="flex items-center space-x-2 p-1 rounded-full hover:bg-amber-500/10 transition border border-amber-500/30 bg-white/50 dark:bg-brand-card/50 shadow-sm cursor-pointer"
                       title="Profil Menüsünü Aç"
                     >
-                      <img src={currentUserState?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"} alt="Kullanıcı Profil Resmi" className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-amber-500/60 object-cover shrink-0" />
+                      <img src={currentUserState?.avatar || sessionUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"} alt="Kullanıcı Profil Resmi" className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-amber-500/60 object-cover shrink-0" />
                       <div className="hidden md:block text-left pr-1">
-                        <div className="text-xs font-bold text-slate-800 dark:text-gray-200 leading-tight">{currentUserState?.name || 'Davut Akbulut'}</div>
+                        <div className="text-xs font-bold text-slate-800 dark:text-gray-200 leading-tight">{currentUserState?.name || sessionUser?.name || 'Davut Akbulut'}</div>
                         <div className="text-[9px] text-amber-600 dark:text-gold-400 font-bold">{rolesState[activeRole] || activeRole}</div>
                       </div>
                       <span className="text-[10px] opacity-60">▼</span>
                     </button>
 
-                    {/* DROPDOWN MENU (HIGHER Z-INDEX THAN MEGA MENU DRAWER) */}
+                    {/* DROPDOWN MENU */}
                     {isProfileDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-brand-card rounded-2xl p-2 shadow-2xl border-2 border-amber-500/50 z-[9999999] animate-fade-in text-xs space-y-1">
                         <div className="p-2 border-b border-slate-200 dark:border-brand-border/40">
-                          <div className="font-bold text-slate-800 dark:text-gray-100">{currentUserState?.name || 'Davut Akbulut'}</div>
+                          <div className="font-bold text-slate-800 dark:text-gray-100">{currentUserState?.name || sessionUser?.name || 'Davut Akbulut'}</div>
                           <div className="text-[10px] text-amber-700 dark:text-gold-400 font-bold">{rolesState[activeRole] || activeRole}</div>
                         </div>
 
@@ -11660,7 +11966,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             navigateTo('profile');
                             setIsProfileDropdownOpen(false);
                           }}
-                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left"
+                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left cursor-pointer"
                         >
                           <ThemeIcon icon="user" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" /><span>Profilimi Düzenle</span>
                         </button>
@@ -11671,7 +11977,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                               navigateTo('settings');
                               setIsProfileDropdownOpen(false);
                             }}
-                            className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left"
+                            className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-gray-200 hover:bg-amber-500/10 hover:text-amber-700 font-bold transition text-left cursor-pointer"
                           >
                             <ThemeIcon icon="settings" fallbackEmoji="" className="w-4 h-4 text-amber-500 shrink-0" /><span>Sistem Ayarları</span>
                           </button>
@@ -11682,7 +11988,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                             setIsProfileDropdownOpen(false);
                             handleLogout();
                           }}
-                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-500/10 font-bold transition text-left"
+                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-500/10 font-bold transition text-left cursor-pointer"
                         >
                           <ThemeIcon icon="logout" fallbackEmoji="" className="w-4 h-4 text-red-500 shrink-0" /><span>Çıkış Yap</span>
                         </button>
@@ -12807,43 +13113,74 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                   </nav>
                 </div>
 
-                {/* DRAWER FOOTER: DYNAMIC LOGGED IN USER PROFILE & LOGOUT */}
-                <div className="pt-4 border-t border-slate-200 dark:border-brand-border/40 space-y-2">
-                  <div className="bg-amber-500/10 p-3 rounded-2xl border border-amber-500/30 flex items-center justify-between">
-                    <div 
-                      className="flex items-center space-x-3 min-w-0 cursor-pointer"
+                {/* DRAWER FOOTER: FULL RICH USER PROFILE & ACTIONS IN MOBILE SIDEBAR */}
+                <div className="pt-3 border-t border-slate-200 dark:border-brand-border/40 space-y-2.5">
+                  <div className="bg-amber-500/10 p-3 rounded-2xl border border-amber-500/30 flex items-center space-x-3">
+                    <img 
+                      src={currentUserState?.avatar || sessionUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"} 
+                      alt="Avatar" 
+                      className="w-11 h-11 rounded-full border-2 border-amber-500 object-cover shrink-0" 
+                    />
+                    <div className="text-xs min-w-0 flex-1">
+                      <div className="font-extrabold text-slate-800 dark:text-gray-100 truncate text-sm">
+                        {currentUserState?.name || sessionUser?.name || 'Kullanıcı'}
+                      </div>
+                      <div className="text-[10px] text-amber-700 dark:text-gold-400 font-bold truncate">
+                        {rolesState[activeRole] || ROLE_NAMES[activeRole] || activeRole}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* QUICK PROFILE & SETTINGS & LOGOUT ACTIONS */}
+                  <div className="grid grid-cols-2 gap-2 text-xs font-bold">
+                    <button
+                      type="button"
                       onClick={() => {
                         navigateTo('profile');
                         setIsMobileMenuOpen(false);
                       }}
-                      title="Profilimi Aç"
+                      className="p-2.5 rounded-xl bg-slate-100 dark:bg-brand-dark/90 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center space-x-1.5 transition cursor-pointer text-center"
                     >
-                      <img 
-                        src={currentUserState?.avatar || sessionUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"} 
-                        alt="Avatar" 
-                        className="w-10 h-10 rounded-full border-2 border-amber-500 object-cover shrink-0" 
-                      />
-                      <div className="text-xs min-w-0">
-                        <div className="font-bold text-slate-800 dark:text-gray-100 truncate">
-                          {currentUserState?.name || sessionUser?.name || 'Kullanıcı'}
-                        </div>
-                        <div className="text-[10px] text-amber-700 dark:text-gold-400 font-bold truncate">
-                          {rolesState[activeRole] || ROLE_NAMES[activeRole] || activeRole}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="p-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-500/10 transition shrink-0 cursor-pointer"
-                      title="Çıkış Yap"
-                    >
-                      <ThemeIcon icon="logout" fallbackEmoji="" className="w-4 h-4 text-red-500" />
+                      <ThemeIcon icon="user" className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Profilim</span>
                     </button>
+
+                    {activeRole === 'admin' ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigateTo('settings');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="p-2.5 rounded-xl bg-slate-100 dark:bg-brand-dark/90 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center space-x-1.5 transition cursor-pointer text-center"
+                      >
+                        <ThemeIcon icon="settings" className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Ayarlar</span>
+                      </button>
+                    ) : (
+                      <a
+                        href="/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 rounded-xl bg-slate-100 dark:bg-brand-dark/90 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border flex items-center justify-center space-x-1.5 transition cursor-pointer text-center"
+                      >
+                        <ThemeIcon icon="globe" className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Site ↗</span>
+                      </a>
+                    )}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full p-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 font-bold border border-red-500/30 flex items-center justify-center space-x-2 transition cursor-pointer text-xs"
+                  >
+                    <ThemeIcon icon="logout" className="w-4 h-4 text-red-500" />
+                    <span>Güvenli Çıkış Yap</span>
+                  </button>
                 </div>
 
               </div>

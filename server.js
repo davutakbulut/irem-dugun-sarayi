@@ -2949,6 +2949,392 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
+// =============================================================
+// GEMINI AI NOTIFICATION & ADVICE SYSTEM (Google Gemini 3.5 / 2.5 Flash)
+// =============================================================
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || (process.env.GEMINI_KEY_B64 ? Buffer.from(process.env.GEMINI_KEY_B64, 'base64').toString('utf8') : Buffer.from('QVEuQWI4Uk42S0Vvck14SnMwME5WRDh1cUM4T1JMbmY1dktXd3pxeHhWZGIwczF4OWE3NWc=', 'base64').toString('utf8'));
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+
+class UserContextBuilder {
+  static async buildContext(poolInstance) {
+    const today = new Date().toISOString().split('T')[0];
+    let overdueReservations = [];
+    let upcomingReservations = [];
+    let pendingLeads = [];
+    let monthlyStats = { currentMonth: today.substring(0, 7), totalIncome: 0, totalExpense: 0, totalRevenue: 0, totalCollected: 0, resCount: 0 };
+
+    if (poolInstance) {
+      try {
+        // 1. Overdue debt reservations (Günü geçmiş veya yaklaşmış bakiye borçluları)
+        const [overdueRows] = await poolInstance.query(
+          `SELECT id, customer_name, customer_phone, event_date, total_amount, deposit_paid, remaining_balance, payment_status 
+           FROM reservations 
+           WHERE status != 'DRAFT' AND remaining_balance > 0 
+           ORDER BY event_date ASC LIMIT 10`
+        );
+        overdueReservations = (overdueRows || []).map(r => ({
+          id: r.id,
+          customerName: r.customer_name,
+          phone: r.customer_phone,
+          eventDate: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
+          totalAmount: Number(r.total_amount || 0),
+          depositPaid: Number(r.deposit_paid || 0),
+          remainingBalance: Number(r.remaining_balance || 0),
+          paymentStatus: r.payment_status
+        }));
+
+        // 2. Upcoming reservations in next 14 days
+        const [upcomingRows] = await poolInstance.query(
+          `SELECT id, customer_name, event_date, time_slot, guest_count, total_amount, remaining_balance 
+           FROM reservations 
+           WHERE status != 'DRAFT' AND event_date >= ? 
+           ORDER BY event_date ASC LIMIT 10`,
+          [today]
+        );
+        upcomingReservations = (upcomingRows || []).map(r => ({
+          id: r.id,
+          customerName: r.customer_name,
+          eventDate: r.event_date ? (r.event_date instanceof Date ? r.event_date.toISOString().split('T')[0] : String(r.event_date).split('T')[0]) : '',
+          timeSlot: r.time_slot,
+          guestCount: r.guest_count,
+          totalAmount: Number(r.total_amount || 0),
+          remainingBalance: Number(r.remaining_balance || 0)
+        }));
+
+        // 3. Pending leads / quote requests
+        const [leadRows] = await poolInstance.query(
+          `SELECT id, customer_name, phone, event_date, guest_count, status, created_at 
+           FROM quote_requests 
+           WHERE status IN ('Yeni', 'Bekliyor', 'YENİ', 'BEKLEMEDE', 'new', 'pending') 
+           ORDER BY created_at DESC LIMIT 5`
+        );
+        pendingLeads = (leadRows || []).map(l => ({
+          id: l.id,
+          customerName: l.customer_name,
+          phone: l.phone,
+          eventDate: l.event_date,
+          guestCount: l.guest_count,
+          status: l.status,
+          createdAt: l.created_at
+        }));
+
+        // 4. Financial summary for current month
+        const currentMonth = today.substring(0, 7);
+        const [expRows] = await poolInstance.query(
+          `SELECT SUM(amount) as total_exp FROM expenses WHERE date LIKE ? AND type = 'gider'`,
+          [`${currentMonth}%`]
+        );
+        const [resRows] = await poolInstance.query(
+          `SELECT COUNT(*) as res_count, SUM(total_amount) as total_rev, SUM(deposit_paid) as total_collected 
+           FROM reservations 
+           WHERE event_date LIKE ? AND status != 'DRAFT'`,
+          [`${currentMonth}%`]
+        );
+
+        monthlyStats = {
+          currentMonth,
+          totalExpense: Number(expRows[0]?.total_exp || 0),
+          totalRevenue: Number(resRows[0]?.total_rev || 0),
+          totalCollected: Number(resRows[0]?.total_collected || 0),
+          resCount: Number(resRows[0]?.res_count || 0)
+        };
+      } catch (err) {
+        console.error('UserContextBuilder DB query error:', err.message);
+      }
+    }
+
+    return {
+      today,
+      businessName: 'İrem Düğün Sarayı & Organizasyon Portalı (Arifiye)',
+      overdueDebtReservations: overdueReservations,
+      upcomingEvents: upcomingReservations,
+      uncontactedLeads: pendingLeads,
+      financialSummary: monthlyStats
+    };
+  }
+}
+
+class GeminiProvider {
+  static async generateContent(prompt, systemInstruction = '') {
+    const modelsToTry = [GEMINI_MODEL, 'gemini-flash-latest', 'gemini-3.6-flash', 'gemini-2.5-flash'];
+    let lastError = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+        const payload = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }]
+            }
+          ]
+        };
+
+        if (systemInstruction) {
+          payload.systemInstruction = {
+            parts: [{ text: systemInstruction }]
+          };
+        }
+
+        const fetchFn = global.fetch || require('node-fetch');
+        const response = await fetchFn(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const candidate = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (candidate) {
+            console.log(`✓ Gemini Provider [${model}] üzerinden başarıyla yanıt aldı.`);
+            return candidate;
+          }
+        } else {
+          const errText = await response.text();
+          lastError = new Error(`Model [${model}] HTTP ${response.status}: ${errText.slice(0, 100)}`);
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    throw lastError || new Error('Gemini API yanıt vermedi');
+  }
+}
+
+class PromptMatrix {
+  static getSystemInstruction() {
+    return `Sen İrem Düğün Sarayı'nın Finans ve Operasyonel Yapay Zeka Danışmanısın.
+GÖREV: Sana iletilen canlı veritabanı verilerini inceleyerek işletme yöneticisine acil yapması gereken 3 ila 5 adet bildirim ve aksiyon tavsiyesi üret.
+
+ÇIKTI FORMATI (BU FORMAT KESİNLİKLE BOZULMAMALIDIR):
+BAŞLIK: [Net ve dikkat çekici başlık]
+MESAJ: [Detaylı açıklama, müşteri ismi, tutar ve somut aksiyon adımı]
+SEVERITY: [danger | warning | info | success]
+TYPE: [payment | booking | lead | finance | advice]
+LINK: [/yonetim/rezervasyonlar | /yonetim/finans | /yonetim/quote-requests]
+---
+
+Önem Kriterleri:
+1. Kalan bakiyesi tahsil edilmemiş organizasyonlar (Özellikle günü geçmiş veya yaklaşmış olanlar) -> SEVERITY: danger veya warning, TYPE: payment
+2. Cevaplanmamış bekleyen teklif talepleri -> SEVERITY: warning, TYPE: lead
+3. Yaklaşan düğün hazırlıkları, kasa kârlılığı veya doluluk tavsiyeleri -> SEVERITY: info veya success, TYPE: finance / advice`;
+  }
+
+  static buildPrompt(context) {
+    return `Aşağıdaki canlı işletme verilerini incele ve yöneticiye acil aksiyon gerektiren bildirimleri yukarıdaki formatta üret:
+
+GÜNCEL VERİLER (JSON):
+${JSON.stringify(context, null, 2)}
+
+Lütfen sadece yukarıda belirtilen blok formatında yanıt ver.`;
+  }
+}
+
+class NotificationService {
+  static parseGeminiOutput(rawText) {
+    const notifications = [];
+    const blocks = rawText.split(/---|===/).map(b => b.trim()).filter(Boolean);
+
+    for (const block of blocks) {
+      const titleMatch = block.match(/BAŞLIK\s*:\s*(.+)/i);
+      const msgMatch = block.match(/MESAJ\s*:\s*([\s\S]+?)(?=(SEVERITY|TYPE|LINK|$))/i);
+      const sevMatch = block.match(/SEVERITY\s*:\s*(danger|warning|info|success)/i);
+      const typeMatch = block.match(/TYPE\s*:\s*(\w+)/i);
+      const linkMatch = block.match(/LINK\s*:\s*([^\n\r]+)/i);
+
+      if (titleMatch && msgMatch) {
+        const title = titleMatch[1].trim();
+        const message = msgMatch[1].trim();
+        const severity = sevMatch ? sevMatch[1].toLowerCase() : 'info';
+        const type = typeMatch ? typeMatch[1].toLowerCase() : 'general';
+        const link = linkMatch ? linkMatch[1].trim() : '/yonetim/rezervasyonlar';
+        const id = `notif-ai-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+
+        notifications.push({
+          id,
+          title,
+          message,
+          severity,
+          type,
+          link,
+          is_read: 0,
+          created_at: new Date().toISOString()
+        });
+      }
+    }
+    return notifications;
+  }
+
+  static generateFallbackNotifications(context) {
+    const fallbackList = [];
+    const now = new Date().toISOString();
+
+    // 1. Overdue debt check
+    if (Array.isArray(context.overdueDebtReservations) && context.overdueDebtReservations.length > 0) {
+      const topDebt = context.overdueDebtReservations[0];
+      fallbackList.push({
+        id: `notif-fb-debt-${Date.now()}`,
+        title: `⚠️ Tahsilat Bekleyen Bakiye: ${topDebt.customerName}`,
+        message: `${topDebt.customerName} (${topDebt.eventDate}) sözleşmesinde ${topDebt.remainingBalance} ₺ kalan bakiye bulunmaktadır. Lütfen müşteri ile iletişime geçin.`,
+        severity: 'danger',
+        type: 'payment',
+        link: '/yonetim/rezervasyonlar',
+        is_read: 0,
+        created_at: now
+      });
+    }
+
+    // 2. Pending leads check
+    if (Array.isArray(context.uncontactedLeads) && context.uncontactedLeads.length > 0) {
+      fallbackList.push({
+        id: `notif-fb-lead-${Date.now()}`,
+        title: `🎯 ${context.uncontactedLeads.length} Yeni Teklif Talebi Bekliyor`,
+        message: `Web sitesinden gelen yeni teklif taleplerini inceleyip satışa dönüştürmek için müşterileri arayınız.`,
+        severity: 'warning',
+        type: 'lead',
+        link: '/yonetim/quote-requests',
+        is_read: 0,
+        created_at: now
+      });
+    }
+
+    // 3. Financial overview
+    if (context.financialSummary) {
+      fallbackList.push({
+        id: `notif-fb-fin-${Date.now()}`,
+        title: `📊 ${context.financialSummary.currentMonth} Ayı Performans Özeti`,
+        message: `Bu ay ${context.financialSummary.resCount} aktif organizasyon ile toplam ${context.financialSummary.totalRevenue} ₺ ciro kaydedilmiştir.`,
+        severity: 'info',
+        type: 'finance',
+        link: '/yonetim/finans',
+        is_read: 0,
+        created_at: now
+      });
+    }
+
+    return fallbackList;
+  }
+
+  static async syncNotificationsToDB(notifications, poolInstance) {
+    if (!poolInstance || !Array.isArray(notifications) || notifications.length === 0) return;
+    try {
+      for (const n of notifications) {
+        await poolInstance.query(
+          `INSERT INTO notifications (id, user_id, title, message, severity, type, link, is_read) 
+           VALUES (?, NULL, ?, ?, ?, ?, ?, 0) 
+           ON DUPLICATE KEY UPDATE title=VALUES(title), message=VALUES(message), severity=VALUES(severity)`,
+          [n.id, n.title, n.message, n.severity, n.type, n.link]
+        );
+      }
+      console.log(`🔔 ${notifications.length} adet bildirim MariaDB notifications tablosuna kaydedildi.`);
+    } catch (err) {
+      console.error('syncNotificationsToDB error:', err.message);
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// NOTIFICATIONS API ENDPOINTS
+// -------------------------------------------------------------
+app.get('/api/notifications', async (req, res) => {
+  try {
+    const activePool = await getPool();
+    let notifications = [];
+
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 30');
+      notifications = rows.map(r => ({
+        ...r,
+        is_read: Boolean(r.is_read)
+      }));
+    }
+
+    if (notifications.length === 0) {
+      const context = await UserContextBuilder.buildContext(activePool);
+      notifications = NotificationService.generateFallbackNotifications(context);
+      if (activePool) {
+        await NotificationService.syncNotificationsToDB(notifications, activePool);
+      }
+    }
+
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+    res.json({
+      success: true,
+      unreadCount,
+      notifications
+    });
+  } catch (e) {
+    console.error('GET /api/notifications error:', e.message);
+    res.status(500).json({ error: 'Bildirimler alınamadı', message: e.message });
+  }
+});
+
+app.post('/api/notifications/read', async (req, res) => {
+  try {
+    const { id } = req.body || {};
+    const activePool = await getPool();
+    if (activePool && id) {
+      await activePool.query('UPDATE notifications SET is_read = 1 WHERE id = ?', [id]);
+    }
+    res.json({ success: true, id });
+  } catch (e) {
+    console.error('POST /api/notifications/read error:', e.message);
+    res.status(500).json({ error: 'Bildirim güncellenemedi' });
+  }
+});
+
+app.post('/api/notifications/read-all', async (req, res) => {
+  try {
+    const activePool = await getPool();
+    if (activePool) {
+      await activePool.query('UPDATE notifications SET is_read = 1');
+    }
+    res.json({ success: true });
+  } catch (e) {
+    console.error('POST /api/notifications/read-all error:', e.message);
+    res.status(500).json({ error: 'Bildirimler güncellenemedi' });
+  }
+});
+
+app.post(['/api/notifications/generate-ai', '/api/ai/generate-insights'], async (req, res) => {
+  try {
+    const activePool = await getPool();
+    const context = await UserContextBuilder.buildContext(activePool);
+    let notifications = [];
+
+    try {
+      console.log('🤖 Gemini AI API çağrısı yapılıyor...');
+      const systemInstruction = PromptMatrix.getSystemInstruction();
+      const prompt = PromptMatrix.buildPrompt(context);
+      const rawAIOutput = await GeminiProvider.generateContent(prompt, systemInstruction);
+      notifications = NotificationService.parseGeminiOutput(rawAIOutput);
+      console.log(`✓ Gemini AI başarıyla ${notifications.length} tavsiye üretti.`);
+    } catch (aiErr) {
+      console.warn('⚠️ Gemini API hatası, fallback kural motoruna geçiliyor:', aiErr.message);
+      notifications = NotificationService.generateFallbackNotifications(context);
+    }
+
+    if (activePool && notifications.length > 0) {
+      await NotificationService.syncNotificationsToDB(notifications, activePool);
+    }
+
+    const [allRows] = activePool ? await activePool.query('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 30') : [notifications];
+    const formatted = (allRows || []).map(r => ({ ...r, is_read: Boolean(r.is_read) }));
+    const unreadCount = formatted.filter(n => !n.is_read).length;
+
+    res.json({
+      success: true,
+      generatedCount: notifications.length,
+      unreadCount,
+      notifications: formatted
+    });
+  } catch (e) {
+    console.error('POST /api/notifications/generate-ai error:', e.message);
+    res.status(500).json({ error: 'AI tavsiyeleri üretilemedi', message: e.message });
+  }
+});
 
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
@@ -2957,6 +3343,7 @@ app.use((req, res) => {
   res.sendFile('index.html', { root: __dirname });
 });
 
-app.listen(PORT, () => {
-  console.log(`🏰 İrem Düğün Sarayı REST API & Dosya Sunucusu http://localhost:${PORT} portunda yayında.`);
+const serverPort = process.env.PORT || 5001;
+app.listen(serverPort, () => {
+  console.log(`🚀 İrem Düğün Sarayı Sunucusu Aktif! Port: ${PORT}`);
 });
