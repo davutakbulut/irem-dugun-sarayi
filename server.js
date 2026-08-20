@@ -1806,7 +1806,15 @@ app.post('/api/satisfaction-surveys/invite', async (req, res) => {
 
     if (!surveyRecord) {
       const id = `srv-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-      const token = `anket_${reservationId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}_${Date.now().toString(36)}`;
+      const generateShortSurveyKey = () => {
+        const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
+        let resKey = '';
+        for (let i = 0; i < 6; i++) {
+          resKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return resKey;
+      };
+      const token = generateShortSurveyKey();
       
       await activePool.query(
         `INSERT INTO satisfaction_surveys 
