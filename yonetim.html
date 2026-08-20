@@ -14859,65 +14859,110 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       useEffect(() => {
         if (editingResFromUrl) {
           const editKey = editingResFromUrl.id || editingResFromUrl.refKey;
-          if (hasLoadedEditResRef.current === editKey) return;
-          hasLoadedEditResRef.current = editKey;
+          const isInitialLoadForThisRes = hasLoadedEditResRef.current !== editKey;
+          
+          if (isInitialLoadForThisRes) {
+            hasLoadedEditResRef.current = editKey;
 
-          setVenueId(editingResFromUrl.venueId || venues[0]?.id || '');
-          setEventTypeId(editingResFromUrl.eventTypeId || editingResFromUrl.event_type_id || 'evt-dugun');
-          setCustomVenuePrice(editingResFromUrl.venuePrice !== undefined ? editingResFromUrl.venuePrice : (editingResFromUrl.customVenuePrice !== undefined ? editingResFromUrl.customVenuePrice : (venues.find(v => v.id === editingResFromUrl.venueId)?.price || 0)));
-          setStartDate(formatDateForInput(editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.date) || '2026-08-25');
-          setEndDate(formatDateForInput(editingResFromUrl.endDate || editingResFromUrl.eventDate || editingResFromUrl.date) || '2026-08-25');
+            setVenueId(editingResFromUrl.venueId || editingResFromUrl.venue_id || venues[0]?.id || '');
+            setEventTypeId(editingResFromUrl.eventTypeId || editingResFromUrl.event_type_id || 'evt-dugun');
+            setCustomVenuePrice(
+              editingResFromUrl.venuePrice !== undefined ? editingResFromUrl.venuePrice :
+              (editingResFromUrl.customVenuePrice !== undefined ? editingResFromUrl.customVenuePrice :
+              (editingResFromUrl.venue_price !== undefined ? editingResFromUrl.venue_price :
+              (venues.find(v => v.id === (editingResFromUrl.venueId || editingResFromUrl.venue_id))?.price || 0)))
+            );
+            
+            const rawDate = editingResFromUrl.startDate || editingResFromUrl.eventDate || editingResFromUrl.event_date || editingResFromUrl.date;
+            setStartDate(formatDateForInput(rawDate) || '2026-08-25');
+            const rawEndDate = editingResFromUrl.endDate || editingResFromUrl.end_date || rawDate;
+            setEndDate(formatDateForInput(rawEndDate) || '2026-08-25');
 
-          const timeParts = (editingResFromUrl.timeSlot || '').split('-');
-          if (timeParts.length === 2) {
-            setStartTime(timeParts[0].trim() || '19:00');
-            setEndTime(timeParts[1].trim() || '23:00');
-          } else {
-            setStartTime(editingResFromUrl.startTime || '19:00');
-            setEndTime(editingResFromUrl.endTime || '23:00');
+            const timeParts = (editingResFromUrl.timeSlot || editingResFromUrl.time_slot || '').split('-');
+            if (timeParts.length === 2) {
+              setStartTime(timeParts[0].trim() || '19:00');
+              setEndTime(timeParts[1].trim() || '23:00');
+            } else {
+              setStartTime(editingResFromUrl.startTime || editingResFromUrl.start_time || '19:00');
+              setEndTime(editingResFromUrl.endTime || editingResFromUrl.end_time || '23:00');
+            }
+
+            setGuestCount(editingResFromUrl.guestCount || editingResFromUrl.guest_count || 500);
+
+            // Services Pre-fill
+            let rawServices = editingResFromUrl.selectedServices || editingResFromUrl.selected_services;
+            if (typeof rawServices === 'string') {
+              try { rawServices = JSON.parse(rawServices); } catch(e){ rawServices = []; }
+            }
+            if (Array.isArray(rawServices)) {
+              const normalizedServices = rawServices.map(item => ({
+                ...item,
+                customUnitPrice: item.customUnitPrice !== undefined ? item.customUnitPrice : (item.unitPrice !== undefined ? item.unitPrice : undefined)
+              }));
+              setSelectedServices(normalizedServices);
+            }
+
+            setReferrerName(editingResFromUrl.referrerName || editingResFromUrl.referrer_name || '');
+            setCampaignCode(editingResFromUrl.campaignCode || editingResFromUrl.campaign_code || '');
+            if (editingResFromUrl.dipDiscountType || editingResFromUrl.dip_discount_type) {
+              setDipDiscountType(editingResFromUrl.dipDiscountType || editingResFromUrl.dip_discount_type);
+            }
+            setCustomDiscountAmount(
+              editingResFromUrl.customDiscountAmount !== undefined ? editingResFromUrl.customDiscountAmount :
+              (editingResFromUrl.custom_discount_amount !== undefined ? editingResFromUrl.custom_discount_amount :
+              (editingResFromUrl.discountAmount !== undefined ? editingResFromUrl.discountAmount :
+              (editingResFromUrl.discount_amount || 0)))
+            );
+            
+            const depAmount = Number(editingResFromUrl.depositPaid || editingResFromUrl.deposit_paid || 0);
+            setHasDeposit(depAmount > 0);
+            setDepositPaid(depAmount);
+            setPaymentStatus(editingResFromUrl.paymentStatus || editingResFromUrl.payment_status || 'Bekliyor');
+
+            setIsInvoiced(Boolean(editingResFromUrl.isInvoiced || editingResFromUrl.is_invoiced));
+            setInvoiceType(editingResFromUrl.invoiceType || editingResFromUrl.invoice_type || 'individual');
+            if (editingResFromUrl.tcNo || editingResFromUrl.tc_no) setTcNo(editingResFromUrl.tcNo || editingResFromUrl.tc_no);
+            if (editingResFromUrl.vknNo || editingResFromUrl.vkn_no) setVknNo(editingResFromUrl.vknNo || editingResFromUrl.vkn_no);
+            if (editingResFromUrl.taxOffice || editingResFromUrl.tax_office) setTaxOffice(editingResFromUrl.taxOffice || editingResFromUrl.tax_office);
+            if (editingResFromUrl.invoiceAddress || editingResFromUrl.invoice_address) setInvoiceAddress(editingResFromUrl.invoiceAddress || editingResFromUrl.invoice_address);
+
+            let rawFlow = editingResFromUrl.flowPlan || editingResFromUrl.flow_plan;
+            if (typeof rawFlow === 'string') {
+              try { rawFlow = JSON.parse(rawFlow); } catch(e){ rawFlow = []; }
+            }
+            if (Array.isArray(rawFlow) && rawFlow.length > 0) {
+              setFlowPlan(JSON.parse(JSON.stringify(rawFlow)));
+            }
+            if (editingResFromUrl.notes) {
+              setNotes(editingResFromUrl.notes);
+            }
           }
 
-          setGuestCount(editingResFromUrl.guestCount || 500);
+          // SMART CUSTOMER SYNCHRONIZATION (RUNS BOTH ON INITIAL LOAD AND WHEN CUSTOMERS LIST ARRIVES)
+          const targetCustId = editingResFromUrl.customerId || editingResFromUrl.customer_id;
+          const targetCustPhone = (editingResFromUrl.customerPhone || editingResFromUrl.customer_phone || '').replace(/[^0-9]/g, '');
+          const targetCustName = (editingResFromUrl.customerName || editingResFromUrl.customer_name || '').toLowerCase().trim();
 
-          if (editingResFromUrl.customerId && customers.some(c => c.id === editingResFromUrl.customerId)) {
+          const matchedCust = (customers || []).find(c => {
+            if (targetCustId && c.id === targetCustId) return true;
+            if (targetCustPhone && c.phone && c.phone.replace(/[^0-9]/g, '') === targetCustPhone) return true;
+            if (targetCustName && c.name && c.name.toLowerCase().trim() === targetCustName) return true;
+            return false;
+          });
+
+          if (matchedCust) {
             setCustomerMode('existing');
-            setSelectedCustomerId(editingResFromUrl.customerId);
+            setSelectedCustomerId(matchedCust.id);
+            setIsAutoSelectedFromPhone(true);
+            setCustomerError(false);
           } else {
-            setCustomerMode('new');
-            setNewCustName(editingResFromUrl.customerName || '');
-            setNewCustPhone(editingResFromUrl.customerPhone || '');
-            setNewCustSecondaryPhone(editingResFromUrl.customerSecondaryPhone || editingResFromUrl.secondaryPhone || '');
-            setNewCustEmail(editingResFromUrl.customerEmail || '');
-          }
-
-          if (editingResFromUrl.selectedServices && Array.isArray(editingResFromUrl.selectedServices)) {
-            const normalizedServices = editingResFromUrl.selectedServices.map(item => ({
-              ...item,
-              customUnitPrice: item.customUnitPrice !== undefined ? item.customUnitPrice : (item.unitPrice !== undefined ? item.unitPrice : undefined)
-            }));
-            setSelectedServices(normalizedServices);
-          }
-
-          setReferrerName(editingResFromUrl.referrerName || '');
-          setCampaignCode(editingResFromUrl.campaignCode || '');
-          if (editingResFromUrl.dipDiscountType) setDipDiscountType(editingResFromUrl.dipDiscountType);
-          setCustomDiscountAmount(editingResFromUrl.customDiscountAmount || editingResFromUrl.discountAmount || 0);
-          setHasDeposit((editingResFromUrl.depositPaid || 0) > 0);
-          setDepositPaid(editingResFromUrl.depositPaid || 0);
-          setPaymentStatus(editingResFromUrl.paymentStatus || 'Bekliyor');
-
-          setIsInvoiced(editingResFromUrl.isInvoiced || false);
-          setInvoiceType(editingResFromUrl.invoiceType || 'individual');
-          if (editingResFromUrl.tcNo) setTcNo(editingResFromUrl.tcNo);
-          if (editingResFromUrl.vknNo) setVknNo(editingResFromUrl.vknNo);
-          if (editingResFromUrl.taxOffice) setTaxOffice(editingResFromUrl.taxOffice);
-          if (editingResFromUrl.invoiceAddress) setInvoiceAddress(editingResFromUrl.invoiceAddress);
-
-          if (editingResFromUrl.flowPlan && Array.isArray(editingResFromUrl.flowPlan) && editingResFromUrl.flowPlan.length > 0) {
-            setFlowPlan(JSON.parse(JSON.stringify(editingResFromUrl.flowPlan)));
-          }
-          if (editingResFromUrl.notes) {
-            setNotes(editingResFromUrl.notes);
+            if (isInitialLoadForThisRes) {
+              setCustomerMode('new');
+              setNewCustName(editingResFromUrl.customerName || editingResFromUrl.customer_name || '');
+              setNewCustPhone(editingResFromUrl.customerPhone || editingResFromUrl.customer_phone || '');
+              setNewCustSecondaryPhone(editingResFromUrl.customerSecondaryPhone || editingResFromUrl.secondaryPhone || editingResFromUrl.secondary_phone || '');
+              setNewCustEmail(editingResFromUrl.customerEmail || editingResFromUrl.customer_email || '');
+            }
           }
         }
       }, [editingResFromUrl, venues, customers]);
