@@ -10044,7 +10044,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       };
 
       return (
-        <div className="absolute right-0 mt-2 w-[94vw] sm:w-[400px] max-w-md bg-white dark:bg-brand-card rounded-3xl p-4 shadow-2xl border-2 border-amber-500/50 z-[9999999] animate-fade-in text-xs space-y-3.5">
+        <div className="fixed inset-x-2 top-14 sm:inset-auto sm:right-0 sm:top-auto sm:mt-2 sm:absolute sm:w-[410px] max-w-lg bg-white dark:bg-brand-card rounded-3xl p-3.5 sm:p-4 shadow-2xl border-2 border-amber-500/60 z-[9999999] animate-fade-in text-xs space-y-3 mx-auto">
           
           {/* 1. HEADER */}
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-brand-border/60 pb-3">
@@ -10092,15 +10092,18 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <button
                   type="button"
                   onClick={() => setFilter('unread')}
-                  className={`py-2 px-2.5 rounded-xl font-extrabold text-xs transition text-center flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  className={`py-1.5 sm:py-2 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs transition text-center flex items-center justify-center space-x-1 cursor-pointer ${
                     filter === 'unread'
                       ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
                       : 'text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-brand-card font-bold'
                   }`}
                 >
-                  <span>Okunmamış</span>
+                  <span className="truncate">Okunmamış</span>
                   {recentUnreadCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-red-600 text-white shadow-xs">
+                    <span
+                      style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                      className="px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-black shrink-0 shadow-xs"
+                    >
                       {recentUnreadCount}
                     </span>
                   )}
@@ -10110,14 +10113,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <button
                   type="button"
                   onClick={() => setFilter('all')}
-                  className={`py-2 px-2.5 rounded-xl font-extrabold text-xs transition text-center flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  className={`py-1.5 sm:py-2 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs transition text-center flex items-center justify-center space-x-1 cursor-pointer ${
                     filter === 'all'
                       ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
                       : 'text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-brand-card font-bold'
                   }`}
                 >
-                  <span>Tümü</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                  <span className="truncate">Tümü</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-black shrink-0 ${
                     filter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-200 dark:bg-brand-dark text-slate-800 dark:text-gray-100'
                   }`}>
                     {activeRecentNotifications.length}
@@ -10128,13 +10131,13 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <button
                   type="button"
                   onClick={() => setFilter('payment')}
-                  className={`py-2 px-2.5 rounded-xl font-extrabold text-xs transition text-center flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  className={`py-1.5 sm:py-2 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs transition text-center flex items-center justify-center space-x-1 cursor-pointer ${
                     filter === 'payment'
                       ? 'bg-red-600 text-white shadow-sm font-black'
                       : 'text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-brand-card font-bold'
                   }`}
                 >
-                  <span>Ödemeler</span>
+                  <span className="truncate">Ödemeler</span>
                 </button>
               </div>
             </div>
@@ -12391,7 +12394,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       </svg>
                       <span className="hidden md:inline text-xs font-extrabold">Bildirimler</span>
                       {unreadNotificationsCount > 0 && (
-                        <span className="absolute -top-2 -right-2 flex h-5 min-w-5 px-1.5 items-center justify-center rounded-full bg-red-600 text-[11px] font-black text-white ring-2 ring-white dark:ring-brand-dark shadow-md animate-pulse z-20">
+                        <span
+                          style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                          className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 px-1 items-center justify-center rounded-full text-[10px] sm:text-[11px] font-black ring-2 ring-white dark:ring-brand-dark shadow-md animate-pulse z-20"
+                        >
                           {unreadNotificationsCount}
                         </span>
                       )}
