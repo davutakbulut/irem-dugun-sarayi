@@ -9382,10 +9382,10 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       return null;
     }
 
-    // --- DEDICATED CUSTOMER WEDDING PORTAL COMPONENT ---
+    // --- DEDICATED LUXURY VIP CUSTOMER WEDDING PORTAL COMPONENT ---
     function CustomerPortalComponent({ sessionUser, reservations = [], venues = [], services = [], showToast = () => {}, onTabChange = () => {} }) {
       const myReservation = useMemo(() => {
-        if (!sessionUser) return null;
+        if (!sessionUser) return (reservations || [])[0] || null;
         const uEmail = (sessionUser.email || '').toLowerCase().trim();
         const uName = (sessionUser.name || '').toLowerCase().trim();
         const uPhone = (sessionUser.phone || '').replace(/\D/g, '');
@@ -9395,28 +9395,45 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           const cEmail = (r.customerEmail || r.email || '').toLowerCase().trim();
           const cPhone = (r.customerPhone || r.phone || '').replace(/\D/g, '');
 
+          if (cName && uName && (cName.includes(uName) || uName.includes(cName))) return true;
           if (cEmail && uEmail && cEmail === uEmail) return true;
           if (cPhone && uPhone && (cPhone.endsWith(uPhone) || uPhone.endsWith(cPhone))) return true;
-          if (cName && uName && (cName.includes(uName) || uName.includes(cName))) return true;
           return false;
         });
 
-        return found || reservations[0] || null;
+        return found || (reservations || [])[0] || null;
       }, [sessionUser, reservations]);
 
       const venueObj = useMemo(() => {
         if (!myReservation) return null;
-        return venues.find(v => v.id === myReservation.venueId) || { name: myReservation.venueName || 'Balo Salonu' };
+        return venues.find(v => v.id === myReservation.venueId) || { name: myReservation.venueName || 'Kraliyet Balo Salonu' };
       }, [myReservation, venues]);
 
-      // Days countdown calculation
-      const countdownDays = useMemo(() => {
-        if (!myReservation?.eventDate && !myReservation?.date) return 0;
+      // Dynamic real-time ticking countdown (Days, Hours, Minutes, Seconds)
+      const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: false });
+
+      useEffect(() => {
+        if (!myReservation?.eventDate && !myReservation?.date) return;
         const dStr = myReservation.eventDate ? (myReservation.eventDate instanceof Date ? myReservation.eventDate.toISOString().split('T')[0] : String(myReservation.eventDate).split('T')[0]) : myReservation.date;
-        const targetTime = new Date(dStr).getTime();
-        const now = Date.now();
-        const diff = Math.ceil((targetTime - now) / (1000 * 60 * 60 * 24));
-        return diff;
+        const targetTime = new Date(`${dStr}T19:00:00`).getTime();
+
+        const updateTimer = () => {
+          const now = Date.now();
+          const diff = targetTime - now;
+          if (diff <= 0) {
+            setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true });
+            return;
+          }
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setTimeLeft({ days, hours, minutes, seconds, isPassed: false });
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
       }, [myReservation]);
 
       const totalPaid = useMemo(() => {
@@ -9427,194 +9444,362 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         return Number(myReservation.depositPaid || 0);
       }, [myReservation]);
 
-      const totalAmount = Number(myReservation?.totalAmount || myReservation?.subtotal || 0);
+      const totalAmount = Number(myReservation?.totalAmount || myReservation?.subtotal || myReservation?.venuePrice || 0);
       const remainingBalance = Math.max(0, totalAmount - totalPaid);
+      const paidPercentage = totalAmount > 0 ? Math.min(100, Math.round((totalPaid / totalAmount) * 100)) : 0;
       const isFullyPaid = totalPaid >= totalAmount && totalAmount > 0;
 
+      // Extract service names or note items
+      const serviceItems = useMemo(() => {
+        if (!myReservation) return [];
+        if (Array.isArray(myReservation.selectedServices) && myReservation.selectedServices.length > 0) {
+          return myReservation.selectedServices.map(s => {
+            const matchSrv = services.find(x => x.id === (s.serviceId || s.id));
+            return {
+              name: s.name || matchSrv?.name || 'Ek Hizmet',
+              category: matchSrv?.category || s.category || 'Organizasyon',
+              price: s.unitPrice || s.price || matchSrv?.price || 0,
+              quantity: s.quantity || 1
+            };
+          });
+        }
+        if (myReservation.notes) {
+          return myReservation.notes.split('\n').filter(Boolean).map(n => ({
+            name: n.replace(/^[-*•]\s*/, '').trim(),
+            category: 'Paket İkramı',
+            price: 0,
+            quantity: 1
+          }));
+        }
+        return [
+          { name: 'Özel Düğün Pastası & İkramlar', category: 'Catering', price: 0, quantity: 1 },
+          { name: '4K Kamera & Fotoğraf Çekimi', category: 'Medya', price: 0, quantity: 1 },
+          { name: 'Orkestra & Profesyonel Sahne Işık', category: 'Eğlence', price: 0, quantity: 1 }
+        ];
+      }, [myReservation, services]);
+
+      const mediaUrl = `https://irem.portegu.com/medya?key=${myReservation?.id || '2026'}`;
+
       return (
-        <div className="space-y-6 animate-fade-in pb-16">
-          {/* 1. HERO GREETING CARD */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 text-white p-6 sm:p-8 border border-amber-500/30 shadow-xl">
-            <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="space-y-6 animate-fade-in pb-20 max-w-7xl mx-auto">
+          
+          {/* 1. ULTRA LUXURY HERO WEDDING CARD */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-[#1a1510] to-[#2a1d0f] text-white p-6 sm:p-10 border border-amber-500/40 shadow-2xl">
+            {/* Decorative Gold Glow Orbs */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-amber-600/10 rounded-full blur-2xl pointer-events-none"></div>
             
-            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-[11px] border border-amber-500/40">
-                  <ThemeIcon icon="crown" className="w-3.5 h-3.5 text-amber-400" />
-                  <span>ÖZEL DÜĞÜN & ORGANİZASYON TAKİP PORTALI</span>
+            <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+              
+              {/* Left Column: Greeting & Wedding Details */}
+              <div className="space-y-3 max-w-2xl">
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-xs tracking-wider border border-amber-500/40 backdrop-blur-md shadow-sm">
+                  <ThemeIcon icon="crown" className="w-4 h-4 text-amber-400" />
+                  <span>İREM DÜĞÜN SARAYI • VIP ÇİFT PORTALI</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-serif font-black gold-gradient-text">
-                  Hoş Geldiniz, {sessionUser?.name || myReservation?.customerName || 'Değerli Çiftimiz'}!
+                
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-black text-white tracking-tight leading-tight">
+                  Hoş Geldiniz, <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 bg-clip-text text-transparent">{sessionUser?.name || myReservation?.customerName || 'Değerli Çiftimiz'}</span>!
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                  {venueObj?.name} salonumuzdaki unutulmaz düğün organizasyonunuzun tüm detaylarını, menü seçimlerini ve ödeme planını buradan anlık takip edebilirsiniz.
+                
+                <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-light">
+                  <strong className="font-bold text-amber-300">{venueObj?.name}</strong> salonumuzda <strong className="font-bold text-amber-300">{formatDate(myReservation?.eventDate || myReservation?.date)}</strong> tarihinde gerçekleşecek organizasyonunuzun tüm detayları ve canlı misafir fotoğraf akışı bu panelden yönetilmektedir.
                 </p>
+
+                <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
+                  <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/10 text-white font-medium border border-white/10">
+                    <ThemeIcon icon="calendar" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{formatDate(myReservation?.eventDate || myReservation?.date)}</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/10 text-white font-medium border border-white/10">
+                    <ThemeIcon icon="time" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{myReservation?.timeSlot || myReservation?.startTime ? `${myReservation?.startTime || '19:00'} - ${myReservation?.endTime || '23:00'}` : '19:00 - 23:00'}</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/10 text-white font-medium border border-white/10">
+                    <ThemeIcon icon="user" className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{myReservation?.guestCount || 500} Davetli</span>
+                  </span>
+                </div>
               </div>
 
-              {/* COUNTDOWN BADGE */}
-              <div className="bg-black/50 backdrop-blur-md p-5 rounded-2xl border border-amber-500/40 text-center shrink-0 w-full md:w-auto shadow-2xl">
-                <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Büyük Güne Kalan</div>
-                <div className="text-3xl sm:text-4xl font-mono font-black text-white mt-0.5">
-                  {countdownDays > 0 ? `${countdownDays} Gün` : (countdownDays === 0 ? 'Bugün!' : 'Tamamlandı')}
+              {/* Right Column: Dynamic Live Luxury Countdown Clock */}
+              <div className="w-full lg:w-auto shrink-0 bg-black/60 backdrop-blur-xl p-6 rounded-3xl border border-amber-500/40 text-center shadow-2xl space-y-3">
+                <div className="text-[11px] text-amber-400 font-extrabold uppercase tracking-widest flex items-center justify-center space-x-1.5">
+                  <ThemeIcon icon="sparkles" className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  <span>BÜYÜK GÜNE KALAN SÜRE</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1 font-mono">
-                  {formatDate(myReservation?.eventDate || myReservation?.date)}
+
+                {timeLeft.isPassed ? (
+                  <div className="py-4 text-xl font-serif font-black text-amber-300">
+                    Organizasyon Başarıyla Tamamlandı 🎉
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-amber-500/20 p-2.5 sm:p-3 min-w-[58px] sm:min-w-[68px]">
+                      <div className="text-2xl sm:text-3xl font-mono font-black text-white">{timeLeft.days}</div>
+                      <div className="text-[10px] text-slate-400 uppercase font-bold mt-0.5">GÜN</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-amber-500/20 p-2.5 sm:p-3 min-w-[58px] sm:min-w-[68px]">
+                      <div className="text-2xl sm:text-3xl font-mono font-black text-white">{String(timeLeft.hours).padStart(2, '0')}</div>
+                      <div className="text-[10px] text-slate-400 uppercase font-bold mt-0.5">SAAT</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-amber-500/20 p-2.5 sm:p-3 min-w-[58px] sm:min-w-[68px]">
+                      <div className="text-2xl sm:text-3xl font-mono font-black text-white">{String(timeLeft.minutes).padStart(2, '0')}</div>
+                      <div className="text-[10px] text-slate-400 uppercase font-bold mt-0.5">DK</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-amber-500/20 p-2.5 sm:p-3 min-w-[58px] sm:min-w-[68px]">
+                      <div className="text-2xl sm:text-3xl font-mono font-black text-amber-400">{String(timeLeft.seconds).padStart(2, '0')}</div>
+                      <div className="text-[10px] text-slate-400 uppercase font-bold mt-0.5">SN</div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-[11px] text-slate-300 font-medium pt-1">
+                  Sözleşme Kodu: <span className="font-mono text-amber-300 font-bold">{myReservation?.id || 'İREM-2026'}</span>
                 </div>
               </div>
+
             </div>
           </div>
 
-          {/* 2. 4-GRID STATUS CARDS */}
+          {/* 2. 4 EXECUTIVE KPI CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-1 shadow-xs">
-              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
-                <span>Tutulan Salon</span>
-                <ThemeIcon icon="building" className="w-4 h-4 text-amber-500" />
+            
+            {/* CARD 1: SALON */}
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border/80 space-y-2 shadow-sm hover:border-amber-500/50 transition">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>Seçilen Salon</span>
+                <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <ThemeIcon icon="venue" className="w-4 h-4" />
+                </span>
               </div>
               <div className="text-lg font-serif font-black text-slate-900 dark:text-white">
-                {venueObj?.name || 'Salon'}
+                {venueObj?.name || 'Kraliyet Balo Salonu'}
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">
-                {myReservation?.guestCount || 400} Kişilik Kapasite
+              <div className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+                {myReservation?.guestCount || 500} Kişilik Özel Düzen
               </div>
             </div>
 
-            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border space-y-1 shadow-xs">
-              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
-                <span>Toplam Sözleşme</span>
-                <ThemeIcon icon="document" className="w-4 h-4 text-blue-500" />
+            {/* CARD 2: TOTAL AMOUNT */}
+            <div className="glass-panel p-5 rounded-3xl border border-slate-200 dark:border-brand-border/80 space-y-2 shadow-sm hover:border-blue-500/50 transition">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-gray-400">
+                <span>Sözleşme Tutarı</span>
+                <span className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <ThemeIcon icon="document" className="w-4 h-4" />
+                </span>
               </div>
               <div className="text-xl font-mono font-black text-slate-900 dark:text-white">
                 {formatCurrency(totalAmount)}
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">
-                Sözleşme No: {myReservation?.id || 'İREM-2026'}
+              <div className="text-xs text-blue-600 dark:text-blue-400 font-bold">
+                KDV & Salon Paketi Dahil
               </div>
             </div>
 
-            <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-1 shadow-xs">
-              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
-                <span>Ödenen Tutar</span>
-                <ThemeIcon icon="card" className="w-4 h-4 text-emerald-500" />
+            {/* CARD 3: PAID AMOUNT */}
+            <div className="glass-panel p-5 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-2 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                <span>Tahsil Edilen Tutar</span>
+                <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                  <ThemeIcon icon="card" className="w-4 h-4" />
+                </span>
               </div>
               <div className="text-xl font-mono font-black text-emerald-600 dark:text-emerald-400">
                 +{formatCurrency(totalPaid)}
               </div>
-              <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
-                %{totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0} Tahsil Edildi
+              <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center space-x-1">
+                <span>%{paidPercentage} Ödendi</span>
+                <span>• Kapora Alındı</span>
               </div>
             </div>
 
-            <div className="glass-panel p-5 rounded-3xl border border-amber-500/30 bg-amber-500/5 space-y-1 shadow-xs">
-              <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center justify-between">
+            {/* CARD 4: REMAINING BALANCE */}
+            <div className="glass-panel p-5 rounded-3xl border border-amber-500/40 bg-amber-500/5 space-y-2 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-amber-800 dark:text-gold-400">
                 <span>Kalan Bakiye</span>
-                <ThemeIcon icon="money" className="w-4 h-4 text-amber-500" />
+                <span className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-gold-400">
+                  <ThemeIcon icon="money" className="w-4 h-4" />
+                </span>
               </div>
               <div className="text-xl font-mono font-black text-amber-700 dark:text-gold-400">
                 {formatCurrency(remainingBalance)}
               </div>
-              <div className="text-[11px] font-bold">
-                <span className={`px-2 py-0.5 rounded-full text-[9px] ${
-                  isFullyPaid ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-700 dark:text-gold-400'
+              <div className="text-xs font-bold">
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] ${
+                  isFullyPaid ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-950'
                 }`}>
-                  {isFullyPaid ? 'Tamamen Ödendi ✓' : 'Kısmi Ödeme Yapıldı'}
+                  {isFullyPaid ? 'Bakiye Tamamlandı ✓' : 'Düğün Haftası Ödenecek'}
                 </span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* 3. WEDDING PLANNING STEPPER JOURNEY */}
+          <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-sm">
+            <div className="flex justify-between items-center">
+              <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                <ThemeIcon icon="sparkles" className="w-4 h-4 text-amber-500" />
+                <span>Organizasyon & Hazırlık Süreci</span>
+              </h3>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                Adım 3 / 4 Aktif
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+                <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1.5">
+                  <span>✓ 1. Sözleşme İmzalandı</span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-gray-300">Tarih ve salon kesinleşti, kapora tahsil edildi.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+                <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1.5">
+                  <span>✓ 2. Menü & Hizmet Planı</span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-gray-300">Düğün pastası, ikramlar ve ek hizmetler seçildi.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-500 space-y-1 shadow-sm">
+                <div className="text-xs font-extrabold text-amber-700 dark:text-gold-400 flex items-center space-x-1.5">
+                  <span>⚡ 3. Canlı QR & Medya Alanı</span>
+                </div>
+                <p className="text-[11px] text-slate-700 dark:text-gray-200 font-medium">Davetli masaları için fotoğraf QR kodunuz hazır.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-brand-dark/40 border border-slate-200 dark:border-brand-border/50 space-y-1 opacity-70">
+                <div className="text-xs font-bold text-slate-500 dark:text-gray-400 flex items-center space-x-1.5">
+                  <span>⏳ 4. Büyük Düğün Günü</span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-gray-400">Salona giriş ve rüya gibi düğün organizasyonu.</p>
               </div>
             </div>
           </div>
 
-          {/* 3. TWO-COLUMN: SELECTED SERVICES & GUEST MEDIA QR LINK */}
+          {/* 4. TWO COLUMNS: MENU/SERVICES & LIVE GUEST PHOTO QR */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* SERVICES & MENU DETAILS */}
-            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs">
-              <div className="flex justify-between items-center border-b pb-3 border-slate-100 dark:border-brand-border/60">
-                <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-                  <ThemeIcon icon="gift" className="w-4 h-4 text-amber-500" />
-                  <span>Düğün Paketi & Ek Hizmetler</span>
-                </h3>
-                <span className="text-xs font-bold text-amber-700 dark:text-gold-400">
-                  {(myReservation?.selectedServices || []).length} Kalem
+            
+            {/* COLUMN A: SELECTED SERVICES & MENU */}
+            <div className="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-brand-border space-y-5 shadow-sm">
+              <div className="flex justify-between items-center border-b pb-4 border-slate-100 dark:border-brand-border/60">
+                <div>
+                  <h3 className="font-serif font-extrabold text-lg text-slate-900 dark:text-white flex items-center space-x-2">
+                    <ThemeIcon icon="gift" className="w-5 h-5 text-amber-500" />
+                    <span>Düğün Paketi & İkram Detayları</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Sözleşmenize dahil edilen menü ve özel hizmetler</p>
+                </div>
+                <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-gold-400 border border-amber-500/20">
+                  {serviceItems.length} Kalem Hizmet
                 </span>
               </div>
 
-              <div className="space-y-2.5">
-                {(myReservation?.selectedServices || []).length === 0 ? (
-                  <p className="text-xs text-slate-400 italic py-4 text-center">
-                    Standart salon paketi ve ikramlar dahildir.
-                  </p>
-                ) : (
-                  (myReservation.selectedServices || []).map((srv, idx) => (
-                    <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-brand-dark/50 rounded-2xl border border-slate-100 dark:border-brand-border/40 text-xs">
-                      <div className="flex items-center space-x-2.5">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-                        <div>
-                          <span className="font-bold text-slate-800 dark:text-gray-200 block">{srv.name}</span>
-                          <span className="text-[10px] text-slate-400">{srv.category || 'Hizmet'}</span>
-                        </div>
+              <div className="space-y-3">
+                {serviceItems.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-3.5 bg-slate-50 dark:bg-brand-dark/60 rounded-2xl border border-slate-100 dark:border-brand-border/40 text-xs hover:border-amber-500/40 transition">
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                      <div>
+                        <span className="font-bold text-slate-900 dark:text-white block text-sm">{item.name}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-gray-400">{item.category} {item.quantity > 1 ? `• ${item.quantity} Adet` : ''}</span>
                       </div>
-                      <span className="font-mono font-bold text-amber-600 dark:text-gold-400">
-                        {formatCurrency(srv.price || srv.unitPrice)}
-                      </span>
                     </div>
-                  ))
-                )}
+                    <span className="font-mono font-bold text-amber-700 dark:text-gold-400 text-sm">
+                      {item.price > 0 ? formatCurrency(item.price * item.quantity) : 'Pakete Dahil ✓'}
+                    </span>
+                  </div>
+                ))}
               </div>
+
+              {myReservation?.notes && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-slate-700 dark:text-gray-300 space-y-1">
+                  <div className="font-bold text-amber-800 dark:text-gold-400 flex items-center space-x-1.5">
+                    <ThemeIcon icon="document" className="w-3.5 h-3.5" />
+                    <span>Özel Sözleşme Notları & Menü Tercihleri:</span>
+                  </div>
+                  <p className="whitespace-pre-line leading-relaxed">{myReservation.notes}</p>
+                </div>
+              )}
             </div>
 
-            {/* LIVE MEDIA & GUEST PHOTO UPLOAD CARD */}
-            <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-brand-border space-y-4 shadow-xs flex flex-col justify-between">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center border-b pb-3 border-slate-100 dark:border-brand-border/60">
-                  <h3 className="font-serif font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-                    <ThemeIcon icon="camera" className="w-4 h-4 text-amber-500" />
-                    <span>Davetli Fotoğraf & Anı Yükleme Alanı</span>
-                  </h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
+            {/* COLUMN B: LIVE GUEST QR CODE & MEDIA SHARING */}
+            <div className="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-brand-border space-y-5 shadow-sm flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center border-b pb-4 border-slate-100 dark:border-brand-border/60">
+                  <div>
+                    <h3 className="font-serif font-extrabold text-lg text-slate-900 dark:text-white flex items-center space-x-2">
+                      <ThemeIcon icon="camera" className="w-5 h-5 text-amber-500" />
+                      <span>Davetli Canlı Fotoğraf & Anı Alanı</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Misafirlerinizin çektiği tüm anılar tek albümde toplanır</p>
+                  </div>
+                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 animate-pulse">
                     Canlı QR Aktif
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-gray-300 leading-relaxed">
-                  Düğün gününüzde masalara koyacağınız QR kod veya doğrudan paylaşım linki ile davetlileriniz çektikleri tüm fotoğraf ve videoları anında sizin özel albümünüze yükleyebilir!
-                </p>
+
+                <div className="p-5 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent rounded-2xl border border-amber-500/30 space-y-4">
+                  <p className="text-xs text-slate-700 dark:text-gray-200 leading-relaxed font-medium">
+                    Düğün salonundaki masalara koyacağınız QR kod veya WhatsApp'tan göndereceğiniz link sayesinde davetlileriniz uygulama indirmeden çektikleri tüm fotoğraf ve videoları anında sizin özel albümünüze yükleyebilir!
+                  </p>
+
+                  <div className="space-y-2">
+                    <div className="text-xs font-bold text-slate-800 dark:text-gray-200">Size Özel Misafir Paylaşım Bağlantısı:</div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={mediaUrl}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-xs font-mono text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-brand-border truncate focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(mediaUrl);
+                          showToast('Fotoğraf Yükleme Bağlantısı Kopyalandı! Davetlilerinizle paylaşabilirsiniz.');
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 transition cursor-pointer shadow-md shrink-0"
+                      >
+                        Kopyala 📋
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-4 bg-amber-50 dark:bg-amber-500/10 rounded-2xl border border-amber-500/30 space-y-3">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-amber-800 dark:text-gold-400">Özel Medya Yükleme Bağlantınız:</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const link = `https://irem.portegu.com/medya?key=${myReservation?.id || '2026'}`;
-                      navigator.clipboard.writeText(link);
-                      showToast('Fotoğraf Yükleme Bağlantısı Kopyalandı! Davetlilerinizle paylaşabilirsiniz.');
-                    }}
-                    className="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-[11px] hover:bg-amber-400 transition cursor-pointer"
-                  >
-                    Linki Kopyala 📋
-                  </button>
-                </div>
-                <div className="text-[11px] font-mono text-slate-600 dark:text-gray-300 truncate bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-brand-border">
-                  {`https://irem.portegu.com/medya?key=${myReservation?.id || '2026'}`}
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-between text-xs">
+              {/* ACTION BUTTONS */}
+              <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => onTabChange('media')}
-                  className="w-full py-2.5 rounded-xl gold-button font-bold flex items-center justify-center space-x-2"
+                  className="py-3 px-4 rounded-xl gold-button font-bold text-xs flex items-center justify-center space-x-2 shadow-md cursor-pointer"
                 >
                   <ThemeIcon icon="camera" className="w-4 h-4" />
-                  <span>Düğün Medya Galerisini Aç & Fotoğrafları İndir</span>
+                  <span>Düğün Medya Galerisini Aç</span>
                 </button>
+                <a
+                  href={`https://wa.me/905321112233?text=${encodeURIComponent(`Merhabalar, ${sessionUser?.name || myReservation?.customerName || 'Müşteri'} olarak ${myReservation?.id || ''} nolu rezervasyonum hakkında bilgi almak istiyorum.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition"
+                >
+                  <ThemeIcon icon="chat" className="w-4 h-4" />
+                  <span>Organizasyon Danışmanına Yaz</span>
+                </a>
               </div>
+
             </div>
+
           </div>
+
         </div>
       );
     }
 
-        function App() {
+    function App() {
       // LAYER 3: LOCALSTORAGE CACHE INTEGRATION (0ms INSTANT LOAD)
       const [venues, setVenues] = useState(() => CacheService.get('venues', null) || []);
       const [services, setServices] = useState(() => CacheService.get('services', null) || []);
