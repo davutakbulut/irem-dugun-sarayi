@@ -4,3 +4,6 @@ venv/
 *.log
 .env
 db_*.json
+
+scratch/
+
