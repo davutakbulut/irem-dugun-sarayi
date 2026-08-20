@@ -10249,19 +10249,33 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       navigateTo,
       showToast
     }) {
-      const [activeTab, setActiveTab] = useState('all'); // 'all' | 'unread' | 'read' | 'danger' | 'warning' | 'advice'
+      // 1. Varsayılan olarak Okunmayanlar gelsin
+      const [activeTab, setActiveTab] = useState('unread'); // 'unread' | 'danger' | 'warning' | 'advice' | 'read' | 'all'
       const [searchTerm, setSearchTerm] = useState('');
-      const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'payment' | 'lead' | 'finance' | 'advice'
-      const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'danger' | 'warning' | 'info' | 'success'
-      const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
+      const [typeFilter, setTypeFilter] = useState('all');
+      const [severityFilter, setSeverityFilter] = useState('all');
+      const [sortOrder, setSortOrder] = useState('newest');
       const [currentPage, setCurrentPage] = useState(1);
       const [pageSize, setPageSize] = useState(10);
+      
+      // 2. Filtre paneli varsayılan olarak KAPALI gelsin
+      const [isFilterOpen, setIsFilterOpen] = useState(false);
 
       // Tab Counts
       const readCount = useMemo(() => notifications.filter(n => n.is_read).length, [notifications]);
       const dangerCount = useMemo(() => notifications.filter(n => n.severity === 'danger').length, [notifications]);
       const warningCount = useMemo(() => notifications.filter(n => n.severity === 'warning').length, [notifications]);
       const adviceCount = useMemo(() => notifications.filter(n => n.type === 'advice' || n.type === 'finance' || n.severity === 'info').length, [notifications]);
+
+      // Active filters count for badge
+      const activeFiltersCount = useMemo(() => {
+        let cnt = 0;
+        if (searchTerm.trim()) cnt++;
+        if (severityFilter !== 'all') cnt++;
+        if (typeFilter !== 'all') cnt++;
+        if (sortOrder !== 'newest') cnt++;
+        return cnt;
+      }, [searchTerm, severityFilter, typeFilter, sortOrder]);
 
       // Filtered & Sorted notifications
       const filteredNotifications = useMemo(() => {
@@ -10273,10 +10287,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           if (activeTab === 'warning' && n.severity !== 'warning') return false;
           if (activeTab === 'advice' && (n.type !== 'advice' && n.type !== 'finance' && n.severity !== 'info')) return false;
 
-          // Severity dropdown filter
+          // Dropdown filters
           if (severityFilter !== 'all' && n.severity !== severityFilter) return false;
-
-          // Type dropdown filter
           if (typeFilter !== 'all' && n.type !== typeFilter) return false;
 
           // Search filter
@@ -10363,33 +10375,43 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         }
       };
 
+      // Tab list with "Tümü" placed at the very end on the right!
+      const tabs = [
+        { id: 'unread', label: 'Okunmayanlar', count: unreadCount, icon: '🔔', highlight: unreadCount > 0 },
+        { id: 'danger', label: 'Acil / Tahsilat', count: dangerCount, icon: '🚨' },
+        { id: 'warning', label: 'Önemli Uyarılar', count: warningCount, icon: '⚡' },
+        { id: 'advice', label: 'AI Tavsiyeleri', count: adviceCount, icon: '💡' },
+        { id: 'read', label: 'Okunanlar', count: readCount, icon: '👁️' },
+        { id: 'all', label: 'Tümü', count: notifications.length, icon: '📋' }
+      ];
+
       return (
-        <div className="space-y-6 animate-fade-in pb-16">
+        <div className="space-y-4 sm:space-y-6 animate-fade-in pb-16">
           
-          {/* 1. TOP HEADER & ACTIONS */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center space-x-2">
-                <h2 className="text-2xl sm:text-3xl font-heading font-extrabold gold-gradient-text">
+          {/* 1. TOP HEADER & ACTIONS (RESPONSIVE & PROPORTIONATE) */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-brand-card/40 p-4 sm:p-5 rounded-3xl border border-amber-500/20 shadow-xs">
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-heading font-extrabold gold-gradient-text leading-tight">
                   Bildirim & AI Danışman Merkezi
                 </h2>
-                <span className="text-[11px] font-black text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/40 shadow-xs">
-                  ⚡ Google Gemini 3.5 Flash
+                <span className="text-[10px] font-black text-amber-800 dark:text-gold-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/40">
+                  ⚡ Gemini 3.5 Flash
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                Veritabanındaki tahsilat borçları, yaklaşan düğünler, yeni teklif talepleri ve canlı AI işletme tavsiyeleri
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-gray-400 leading-snug">
+                Tahsilat borçları, yaklaşan düğünler, yeni teklif talepleri ve canlı AI tavsiyeleri
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex items-center gap-2 pt-1 sm:pt-0">
               {unreadCount > 0 && (
                 <button
                   type="button"
                   onClick={onMarkAllRead}
-                  className="px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border text-slate-700 dark:text-gray-200 border border-slate-300 dark:border-brand-border font-bold text-xs transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
+                  className="py-2 px-3 rounded-2xl bg-slate-100 dark:bg-brand-card hover:bg-slate-200 dark:hover:bg-brand-border text-slate-700 dark:text-gray-200 border border-slate-300 dark:border-brand-border font-bold text-xs transition flex items-center justify-center space-x-1.5 shadow-xs cursor-pointer"
                 >
-                  <ThemeIcon icon="sparkles" className="w-4 h-4 text-emerald-500" />
+                  <ThemeIcon icon="sparkles" className="w-3.5 h-3.5 text-emerald-500" />
                   <span>Tümünü Okundu Say ({unreadCount})</span>
                 </button>
               )}
@@ -10398,52 +10420,45 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 type="button"
                 onClick={onGenerateAi}
                 disabled={isGenerating}
-                className="gold-button font-extrabold text-xs py-2.5 px-4 rounded-2xl shadow-lg flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                className="gold-button font-extrabold text-xs py-2 px-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
                 title="Google Gemini AI ile Canlı Veritabanı Analizi Yap"
               >
                 {isGenerating ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
-                    <span>Gemini Analiz Ediyor...</span>
+                    <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Analiz Ediliyor...</span>
                   </>
                 ) : (
                   <>
                     <span>⚡</span>
-                    <span>Gemini ile Yeni Analiz Yap</span>
+                    <span>Gemini ile Yeni Analiz</span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          {/* 2. STATS & CATEGORY TABS */}
-          <div className="flex items-center space-x-2 overflow-x-auto pb-1 custom-scrollbar">
-            {[
-              { id: 'all', label: 'Tümü', count: notifications.length, icon: '📋' },
-              { id: 'unread', label: 'Okunmayanlar', count: unreadCount, icon: '🔔', highlight: unreadCount > 0 },
-              { id: 'read', label: 'Okunanlar', count: readCount, icon: '👁️' },
-              { id: 'danger', label: 'Acil / Tahsilat', count: dangerCount, icon: '🚨' },
-              { id: 'warning', label: 'Önemli Uyarılar', count: warningCount, icon: '⚡' },
-              { id: 'advice', label: 'AI Tavsiyeleri', count: adviceCount, icon: '💡' }
-            ].map(tab => (
+          {/* 2. STATS & CATEGORY TABS (WITH OKUNMAYANLAR DEFAULT AND TÜMÜ ON FAR RIGHT) */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1.5 custom-scrollbar">
+            {tabs.map(tab => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
-                className={`px-4 py-2.5 rounded-2xl font-bold text-xs flex items-center space-x-2 transition whitespace-nowrap border shrink-0 cursor-pointer ${
+                className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl font-bold text-xs flex items-center space-x-1.5 sm:space-x-2 transition whitespace-nowrap border shrink-0 cursor-pointer shadow-xs ${
                   activeTab === tab.id
-                    ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md font-extrabold'
-                    : 'bg-white/80 dark:bg-brand-card/80 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-brand-border/60 hover:bg-amber-500/10 hover:text-amber-700'
+                    ? 'bg-amber-500 text-slate-950 border-amber-500 font-black shadow-md'
+                    : 'bg-white/80 dark:bg-brand-card/80 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-brand-border/60 hover:bg-amber-500/10'
                 }`}
               >
                 <span>{tab.icon}</span>
                 <span>{tab.label}</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
                   activeTab === tab.id
                     ? 'bg-slate-950 text-amber-400'
                     : tab.highlight
-                    ? 'bg-red-500 text-white animate-pulse'
-                    : 'bg-slate-200 dark:bg-brand-dark text-slate-700 dark:text-gray-300'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-slate-200 dark:bg-brand-dark text-slate-800 dark:text-gray-200'
                 }`}>
                   {tab.count}
                 </span>
@@ -10451,100 +10466,141 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
             ))}
           </div>
 
-          {/* 3. DETAILED FILTER TOOLBAR */}
-          <div className="glass-panel p-4 rounded-3xl border border-amber-500/30 space-y-3 bg-white/60 dark:bg-brand-card/60 shadow-sm">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-              
-              {/* SEARCH INPUT */}
-              <div className="lg:col-span-4 relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Başlık, açıklama veya müşteri ara..."
-                  value={searchTerm}
-                  onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-hidden focus:border-amber-500 transition"
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
-                  >
-                    ✕
-                  </button>
+          {/* 3. COLLAPSIBLE DETAILED FILTER (DEFAULT CLOSED) */}
+          <div className="glass-panel rounded-3xl border border-amber-500/30 overflow-hidden bg-white/60 dark:bg-brand-card/60 shadow-xs">
+            {/* FILTER HEADER TOGGLE BAR */}
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen(prev => !prev)}
+              className="w-full px-4 py-3 flex items-center justify-between text-xs font-extrabold text-slate-800 dark:text-gray-200 hover:bg-amber-500/5 transition cursor-pointer"
+            >
+              <div className="flex items-center space-x-2">
+                <span className="text-amber-600 dark:text-gold-400">🔍</span>
+                <span>Detaylı Arama & Filtreler</span>
+                {activeFiltersCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950">
+                    {activeFiltersCount} Aktif Filtre
+                  </span>
                 )}
               </div>
 
-              {/* SEVERITY DROPDOWN */}
-              <div className="lg:col-span-3">
-                <select
-                  value={severityFilter}
-                  onChange={e => { setSeverityFilter(e.target.value); setCurrentPage(1); }}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
-                >
-                  <option value="all">Tüm Önem Dereceleri</option>
-                  <option value="danger">🚨 Acil / Riskli (Danger)</option>
-                  <option value="warning">⚡ Önemli (Warning)</option>
-                  <option value="info">💡 Bilgi & Tavsiye (Info)</option>
-                  <option value="success">✓ Başarı (Success)</option>
-                </select>
+              <div className="flex items-center space-x-1.5 text-slate-400 text-xs">
+                <span>{isFilterOpen ? 'Filtreyi Kapat' : 'Filtreleri Göster'}</span>
+                <span className={`transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`}>▼</span>
               </div>
+            </button>
 
-              {/* TYPE DROPDOWN */}
-              <div className="lg:col-span-3">
-                <select
-                  value={typeFilter}
-                  onChange={e => { setTypeFilter(e.target.value); setCurrentPage(1); }}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
-                >
-                  <option value="all">Tüm Bildirim Türleri</option>
-                  <option value="payment">💳 Bakiye & Tahsilat</option>
-                  <option value="lead">🎯 Teklif Talepleri (Leads)</option>
-                  <option value="finance">📊 Kasa & Kârlılık</option>
-                  <option value="advice">🧠 Gelir Stratejisi</option>
-                  <option value="booking">📅 Rezervasyon</option>
-                </select>
+            {/* FILTER BODY (SHOWN ONLY WHEN isFilterOpen IS TRUE) */}
+            {isFilterOpen && (
+              <div className="p-4 pt-1 border-t border-slate-200/60 dark:border-brand-border/40 space-y-3 animate-fade-in">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 items-center">
+                  
+                  {/* SEARCH INPUT */}
+                  <div className="lg:col-span-4 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+                    <input
+                      type="text"
+                      placeholder="Başlık, açıklama veya müşteri ara..."
+                      value={searchTerm}
+                      onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                      className="w-full pl-8 pr-7 py-2 rounded-xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs text-slate-800 dark:text-gray-100 placeholder:text-slate-400 focus:outline-hidden focus:border-amber-500 transition"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* SEVERITY DROPDOWN */}
+                  <div className="lg:col-span-3">
+                    <select
+                      value={severityFilter}
+                      onChange={e => { setSeverityFilter(e.target.value); setCurrentPage(1); }}
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
+                    >
+                      <option value="all">Tüm Önem Dereceleri</option>
+                      <option value="danger">🚨 Acil / Riskli (Danger)</option>
+                      <option value="warning">⚡ Önemli (Warning)</option>
+                      <option value="info">💡 Bilgi & Tavsiye (Info)</option>
+                      <option value="success">✓ Başarı (Success)</option>
+                    </select>
+                  </div>
+
+                  {/* TYPE DROPDOWN */}
+                  <div className="lg:col-span-3">
+                    <select
+                      value={typeFilter}
+                      onChange={e => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
+                    >
+                      <option value="all">Tüm Bildirim Türleri</option>
+                      <option value="payment">💳 Bakiye & Tahsilat</option>
+                      <option value="lead">🎯 Teklif Talepleri (Leads)</option>
+                      <option value="finance">📊 Kasa & Kârlılık</option>
+                      <option value="advice">🧠 Gelir Stratejisi</option>
+                      <option value="booking">📅 Rezervasyon</option>
+                    </select>
+                  </div>
+
+                  {/* SORT ORDER */}
+                  <div className="lg:col-span-2">
+                    <select
+                      value={sortOrder}
+                      onChange={e => setSortOrder(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
+                    >
+                      <option value="newest">En Yeni Önce</option>
+                      <option value="oldest">En Eski Önce</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                {activeFiltersCount > 0 && (
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSeverityFilter('all');
+                        setTypeFilter('all');
+                        setSortOrder('newest');
+                      }}
+                      className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
+                    >
+                      ✕ Tüm Filtreleri Temizle
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {/* SORT ORDER */}
-              <div className="lg:col-span-2">
-                <select
-                  value={sortOrder}
-                  onChange={e => setSortOrder(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-2xl bg-white dark:bg-brand-dark border border-slate-200 dark:border-brand-border text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-hidden focus:border-amber-500 transition cursor-pointer"
-                >
-                  <option value="newest">En Yeni Önce</option>
-                  <option value="oldest">En Eski Önce</option>
-                </select>
-              </div>
-
-            </div>
+            )}
           </div>
 
           {/* 4. NOTIFICATIONS FEED LIST */}
-          <div className="space-y-3">
+          <div className="space-y-2.5 sm:space-y-3">
             {paginatedItems.length === 0 ? (
-              <div className="glass-panel p-12 rounded-3xl text-center border border-amber-500/20 space-y-3">
-                <div className="text-4xl">🎉</div>
-                <h4 className="font-heading font-extrabold text-base text-slate-800 dark:text-gray-100">
-                  Filtreye Uygun Bildirim Bulunamadı
+              <div className="glass-panel p-8 sm:p-12 rounded-3xl text-center border border-amber-500/20 space-y-3">
+                <div className="text-3xl sm:text-4xl">🎉</div>
+                <h4 className="font-heading font-extrabold text-sm sm:text-base text-slate-800 dark:text-gray-100">
+                  {activeTab === 'unread' ? 'Tüm Bildirimleriniz Okundu!' : 'Filtreye Uygun Bildirim Bulunamadı'}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-gray-400 max-w-md mx-auto">
-                  Arama kriterlerinizi sıfırlayabilir veya Gemini AI üzerinden yeni bir veritabanı analizi başlatabilirsiniz.
+                  {activeTab === 'unread'
+                    ? 'Bekleyen okunmamış bildiriminiz yok. Eski bildirimleri incelemek için "Okunanlar" veya "Tümü" sekmesine tıklayabilirsiniz.'
+                    : 'Arama kriterlerinizi sıfırlayabilir veya Gemini AI üzerinden yeni bir veritabanı analizi başlatabilirsiniz.'}
                 </p>
-                {(searchTerm || severityFilter !== 'all' || typeFilter !== 'all' || activeTab !== 'all') && (
+                {activeTab !== 'all' && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setSearchTerm('');
-                      setSeverityFilter('all');
-                      setTypeFilter('all');
-                      setActiveTab('all');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs transition hover:bg-amber-400 shadow-xs cursor-pointer"
+                    onClick={() => setActiveTab('all')}
+                    className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-xs transition hover:bg-amber-400 shadow-xs cursor-pointer"
                   >
-                    Filtreleri Temizle
+                    Tüm Bildirimleri Göster
                   </button>
                 )}
               </div>
@@ -10554,38 +10610,38 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 return (
                   <div
                     key={n.id}
-                    className={`glass-panel p-5 rounded-3xl border transition shadow-sm hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 ${conf.border} ${conf.bg} ${
+                    className={`glass-panel p-3.5 sm:p-4 rounded-3xl border transition shadow-xs hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-3 ${conf.border} ${conf.bg} ${
                       n.is_read ? 'opacity-85' : 'border-amber-500 ring-1 ring-amber-500/20'
                     }`}
                   >
-                    <div className="space-y-2 flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border flex items-center space-x-1 ${conf.badgeBg}`}>
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border flex items-center space-x-1 ${conf.badgeBg}`}>
                           <span>{conf.icon}</span>
                           <span>{conf.label}</span>
                         </span>
 
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 dark:bg-brand-dark text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-brand-border">
                           {getTypeLabel(n.type)}
                         </span>
 
                         {!n.is_read && (
-                          <span className="flex items-center space-x-1 text-[10px] font-black text-amber-600 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
+                          <span className="flex items-center space-x-1 text-[9px] font-black text-amber-600 dark:text-gold-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
                             <span>Okunmadı</span>
                           </span>
                         )}
 
-                        <span className="text-[11px] text-slate-400 font-medium ml-auto md:ml-0">
-                          🕒 {n.created_at ? new Date(n.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Az önce'}
+                        <span className="text-[10px] text-slate-400 font-medium ml-auto md:ml-0">
+                          🕒 {n.created_at ? new Date(n.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Az önce'}
                         </span>
                       </div>
 
-                      <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white leading-snug">
+                      <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white leading-snug">
                         {n.title}
                       </h3>
 
-                      <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed max-w-4xl">
+                      <p className="text-[11px] sm:text-xs text-slate-600 dark:text-gray-300 leading-relaxed max-w-4xl">
                         {n.message}
                       </p>
                     </div>
@@ -10594,23 +10650,23 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                       <button
                         type="button"
                         onClick={() => handleInspect(n)}
-                        className="px-4 py-2 rounded-2xl bg-amber-500 text-slate-950 font-extrabold text-xs hover:bg-amber-400 transition shadow-xs flex items-center space-x-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-amber-500 text-slate-950 font-extrabold text-xs hover:bg-amber-400 transition shadow-xs flex items-center space-x-1 cursor-pointer"
                       >
-                        <span>İncele & Git</span>
+                        <span>İncele</span>
                         <span>↗</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onMarkRead && onMarkRead(n.id)}
-                        className={`p-2 rounded-2xl border transition cursor-pointer ${
+                        className={`p-1.5 sm:p-2 rounded-2xl border transition cursor-pointer ${
                           n.is_read
                             ? 'bg-slate-100 dark:bg-brand-dark text-slate-400 border-slate-200 dark:border-brand-border hover:text-slate-700'
                             : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25'
                         }`}
                         title={n.is_read ? 'Okundu olarak işaretlendi' : 'Okundu yap'}
                       >
-                        <ThemeIcon icon="check" className="w-4 h-4" />
+                        <ThemeIcon icon="check" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                     </div>
                   </div>
