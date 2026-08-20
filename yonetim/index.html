@@ -10004,10 +10004,14 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           onMarkRead(n.id);
         }
         if (n.link) {
-          const cleanTab = n.link.replace('/yonetim/', '').replace('/', '');
+          const cleanLink = (n.link || '').trim();
+          const cleanTab = cleanLink.replace(/^\/?(yonetim\/)?/, '').replace(/\/$/, '');
+          const targetTab = SLUG_TO_TAB[cleanTab] || cleanTab || 'dashboard';
           if (navigateTo) {
-            navigateTo(cleanTab || 'dashboard');
+            navigateTo(targetTab);
           }
+        } else {
+          if (navigateTo) navigateTo('dashboard');
         }
         if (onClose) onClose();
       };
@@ -11365,16 +11369,24 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       const navigateTo = (tab, queryParams = null) => {
         setIsPageTabLoading(false);
-        setActiveTabState(tab);
-        let cleanPath = TAB_TO_PATH[tab];
+        let rawTab = typeof tab === 'string' ? tab.trim() : tab;
+        let resolvedTab = rawTab;
+        if (typeof rawTab === 'string') {
+          let cleanKey = rawTab.replace(/^\/?(yonetim\/)?/, '').replace(/\/$/, '');
+          resolvedTab = SLUG_TO_TAB[cleanKey] || SLUG_TO_TAB[rawTab] || cleanKey || 'dashboard';
+        }
+        setActiveTabState(resolvedTab);
+
+        let cleanPath = TAB_TO_PATH[resolvedTab];
         if (!cleanPath) {
-          if (typeof tab === 'string' && tab.startsWith('/')) {
-            cleanPath = tab;
+          if (typeof resolvedTab === 'string' && resolvedTab.startsWith('/')) {
+            cleanPath = resolvedTab;
           } else {
-            cleanPath = `/yonetim/${tab}`;
+            cleanPath = `/yonetim/${resolvedTab}`;
           }
         }
-        if (tab === 'login') cleanPath = '/yonetim/giris';
+        if (resolvedTab === 'login') cleanPath = '/yonetim/giris';
+        if (resolvedTab === 'dashboard') cleanPath = '/yonetim';
 
         let queryStr = '';
         if (queryParams && typeof queryParams === 'object') {
@@ -11385,7 +11397,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         }
         const newUrl = `${cleanPath}${queryStr}`;
         if (typeof window !== 'undefined' && window.history && window.history.pushState) {
-          window.history.pushState({ tab, queryParams }, '', newUrl);
+          window.history.pushState({ tab: resolvedTab, queryParams }, '', newUrl);
         }
       };
 
