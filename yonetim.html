@@ -2692,7 +2692,7 @@
 
     const TAB_PERMISSIONS = {
       'musteri-portali': ['admin', 'musteri', 'satisci'],
-      'quote-requests': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
+      'quote-requests': ['admin', 'satisci'],
       'dashboard': ['admin', 'satisci', 'sosyal_medyaci', 'musteri'],
       'create-reservation': ['admin', 'satisci'],
       'venues': ['admin', 'satisci'],
@@ -10005,7 +10005,9 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
       const [rolesState, setRolesState] = useState(() => CacheService.get('roles', ROLE_NAMES));
       const [tabPermissionsState, setTabPermissionsState] = useState(() => {
         const cached = CacheService.get('tab_permissions', TAB_PERMISSIONS);
-        return { ...TAB_PERMISSIONS, ...(cached || {}) };
+        const merged = { ...TAB_PERMISSIONS, ...(cached || {}) };
+        merged['quote-requests'] = ['admin', 'satisci'];
+        return merged;
       });
       const [systemVersion, setSystemVersion] = useState(() => (typeof document !== 'undefined' && document.documentElement.getAttribute('data-system-version')) || 'v1.4.67');
       const [versionHistoryState, setVersionHistoryState] = useState([]);
