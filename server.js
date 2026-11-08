@@ -3178,7 +3178,11 @@ app.get('/api/reviews', async (req, res) => {
   const results = await Promise.allSettled([fetchGoogleReviews(), fetchDugunReviews()]);
   results.filter(r => r.status === 'rejected').forEach(r => console.error('Yorum kaynağı hatası:', r.reason?.message));
   const ok = results.filter(r => r.status === 'fulfilled' && r.value).map(r => r.value);
-  const data = { summary: ok.map(s => s.summary), reviews: ok.flatMap(s => s.reviews).filter(v => v.comment.trim()) };
+  // Kaynaklar sırayla karışık dizilir: Google, dugun.com, Google, dugun.com...
+  const lists = ok.map(s => s.reviews.filter(v => v.comment.trim()));
+  const mixed = [];
+  for (let i = 0; i < Math.max(0, ...lists.map(l => l.length)); i++) lists.forEach(l => l[i] && mixed.push(l[i]));
+  const data = { summary: ok.map(s => s.summary), reviews: mixed };
   // Kaynak hatasında eski önbellek korunur; boş sonuç önbelleğe yazılmaz
   if (data.reviews.length) reviewCache = { at: Date.now(), data };
   res.json(data.reviews.length ? data : (reviewCache.data || data));
