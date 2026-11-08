@@ -1459,6 +1459,8 @@
 
   <script type="text/babel" data-presets="react,env" data-compact="true">
     const { useState, useEffect, useMemo, useCallback, useRef } = React;
+    // Rezervasyonda "Nereden duydunuz?" seçenekleri (reklam takibi)
+    const LEAD_SOURCES = ['Instagram reklamı', 'Instagram (reklam değil)', 'Facebook', 'Google / Haritalar', 'dugun.com', 'Web sitesi', 'Tavsiye / Daha önce gelen', 'Tabela / Yoldan geçerken', 'Diğer'];
     const createPortal = (children, container = (typeof document !== 'undefined' ? document.body : null)) => {
       if (typeof ReactDOM !== 'undefined' && ReactDOM.createPortal && container) {
         return ReactDOM.createPortal(children, container);
@@ -3777,6 +3779,24 @@ function ReservationsListComponent({
                 pageSizeOptions={[10, 20, 50, 100]}
               />
 
+              {/* Kaynağa göre özet (süzülen rezervasyonlar): adet ve toplam tutar */}
+              {filteredReservations.length > 0 && (
+                <div className="flex flex-wrap gap-2 text-[11px] font-bold mb-3">
+                  <span className="text-slate-500 dark:text-gray-400 py-1">Kaynaklar:</span>
+                  {Object.entries(filteredReservations.reduce((acc, r) => {
+                    const k = r.leadSource || 'Belirtilmemiş';
+                    acc[k] = acc[k] || { n: 0, total: 0 };
+                    acc[k].n += 1;
+                    acc[k].total += Number(r.totalAmount || 0);
+                    return acc;
+                  }, {})).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => (
+                    <span key={k} className="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-slate-700 dark:text-gray-200">
+                      {k}: {v.n} · {formatCurrency(v.total)}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -3792,13 +3812,14 @@ function ReservationsListComponent({
                       <th className="py-3 px-3 text-right">Toplam Tutar</th>
                       <th className="py-3 px-3 text-right">Kalan Bakiye</th>
                       <th className="py-3 px-3 text-center">Ödeme Durumu</th>
+                      <th className="py-3 px-3">Kaynak</th>
                       <th className="py-3 px-3 text-right">İşlemler</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-brand-border">
                     {filteredReservations.length === 0 ? (
                       <tr>
-                        <td colSpan="12" className="py-8 text-center text-slate-400 font-bold">
+                        <td colSpan="13" className="py-8 text-center text-slate-400 font-bold">
                           Kriterlere uygun kayıtlı rezervasyon bulunamadı.
                         </td>
                       </tr>
@@ -3893,6 +3914,7 @@ function ReservationsListComponent({
                                   </span>
                                 )}
                               </td>
+                              <td className="py-3.5 px-3 text-[11px] font-bold text-slate-600 dark:text-gray-300 whitespace-nowrap">{res.leadSource || '—'}</td>
                               <td className="py-3.5 px-3 text-right">
                                 <div className="flex items-center justify-end space-x-1">
                                   {reservationViewTab === 'completed' && (
@@ -15990,6 +16012,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
         }
 
         setReferrerName(resObj.referrerName || resObj.referrer_name || '');
+        setLeadSource(resObj.leadSource || resObj.lead_source || '');
         setCampaignCode(resObj.campaignCode || resObj.campaign_code || '');
         if (resObj.dipDiscountType || resObj.dip_discount_type) {
           setDipDiscountType(resObj.dipDiscountType || resObj.dip_discount_type);
@@ -16300,6 +16323,7 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
 
       // 4. Financials, Referrer, Deposit & Promo (DEFAULT HASDEPOSIT TO FALSE)
       const [referrerName, setReferrerName] = useState('');
+      const [leadSource, setLeadSource] = useState('');
       const [campaignCode, setCampaignCode] = useState('');
       const [hasDeposit, setHasDeposit] = useState(false); // Default: Hayır
       const [depositPaid, setDepositPaid] = useState(''); // Default: Empty string
@@ -16530,6 +16554,11 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           return;
         }
 
+        if (!leadSource) {
+          showAlertModal('NEREDEN DUYDUNUZ?', 'Müşteriye bizi nereden duyduğunu sorun ve bir seçenek işaretleyin. Reklam takibi için zorunludur.', 'lead-source-select');
+          return;
+        }
+
         // Prevent Negative Deposit
         if (Number(depositPaid) < 0) {
           showAlertModal('GEÇERSİZ KAPORA', 'Kapora miktarı negatif olamaz! Lütfen 0 veya pozitif bir tutar giriniz.', 'deposit-paid-input');
@@ -16627,6 +16656,8 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
           dipDiscountType: dipDiscountType,
           subtotal: calculations.sub,
           campaignCode,
+          referrerName,
+          leadSource,
           discountAmount: calculations.disc,
           vatAmount: calculations.vat,
           totalAmount: calculations.grandTotal,
@@ -17505,6 +17536,19 @@ function MediaComponent({ reservations = [], setReservations = () => {}, activeR
                 <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-brand-border pb-3">
                   <svg className="w-5 h-5 text-slate-700 dark:text-gray-300 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <h3 className="font-heading font-bold text-base sm:text-lg text-slate-800 dark:text-gray-100">3. Ödeme, Kapora & İndirim Kodu Bilgileri</h3>
+                </div>
+
+                <div className="text-xs">
+                  <label className="font-bold block mb-1">Bizi nereden duydunuz? <span className="text-red-500">*</span></label>
+                  <select
+                    id="lead-source-select"
+                    value={leadSource}
+                    onChange={e => setLeadSource(e.target.value)}
+                    className={`w-full bg-slate-50 dark:bg-brand-dark border rounded-xl p-2.5 font-bold text-slate-800 dark:text-gray-200 ${leadSource ? 'border-slate-200 dark:border-brand-border' : 'border-red-400'}`}
+                  >
+                    <option value="">Seçiniz…</option>
+                    {LEAD_SOURCES.map(src => <option key={src} value={src}>{src}</option>)}
+                  </select>
                 </div>
 
                 <div className="text-xs">

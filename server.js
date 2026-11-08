@@ -558,6 +558,7 @@ const initMysql = async () => {
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS end_time VARCHAR(20)"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS custom_venue_price DECIMAL(12,2)"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS referrer_name VARCHAR(150)"); } catch(e){}
+      try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS lead_source VARCHAR(50)"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS dip_discount_type VARCHAR(50)"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS tc_no VARCHAR(20)"); } catch(e){}
       try { await pool.query("ALTER TABLE reservations ADD COLUMN IF NOT EXISTS vkn_no VARCHAR(20)"); } catch(e){}
@@ -2054,6 +2055,7 @@ app.get('/api/reservations', async (req, res) => {
           customVenuePrice: Number(r.custom_venue_price !== null && r.custom_venue_price !== undefined && Number(r.custom_venue_price) > 0 ? r.custom_venue_price : (r.venue_price || detailsObj.customVenuePrice || detailsObj.venuePrice || 0)),
           subtotal: Number(r.subtotal !== null && r.subtotal !== undefined && Number(r.subtotal) > 0 ? r.subtotal : (detailsObj.subtotal || r.venue_price || r.custom_venue_price || 0)),
           referrerName: r.referrer_name || detailsObj.referrerName || '',
+          leadSource: r.lead_source || detailsObj.leadSource || '',
           campaignCode: r.campaign_code || detailsObj.campaignCode || '',
           discountAmount: Number(r.discount_amount || detailsObj.discountAmount || 0),
           dipDiscountType: r.dip_discount_type || detailsObj.dipDiscountType || 'amount',
@@ -2179,6 +2181,7 @@ app.get('/api/reservations/:id', async (req, res) => {
           mediaFiles: parsedMedia.length > 0 ? parsedMedia : (detailsObj.mediaFiles || []),
           notesHistory: detailsObj.notesHistory || [],
           referrerName: r.referrer_name || detailsObj.referrerName || '',
+          leadSource: r.lead_source || detailsObj.leadSource || '',
           created_at: r.created_at,
           createdAt: r.created_at
         });
@@ -2260,7 +2263,7 @@ app.post('/api/reservations', async (req, res) => {
       const cols = [
         'id', 'venue_id', 'event_type_id', 'event_type_name', 'customer_id', 'customer_name', 'customer_email', 'customer_phone', 'secondary_phone',
         'event_date', 'end_date', 'start_time', 'end_time', 'time_slot', 'guest_count',
-        'venue_price', 'custom_venue_price', 'subtotal', 'referrer_name', 'campaign_code',
+        'venue_price', 'custom_venue_price', 'subtotal', 'referrer_name', 'lead_source', 'campaign_code',
         'discount_amount', 'dip_discount_type', 'vat_amount', 'total_amount', 'deposit_paid', 'remaining_balance',
         'payment_status', 'is_invoiced', 'invoice_type', 'tc_no', 'vkn_no', 'tax_office', 'invoice_address',
         'notes', 'flow_plan_json', 'selected_services_json', 'details_json', 'status'
@@ -2273,7 +2276,7 @@ app.post('/api/reservations', async (req, res) => {
         item.id, item.venueId || 'v1', evTypeId, evTypeName, custId, item.customerName || '', item.customerEmail || '', item.customerPhone || '', item.secondaryPhone || '',
         eventDate, endDate, startTime, endTime, timeSlot, Number(item.guestCount || 0),
         Number(item.venuePrice || 0), Number(item.customVenuePrice || item.venuePrice || 0), Number(item.subtotal || 0),
-        item.referrerName || '', item.campaignCode || '', Number(item.discountAmount || 0), item.dipDiscountType || 'amount',
+        item.referrerName || '', item.leadSource || '', item.campaignCode || '', Number(item.discountAmount || 0), item.dipDiscountType || 'amount',
         Number(item.vatAmount || 0), Number(item.totalAmount || 0), Number(item.depositPaid || 0), Number(item.remainingBalance || 0),
         item.paymentStatus || 'Kapora Alındı', item.isInvoiced ? 1 : 0, item.invoiceType || 'individual',
         item.tcNo || '', item.vknNo || '', item.taxOffice || '', item.invoiceAddress || '',
