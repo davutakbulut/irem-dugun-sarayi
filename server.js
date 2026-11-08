@@ -3126,6 +3126,65 @@ app.get('/api/health', (req, res) => {
 });
 
 // -------------------------------------------------------------
+// GERÇEK MÜŞTERİ YORUMLARI: Google (Places API) + dugun.com (JSON-LD), 12 saat önbellek
+// Google için .env: GOOGLE_PLACES_API_KEY (yoksa yalnız dugun.com gelir)
+// -------------------------------------------------------------
+const REVIEW_SOURCES = {
+  googlePlaceId: process.env.GOOGLE_PLACE_ID || 'ChIJw4PffgCxzBQRWg5olYV29nA',
+  dugunUrl: 'https://dugun.com/dugun-salonlari/sakarya/irem-dugun-sarayi'
+};
+let reviewCache = { at: 0, data: null };
+
+async function fetchGoogleReviews() {
+  const key = process.env.GOOGLE_PLACES_API_KEY;
+  if (!key) return null;
+  const r = await fetch(`https://places.googleapis.com/v1/places/${REVIEW_SOURCES.googlePlaceId}?languageCode=tr`, {
+    headers: { 'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'rating,userRatingCount,reviews,googleMapsUri' }
+  });
+  if (!r.ok) throw new Error(`Google Places ${r.status}`);
+  const p = await r.json();
+  return {
+    summary: { platform: 'Google', rating: p.rating, count: p.userRatingCount, url: p.googleMapsUri },
+    reviews: (p.reviews || []).map((v, i) => ({
+      id: `g-${i}`, platform: 'Google', rating: v.rating,
+      name: v.authorAttribution?.displayName || 'Google kullanıcısı',
+      avatar: v.authorAttribution?.photoUri || null,
+      date: v.publishTime ? v.publishTime.slice(0, 10) : null,
+      comment: v.text?.text || v.originalText?.text || '',
+      url: v.authorAttribution?.uri || p.googleMapsUri
+    }))
+  };
+}
+
+async function fetchDugunReviews() {
+  const html = await (await fetch(REVIEW_SOURCES.dugunUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })).text();
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
+  const find = o => (!o || typeof o !== 'object') ? null : (o.review ? o : Object.values(o).map(find).find(Boolean) || null);
+  const biz = blocks.map(find).find(Boolean);
+  if (!biz) return null;
+  return {
+    summary: { platform: 'dugun.com', rating: biz.aggregateRating?.ratingValue, count: biz.aggregateRating?.reviewCount, url: REVIEW_SOURCES.dugunUrl },
+    reviews: [].concat(biz.review).map((v, i) => ({
+      id: `d-${i}`, platform: 'dugun.com', rating: v.reviewRating?.ratingValue,
+      name: v.author?.name || 'dugun.com kullanıcısı', avatar: null,
+      date: v.datePublished ? v.datePublished.slice(0, 10) : null,
+      comment: v.reviewBody || v.description || '', url: REVIEW_SOURCES.dugunUrl
+    }))
+  };
+}
+
+app.get('/api/reviews', async (req, res) => {
+  if (reviewCache.data && Date.now() - reviewCache.at < 12 * 3600 * 1000) return res.json(reviewCache.data);
+  const results = await Promise.allSettled([fetchGoogleReviews(), fetchDugunReviews()]);
+  results.filter(r => r.status === 'rejected').forEach(r => console.error('Yorum kaynağı hatası:', r.reason?.message));
+  const ok = results.filter(r => r.status === 'fulfilled' && r.value).map(r => r.value);
+  const data = { summary: ok.map(s => s.summary), reviews: ok.flatMap(s => s.reviews).filter(v => v.comment.trim()) };
+  // Kaynak hatasında eski önbellek korunur; boş sonuç önbelleğe yazılmaz
+  if (data.reviews.length) reviewCache = { at: Date.now(), data };
+  res.json(data.reviews.length ? data : (reviewCache.data || data));
+});
+
+// -------------------------------------------------------------
 // 12. ŞİRKET BİLGİLERİ VE RESMİ SÖZLEŞME METİNLERİ ENDPOINTS
 // -------------------------------------------------------------
 app.get('/api/company-settings', async (req, res) => {

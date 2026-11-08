@@ -336,104 +336,6 @@
       );
     };
 
-    // --- VERIFIED PLATFORM REVIEWS DATA ---
-    const REVIEWS = [
-      {
-        id: 'rev-1',
-        name: 'Zeynep & Caner Öztürk',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        salon: 'Kraliyet Balo Salonu',
-        date: '14 Temmuz 2026',
-        rating: 5,
-        source: {
-          platform: 'Düğün.com',
-          badgeText: 'Düğün.com Onaylı Çift',
-          color: 'bg-rose-50 text-rose-700 border-rose-200',
-          dotColor: 'bg-rose-500',
-          iconType: 'dugun'
-        },
-        verified: true,
-        verifiedText: 'Doğrulanmış Rezervasyon',
-        title: '“Rüya Gibi Bir Düğün & Kusursuz Hizmet”',
-        comment: 'Hayatımızın en güzel gününü İrem Düğün Sarayı’nda yaşadık. Salonun ihtişamı, kristal avizelerin büyüsü ve yemeklerin sıcaklığı kusursuzdu. Her anımızda yanımızda olan düğün koordinatörümüze sonsuz teşekkürler!'
-      },
-      {
-        id: 'rev-2',
-        name: 'Büşra & Mehmet Demir',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-        salon: 'Safir Balo Salonu',
-        date: '28 Haziran 2026',
-        rating: 5,
-        source: {
-          platform: 'Google Haritalar',
-          badgeText: 'Google 5.0 ★ Onaylı',
-          color: 'bg-sky-50 text-sky-700 border-sky-200',
-          dotColor: 'bg-sky-500',
-          iconType: 'google'
-        },
-        verified: true,
-        verifiedText: 'Onaylı Ziyaretçi Değerlendirmesi',
-        title: '“Arifiye’de Masalsı Bir Düğün Gecesi”',
-        comment: 'Arifiye’deki balo salonunun atmosferi ve fotoğraflarımız masal gibi oldu. Müzik orkestrası, şeflerin özenle hazırladığı sıcak ordövrler ve lazer şovları misafirlerimizden tam not aldı. Sakarya’nın 1 numaralı mekanı.'
-      },
-      {
-        id: 'rev-3',
-        name: 'Selin & Ahmet Yılmaz',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-        salon: 'Kraliyet Balo Salonu',
-        date: '18 Mayıs 2026',
-        rating: 5,
-        source: {
-          platform: 'Yandex Haritalar',
-          badgeText: 'Yandex Maps Doğrulanmış',
-          color: 'bg-amber-50 text-amber-800 border-amber-200',
-          dotColor: 'bg-amber-500',
-          iconType: 'yandex'
-        },
-        verified: true,
-        verifiedText: 'Doğrulanmış Müşteri İncelemesi',
-        title: '“Misafirperverlik ve Lezzet Zirvede”',
-        comment: 'Nişan ve düğünümüzü burada yaptık. 700 kişilik davetli grubumuz olmasına rağmen hiçbir aksama yaşanmadı. Otopark vale hizmeti ve gelin odası konforu harikaydı. Teşekkürler İrem Ailesi!'
-      },
-      {
-        id: 'rev-4',
-        name: 'Elif & Burak Kaya',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-        salon: 'Kraliyet Balo Salonu',
-        date: '02 Ağustos 2026',
-        rating: 5,
-        source: {
-          platform: 'Düğün.com',
-          badgeText: 'Düğün.com Çift Ödülü',
-          color: 'bg-rose-50 text-rose-700 border-rose-200',
-          dotColor: 'bg-rose-500',
-          iconType: 'dugun'
-        },
-        verified: true,
-        verifiedText: 'Doğrulanmış Gerçek Düğün',
-        title: '“Hayallerimizin Çok Ötesinde Bir Organizasyon”',
-        comment: 'Gelin odasındaki VIP ikramlardan çıkıştaki volkan ve şampanya seremonisine kadar her an büyüleyiciydi. Ses akustiği ve pist genişliği sayesinde herkes doyasıya eğlendi. Gönül rahatlığıyla tavsiye ederiz.'
-      },
-      {
-        id: 'rev-5',
-        name: 'Damla & Emre Şahin',
-        avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80',
-        salon: 'Kraliyet Balo Salonu',
-        date: '22 Temmuz 2026',
-        rating: 5,
-        source: {
-          platform: 'Google Haritalar',
-          badgeText: 'Google Doğrulanmış Çift',
-          color: 'bg-sky-50 text-sky-700 border-sky-200',
-          dotColor: 'bg-sky-500',
-          iconType: 'google'
-        },
-        verified: true,
-        verifiedText: 'Onaylı Google Yorumu',
-        title: '“Profesyonel Kadro & Büyüleyici Atmosfer”',
-        comment: 'İrem Düğün Sarayı yönetimine ve servis personeline ne kadar teşekkür etsek az. En ince ayrıntısına kadar planlanan düğünümüz sıfır stresle geçti. Herkes hayran kaldı!'
-      }
-    ];
     const MAIN_VENUE = {
       id: 'v-kraliyet',
       name: 'İrem Kraliyet Balo Salonu',
@@ -934,6 +836,12 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
       const [activeHall360, setActiveHall360] = useState('kraliyet');
       const [activeVenuePhoto, setActiveVenuePhoto] = useState(0);
       const [activeReviewIndex, setActiveReviewIndex] = useState(0);
+      // Gerçek yorumlar sunucudan (Google + dugun.com); sabit/uydurma yorum yok
+      const [REVIEWS, setReviews] = useState([]);
+      const [reviewSummary, setReviewSummary] = useState([]);
+      useEffect(() => {
+        fetch('/api/reviews').then(r => r.json()).then(d => { setReviews(d.reviews || []); setReviewSummary(d.summary || []); }).catch(() => {});
+      }, []);
       const [activeGalleryFilter, setActiveGalleryFilter] = useState('all');
       const [lightboxImage, setLightboxImage] = useState(null);
       const [activeBlogCategory, setActiveBlogCategory] = useState('all');
@@ -2693,7 +2601,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                 {/* ------------------------------------------------------------------- */}
                 {/* 2.9 MÜŞTERİ YORUMLARI (TOUCH-ENABLED 3D COVERFLOW MOTION CAROUSEL)  */}
                 {/* ------------------------------------------------------------------- */}
-                <section className="py-24 bg-[#FAF9F6] border-t border-slate-200 overflow-hidden select-none">
+                {REVIEWS.length > 0 && <section className="py-24 bg-[#FAF9F6] border-t border-slate-200 overflow-hidden select-none">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     
                     {/* Section Title & Ratings Summary */}
@@ -2704,14 +2612,19 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                             <Icon key={i} name="star" className="w-4 h-4" />
                           ))}
                         </div>
-                        <span className="text-xs font-black text-slate-800 tracking-wider">5.0 / 5.0 (480+ Gerçek Çift Yorumu)</span>
+                        <span className="text-xs font-black text-slate-800 tracking-wider">
+                          {reviewSummary.map(s => `${s.platform} ${Number(s.rating).toFixed(1).replace('.', ',')} (${s.count} yorum)`).join(' · ')}
+                        </span>
                       </div>
                       
                       <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                         Mutlu Çiftlerimizin Değerlendirmeleri
                       </h2>
                       <p className="text-slate-600 text-xs sm:text-sm">
-                        Düğün.com, Google ve Yandex platformlarında onaylanmış ve doğrulanmış gerçek gelin & damat deneyimleri.
+                        Yorumlar kaynağından olduğu gibi alınır:{' '}
+                        {reviewSummary.map((s, i) => (
+                          <span key={s.platform}>{i > 0 && ' ve '}<a href={s.url} target="_blank" rel="noopener noreferrer" className="underline text-[#8C6D33]">{s.platform}</a></span>
+                        ))}.
                       </p>
                     </div>
 
@@ -2805,21 +2718,15 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E3D3B5]/50 pb-3.5">
                                 <div className="flex items-center space-x-2">
                                   {/* Platform Pill */}
-                                  <span className={`inline-flex items-center space-x-1.5 text-xs font-black px-3 py-1 rounded-full border shadow-xs ${rev.source.color}`}>
-                                    <span className={`w-2 h-2 rounded-full ${rev.source.dotColor} animate-pulse`}></span>
-                                    <span>{rev.source.badgeText}</span>
-                                  </span>
-
-                                  {/* Verified Badge */}
-                                  <span className="inline-flex items-center space-x-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
-                                    <Icon name="badgeCheck" className="w-3.5 h-3.5 text-emerald-600" />
-                                    <span>{rev.verifiedText}</span>
+                                  <span className={`inline-flex items-center space-x-1.5 text-xs font-black px-3 py-1 rounded-full border shadow-xs ${rev.platform === 'Google' ? 'bg-sky-50 text-sky-700 border-sky-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                                    <span className={`w-2 h-2 rounded-full ${rev.platform === 'Google' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
+                                    <span>{rev.platform} yorumu</span>
                                   </span>
                                 </div>
 
                                 {/* Stars */}
                                 <div className="flex text-[#C5A059]">
-                                  {[...Array(rev.rating)].map((_, i) => (
+                                  {[...Array(Math.round(rev.rating || 0))].map((_, i) => (
                                     <Icon key={i} name="star" className="w-4 h-4" />
                                   ))}
                                 </div>
@@ -2827,9 +2734,6 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
 
                               {/* Review Content */}
                               <div className="space-y-2.5">
-                                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 leading-snug">
-                                  {rev.title}
-                                </h3>
                                 <p className="text-slate-700 text-xs sm:text-sm italic leading-relaxed">
                                   "{rev.comment}"
                                 </p>
@@ -2838,27 +2742,22 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                               {/* Bottom Details: Couple, Salon & Date */}
                               <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
-                                  <img 
-                                    src={rev.avatar} 
-                                    alt={rev.name} 
-                                    className="w-11 h-11 rounded-full object-cover border-2 border-[#C5A059] shadow-sm shrink-0"
-                                  />
-                                  <div>
-                                    <div className="font-black text-sm text-slate-900 flex items-center space-x-1.5">
-                                      <span>{rev.name}</span>
-                                      <span className="text-[#C5A059]" title="Doğrulanmış Çift">✓</span>
-                                    </div>
-                                    <div className="text-xs text-[#8C6D33] font-bold">
-                                      🏛️ {rev.salon}
-                                    </div>
-                                  </div>
+                                  {rev.avatar && (
+                                    <img 
+                                      src={rev.avatar} 
+                                      alt={rev.name} 
+                                      referrerPolicy="no-referrer"
+                                      className="w-11 h-11 rounded-full object-cover border-2 border-[#C5A059] shadow-sm shrink-0"
+                                    />
+                                  )}
+                                  <div className="font-black text-sm text-slate-900">{rev.name}</div>
                                 </div>
 
                                 <div className="text-right">
-                                  <span className="text-xs font-semibold text-slate-400 block">{rev.date}</span>
-                                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-200 mt-0.5 inline-block">
-                                    ✓ Onaylı Deneyim
-                                  </span>
+                                  {rev.date && <span className="text-xs font-semibold text-slate-400 block">{new Date(rev.date).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' })}</span>}
+                                  <a href={rev.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-[10px] font-extrabold text-[#8C6D33] underline">
+                                    {rev.platform}'da gör
+                                  </a>
                                 </div>
                               </div>
                             </div>
@@ -2885,7 +2784,7 @@ Dans provası yaparken gelinliğin etek boyunu ve ayakkabı yüksekliğini mutla
                     </div>
 
                   </div>
-                </section>
+                </section>}
 
               </div>
             )}
