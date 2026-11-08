@@ -27088,6 +27088,20 @@ const E2E_WORKFLOWS = [
         fetchPublicSettingsFromDB();
       }, []);
 
+      const [reviewsRefreshing, setReviewsRefreshing] = useState(false);
+      // Sitedeki Google + dugun.com yorumlarını yalnız bu düğmeyle yeniler
+      const handleRefreshReviews = async () => {
+        setReviewsRefreshing(true);
+        try {
+          const res = await fetch('/api/reviews/refresh', { method: 'POST' });
+          const d = await res.json();
+          if (showToast) showToast(d.message || (res.ok ? 'Yorumlar güncellendi.' : 'Yorumlar güncellenemedi.'), res.ok ? 'success' : 'error');
+        } catch (e) {
+          if (showToast) showToast('Yorumlar güncellenirken bağlantı hatası oluştu.', 'error');
+        }
+        setReviewsRefreshing(false);
+      };
+
       const handleSavePublicSettings = async () => {
         const payload = {
           publicTheme: publicTheme,
@@ -27572,7 +27586,15 @@ const E2E_WORKFLOWS = [
                 </div>
 
                 {/* SAVE BUTTON */}
-                <div className="pt-4 flex justify-end">
+                <div className="pt-4 flex flex-wrap justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleRefreshReviews}
+                    disabled={reviewsRefreshing}
+                    className="px-6 py-3 rounded-xl font-bold text-xs border border-amber-500/40 text-slate-800 dark:text-gray-200 hover:bg-amber-500/10 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {reviewsRefreshing ? 'Yorumlar çekiliyor…' : 'Google & dugun.com Yorumlarını Güncelle'}
+                  </button>
                   <button
                     type="button"
                     onClick={handleSavePublicSettings}

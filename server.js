@@ -3126,7 +3126,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // -------------------------------------------------------------
-// GERÇEK MÜŞTERİ YORUMLARI: Google (Places API) + dugun.com (JSON-LD), 12 saat önbellek
+// GERÇEK MÜŞTERİ YORUMLARI: Google (Places API) + dugun.com (JSON-LD), elle güncellenir
 // Google için .env: GOOGLE_PLACES_API_KEY (yoksa yalnız dugun.com gelir)
 // -------------------------------------------------------------
 const REVIEW_SOURCES = {
@@ -3173,19 +3173,57 @@ async function fetchDugunReviews() {
   };
 }
 
-app.get('/api/reviews', async (req, res) => {
-  if (reviewCache.data && Date.now() - reviewCache.at < 12 * 3600 * 1000) return res.json(reviewCache.data);
+// Yorumlar bir kez çekilir ve DB'ye (system_settings id=2) kaydedilir; yalnız yönetim panelindeki düğmeyle yenilenir
+async function collectReviews() {
   const results = await Promise.allSettled([fetchGoogleReviews(), fetchDugunReviews()]);
-  results.filter(r => r.status === 'rejected').forEach(r => console.error('Yorum kaynağı hatası:', r.reason?.message));
+  const errors = results.filter(r => r.status === 'rejected').map(r => r.reason?.message);
+  errors.forEach(m => console.error('Yorum kaynağı hatası:', m));
   const ok = results.filter(r => r.status === 'fulfilled' && r.value).map(r => r.value);
   // Kaynaklar sırayla karışık dizilir: Google, dugun.com, Google, dugun.com...
   const lists = ok.map(s => s.reviews.filter(v => v.comment.trim()));
   const mixed = [];
   for (let i = 0; i < Math.max(0, ...lists.map(l => l.length)); i++) lists.forEach(l => l[i] && mixed.push(l[i]));
-  const data = { summary: ok.map(s => s.summary), reviews: mixed };
-  // Kaynak hatasında eski önbellek korunur; boş sonuç önbelleğe yazılmaz
-  if (data.reviews.length) reviewCache = { at: Date.now(), data };
-  res.json(data.reviews.length ? data : (reviewCache.data || data));
+  return { data: { summary: ok.map(s => s.summary), reviews: mixed, updatedAt: new Date().toISOString() }, errors };
+}
+
+async function saveReviews(data) {
+  reviewCache = { at: Date.now(), data };
+  const activePool = await getPool();
+  if (activePool) {
+    await activePool.query(
+      'INSERT INTO system_settings (id, settings_json) VALUES (2, ?) ON DUPLICATE KEY UPDATE settings_json = ?',
+      [JSON.stringify(data), JSON.stringify(data)]
+    ).catch(e => console.error('Yorum kaydı hatası:', e.message));
+  }
+}
+
+app.get('/api/reviews', async (req, res) => {
+  if (!reviewCache.data) {
+    const activePool = await getPool();
+    if (activePool) {
+      const [rows] = await activePool.query('SELECT settings_json FROM system_settings WHERE id = 2').catch(() => [[]]);
+      if (rows[0]) reviewCache = { at: Date.now(), data: JSON.parse(rows[0].settings_json) };
+    }
+  }
+  // İlk kurulumda kayıt yoksa bir kez çekilir
+  if (!reviewCache.data) {
+    const { data } = await collectReviews();
+    if (data.reviews.length) await saveReviews(data);
+    return res.json(data);
+  }
+  res.json(reviewCache.data);
+});
+
+app.post('/api/reviews/refresh', async (req, res) => {
+  // Kötüye kullanıma karşı: 10 dakikada en çok bir yenileme (Google ücret kotası)
+  if (reviewCache.refreshedAt && Date.now() - reviewCache.refreshedAt < 10 * 60 * 1000) {
+    return res.status(429).json({ success: false, message: 'Yorumlar az önce güncellendi. 10 dakika sonra tekrar deneyin.', ...reviewCache.data });
+  }
+  const { data, errors } = await collectReviews();
+  if (!data.reviews.length) return res.status(502).json({ success: false, message: 'Hiçbir kaynaktan yorum alınamadı; eski yorumlar korundu.', errors });
+  await saveReviews(data);
+  reviewCache.refreshedAt = Date.now();
+  res.json({ success: true, message: `${data.reviews.length} yorum güncellendi.`, errors, ...data });
 });
 
 // -------------------------------------------------------------
